@@ -1,5 +1,4 @@
 import React from "react";
-import { ContentBlock } from "../../components/ContentBlock/ContentBlock";
 import { LeftMain } from "../LeftMain/LeftMain";
 import { RightMain } from "../RightMain/RightMain";
 
