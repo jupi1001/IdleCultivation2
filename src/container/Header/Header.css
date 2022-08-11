@@ -1,0 +1,37 @@
+.app__header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: cadetblue;
+
+  padding: 1rem 2rem;
+}
+
+.app__header-logo {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.app__header-logo img {
+  height: 50px;
+}
+
+.app__header-links {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  list-style: none;
+}
+
+.app__header-links li {
+  margin: 0 1rem;
+  cursor: pointer;
+}
+
+.app__header-links li:hover {
+  color: grey;
+}
