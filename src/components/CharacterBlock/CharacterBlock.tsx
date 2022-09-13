@@ -1,15 +1,20 @@
 import React from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../state/store";
 import "./CharacterBlock.css";
 
 export const CharacterBlock = () => {
+  const character = useSelector((state: RootState) => state.character);
+
   return (
     <div className="app__characterBlock">
-      <h2>Name : Franz</h2>
+      <h2>Name : {character.name}</h2>
       <div className="app__characterBlock-items">
         <ul>
-          <li>Attack: 0</li>
-          <li>Defense: 0</li>
+          <li>Attack: {character.attack}</li>
+          <li>Defense: {character.defense}</li>
           <li>Speed: 0</li>
+          <li>Money: {character.money}</li>
         </ul>
       </div>
     </div>

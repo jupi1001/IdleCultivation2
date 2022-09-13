@@ -1,10 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../state/store";
+import { changeContent } from "../../state/reducers/contentSlice";
 import "./Header.css";
 
 export const Header = () => {
+  const [page, setPage] = useState("Main");
+
+  const content = useSelector((state: RootState) => state.content);
+  const dispatch = useDispatch();
+
+  const openMap = () => {
+    dispatch(changeContent("Main"));
+    console.log("Map open");
+  };
+
   const openShop = () => {
-    //State to toogle display?
+    dispatch(changeContent("Shop"));
     console.log("Shop open");
+  };
+
+  const openInv = () => {
+    dispatch(changeContent("Inventory"));
+    console.log("Inventory open");
   };
 
   return (
@@ -14,10 +32,13 @@ export const Header = () => {
       </div>
       <ul className="app__header-links">
         <li>
+          <button onClick={() => openMap()}>Map</button>
+        </li>
+        <li>
           <button onClick={() => openShop()}>Shop</button>
         </li>
         <li>
-          <a href="#Inventory">Inventory</a>
+          <button onClick={() => openInv()}>Inventory</button>
         </li>
       </ul>
     </nav>

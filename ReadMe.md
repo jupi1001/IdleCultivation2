@@ -1,3 +1,3 @@
 TODO:
-Shop -> Upgrades -> State management(Redux?)
+Shop -> Upgrades
 Attack wird erhöht nach upgrade
