@@ -6,8 +6,13 @@ export const Map = () => {
   };
 
   return (
-    <div className="app__main-img">
-      <img src="https://www.nationsonline.org/maps/china_provinces_map1200.jpg" alt="Map" useMap="#workmap" />
+    <div>
+      <img
+        width="600px"
+        src="https://www.nationsonline.org/maps/china_provinces_map1200.jpg"
+        alt="Map"
+        useMap="#workmap"
+      />
       <map id="workmap" name="workmap">
         <area
           shape="rect"

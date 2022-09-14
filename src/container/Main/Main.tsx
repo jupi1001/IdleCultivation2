@@ -16,9 +16,12 @@ export const Main = () => {
       <div className="app__main-left">
         <LeftMain />
       </div>
-      {content === "Main" && <Map />}
-      {content === "Shop" && <Shop />}
-      {content === "Inventory" && <Inventory />}
+      <div className="app__main-content">
+        {content === "Main" && <Map />}
+        {content === "Shop" && <Shop />}
+        {content === "Inventory" && <Inventory />}
+      </div>
+
       <div className="app__main-right">
         <RightMain />
       </div>

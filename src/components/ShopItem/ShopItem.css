@@ -1,0 +1,11 @@
+.shopitem__main {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  border: 1px purple;
+  border-style: solid;
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem;
+}
