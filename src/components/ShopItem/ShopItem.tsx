@@ -28,6 +28,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item }) => {
     if (character.money >= cost) {
       dispatch(addDefense(amount));
       dispatch(reduceMoney(cost));
+      setMoneyMessage("hidden");
     } else {
       setMoneyMessage("show");
     }
@@ -37,6 +38,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item }) => {
     <div className="shopitem__main">
       <h3>{item.name}</h3>
       <p>{item.description}</p>
+      <p>Cost: {item.price}</p>
       {/* 
       Dumb check if it is attack or defensive item
        id < 100 => attack otherwise defense 

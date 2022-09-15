@@ -6,7 +6,7 @@ interface ContentState {
 }
 
 const initialState: ContentState = {
-  page: "Main",
+  page: "Map",
 };
 
 export const contentSlice = createSlice({
