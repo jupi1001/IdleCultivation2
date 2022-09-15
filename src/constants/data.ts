@@ -1,4 +1,5 @@
 import Item from "../interfaces/ItemI";
+import SkillI from "../interfaces/SkillI";
 
 export const existingShopItems: Item[] = [
   {
@@ -25,4 +26,9 @@ export const existingShopItems: Item[] = [
     picture: "https://www.pokewiki.de/images/thumb/7/72/Sugimori_386.png/250px-Sugimori_386.png",
     quantity: 1,
   },
+];
+
+export const existingSkills: SkillI[] = [
+  { id: 1, name: "Combat", description: "Train combat" },
+  { id: 2, name: "Money", description: "Make money" },
 ];

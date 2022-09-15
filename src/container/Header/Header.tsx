@@ -5,24 +5,11 @@ import { changeContent } from "../../state/reducers/contentSlice";
 import "./Header.css";
 
 export const Header = () => {
-  const [page, setPage] = useState("Main");
-
-  const content = useSelector((state: RootState) => state.content);
+  //const content = useSelector((state: RootState) => state.content);
   const dispatch = useDispatch();
 
-  const openMap = () => {
-    dispatch(changeContent("Main"));
-    console.log("Map open");
-  };
-
-  const openShop = () => {
-    dispatch(changeContent("Shop"));
-    console.log("Shop open");
-  };
-
-  const openInv = () => {
-    dispatch(changeContent("Inventory"));
-    console.log("Inventory open");
+  const openContent = (input: string) => {
+    dispatch(changeContent(input));
   };
 
   return (
@@ -32,13 +19,13 @@ export const Header = () => {
       </div>
       <ul className="app__header-links">
         <li>
-          <button onClick={() => openMap()}>Map</button>
+          <button onClick={() => openContent("Map")}>Map</button>
         </li>
         <li>
-          <button onClick={() => openShop()}>Shop</button>
+          <button onClick={() => openContent("Shop")}>Shop</button>
         </li>
         <li>
-          <button onClick={() => openInv()}>Inventory</button>
+          <button onClick={() => openContent("Inventory")}>Inventory</button>
         </li>
       </ul>
     </nav>
