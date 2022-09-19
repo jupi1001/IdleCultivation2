@@ -35,7 +35,7 @@ export const Main = () => {
         {content === "Map" && <Map />}
         {content === "Shop" && <Shop />}
         {content === "Inventory" && <Inventory />}
-        {content === "Combat" && <CombatContainer />}
+        {content.split(",").shift() === "Combat" && <CombatContainer area={content.split(",").pop()} />}
         {content === "Money" && <MoneyContainer />}
       </div>
 

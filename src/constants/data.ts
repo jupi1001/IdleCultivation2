@@ -1,5 +1,7 @@
+import EnemyI from "../interfaces/EnemyI";
 import Item from "../interfaces/ItemI";
 import SkillI from "../interfaces/SkillI";
+import images from "./images";
 
 export const existingShopItemUpgrades: Item[] = [
   {
@@ -54,4 +56,16 @@ export const existingShopItems: Item[] = [
 export const existingSkills: SkillI[] = [
   { id: 1, name: "Combat", description: "Train combat" },
   { id: 2, name: "Money", description: "Make money" },
+];
+
+export const enemies: EnemyI[] = [
+  {
+    id: 1,
+    name: "Chicken",
+    attack: 1,
+    defense: 1,
+    health: 10,
+    picture: images.chicken,
+    loot: { items: new Array(existingShopItems[0]), weight: [1] },
+  },
 ];

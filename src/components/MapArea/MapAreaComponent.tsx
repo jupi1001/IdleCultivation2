@@ -13,14 +13,14 @@ const MapAreaComponent: React.FC<MapAreaProps> = ({ image, text, information }) 
   const dispatch = useDispatch();
 
   const handleOnClick = (areaName: string) => {
-    //TODO go to combat with area
-    //Maybe redux slice => currentArea? and fetch it in the combat container
-    dispatch(changeContent("Combat"));
+    dispatch(changeContent("Combat," + areaName));
   };
 
   return (
-    <div>
-      <img src={image} alt={text} onClick={() => handleOnClick(text)} />
+    <div className="mapAreaComponent__main">
+      <h4>{text}</h4>
+      <img className="mapAreaComponent__main-image" src={image} alt={text} onClick={() => handleOnClick(text)} />
+      <p>{information}</p>
     </div>
   );
 };
