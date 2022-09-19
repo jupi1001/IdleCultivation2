@@ -1,4 +1,15 @@
 .shop__main {
+  display: block;
+}
+.shop__main-upgrades {
   display: flex;
   flex-direction: row;
+  align-content: center;
+  justify-content: center;
+}
+
+.shop__main-items {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }

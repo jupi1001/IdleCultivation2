@@ -1,7 +1,7 @@
 import Item from "../interfaces/ItemI";
 import SkillI from "../interfaces/SkillI";
 
-export const existingShopItems: Item[] = [
+export const existingShopItemUpgrades: Item[] = [
   {
     id: 1,
     name: "Wooden Sword",
@@ -25,6 +25,29 @@ export const existingShopItems: Item[] = [
     price: 10000,
     picture: "https://www.pokewiki.de/images/thumb/7/72/Sugimori_386.png/250px-Sugimori_386.png",
     quantity: 1,
+  },
+];
+
+export const existingShopItems: Item[] = [
+  {
+    id: 200,
+    name: "Qi Pill",
+    description: "Pill containing a bit of qi",
+    price: 10,
+    quantity: 1,
+    picture: "",
+    value: 1,
+    effect: "attack",
+  },
+  {
+    id: 201,
+    name: "Foundation Pill",
+    description: "Pill containing a bit of qi",
+    price: 100,
+    quantity: 1,
+    picture: "",
+    value: 10,
+    effect: "attack",
   },
 ];
 

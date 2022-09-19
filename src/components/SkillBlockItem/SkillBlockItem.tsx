@@ -12,6 +12,12 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
   const dispatch = useDispatch();
 
   const openSkill = (input: string) => {
+    //Special routing for combat, since you need to enter via the map
+    if (input === "Combat") {
+      dispatch(changeContent("Map"));
+      return;
+    }
+    //Normal routing
     dispatch(changeContent(input));
   };
 

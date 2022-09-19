@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { addMoney } from "../../state/reducers/characterSlice";
+import { addMoney, addMiner } from "../../state/reducers/characterSlice";
 import "./MoneyContainer.css";
 
 const MoneyContainer = () => {
@@ -11,7 +11,7 @@ const MoneyContainer = () => {
   };
 
   const getMiner = (value: number) => {
-    dispatch(addMoney(value));
+    dispatch(addMiner(value));
   };
 
   return (

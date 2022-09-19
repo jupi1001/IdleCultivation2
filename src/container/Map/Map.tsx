@@ -1,4 +1,5 @@
 import React from "react";
+import "./Map.css";
 
 export const Map = () => {
   const handleOnClick = (e: { preventDefault: () => void }) => {
@@ -20,7 +21,7 @@ export const Map = () => {
           alt="test"
           href="https://c1.staticflickr.com/5/4052/4503898393_303cfbc9fd_b.jpg"
           onClick={handleOnClick}
-        />
+        ></area>
       </map>
     </div>
   );
