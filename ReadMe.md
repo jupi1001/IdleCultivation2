@@ -1,3 +1,9 @@
-TODO:
-Shop -> Upgrades
-Attack wird erhöht nach upgrade
+# Idle Game
+
+## Made by me
+
+lol
+
+### TODO:
+
+Adding Miners increases money gain

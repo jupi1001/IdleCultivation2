@@ -6,6 +6,7 @@ interface CharacterState {
   attack: number;
   defense: number;
   money: number;
+  miner: number;
   items: Item[];
 }
 
@@ -13,7 +14,8 @@ const initialState: CharacterState = {
   name: "No Name",
   attack: 0,
   defense: 0,
-  money: 0,
+  money: 500,
+  miner: 0,
   items: [],
 };
 
@@ -39,17 +41,29 @@ export const characterSlice = createSlice({
     reduceMoney: (state, action: PayloadAction<number>) => {
       state.money = state.money - action.payload;
     },
+    addMiner: (state, action: PayloadAction<number>) => {
+      state.miner = state.miner + action.payload;
+    },
     addItem: (state, action: PayloadAction<Item>) => {
-      if (state.items[action.payload.id] === null) {
-        state.items[action.payload.id] = action.payload;
-      } else {
-        state.items[action.payload.id].quantity = state.items[action.payload.id].quantity + action.payload.quantity;
-      }
+      state.items.push(action.payload);
+    },
+    removeItem: (state, action: PayloadAction<Item>) => {
+      const { id } = action.payload;
+      state.items = state.items.filter((item) => item.id !== id);
     },
   },
 });
 
-export const { addAttack, reduceAttack, addDefense, reduceDefense, addMoney, reduceMoney, addItem } =
-  characterSlice.actions;
+export const {
+  addAttack,
+  reduceAttack,
+  addDefense,
+  reduceDefense,
+  addMoney,
+  reduceMoney,
+  addMiner,
+  addItem,
+  removeItem,
+} = characterSlice.actions;
 
 export default characterSlice.reducer;

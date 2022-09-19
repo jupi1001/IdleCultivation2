@@ -10,7 +10,7 @@ export const CharacterBlock = () => {
     <div className="app__characterBlock">
       <h2>Name : {character.name}</h2>
       <div className="app__characterBlock-items">
-        <ul>
+        <ul className="app__characterBlock-ul">
           <li>Attack: {character.attack}</li>
           <li>Defense: {character.defense}</li>
           <li>Speed: 0</li>
