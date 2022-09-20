@@ -1,3 +1,4 @@
+import { CombatArea } from "../enum/CombatArea";
 import EnemyI from "../interfaces/EnemyI";
 import Item from "../interfaces/ItemI";
 import SkillI from "../interfaces/SkillI";
@@ -65,7 +66,38 @@ export const enemies: EnemyI[] = [
     attack: 1,
     defense: 1,
     health: 10,
+    location: CombatArea.FARM,
     picture: images.chicken,
+    loot: { items: new Array(existingShopItems[0]), weight: [1] },
+  },
+  {
+    id: 2,
+    name: "Cow",
+    attack: 3,
+    defense: 3,
+    health: 20,
+    location: CombatArea.FARM,
+    picture: images.cow,
+    loot: { items: new Array(existingShopItems[0]), weight: [1] },
+  },
+  {
+    id: 3,
+    name: "Pig",
+    attack: 4,
+    defense: 4,
+    health: 15,
+    location: CombatArea.FARM,
+    picture: images.pig,
+    loot: { items: new Array(existingShopItems[0]), weight: [1] },
+  },
+  {
+    id: 4,
+    name: "Goblin",
+    attack: 5,
+    defense: 5,
+    health: 10,
+    location: CombatArea.CAVE,
+    picture: images.goblin,
     loot: { items: new Array(existingShopItems[0]), weight: [1] },
   },
 ];

@@ -4,14 +4,16 @@
   justify-content: space-between;
   align-items: center;
   background: cadetblue;
-
-  padding: 1rem 2rem;
+  border-radius: 20px;
+  /* padding: 1rem 2rem; */
+  margin-bottom: 15px;
 }
 
 .app__header-logo {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  margin-left: 20px;
 }
 
 .app__header-logo img {

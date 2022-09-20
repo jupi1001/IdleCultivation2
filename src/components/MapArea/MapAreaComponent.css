@@ -5,4 +5,5 @@
 .mapAreaComponent__main-image {
   height: 100px;
   width: 200px;
+  cursor: pointer;
 }
