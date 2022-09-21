@@ -55,6 +55,9 @@ export const characterSlice = createSlice({
     addItem: (state, action: PayloadAction<Item>) => {
       state.items.push(action.payload);
     },
+    addItems: (state, action: PayloadAction<Item[]>) => {
+      action.payload.map((item, index) => state.items.push(item));
+    },
     removeItem: (state, action: PayloadAction<Item>) => {
       const { id } = action.payload;
       state.items = state.items.filter((item) => item.id !== id);
@@ -73,6 +76,7 @@ export const {
   reduceMoney,
   addMiner,
   addItem,
+  addItems,
   removeItem,
 } = characterSlice.actions;
 

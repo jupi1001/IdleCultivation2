@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { enemies } from "../../constants/data";
 import images from "../../constants/images";
-import { CombatArea } from "../../enum/CombatArea";
 import EnemyI from "../../interfaces/EnemyI";
 import Modal from "react-modal";
 import "./CombatContainer.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { reduceHealth } from "../../state/reducers/characterSlice";
+import { addItems } from "../../state/reducers/characterSlice";
+import Item from "../../interfaces/ItemI";
+import { changeContent } from "../../state/reducers/contentSlice";
 
 const customStyles = {
   content: {
@@ -33,6 +34,11 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
 
   //Character stats
   const character = useSelector((state: RootState) => state.character);
+  //Character state to manipulate it
+  const [characterState, setCharacterState] = useState(character);
+
+  //ItemBag for holding items until pressing loot button
+  let itemBag: Item[] = [];
 
   const dispatch = useDispatch();
 
@@ -42,10 +48,10 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   //Fetch currentEnemies for that area
   const currentEnemnies = enemies.filter((enemy) => enemy.location.toString() === area);
 
-  //The enemy we currently fight against
-  //let currentEnemy:EnemyI;
-
-  //Method to get a random new enemy
+  /**
+   * Method to get a random new enemy from the current area
+   * @returns  Enemy
+   */
   const getRandomEnemy = () => {
     const random = Math.floor(Math.random() * currentEnemnies.length);
     //currentEnemy = currentEnemnies[random];
@@ -53,47 +59,113 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   };
 
   const [currentEnemy, setCurrentEnemy] = useState(getRandomEnemy());
+  //Start health for the progress bar
+  const startEnemyHealth = currentEnemy.health;
 
-  //Call it one time at the start?
-  //getRandomEnemy();
+  /**
+   * Add items to redux state and clear item bag
+   */
+  const handleLootButton = () => {
+    dispatch(addItems(itemBag));
+    itemBag = [];
+  };
 
-  //TODO
-  const handleLootButton = () => {};
+  /**
+   * Escaping combat. Loots the ItemBag if it is not empty.
+   * If the character died in combat and it is called, the item bag is not looted and reset.
+   * @param died
+   */
+  const handleEscapeButton = (died: boolean) => {
+    if (died) {
+      itemBag = [];
+    } else {
+      //Loot items
+      if (itemBag.length !== 0) {
+        handleLootButton();
+      }
+    }
+    dispatch(changeContent("Map"));
+  };
 
-  //TODO
-  const handleEscapeButton = () => {};
+  /**
+   * Adds 1 item from the enemy drop table to the item bag.
+   * @param enemy
+   * @returns Nothing
+   */
+  const addLootToItemBag = (enemy: EnemyI) => {
+    const items = enemy.loot?.items;
+    const weights = enemy.loot?.weight;
+    if (!items) return;
+    if (!weights) return;
 
-  //TODO
+    let i: number;
+
+    for (i = 0; i < weights.length; i++) {
+      weights[i] += weights[i - 1] || 0;
+    }
+
+    var random = Math.random() * weights[weights.length - 1];
+
+    for (i = 0; i < weights.length; i++) {
+      if (weights[i] > random) break;
+    }
+
+    itemBag.push(items[i]);
+  };
+
+  /**
+   * Method to handle the fighting between an Enemy and the character
+   *
+   * If the enemy dies item is getting adding to the item bag.
+   * If the character dies handleEscape is triggered with the death flag.
+   */
   const handleFighting = () => {
-    let enemyblockChance = currentEnemy.defense - character.attack;
-    let percentageEnemyBlockChance = ((enemyblockChance / currentEnemy.defense + character.attack) * 100).toFixed(2);
+    //Calculate enemy block chance
+    let enemyblockChance = currentEnemy.defense - characterState.attack;
+    let percentageEnemyBlockChance = (enemyblockChance / currentEnemy.defense + characterState.attack) * 100;
     console.log("%Block Enemy: " + percentageEnemyBlockChance);
 
-    let characterblockChance = character.defense - currentEnemy.attack;
-    let percentageCharacterBlockChance = (
-      (characterblockChance / character.defense + currentEnemy.attack) *
-      100
-    ).toFixed(2);
+    //Calculate character block chance
+    let characterblockChance = characterState.defense - currentEnemy.attack;
+    let percentageCharacterBlockChance = (characterblockChance / characterState.defense + currentEnemy.attack) * 100;
     console.log("%Block Character: " + percentageCharacterBlockChance);
+
+    //Booleans that say if a hit is going to happen
+    let doesCharacterhit = Math.floor(Math.random()) >= percentageEnemyBlockChance;
+    let doesEnemyhit = Math.floor(Math.random()) >= percentageCharacterBlockChance;
 
     //Enemy copy to manipulate it
     let tempEnemy = currentEnemy;
-    //Case Enemy is alive
-    if (currentEnemy.health > 0) {
-      //TODO damage calculation
-      dispatch(reduceHealth(0));
+
+    //Character hit
+    if (doesCharacterhit) {
+      let damageDealt = Math.floor(Math.random() * characterState.attack);
+      tempEnemy.health = tempEnemy.health - damageDealt;
       setCurrentEnemy(tempEnemy);
-    } else {
-      //Case Enemy is dead
-      //TODO add loot
+    }
+    //Enemy hit
+    if (doesEnemyhit) {
+      let damageDealt = Math.floor(Math.random() * characterState.attack);
+      characterState.health = characterState.health - damageDealt;
+      setCharacterState(characterState);
+    }
+    //Case Enemy is dead
+    if (currentEnemy.health <= 0) {
+      addLootToItemBag(currentEnemy);
       setCurrentEnemy(getRandomEnemy());
     }
+    //Case character dies
+    if (characterState.health <= 0) {
+      handleEscapeButton(true);
+    }
 
-    setProgressBarValue(Math.floor(Math.random() * 100) + 1);
+    setProgressBarValue(Math.floor(startEnemyHealth / 100) * currentEnemy.health);
   };
 
   useEffect(() => {
-    setInterval(() => handleFighting(), 5000);
+    const fightingInterval = setInterval(() => handleFighting(), 5000);
+    //Cleanup
+    return () => clearInterval(fightingInterval);
   });
 
   return (
@@ -133,7 +205,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
           Loot Display
         </Modal>
         <button onClick={() => handleLootButton()}>Loot</button>
-        <button onClick={() => handleEscapeButton()}>Escape</button>
+        <button onClick={() => handleEscapeButton(false)}>Escape</button>
       </div>
     </div>
   );
