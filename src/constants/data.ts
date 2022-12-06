@@ -83,8 +83,8 @@ export const enemies: EnemyI[] = [
   {
     id: 3,
     name: "Pig",
-    attack: 4,
-    defense: 4,
+    attack: 2,
+    defense: 2,
     health: 15,
     location: CombatArea.FARM,
     picture: images.pig,

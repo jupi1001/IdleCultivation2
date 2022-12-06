@@ -13,7 +13,7 @@ interface CharacterState {
 
 const initialState: CharacterState = {
   name: "Franz",
-  attack: 1,
+  attack: 10,
   defense: 1,
   health: 10,
   money: 500,
