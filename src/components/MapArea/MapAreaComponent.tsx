@@ -2,6 +2,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { changeContent } from "../../state/reducers/contentSlice";
 import "./MapAreaComponent.css";
+import { ContentArea } from "../../enum/ContentArea";
 
 interface MapAreaProps {
   image: string;
@@ -13,7 +14,7 @@ const MapAreaComponent: React.FC<MapAreaProps> = ({ image, text, information }) 
   const dispatch = useDispatch();
 
   const handleOnClick = (areaName: string) => {
-    dispatch(changeContent("Combat," + areaName));
+    dispatch(changeContent(ContentArea.COMBAT + ":" + areaName));
   };
 
   return (

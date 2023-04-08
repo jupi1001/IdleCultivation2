@@ -10,6 +10,7 @@ import { RootState } from "../../state/store";
 import { addItems } from "../../state/reducers/characterSlice";
 import Item from "../../interfaces/ItemI";
 import { changeContent } from "../../state/reducers/contentSlice";
+import { ContentArea } from "../../enum/ContentArea";
 
 const customStyles = {
   content: {
@@ -19,10 +20,11 @@ const customStyles = {
     bottom: "auto",
     marginRight: "-50%",
     transform: "translate(-50%, -50%)",
+    backgroundColor: "black",
   },
 };
 interface CombatAreaProps {
-  area: string;
+  area: string | undefined;
 }
 
 const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
@@ -83,7 +85,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         handleLootButton();
       }
     }
-    dispatch(changeContent("Map"));
+    dispatch(changeContent(ContentArea.MAP));
   };
 
   /**
@@ -92,8 +94,18 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
    * @returns Nothing
    */
   const addLootToItemBag = (enemy: EnemyI) => {
+    // enemies.map((enemy1) => {
+    //   console.log(enemy1);
+    // });
+
+    //console.log("--addLootToItemBagMethod --");
+    //TODO debug why enemy is not being passed
     const items = enemy.loot?.items;
     const weights = enemy.loot?.weight;
+    console.log("Enemy: " + enemy);
+    //console.log("Items: " + items);
+    //console.log("Weight: " + weights);
+
     if (!items) return;
     if (!weights) return;
 
@@ -110,6 +122,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     }
 
     itemBag.push(items[i]);
+    console.log("Item: " + items[i]);
   };
 
   /**
@@ -119,7 +132,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
    * If the character dies handleEscape is triggered with the death flag.
    */
   const handleFighting = () => {
-    console.log("---Fighting Cycle---");
+    //console.log("---Fighting Cycle---");
 
     //Calculate enemy block chance
     const enemyblockChance = currentEnemy.defense - characterState.attack;
@@ -153,13 +166,13 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         location: currentEnemy.location,
         name: currentEnemy.name,
       });
-      console.log("Enemy Health: " + currentEnemy.health);
+      //console.log("Enemy Health: " + currentEnemy.health);
     }
 
     //Enemy hit
     if (doesEnemyhit) {
       const damageDealt = +(Math.random() * currentEnemy.attack).toFixed();
-      console.log("Damage Dealth to Character: " + damageDealt);
+      //console.log("Damage Dealth to Character: " + damageDealt);
 
       setCharacterState({
         attack: characterState.attack,
@@ -170,8 +183,9 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         money: characterState.money,
         name: characterState.name,
       });
-      console.log("Character Health: " + characterState.health);
+      //console.log("Character Health: " + characterState.health);
     }
+
     //Case Enemy is dead
     if (currentEnemy.health <= 0) {
       addLootToItemBag(currentEnemy);
@@ -185,7 +199,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     }
 
     setProgressBarValue(Math.floor(startEnemyHealth / 100) * currentEnemy.health);
-    console.log("Progress Bar: " + progressBarValue);
+    //console.log("Progress Bar: " + progressBarValue);
   };
 
   useEffect(() => {

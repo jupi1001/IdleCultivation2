@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { changeContent } from "../../state/reducers/contentSlice";
 import "./Header.css";
+import { ContentArea } from "../../enum/ContentArea";
 
 export const Header = () => {
   //const content = useSelector((state: RootState) => state.content);
@@ -19,13 +20,13 @@ export const Header = () => {
       </div>
       <ul className="app__header-links">
         <li>
-          <button onClick={() => openContent("Map")}>Map</button>
+          <button onClick={() => openContent(ContentArea.MAP)}>Map</button>
         </li>
         <li>
-          <button onClick={() => openContent("Shop")}>Shop</button>
+          <button onClick={() => openContent(ContentArea.SHOP)}>Shop</button>
         </li>
         <li>
-          <button onClick={() => openContent("Inventory")}>Inventory</button>
+          <button onClick={() => openContent(ContentArea.INVENTORY)}>Inventory</button>
         </li>
       </ul>
     </nav>
