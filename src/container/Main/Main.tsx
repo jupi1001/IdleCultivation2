@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { LeftMain } from "../LeftMain/LeftMain";
 import { RightMain } from "../RightMain/RightMain";
@@ -15,16 +15,20 @@ import { ContentArea } from "../../enum/ContentArea";
 export const Main = () => {
   const content = useSelector((state: RootState) => state.content.page);
   let miner = useSelector((state: RootState) => state.character.miner);
+  const minerRef = useRef(miner);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // start the timer
-    //TODO Miner wird nicht geupdated wenn neue hinzugefügt werden
-    setInterval(() => {
-      dispatch(addMoney(miner));
+    minerRef.current = miner;
+  }, [miner]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      dispatch(addMoney(minerRef.current));
     }, 1000);
 
-    // cleanup function stops the timer when the component unmounts
+    return () => clearInterval(intervalId);
   }, [dispatch]);
 
   return (
