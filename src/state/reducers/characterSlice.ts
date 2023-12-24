@@ -5,15 +5,17 @@ interface CharacterState {
   name: string;
   attack: number;
   defense: number;
+  health: number;
   money: number;
   miner: number;
   items: Item[];
 }
 
 const initialState: CharacterState = {
-  name: "No Name",
-  attack: 0,
-  defense: 0,
+  name: "Franz",
+  attack: 10,
+  defense: 1,
+  health: 10,
   money: 500,
   miner: 0,
   items: [],
@@ -35,6 +37,12 @@ export const characterSlice = createSlice({
     reduceDefense: (state, action: PayloadAction<number>) => {
       state.defense = state.defense - action.payload;
     },
+    addHealth: (state, action: PayloadAction<number>) => {
+      state.health = state.health + action.payload;
+    },
+    reduceHealth: (state, action: PayloadAction<number>) => {
+      state.health = state.health - action.payload;
+    },
     addMoney: (state, action: PayloadAction<number>) => {
       state.money = state.money + action.payload;
     },
@@ -46,6 +54,9 @@ export const characterSlice = createSlice({
     },
     addItem: (state, action: PayloadAction<Item>) => {
       state.items.push(action.payload);
+    },
+    addItems: (state, action: PayloadAction<Item[]>) => {
+      action.payload.map((item, index) => state.items.push(item));
     },
     removeItem: (state, action: PayloadAction<Item>) => {
       const { id } = action.payload;
@@ -59,10 +70,13 @@ export const {
   reduceAttack,
   addDefense,
   reduceDefense,
+  addHealth,
+  reduceHealth,
   addMoney,
   reduceMoney,
   addMiner,
   addItem,
+  addItems,
   removeItem,
 } = characterSlice.actions;
 

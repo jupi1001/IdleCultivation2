@@ -1,9 +1,11 @@
 # Idle Game
 
+npm run dev
+
 ## Made by me
 
 lol
 
 ### TODO:
 
-Adding Miners increases money gain
+Check if escape by dying is working

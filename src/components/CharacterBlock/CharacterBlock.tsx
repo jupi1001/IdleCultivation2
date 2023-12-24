@@ -13,7 +13,7 @@ export const CharacterBlock = () => {
         <ul className="app__characterBlock-ul">
           <li>Attack: {character.attack}</li>
           <li>Defense: {character.defense}</li>
-          <li>Speed: 0</li>
+          <li>Health: {character.health}</li>
           <li>Money: {character.money}</li>
         </ul>
       </div>

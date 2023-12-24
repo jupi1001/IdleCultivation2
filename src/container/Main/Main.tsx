@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { LeftMain } from "../LeftMain/LeftMain";
 import { RightMain } from "../RightMain/RightMain";
@@ -10,20 +10,25 @@ import { Inventory } from "../Inventory/Inventory";
 import MoneyContainer from "../MoneyContainer/MoneyContainer";
 import CombatContainer from "../CombatContainer/CombatContainer";
 import { addMoney } from "../../state/reducers/characterSlice";
+import { ContentArea } from "../../enum/ContentArea";
 
 export const Main = () => {
   const content = useSelector((state: RootState) => state.content.page);
   let miner = useSelector((state: RootState) => state.character.miner);
+  const minerRef = useRef(miner);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // start the timer
-    //TODO Miner wird nicht geupdated wenn neue hinzugefügt werden
-    setInterval(() => {
-      dispatch(addMoney(miner));
+    minerRef.current = miner;
+  }, [miner]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      dispatch(addMoney(minerRef.current));
     }, 1000);
 
-    // cleanup function stops the timer when the component unmounts
+    return () => clearInterval(intervalId);
   }, [dispatch]);
 
   return (
@@ -32,11 +37,11 @@ export const Main = () => {
         <LeftMain />
       </div>
       <div className="app__main-content">
-        {content === "Map" && <Map />}
-        {content === "Shop" && <Shop />}
-        {content === "Inventory" && <Inventory />}
-        {content === "Combat" && <CombatContainer />}
-        {content === "Money" && <MoneyContainer />}
+        {content === ContentArea.MAP && <Map />}
+        {content === ContentArea.SHOP && <Shop />}
+        {content === ContentArea.INVENTORY && <Inventory />}
+        {content.split(":").shift() === ContentArea.COMBAT && <CombatContainer area={content.split(":").pop()} />}
+        {content === ContentArea.MONEY && <MoneyContainer />}
       </div>
 
       <div className="app__main-right">

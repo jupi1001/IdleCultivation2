@@ -1,5 +1,8 @@
+import { CombatArea } from "../enum/CombatArea";
+import EnemyI from "../interfaces/EnemyI";
 import Item from "../interfaces/ItemI";
 import SkillI from "../interfaces/SkillI";
+import images from "./images";
 
 export const existingShopItemUpgrades: Item[] = [
   {
@@ -35,7 +38,7 @@ export const existingShopItems: Item[] = [
     description: "Pill containing a bit of qi",
     price: 10,
     quantity: 1,
-    picture: "",
+    picture: images.potion1,
     value: 1,
     effect: "attack",
   },
@@ -45,7 +48,7 @@ export const existingShopItems: Item[] = [
     description: "Pill containing a bit of qi",
     price: 100,
     quantity: 1,
-    picture: "",
+    picture: images.potion1,
     value: 10,
     effect: "attack",
   },
@@ -54,4 +57,47 @@ export const existingShopItems: Item[] = [
 export const existingSkills: SkillI[] = [
   { id: 1, name: "Combat", description: "Train combat" },
   { id: 2, name: "Money", description: "Make money" },
+];
+
+export const enemies: EnemyI[] = [
+  {
+    id: 1,
+    name: "Chicken",
+    attack: 1,
+    defense: 1,
+    health: 10,
+    location: CombatArea.FARM,
+    picture: images.chicken,
+    loot: { items: new Array(existingShopItems[0]), weight: [1] },
+  },
+  {
+    id: 2,
+    name: "Cow",
+    attack: 3,
+    defense: 3,
+    health: 20,
+    location: CombatArea.FARM,
+    picture: images.cow,
+    loot: { items: new Array(existingShopItems[0]), weight: [1] },
+  },
+  {
+    id: 3,
+    name: "Pig",
+    attack: 2,
+    defense: 2,
+    health: 15,
+    location: CombatArea.FARM,
+    picture: images.pig,
+    loot: { items: new Array(existingShopItems[0]), weight: [1] },
+  },
+  {
+    id: 4,
+    name: "Goblin",
+    attack: 5,
+    defense: 5,
+    health: 10,
+    location: CombatArea.CAVE,
+    picture: images.goblin,
+    loot: { items: new Array(existingShopItems[0]), weight: [1] },
+  },
 ];

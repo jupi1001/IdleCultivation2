@@ -1,0 +1,30 @@
+.combatContainer__main-combat {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.combatContainer__main-img {
+  width: 200px;
+  height: 100%;
+  border-radius: 50px;
+}
+
+.combatContainer__main-footer {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.combatContainer__main-footer img {
+  width: 50px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+table {
+  margin: 0 auto;
+}
+
+td {
+  text-align: center;
+}
