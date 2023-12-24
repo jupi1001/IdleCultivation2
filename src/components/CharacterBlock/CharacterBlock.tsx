@@ -15,6 +15,7 @@ export const CharacterBlock = () => {
           <li>Defense: {character.defense}</li>
           <li>Health: {character.health}</li>
           <li>Money: {character.money}</li>
+          <li style={{ color: "lightblue" }}> 🎣 FishingXP: {character.fishingXP} </li>
         </ul>
       </div>
     </div>

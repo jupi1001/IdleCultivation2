@@ -10,6 +10,7 @@ import goblin from "../assets/goblin.png";
 import character from "../assets/character.jpg";
 import bag from "../assets/bag.jpg";
 import potion1 from "../assets/potion1.png";
+import puddle from "../assets/puddle.png";
 
 export default {
   bubbletea,
@@ -24,4 +25,5 @@ export default {
   character,
   bag,
   potion1,
+  puddle,
 };
