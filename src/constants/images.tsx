@@ -9,6 +9,7 @@ import pig from "../assets/pig.jpg";
 import goblin from "../assets/goblin.png";
 import character from "../assets/character.jpg";
 import bag from "../assets/bag.jpg";
+import potion1 from "../assets/potion1.png";
 
 export default {
   bubbletea,
@@ -22,4 +23,5 @@ export default {
   goblin,
   character,
   bag,
+  potion1,
 };

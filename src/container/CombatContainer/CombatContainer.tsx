@@ -41,7 +41,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   //Character state to manipulate it
   const [characterState, setCharacterState] = useState(character);
   //ItemBag for holding items until pressing loot button
-  let itemBag: Item[] = [];
+  const [itemBag, setItemBag] = useState<Item[]>([]);
 
   //For Progress Bar Value
   const [progressBarValue, setProgressBarValue] = useState(100);
@@ -55,7 +55,6 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
    */
   const getRandomEnemy = () => {
     const random = Math.floor(Math.random() * currentEnemies.length);
-    //currentEnemy = currentEnemnies[random];
     return currentEnemies[random];
   };
 
@@ -68,17 +67,16 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
    */
   const handleLootButton = () => {
     dispatch(addItems(itemBag));
-    itemBag = [];
+    setItemBag([]);
   };
 
   /**
    * Escaping combat. Loots the ItemBag if it is not empty.
    * If the character died in combat and it is called, the item bag is not looted and reset.
-   * @param died
    */
   const handleEscapeButton = (died: boolean) => {
     if (died) {
-      itemBag = [];
+      setItemBag([]);
     } else {
       //Loot items
       if (itemBag.length !== 0) {
@@ -90,21 +88,10 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
 
   /**
    * Adds 1 item from the enemy drop table to the item bag.
-   * @param enemy
-   * @returns Nothing
    */
   const addLootToItemBag = (enemy: EnemyI) => {
-    // enemies.map((enemy1) => {
-    //   console.log(enemy1);
-    // });
-
-    //console.log("--addLootToItemBagMethod --");
-    //TODO debug why enemy is not being passed
     const items = enemy.loot?.items;
     const weights = enemy.loot?.weight;
-    console.log("Enemy: " + enemy);
-    //console.log("Items: " + items);
-    //console.log("Weight: " + weights);
 
     if (!items) return;
     if (!weights) return;
@@ -121,8 +108,9 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       if (weights[i] > random) break;
     }
 
-    itemBag.push(items[i]);
-    console.log("Item: " + items[i]);
+    setItemBag((prevItems) => [...prevItems, items[i]]);
+    console.log("ItemBag" + itemBag);
+    console.log("Item" + items[i]);
   };
 
   /**
@@ -132,32 +120,23 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
    * If the character dies handleEscape is triggered with the death flag.
    */
   const handleFighting = () => {
-    //console.log("---Fighting Cycle---");
-
     //Calculate enemy block chance
     const enemyblockChance = currentEnemy.defense - characterState.attack;
-    //console.log("Block Enemy Chance: " + enemyblockChance + "=" + currentEnemy.defense + "-" + characterState.attack);
     const percentageEnemyBlockChance = enemyblockChance / (currentEnemy.defense + characterState.attack);
-    //console.log("%Block Enemy: " + percentageEnemyBlockChance);
 
     //Calculate character block chance
     const characterblockChance = characterState.defense - currentEnemy.attack;
     const percentageCharacterBlockChance = characterblockChance / (characterState.defense + currentEnemy.attack);
-    //console.log("%Block Character: " + percentageCharacterBlockChance);
 
     //Roll if hit
     const diceRoll = +Math.random().toFixed(2);
     //Booleans that say if a hit is going to happen
     const doesCharacterhit = diceRoll >= percentageEnemyBlockChance;
     const doesEnemyhit = diceRoll >= percentageCharacterBlockChance;
-    //console.log("Dice Roll1: " + diceRoll);
-    //console.log("Character Hit: " + doesCharacterhit);
-    //console.log("Enemy Hit: " + doesEnemyhit);
 
     //Character hit
     if (doesCharacterhit) {
       const damageDealt = +(Math.random() * characterState.attack).toFixed();
-      console.log("Damage Dealth to Enemy: " + damageDealt);
       setCurrentEnemy({
         id: currentEnemy.id,
         attack: currentEnemy.attack,
@@ -165,14 +144,14 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         health: currentEnemy.health - damageDealt,
         location: currentEnemy.location,
         name: currentEnemy.name,
+        loot: currentEnemy.loot,
+        picture: currentEnemy.picture,
       });
-      //console.log("Enemy Health: " + currentEnemy.health);
     }
 
     //Enemy hit
     if (doesEnemyhit) {
       const damageDealt = +(Math.random() * currentEnemy.attack).toFixed();
-      //console.log("Damage Dealth to Character: " + damageDealt);
 
       setCharacterState({
         attack: characterState.attack,
@@ -183,27 +162,23 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         money: characterState.money,
         name: characterState.name,
       });
-      //console.log("Character Health: " + characterState.health);
     }
 
     //Case Enemy is dead
     if (currentEnemy.health <= 0) {
       addLootToItemBag(currentEnemy);
       setCurrentEnemy(getRandomEnemy());
-      console.log("------Enemy is dead---------");
     }
     //Case character dies
     if (characterState.health <= 0) {
       handleEscapeButton(true);
-      console.log("----Character is dead-----");
     }
 
     setProgressBarValue(Math.floor(startEnemyHealth / 100) * currentEnemy.health);
-    //console.log("Progress Bar: " + progressBarValue);
   };
 
   useEffect(() => {
-    const fightingInterval = setInterval(() => handleFighting(), 5000);
+    const fightingInterval = setInterval(() => handleFighting(), 2000);
     //Cleanup
     return () => clearInterval(fightingInterval);
   });
@@ -243,6 +218,9 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         <img src={images.bag} alt="Inventory Bag" onClick={() => setIsOpen(true)} />
         <Modal isOpen={isOpen} onRequestClose={toggleModal} contentLabel="item dialog" style={customStyles}>
           Loot Display
+          {itemBag.map((item) => (
+            <img key={item.id} src={item.picture} alt={item.name} style={{ maxWidth: "35px", maxHeight: "35px" }} />
+          ))}
         </Modal>
         <button onClick={() => handleLootButton()}>Loot</button>
         <button onClick={() => handleEscapeButton(false)}>Escape</button>
