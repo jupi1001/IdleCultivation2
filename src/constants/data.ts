@@ -1,5 +1,6 @@
 import { CombatArea } from "../enum/CombatArea";
 import EnemyI from "../interfaces/EnemyI";
+import FishingAreaI from "../interfaces/FishingAreaI";
 import Item from "../interfaces/ItemI";
 import SkillI from "../interfaces/SkillI";
 import images from "./images";
@@ -57,6 +58,8 @@ export const existingShopItems: Item[] = [
 export const existingSkills: SkillI[] = [
   { id: 1, name: "Combat", description: "Train combat" },
   { id: 2, name: "Money", description: "Make money" },
+  { id: 3, name: "Fishing", description: "Fish fish" },
+  { id: 4, name: "Woodcutting", description: "Cut wood" },
 ];
 
 export const enemies: EnemyI[] = [
@@ -99,5 +102,106 @@ export const enemies: EnemyI[] = [
     location: CombatArea.CAVE,
     picture: images.goblin,
     loot: { items: new Array(existingShopItems[0]), weight: [1] },
+  },
+];
+
+export const fishingAreaData: FishingAreaI[] = [
+  {
+    id: 1,
+    name: "Puddle",
+    fishingXP: 1,
+    fishingXPUnlock: 0,
+    fishingDelay: 3000,
+    fishingLootIds: [301],
+    picture: images.puddle,
+  },
+  {
+    id: 2,
+    name: "Small Lake",
+    fishingXP: 2,
+    fishingXPUnlock: 25,
+    fishingDelay: 4000,
+    fishingLootIds: [301, 304],
+    picture: images.puddle,
+  },
+  {
+    id: 3,
+    name: "River",
+    fishingXP: 4,
+    fishingXPUnlock: 100,
+    fishingDelay: 5000,
+    fishingLootIds: [302],
+    picture: images.puddle,
+  },
+  {
+    id: 4,
+    name: "Sea",
+    fishingXP: 8,
+    fishingXPUnlock: 200,
+    fishingDelay: 6000,
+    fishingLootIds: [302, 303],
+    picture: images.puddle,
+  },
+  {
+    id: 5,
+    name: "Ocean",
+    fishingXP: 16,
+    fishingXPUnlock: 300,
+    fishingDelay: 7000,
+    fishingLootIds: [302, 303, 305],
+    picture: images.puddle,
+  },
+];
+
+export const fishTypes: Item[] = [
+  {
+    id: 301,
+    name: "Sardine",
+    description: "Very small fish",
+    price: 1,
+    quantity: 1,
+    picture: images.blueFish,
+    value: 1,
+    effect: "health",
+  },
+  {
+    id: 302,
+    name: "Salmon",
+    description: "Popular fish for cooking",
+    price: 3,
+    quantity: 1,
+    picture: images.redFish,
+    value: 2,
+    effect: "health",
+  },
+  {
+    id: 303,
+    name: "Tuna",
+    description: "Large and flavorful fish",
+    price: 5,
+    quantity: 1,
+    picture: images.purpleFish,
+    value: 3,
+    effect: "health",
+  },
+  {
+    id: 304,
+    name: "Mackerel",
+    description: "Rich in omega-3 fatty acids",
+    price: 2,
+    quantity: 1,
+    picture: images.boneFishSmall,
+    value: 2,
+    effect: "health",
+  },
+  {
+    id: 305,
+    name: "Pufferfish",
+    description: "Can be poisonous if not prepared correctly",
+    price: 7,
+    quantity: 1,
+    picture: images.pufferFish,
+    value: 5,
+    effect: "health",
   },
 ];

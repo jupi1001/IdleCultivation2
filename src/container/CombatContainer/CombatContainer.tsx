@@ -109,8 +109,6 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     }
 
     setItemBag((prevItems) => [...prevItems, items[i]]);
-    console.log("ItemBag" + itemBag);
-    console.log("Item" + items[i]);
   };
 
   /**
@@ -161,6 +159,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         miner: characterState.miner,
         money: characterState.money,
         name: characterState.name,
+        fishingXP: characterState.fishingXP,
       });
     }
 

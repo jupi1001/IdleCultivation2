@@ -9,6 +9,7 @@ interface CharacterState {
   money: number;
   miner: number;
   items: Item[];
+  fishingXP: number;
 }
 
 const initialState: CharacterState = {
@@ -19,6 +20,7 @@ const initialState: CharacterState = {
   money: 500,
   miner: 0,
   items: [],
+  fishingXP: 0,
 };
 
 export const characterSlice = createSlice({
@@ -62,6 +64,9 @@ export const characterSlice = createSlice({
       const { id } = action.payload;
       state.items = state.items.filter((item) => item.id !== id);
     },
+    addFishingXP: (state, action: PayloadAction<number>) => {
+      state.fishingXP = state.fishingXP + action.payload;
+    },
   },
 });
 
@@ -78,6 +83,7 @@ export const {
   addItem,
   addItems,
   removeItem,
+  addFishingXP,
 } = characterSlice.actions;
 
 export default characterSlice.reducer;

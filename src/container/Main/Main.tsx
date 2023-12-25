@@ -11,6 +11,7 @@ import MoneyContainer from "../MoneyContainer/MoneyContainer";
 import CombatContainer from "../CombatContainer/CombatContainer";
 import { addMoney } from "../../state/reducers/characterSlice";
 import { ContentArea } from "../../enum/ContentArea";
+import FishingContainer from "../FishingContainer/FishingContainer";
 
 export const Main = () => {
   const content = useSelector((state: RootState) => state.content.page);
@@ -42,6 +43,7 @@ export const Main = () => {
         {content === ContentArea.INVENTORY && <Inventory />}
         {content.split(":").shift() === ContentArea.COMBAT && <CombatContainer area={content.split(":").pop()} />}
         {content === ContentArea.MONEY && <MoneyContainer />}
+        {content === ContentArea.FISHING && <FishingContainer />}
       </div>
 
       <div className="app__main-right">

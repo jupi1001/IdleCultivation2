@@ -9,9 +9,7 @@ export const RightMain = () => {
       <>
         <ContentBlock element={{ title: "Character", content: <CharacterBlock /> }} />
       </>
-      <>
-        <ContentBlock element={{ title: "a", content: <h1>Right</h1> }} />
-      </>
+      <>{/* <ContentBlock element={{ title: "a", content: <h1>Right</h1> }} /> */}</>
     </div>
   );
 };

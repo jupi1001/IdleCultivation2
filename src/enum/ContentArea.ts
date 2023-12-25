@@ -4,4 +4,6 @@ export enum ContentArea {
   SHOP = "Shop",
   INVENTORY = "Inventory",
   MONEY = "Money",
+  FISHING = "Fishing",
+  WOODCUTTING = "Woodcutting",
 }
