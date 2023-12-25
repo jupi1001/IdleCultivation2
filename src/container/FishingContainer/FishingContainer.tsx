@@ -10,8 +10,10 @@ const FishingContainer = () => {
   const dispatch = useDispatch();
   const character = useSelector((state: RootState) => state.character);
   const [progress, setProgress] = useState(0);
+  const [isFishing, setIsFishing] = useState(false);
 
   const startFishing = (fishingXP: number, fishingDelay: number, fishingLootIds: number[]) => {
+    setIsFishing(true);
     setProgress(0);
     const interval = setInterval(() => {
       setProgress((prevProgress) => prevProgress + 1);
@@ -29,6 +31,7 @@ const FishingContainer = () => {
       if (fish) {
         dispatch(addItem(fish));
       }
+      setIsFishing(false);
     }, fishingDelay);
   };
 
@@ -55,7 +58,7 @@ const FishingContainer = () => {
               altText={area.name}
               fishingXP={area.fishingXP}
               fishingDelay={area.fishingDelay}
-              onClick={() => startFishing(area.fishingXP, area.fishingDelay, area.fishingLootIds)}
+              onClick={() => !isFishing && startFishing(area.fishingXP, area.fishingDelay, area.fishingLootIds)}
             />
           )
       )}
