@@ -14,4 +14,3 @@ Combat progress bar not working
 Fishing
 
 Add missing pictures
-Add more fish types
