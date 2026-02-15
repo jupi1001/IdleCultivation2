@@ -9,7 +9,7 @@ interface ProgressBarProps {
 const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const { bgcolor, completed } = props;
 
-  const fillerStyles = {
+  const fillerStyles: React.CSSProperties = {
     height: "100%",
     width: `${completed}%`,
     backgroundColor: bgcolor,

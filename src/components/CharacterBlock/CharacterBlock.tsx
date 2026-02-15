@@ -8,14 +8,13 @@ export const CharacterBlock = () => {
 
   return (
     <div className="app__characterBlock">
-      <h2>Name : {character.name}</h2>
+      <h2>Realm: Mortal</h2>
       <div className="app__characterBlock-items">
         <ul className="app__characterBlock-ul">
           <li>Attack: {character.attack}</li>
           <li>Defense: {character.defense}</li>
-          <li>Health: {character.health}</li>
-          <li>Money: {character.money}</li>
-          <li style={{ color: "lightblue" }}> 🎣 FishingXP: {character.fishingXP} </li>
+          <li>Vitality: {character.health}</li>
+          <li>Spirit Stones: {character.money}</li>
         </ul>
       </div>
     </div>

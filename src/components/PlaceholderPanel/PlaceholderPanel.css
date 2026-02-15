@@ -1,0 +1,25 @@
+.placeholder-panel {
+  padding: 2rem;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 2rem auto;
+}
+
+.placeholder-panel__title {
+  margin: 0 0 0.5rem;
+}
+
+.placeholder-panel__message {
+  margin: 0;
+  font-size: 1.1em;
+  color: var(--text-muted);
+}
+
+.placeholder-panel__description {
+  margin: 1rem 0 0;
+  font-size: 0.95em;
+  color: var(--text-muted);
+}

@@ -1,0 +1,26 @@
+.moneyContainer__main {
+  max-width: 420px;
+}
+
+.moneyContainer__main-item {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.moneyContainer__main-item h2 {
+  margin: 0 0 0.5rem;
+}
+
+.moneyContainer__main-item span {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.95em;
+  color: var(--text-muted);
+}
+
+.moneyContainer__main-item button {
+  margin-top: 0.25rem;
+}

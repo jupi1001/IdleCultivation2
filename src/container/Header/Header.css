@@ -1,39 +1,59 @@
 .app__header {
   width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: cadetblue;
-  border-radius: 20px;
-  /* padding: 1rem 2rem; */
-  margin-bottom: 15px;
+  gap: 0.5rem;
+  background: var(--surface);
+  border-bottom: 2px solid var(--accent);
+  padding: 0.4rem 1rem;
+  margin-bottom: 0;
+  box-sizing: border-box;
 }
 
 .app__header-logo {
+  flex-shrink: 0;
   display: flex;
-  justify-content: flex-start;
   align-items: center;
-  margin-left: 20px;
 }
 
 .app__header-logo img {
-  height: 50px;
+  height: 32px;
+  border-radius: 4px;
 }
 
 .app__header-links {
   flex: 1;
+  min-width: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-
+  flex-wrap: wrap;
+  gap: 0.25rem;
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .app__header-links li {
-  margin: 0 1rem;
-  cursor: pointer;
+  margin: 0;
 }
 
-.app__header-links li:hover {
-  color: grey;
+.app__header-links li button {
+  padding: 0.5em 0.9em;
+  font-size: 1em;
+}
+
+.app__header-links li button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.app__header-theme-toggle {
+  flex-shrink: 0;
+  padding: 0.35em 0.5em !important;
+  font-size: 1.1em;
+  border-radius: 6px;
 }

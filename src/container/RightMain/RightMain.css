@@ -1,0 +1,11 @@
+.app__rightMain {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.app__rightMain-equipment-placeholder {
+  margin: 0;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}

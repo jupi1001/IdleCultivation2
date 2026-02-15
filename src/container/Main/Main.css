@@ -1,15 +1,42 @@
 .app__main {
-  width: 100%;
+  flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  /* padding: 1rem 2rem; */
+  flex-direction: row;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.app__main-left {
+  flex-shrink: 0;
+  width: 220px;
+  min-height: 0;
+  overflow: auto;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 0.5rem;
 }
 
 .app__main-content {
-  width: 600px;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 1rem;
+  background: var(--bg);
 }
 
-.test {
-  border: 10px solid purple;
+.app__main-right {
+  flex-shrink: 0;
+  width: 260px;
+  min-height: 0;
+  overflow: auto;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  padding: 0.5rem;
+}
+
+.app__main-placeholder {
+  padding: 2rem;
+  text-align: center;
 }

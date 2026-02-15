@@ -1,15 +1,50 @@
 .skillBlockItem__main {
+  --path-accent: var(--accent);
+  position: relative;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  align-content: center;
-  background-color: blueviolet;
-  border-radius: 20px;
-  margin-top: 10px;
-  padding: 5px;
+  flex-direction: column;
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
   cursor: pointer;
+  transition: border-color 0.2s;
+  overflow: hidden;
+}
+
+.skillBlockItem__main::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  background: linear-gradient(to right, transparent, var(--path-accent));
+  opacity: 0.35;
+  pointer-events: none;
+  border-radius: 0 5px 5px 0;
+}
+
+.skillBlockItem__main:hover {
+  border-color: var(--accent);
+}
+
+.skillBlockItem__main h3,
+.skillBlockItem__main-p {
+  position: relative;
+  z-index: 1;
+}
+
+.skillBlockItem__main h3 {
+  margin: 0;
+  font-size: 0.95em;
+  line-height: 1.25;
 }
 
 .skillBlockItem__main-p {
-  margin-left: 10px;
+  margin: 0.1rem 0 0;
+  font-size: 0.8em;
+  color: var(--text-muted);
+  line-height: 1.2;
 }

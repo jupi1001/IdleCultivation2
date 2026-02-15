@@ -6,10 +6,13 @@ import "./RightMain.css";
 export const RightMain = () => {
   return (
     <div className="app__rightMain">
-      <>
-        <ContentBlock element={{ title: "Character", content: <CharacterBlock /> }} />
-      </>
-      <>{/* <ContentBlock element={{ title: "a", content: <h1>Right</h1> }} /> */}</>
+      <ContentBlock element={{ title: "Character", content: <CharacterBlock /> }} />
+      <ContentBlock
+        element={{
+          title: "Equipment",
+          content: <p className="app__rightMain-equipment-placeholder">Coming soon</p>,
+        }}
+      />
     </div>
   );
 };
