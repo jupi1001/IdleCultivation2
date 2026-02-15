@@ -17,13 +17,13 @@ export const pathDescriptions: Record<CultivationPath, { title: string; descript
     { title: "Demonic Path", description: "Embrace the demonic way. Demonic sects and darker talents await." },
 };
 
-/** Sect positions/ranks. Order: 0 = Sect Aspirant (Mortal), 1 = Outer (Qi Condensation), 2 = Inner (Foundation), 3 = Core (FE 5+). */
-/** requiredStepIndex: from realmProgression.getStepIndex (Mortal=0, QC1=1..QC10=10, FE1=11..FE10=20). */
+/** Sect positions/ranks. Order: 0 = Sect Aspirant (Mortal), 1 = Outer (Qi Condensation), 2 = Inner (Foundation), 3 = Core (Golden Core). */
+/** requiredStepIndex: from realmProgression.getStepIndex (Mortal=0, QC1=1..10, FE1=11..20, Golden Core 1=21..30, …). */
 export const SECT_POSITIONS = [
   { id: 0, name: "Sect Aspirant", requiredStepIndex: 0, requiredRealmLabel: "Mortal" },
   { id: 1, name: "Outer Disciple", requiredStepIndex: 1, requiredRealmLabel: "Qi Condensation" },
   { id: 2, name: "Inner Disciple", requiredStepIndex: 11, requiredRealmLabel: "Foundation Establishment" },
-  { id: 3, name: "Core Disciple", requiredStepIndex: 15, requiredRealmLabel: "Foundation Establishment 5" },
+  { id: 3, name: "Core Disciple", requiredStepIndex: 21, requiredRealmLabel: "Golden Core" },
 ] as const;
 
 export type SectPositionId = (typeof SECT_POSITIONS)[number]["id"];

@@ -1,5 +1,17 @@
 /** Major realm ids in order. Mortal has no minor levels (0). Others have 1-10. */
-export const REALM_ORDER = ["Mortal", "Qi Condensation", "Foundation Establishment"] as const;
+export const REALM_ORDER = [
+  "Mortal",
+  "Qi Condensation",
+  "Foundation Establishment",
+  "Golden Core",
+  "Nascent Soul",
+  "Soul Formation",
+  "Void Refinement",
+  "Body Integration",
+  "Mahayana",
+  "Tribulation Transcendent",
+  "Immortal",
+] as const;
 export type RealmId = (typeof REALM_ORDER)[number];
 
 /** Minor levels per major realm. Mortal = 0 (no levels), others 1-10 */
@@ -7,11 +19,19 @@ export const REALM_LEVELS: Record<RealmId, number> = {
   Mortal: 0,
   "Qi Condensation": 10,
   "Foundation Establishment": 10,
+  "Golden Core": 10,
+  "Nascent Soul": 10,
+  "Soul Formation": 10,
+  "Void Refinement": 10,
+  "Body Integration": 10,
+  Mahayana: 10,
+  "Tribulation Transcendent": 10,
+  Immortal: 10,
 };
 
 const BREAKTHROUGH_QI_BASE = 100;
 
-/** Step index: Mortal=0, QC1=1, QC2=2, ... QC10=10, FE1=11, ... */
+/** Step index: Mortal=0, QC1=1..QC10=10, FE1=11..20, Golden Core 1=21..30, ... Immortal 10=100 */
 export function getStepIndex(realmId: RealmId, realmLevel: number): number {
   if (realmId === "Mortal") return 0;
   const realmIndex = REALM_ORDER.indexOf(realmId);
