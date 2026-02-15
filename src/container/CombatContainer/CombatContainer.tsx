@@ -44,7 +44,10 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const [itemBag, setItemBag] = useState<Item[]>([]);
 
   //For Progress Bar Value
-  const [progressBarValue, setProgressBarValue] = useState(100);
+  const [progress, setProgress] = useState(0);
+
+  //Fighting Interval. Can be later changed to be dynamic. Like if the character has a weapon with a faster attack speed.
+  const [fightingInterval, setFightingInterval] = useState(2000);
 
   //Fetch currentEnemies for that area
   const currentEnemies = enemies.filter((enemy) => enemy.location.toString() === area);
@@ -59,8 +62,6 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   };
 
   const [currentEnemy, setCurrentEnemy] = useState(getRandomEnemy());
-  //Start health for the progress bar
-  const startEnemyHealth = currentEnemy.health;
 
   /**
    * Add items to redux state and clear item bag
@@ -172,19 +173,44 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     if (characterState.health <= 0) {
       handleEscapeButton(true);
     }
-
-    setProgressBarValue(Math.floor(startEnemyHealth / 100) * currentEnemy.health);
   };
 
+  // useEffect(() => {
+  //   const fightingInterval = setInterval(() => handleFighting(), 2000);
+  //   //Cleanup
+  //   return () => clearInterval(fightingInterval);
+  // });
+
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => handleFighting(), fightingInterval);
+  //   return () => clearInterval(intervalId);
+  // }, [fightingInterval]);
+
   useEffect(() => {
-    const fightingInterval = setInterval(() => handleFighting(), 2000);
-    //Cleanup
-    return () => clearInterval(fightingInterval);
-  });
+    const intervalId = setInterval(() => handleFighting(), fightingInterval);
+    const progressInterval = setInterval(() => {
+      setProgress((prevProgress) => (prevProgress >= 100 ? 0 : prevProgress + 1));
+    }, fightingInterval / 100);
+
+    return () => {
+      clearInterval(intervalId);
+      clearInterval(progressInterval);
+    };
+  }, [fightingInterval]);
 
   return (
     <div className="combatContainer__main">
-      <ProgressBar bgcolor="#6a1b9a" completed={progressBarValue} />
+      Attack Speed: {fightingInterval / 1000}s
+      <div
+        className="progress-bar"
+        style={{
+          width: `${progress}%`,
+          height: 30,
+          backgroundColor: "purple",
+          borderRadius: "15px",
+          transition: "width 0.075s ease-in-out",
+        }}
+      />
       <h3>{area}</h3>
       <div className="combatContainer__main-combat">
         {/* CharacterSection */}
