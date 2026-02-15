@@ -1,18 +1,23 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addFishingXP, addItem } from "../../state/reducers/characterSlice";
+import { addFishingXP, addItem, setCurrentActivity } from "../../state/reducers/characterSlice";
 import "./FishingContainer.css";
 import { RootState } from "../../state/store";
 import FishingArea from "../../components/FishingArea/FishingArea";
 import { fishTypes, fishingAreaData } from "../../constants/data";
+import { ACTIVITY_LABELS } from "../../constants/activities";
 
 const FishingContainer = () => {
   const dispatch = useDispatch();
   const character = useSelector((state: RootState) => state.character);
   const [progress, setProgress] = useState(0);
   const [isFishing, setIsFishing] = useState(false);
+  const busyWithOther =
+    character.currentActivity !== "none" && character.currentActivity !== "fish";
+  const activityLabel = ACTIVITY_LABELS[character.currentActivity] ?? character.currentActivity;
 
   const startFishing = (fishingXP: number, fishingDelay: number, fishingLootIds: number[]) => {
+    dispatch(setCurrentActivity("fish"));
     setIsFishing(true);
     setProgress(0);
     const interval = setInterval(() => {
@@ -22,22 +27,25 @@ const FishingContainer = () => {
       clearInterval(interval);
       dispatch(addFishingXP(fishingXP));
 
-      // Randomly select a fish from the fishingLootIds array
       const randomIndex = Math.floor(Math.random() * fishingLootIds.length);
       const randomFishId = fishingLootIds[randomIndex];
-      // Find the corresponding fish in the fishTypes array
       const fish = fishTypes.find((fish) => fish.id === randomFishId);
-      // Add the fish to the inventory
       if (fish) {
         dispatch(addItem(fish));
       }
       setIsFishing(false);
+      dispatch(setCurrentActivity("none"));
     }, fishingDelay);
   };
 
   return (
     <div className="fishingContainer__main">
       <h2>Fishing</h2>
+      {busyWithOther && (
+        <p className="fishingContainer__busy">
+          You're busy ({activityLabel}). One activity at a time.
+        </p>
+      )}
       <div
         className="progress-bar"
         style={{
@@ -58,7 +66,11 @@ const FishingContainer = () => {
               altText={area.name}
               fishingXP={area.fishingXP}
               fishingDelay={area.fishingDelay}
-              onClick={() => !isFishing && startFishing(area.fishingXP, area.fishingDelay, area.fishingLootIds)}
+              onClick={() =>
+                !isFishing &&
+                !busyWithOther &&
+                startFishing(area.fishingXP, area.fishingDelay, area.fishingLootIds)
+              }
             />
           )
       )}

@@ -153,14 +153,8 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       const damageDealt = +(Math.random() * currentEnemy.attack).toFixed();
 
       setCharacterState({
-        attack: characterState.attack,
-        defense: characterState.defense,
+        ...characterState,
         health: characterState.health - damageDealt,
-        items: characterState.items,
-        miner: characterState.miner,
-        money: characterState.money,
-        name: characterState.name,
-        fishingXP: characterState.fishingXP,
       });
     }
 

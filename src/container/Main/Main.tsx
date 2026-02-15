@@ -12,10 +12,13 @@ import CombatContainer from "../CombatContainer/CombatContainer";
 import { addMoney } from "../../state/reducers/characterSlice";
 import { ContentArea } from "../../enum/ContentArea";
 import FishingContainer from "../FishingContainer/FishingContainer";
+import { PathChoiceScreen } from "../../components/PathChoiceScreen/PathChoiceScreen";
 import { PlaceholderPanel } from "../../components/PlaceholderPanel/PlaceholderPanel";
+import { MeditationContainer } from "../MeditationContainer/MeditationContainer";
 
 export const Main = () => {
   const content = useSelector((state: RootState) => state.content.page);
+  const path = useSelector((state: RootState) => state.character.path);
   let miner = useSelector((state: RootState) => state.character.miner);
   const minerRef = useRef(miner);
 
@@ -33,6 +36,14 @@ export const Main = () => {
     return () => clearInterval(intervalId);
   }, [dispatch]);
 
+  if (path === null) {
+    return (
+      <div className="app__main app__main--pathChoice">
+        <PathChoiceScreen />
+      </div>
+    );
+  }
+
   return (
     <div className="app__main">
       <div className="app__main-left">
@@ -44,7 +55,7 @@ export const Main = () => {
         {content === ContentArea.INVENTORY && <Inventory />}
         {content.split(":").shift() === ContentArea.COMBAT && <CombatContainer area={content.split(":").pop()} />}
         {content === ContentArea.LABOUR && <MoneyContainer />}
-        {content === ContentArea.MEDITATION && <PlaceholderPanel title="Meditation" description="Cultivate qi in solitude. Unlocks in a later update." />}
+        {content === ContentArea.MEDITATION && <MeditationContainer />}
         {content === ContentArea.FISHING && <FishingContainer />}
         {content === ContentArea.MINING && <PlaceholderPanel title="Mining" description="Mine ores and spirit stones. Unlocks in a later update." />}
         {content === ContentArea.GATHERING && <PlaceholderPanel title="Gathering" description="Gather herbs and wood. Unlocks in a later update." />}

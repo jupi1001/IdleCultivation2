@@ -36,6 +36,11 @@
   padding: 0.5rem;
 }
 
+.app__main--pathChoice {
+  display: flex;
+  flex-direction: column;
+}
+
 .app__main-placeholder {
   padding: 2rem;
   text-align: center;
