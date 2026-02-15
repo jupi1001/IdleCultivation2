@@ -96,7 +96,6 @@ export const existingSkills: SkillI[] = [
   { id: 4, name: "Fishing", description: "Fish in waters for spirit fish" },
   { id: 5, name: "Mining", description: "Mine ores and spirit stones" },
   { id: 6, name: "Gathering", description: "Gather herbs and wood" },
-  { id: 7, name: "Cultivation Tree", description: "Unlock permanent talents" },
   { id: 8, name: "Alchemy", description: "Craft pills and elixirs" },
   { id: 9, name: "Forging", description: "Upgrade spirit weapons" },
 ];
