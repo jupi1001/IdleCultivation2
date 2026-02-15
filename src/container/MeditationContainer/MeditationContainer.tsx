@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { addQi, breakthrough, setCurrentActivity } from "../../state/reducers/characterSlice";
-import { getBreakthroughQiRequired, getNextRealm, formatRealm } from "../../constants/realmProgression";
+import { breakthrough, setCurrentActivity } from "../../state/reducers/characterSlice";
+import { getBreakthroughQiRequired, getNextRealm } from "../../constants/realmProgression";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import images from "../../constants/images";
@@ -22,23 +22,6 @@ export const MeditationContainer = () => {
   const busyWithOther =
     currentActivity !== "none" && currentActivity !== "meditate";
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (!isMeditating) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      return;
-    }
-    intervalRef.current = setInterval(() => {
-      dispatch(addQi(qiPerSecond));
-    }, 1000);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [isMeditating, dispatch, qiPerSecond]);
 
   const handleStartMeditation = () => {
     dispatch(setCurrentActivity("meditate"));

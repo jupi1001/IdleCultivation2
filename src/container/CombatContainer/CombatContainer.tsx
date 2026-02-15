@@ -220,7 +220,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
               <tr>
                 <th>Attack</th>
                 <th>Defense</th>
-                <th>Health</th>
+                <th>Vitality</th>
               </tr>
             </thead>
             <tbody>
