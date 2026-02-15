@@ -24,6 +24,9 @@ interface CharacterState {
   path: CultivationPath | null;
   /** Talent id -> current level (0 = not purchased) */
   talentLevels: Record<number, number>;
+  /** Immortals Island: when non-null, character is on expedition until this timestamp (ms) */
+  expeditionEndTime: number | null;
+  expeditionMissionId: number | null;
 }
 
 const initialEquipment = ALL_EQUIPMENT_SLOTS.reduce(
@@ -47,6 +50,8 @@ const initialState: CharacterState = {
   equipment: initialEquipment,
   path: null,
   talentLevels: {},
+  expeditionEndTime: null,
+  expeditionMissionId: null,
 };
 
 export const characterSlice = createSlice({
@@ -136,6 +141,19 @@ export const characterSlice = createSlice({
     setPath: (state, action: PayloadAction<CultivationPath>) => {
       state.path = action.payload;
     },
+    startExpedition: (
+      state,
+      action: PayloadAction<{ endTime: number; missionId: number }>
+    ) => {
+      state.expeditionEndTime = action.payload.endTime;
+      state.expeditionMissionId = action.payload.missionId;
+      state.currentActivity = "expedition";
+    },
+    clearExpedition: (state) => {
+      state.expeditionEndTime = null;
+      state.expeditionMissionId = null;
+      if (state.currentActivity === "expedition") state.currentActivity = "none";
+    },
     purchaseTalentLevel: (state, action: PayloadAction<number>) => {
       const node = TALENT_NODES_BY_ID[action.payload];
       if (!node) return;
@@ -182,6 +200,8 @@ export const {
   equipItem,
   unequipItem,
   setPath,
+  startExpedition,
+  clearExpedition,
   purchaseTalentLevel,
 } = characterSlice.actions;
 
