@@ -1,16 +1,25 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
+import React from "react";
+import { useDispatch } from "react-redux";
 import { changeContent } from "../../state/reducers/contentSlice";
 import "./Header.css";
 import { ContentArea } from "../../enum/ContentArea";
 
-export const Header = () => {
-  //const content = useSelector((state: RootState) => state.content);
+type Theme = "dark" | "light";
+
+interface HeaderProps {
+  theme: Theme;
+  setTheme: (t: Theme) => void;
+}
+
+export const Header = ({ theme, setTheme }: HeaderProps) => {
   const dispatch = useDispatch();
 
   const openContent = (input: string) => {
     dispatch(changeContent(input));
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   return (
@@ -29,6 +38,9 @@ export const Header = () => {
           <button onClick={() => openContent(ContentArea.INVENTORY)}>Inventory</button>
         </li>
       </ul>
+      <button type="button" className="app__header-theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+        {theme === "dark" ? "☀" : "☽"}
+      </button>
     </nav>
   );
 };

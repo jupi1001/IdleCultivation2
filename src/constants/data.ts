@@ -8,24 +8,24 @@ import images from "./images";
 export const existingShopItemUpgrades: Item[] = [
   {
     id: 1,
-    name: "Wooden Sword",
-    description: "A basic sword",
+    name: "Wooden Spirit Blade",
+    description: "A basic spirit weapon",
     price: 500,
     picture: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png",
     quantity: 1,
   },
   {
     id: 2,
-    name: "Iron Sword",
-    description: "An iron sword",
+    name: "Iron Spirit Blade",
+    description: "An iron spirit weapon",
     price: 1000,
     picture: "https://www.pokewiki.de/images/thumb/7/72/Sugimori_386.png/250px-Sugimori_386.png",
     quantity: 1,
   },
   {
     id: 3,
-    name: "Gold Sword",
-    description: "A gold sword",
+    name: "Gold Spirit Blade",
+    description: "A gold spirit weapon",
     price: 10000,
     picture: "https://www.pokewiki.de/images/thumb/7/72/Sugimori_386.png/250px-Sugimori_386.png",
     quantity: 1,
@@ -56,16 +56,21 @@ export const existingShopItems: Item[] = [
 ];
 
 export const existingSkills: SkillI[] = [
-  { id: 1, name: "Combat", description: "Train combat" },
-  { id: 2, name: "Money", description: "Make money" },
-  { id: 3, name: "Fishing", description: "Fish fish" },
-  { id: 4, name: "Woodcutting", description: "Cut wood" },
+  { id: 1, name: "Martial Training", description: "Train combat and face trials" },
+  { id: 2, name: "Labour", description: "Earn spirit stones" },
+  { id: 3, name: "Meditation", description: "Cultivate qi in solitude" },
+  { id: 4, name: "Fishing", description: "Fish in waters for spirit fish" },
+  { id: 5, name: "Mining", description: "Mine ores and spirit stones" },
+  { id: 6, name: "Gathering", description: "Gather herbs and wood" },
+  { id: 7, name: "Cultivation Tree", description: "Unlock permanent talents" },
+  { id: 8, name: "Alchemy", description: "Craft pills and elixirs" },
+  { id: 9, name: "Forging", description: "Upgrade spirit weapons" },
 ];
 
 export const enemies: EnemyI[] = [
   {
     id: 1,
-    name: "Chicken",
+    name: "Young Spirit Beast",
     attack: 1,
     defense: 1,
     health: 10,
@@ -75,7 +80,7 @@ export const enemies: EnemyI[] = [
   },
   {
     id: 2,
-    name: "Cow",
+    name: "Spirit Beast",
     attack: 3,
     defense: 3,
     health: 20,
@@ -85,7 +90,7 @@ export const enemies: EnemyI[] = [
   },
   {
     id: 3,
-    name: "Pig",
+    name: "Feral Spirit Beast",
     attack: 2,
     defense: 2,
     health: 15,
@@ -95,7 +100,7 @@ export const enemies: EnemyI[] = [
   },
   {
     id: 4,
-    name: "Goblin",
+    name: "Cave Demon",
     attack: 5,
     defense: 5,
     health: 10,
@@ -108,7 +113,7 @@ export const enemies: EnemyI[] = [
 export const fishingAreaData: FishingAreaI[] = [
   {
     id: 1,
-    name: "Puddle",
+    name: "Village Pond",
     fishingXP: 1,
     fishingXPUnlock: 0,
     fishingDelay: 3000,
@@ -126,7 +131,7 @@ export const fishingAreaData: FishingAreaI[] = [
   },
   {
     id: 3,
-    name: "River",
+    name: "Spirit River",
     fishingXP: 4,
     fishingXPUnlock: 100,
     fishingDelay: 5000,
@@ -135,7 +140,7 @@ export const fishingAreaData: FishingAreaI[] = [
   },
   {
     id: 4,
-    name: "Sea",
+    name: "Spirit Sea",
     fishingXP: 8,
     fishingXPUnlock: 200,
     fishingDelay: 6000,
@@ -144,7 +149,7 @@ export const fishingAreaData: FishingAreaI[] = [
   },
   {
     id: 5,
-    name: "Ocean",
+    name: "Abyssal Ocean",
     fishingXP: 16,
     fishingXPUnlock: 300,
     fishingDelay: 7000,

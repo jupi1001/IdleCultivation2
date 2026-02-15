@@ -1,7 +1,20 @@
+.combatContainer__main {
+  padding: 0.5rem;
+}
+
+.combatContainer__main h3 {
+  margin: 0 0 0.75rem;
+}
+
 .combatContainer__main-combat {
   display: flex;
   align-items: center;
   justify-content: space-around;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 1rem 0;
 }
 
 .combatContainer__main-img {
@@ -13,6 +26,8 @@
 .combatContainer__main-footer {
   display: flex;
   justify-content: space-evenly;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .combatContainer__main-footer img {
@@ -21,10 +36,12 @@
   cursor: pointer;
 }
 
-table {
+.combatContainer__main table {
   margin: 0 auto;
+  color: var(--text);
 }
 
-td {
+.combatContainer__main td {
   text-align: center;
+  padding: 0.25em 0.5em;
 }

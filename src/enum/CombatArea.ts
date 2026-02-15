@@ -1,5 +1,5 @@
 export enum CombatArea {
-  FARM = "Farm",
-  CAVE = "Cave",
-  CRYSTALCAVE = "CrystalCave",
+  FARM = "Village Outskirts",
+  CAVE = "Spirit Beast Cave",
+  CRYSTALCAVE = "Crystal Mine",
 }

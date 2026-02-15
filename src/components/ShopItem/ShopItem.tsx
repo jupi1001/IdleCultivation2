@@ -53,12 +53,12 @@ const ShopItem: React.FC<ShopItemProps> = ({ item }) => {
         <div className="shopitem__main">
           <h3>{item.name}</h3>
           <p>{item.description}</p>
-          <p>Cost: {item.price}</p>
+          <p>Cost: {item.price} Spirit Stones</p>
           {/* Dumb check if it is attack or defensive item or consumable */}
           {item.id < 100 && item.id > 0 && <button onClick={() => addAttackFunction(item.price, 1)}>Buy</button>}
           {item.id < 200 && item.id >= 100 && <button onClick={() => addDefenseFunction(item.price, 1)}>Buy</button>}
           {item.id < 300 && item.id >= 200 && <button onClick={() => addConsumable(item.price, 1)}>Buy</button>}
-          {moneyMessage === "show" && <h4>Not enough Money</h4>}
+          {moneyMessage === "show" && <h4>Not enough Spirit Stones</h4>}
         </div>
       )}
     </>

@@ -22,13 +22,13 @@ const MoneyContainer = () => {
   return (
     <div className="moneyContainer__main">
       <div className="moneyContainer__main-item">
-        <h2>Collect Coins</h2>
-        <button onClick={() => getMoney(1)}>Grab 1 Coin</button>
+        <h2>Earn Spirit Stones</h2>
+        <button onClick={() => getMoney(1)}>Gather 1 Spirit Stone</button>
       </div>
       <div className="moneyContainer__main-item">
-        <h2>Buy Miner</h2>
-        <span>Cost: 100 Coins</span>
-        <button onClick={() => getMiner(1)}>Buy</button>
+        <h2>Hire Labourer</h2>
+        <span>Cost: 100 Spirit Stones</span>
+        <button onClick={() => getMiner(1)}>Hire</button>
       </div>
     </div>
   );

@@ -2,10 +2,12 @@
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  border: 1px purple;
-  border-style: solid;
-  margin: 0 0.5rem;
-  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 0;
+  padding: 1rem;
+  background: var(--surface);
+  min-width: 180px;
 }

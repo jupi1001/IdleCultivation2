@@ -12,6 +12,7 @@ import CombatContainer from "../CombatContainer/CombatContainer";
 import { addMoney } from "../../state/reducers/characterSlice";
 import { ContentArea } from "../../enum/ContentArea";
 import FishingContainer from "../FishingContainer/FishingContainer";
+import { PlaceholderPanel } from "../../components/PlaceholderPanel/PlaceholderPanel";
 
 export const Main = () => {
   const content = useSelector((state: RootState) => state.content.page);
@@ -42,8 +43,15 @@ export const Main = () => {
         {content === ContentArea.SHOP && <Shop />}
         {content === ContentArea.INVENTORY && <Inventory />}
         {content.split(":").shift() === ContentArea.COMBAT && <CombatContainer area={content.split(":").pop()} />}
-        {content === ContentArea.MONEY && <MoneyContainer />}
+        {content === ContentArea.LABOUR && <MoneyContainer />}
+        {content === ContentArea.MEDITATION && <PlaceholderPanel title="Meditation" description="Cultivate qi in solitude. Unlocks in a later update." />}
         {content === ContentArea.FISHING && <FishingContainer />}
+        {content === ContentArea.MINING && <PlaceholderPanel title="Mining" description="Mine ores and spirit stones. Unlocks in a later update." />}
+        {content === ContentArea.GATHERING && <PlaceholderPanel title="Gathering" description="Gather herbs and wood. Unlocks in a later update." />}
+        {content === ContentArea.CULTIVATION_TREE && <PlaceholderPanel title="Cultivation Tree" description="Unlock permanent talents with qi and spirit stones. Unlocks in a later update." />}
+        {content === ContentArea.ALCHEMY && <PlaceholderPanel title="Alchemy" description="Craft pills and elixirs. Unlocks in a later update." />}
+        {content === ContentArea.FORGING && <PlaceholderPanel title="Forging" description="Upgrade spirit weapons. Unlocks in a later update." />}
+        {content === ContentArea.IMMORTALS_ISLAND && <PlaceholderPanel title="Immortals Island" description="Send expeditions for rewards. Unlocks in a later update." />}
       </div>
 
       <div className="app__main-right">
