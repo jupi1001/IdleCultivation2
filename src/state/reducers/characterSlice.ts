@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { CultivationPath } from "../../constants/cultivationPath";
-import { getNextRealm, type RealmId } from "../../constants/realmProgression";
+import { getNextRealm, getStepIndex, type RealmId } from "../../constants/realmProgression";
+import { TALENT_NODES_BY_ID } from "../../constants/talents";
 import Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
@@ -21,6 +22,8 @@ interface CharacterState {
   equipment: Record<EquipmentSlot, Item | null>;
   /** Righteous vs Demonic; chosen once at game start. Affects sects and cultivation tree. */
   path: CultivationPath | null;
+  /** Talent id -> current level (0 = not purchased) */
+  talentLevels: Record<number, number>;
 }
 
 const initialEquipment = ALL_EQUIPMENT_SLOTS.reduce(
@@ -43,6 +46,7 @@ const initialState: CharacterState = {
   currentActivity: "none",
   equipment: initialEquipment,
   path: null,
+  talentLevels: {},
 };
 
 export const characterSlice = createSlice({
@@ -132,6 +136,27 @@ export const characterSlice = createSlice({
     setPath: (state, action: PayloadAction<CultivationPath>) => {
       state.path = action.payload;
     },
+    purchaseTalentLevel: (state, action: PayloadAction<number>) => {
+      const node = TALENT_NODES_BY_ID[action.payload];
+      if (!node) return;
+      const currentLevel = state.talentLevels[node.id] ?? 0;
+      if (currentLevel >= node.maxLevel) return;
+      if (state.qi < node.costQi) return;
+      if (node.requiredRealm) {
+        const charStep = getStepIndex(state.realm, state.realmLevel);
+        const reqStep = getStepIndex(node.requiredRealm.realmId, node.requiredRealm.realmLevel);
+        if (charStep < reqStep) return;
+      }
+      if (node.requiredTalentIds?.length) {
+        const allMet = node.requiredTalentIds.every((id) => {
+          const reqNode = TALENT_NODES_BY_ID[id];
+          return reqNode && (state.talentLevels[id] ?? 0) >= reqNode.maxLevel;
+        });
+        if (!allMet) return;
+      }
+      state.qi = Math.round((state.qi - node.costQi) * 100) / 100;
+      state.talentLevels[node.id] = currentLevel + 1;
+    },
   },
 });
 
@@ -157,6 +182,7 @@ export const {
   equipItem,
   unequipItem,
   setPath,
+  purchaseTalentLevel,
 } = characterSlice.actions;
 
 export default characterSlice.reducer;

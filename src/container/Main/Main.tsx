@@ -9,20 +9,27 @@ import "./Main.css";
 import { Inventory } from "../Inventory/Inventory";
 import MoneyContainer from "../MoneyContainer/MoneyContainer";
 import CombatContainer from "../CombatContainer/CombatContainer";
-import { addMoney } from "../../state/reducers/characterSlice";
+import { addMoney, addQi } from "../../state/reducers/characterSlice";
+import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import { ContentArea } from "../../enum/ContentArea";
 import FishingContainer from "../FishingContainer/FishingContainer";
 import { PathChoiceScreen } from "../../components/PathChoiceScreen/PathChoiceScreen";
 import { PlaceholderPanel } from "../../components/PlaceholderPanel/PlaceholderPanel";
 import { MeditationContainer } from "../MeditationContainer/MeditationContainer";
+import { CultivationTreeContainer } from "../CultivationTreeContainer/CultivationTreeContainer";
 
 export const Main = () => {
   const content = useSelector((state: RootState) => state.content.page);
   const path = useSelector((state: RootState) => state.character.path);
+  const currentActivity = useSelector((state: RootState) => state.character.currentActivity);
+  const equipment = useSelector((state: RootState) => state.character.equipment);
   let miner = useSelector((state: RootState) => state.character.miner);
   const minerRef = useRef(miner);
 
   const dispatch = useDispatch();
+
+  const qiPerSecond =
+    Math.round((BASE_QI_PER_SECOND + (equipment.qiTechnique?.qiGainBonus ?? 0)) * 10) / 10;
 
   useEffect(() => {
     minerRef.current = miner;
@@ -35,6 +42,14 @@ export const Main = () => {
 
     return () => clearInterval(intervalId);
   }, [dispatch]);
+
+  useEffect(() => {
+    if (currentActivity !== "meditate") return;
+    const intervalId = setInterval(() => {
+      dispatch(addQi(qiPerSecond));
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, [currentActivity, dispatch, qiPerSecond]);
 
   if (path === null) {
     return (
@@ -59,7 +74,7 @@ export const Main = () => {
         {content === ContentArea.FISHING && <FishingContainer />}
         {content === ContentArea.MINING && <PlaceholderPanel title="Mining" description="Mine ores and spirit stones. Unlocks in a later update." />}
         {content === ContentArea.GATHERING && <PlaceholderPanel title="Gathering" description="Gather herbs and wood. Unlocks in a later update." />}
-        {content === ContentArea.CULTIVATION_TREE && <PlaceholderPanel title="Cultivation Tree" description="Unlock permanent talents with qi and spirit stones. Unlocks in a later update." />}
+        {content === ContentArea.CULTIVATION_TREE && <CultivationTreeContainer />}
         {content === ContentArea.ALCHEMY && <PlaceholderPanel title="Alchemy" description="Craft pills and elixirs. Unlocks in a later update." />}
         {content === ContentArea.FORGING && <PlaceholderPanel title="Forging" description="Upgrade spirit weapons. Unlocks in a later update." />}
         {content === ContentArea.IMMORTALS_ISLAND && <PlaceholderPanel title="Immortals Island" description="Send expeditions for rewards. Unlocks in a later update." />}
