@@ -1,0 +1,25 @@
+.fishingAreaContainer__main-item {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.fishingAreaContainer__main-item--locked {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.fishingAreaContainer__main-item:not(.fishingAreaContainer__main-item--locked) {
+  cursor: pointer;
+}
+
+.fishingAreaContainer__main-item:not(.fishingAreaContainer__main-item--locked):hover {
+  border-color: var(--accent);
+}
+
+.fishingAreaContainer__lock {
+  margin: 0.25rem 0;
+  font-size: 0.85em;
+  color: var(--text-muted);
+}

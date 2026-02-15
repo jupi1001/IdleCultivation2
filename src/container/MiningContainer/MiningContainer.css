@@ -1,45 +1,49 @@
-.fishingContainer__level {
+.miningContainer__main {
+  padding: 0.5rem;
+}
+
+.miningContainer__level {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   margin-bottom: 0.75rem;
 }
 
-.fishingContainer__xp-text {
+.miningContainer__xp-text {
   font-size: 0.9em;
   color: var(--text-muted);
 }
 
-.fishingContainer__stop {
+.miningContainer__stop {
   margin-bottom: 0.5rem;
   padding: 0.35rem 0.75rem;
   font-size: 0.9em;
   cursor: pointer;
 }
 
-.fishingContainer__xp-bar-track {
+.miningContainer__xp-bar-track {
   height: 10px;
   background: var(--border);
   border-radius: 5px;
   overflow: hidden;
 }
 
-.fishingContainer__xp-bar-fill {
+.miningContainer__xp-bar-fill {
   height: 100%;
   background: var(--accent);
   border-radius: 5px;
   transition: width 0.2s ease-out;
 }
 
-.fishingContainer__busy {
+.miningContainer__busy {
   margin: 0 0 0.5rem;
   font-size: 0.9em;
   color: var(--text-muted);
 }
 
-.fishingContainer__cast-bar.progress-bar {
+.miningContainer__cast-bar.progress-bar {
   height: 30px;
-  background-color: lightblue;
+  background-color: #b8860b;
   border-radius: 15px;
   transition: width 0.08s linear;
 }

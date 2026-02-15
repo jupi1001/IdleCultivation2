@@ -4,6 +4,9 @@ import { RootState } from "../../state/store";
 import SkillI from "../../interfaces/SkillI";
 import "./SkillBlockItem.css";
 import { changeContent } from "../../state/reducers/contentSlice";
+import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
+import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
+import { isLockingActivity } from "../../constants/activities";
 
 const PATH_ACCENT_COLORS: Record<string, string> = {
   "Martial Training": "#a04040",
@@ -25,12 +28,16 @@ interface SkillItemProps {
 const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
   const dispatch = useDispatch();
   const currentActivity = useSelector((state: RootState) => state.character.currentActivity);
+  const fishingXP = useSelector((state: RootState) => state.character.fishingXP);
+  const miningXP = useSelector((state: RootState) => state.character.miningXP);
   const accentColor = PATH_ACCENT_COLORS[skill.name] ?? "var(--accent)";
-  const isBlockedByExpedition =
-    currentActivity === "expedition" && skill.name !== "Immortals Island";
+  const isNavigationLocked = isLockingActivity(currentActivity);
+  const isBlocked = isNavigationLocked && skill.name !== "Immortals Island";
+  const fishingLevel = skill.name === "Fishing" ? getFishingLevelInfo(fishingXP).level : null;
+  const miningLevel = skill.name === "Mining" ? getMiningLevelInfo(miningXP).level : null;
 
   const openSkill = (input: string) => {
-    if (isBlockedByExpedition) return;
+    if (isBlocked) return;
     if (input === "Martial Training") {
       dispatch(changeContent("Map"));
       return;
@@ -40,11 +47,19 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
 
   return (
     <div
-      className={`skillBlockItem__main ${isBlockedByExpedition ? "skillBlockItem__main--disabled" : ""}`}
+      className={`skillBlockItem__main ${isBlocked ? "skillBlockItem__main--disabled" : ""}`}
       onClick={() => openSkill(skill.name)}
       style={{ "--path-accent": accentColor } as React.CSSProperties}
     >
-      <h3>{skill.name}</h3>
+      <h3>
+        {skill.name}
+        {fishingLevel !== null && (
+          <span className="skillBlockItem__level"> Level {fishingLevel}/{FISHING_MAX_LEVEL}</span>
+        )}
+        {miningLevel !== null && (
+          <span className="skillBlockItem__level"> Level {miningLevel}/{MINING_MAX_LEVEL}</span>
+        )}
+      </h3>
       <p className="skillBlockItem__main-p">{skill.description}</p>
     </div>
   );

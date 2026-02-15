@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import { LeftMain } from "../LeftMain/LeftMain";
 import { RightMain } from "../RightMain/RightMain";
 import { Shop } from "../Shop/Shop";
@@ -9,48 +9,21 @@ import "./Main.css";
 import { Inventory } from "../Inventory/Inventory";
 import MoneyContainer from "../MoneyContainer/MoneyContainer";
 import CombatContainer from "../CombatContainer/CombatContainer";
-import { addMoney, addQi } from "../../state/reducers/characterSlice";
-import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import { ContentArea } from "../../enum/ContentArea";
 import FishingContainer from "../FishingContainer/FishingContainer";
+import MiningContainer from "../MiningContainer/MiningContainer";
 import { PathChoiceScreen } from "../../components/PathChoiceScreen/PathChoiceScreen";
 import { PlaceholderPanel } from "../../components/PlaceholderPanel/PlaceholderPanel";
 import { MeditationContainer } from "../MeditationContainer/MeditationContainer";
 import { CultivationTreeContainer } from "../CultivationTreeContainer/CultivationTreeContainer";
 import { ImmortalsIslandContainer } from "../ImmortalsIslandContainer/ImmortalsIslandContainer";
+import { useActivityTicks } from "../../hooks/useActivityTicks";
 
 export const Main = () => {
+  useActivityTicks();
+
   const content = useSelector((state: RootState) => state.content.page);
   const path = useSelector((state: RootState) => state.character.path);
-  const currentActivity = useSelector((state: RootState) => state.character.currentActivity);
-  const equipment = useSelector((state: RootState) => state.character.equipment);
-  let miner = useSelector((state: RootState) => state.character.miner);
-  const minerRef = useRef(miner);
-
-  const dispatch = useDispatch();
-
-  const qiPerSecond =
-    Math.round((BASE_QI_PER_SECOND + (equipment.qiTechnique?.qiGainBonus ?? 0)) * 10) / 10;
-
-  useEffect(() => {
-    minerRef.current = miner;
-  }, [miner]);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      dispatch(addMoney(minerRef.current));
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (currentActivity !== "meditate") return;
-    const intervalId = setInterval(() => {
-      dispatch(addQi(qiPerSecond));
-    }, 1000);
-    return () => clearInterval(intervalId);
-  }, [currentActivity, dispatch, qiPerSecond]);
 
   if (path === null) {
     return (
@@ -73,7 +46,7 @@ export const Main = () => {
         {content === ContentArea.LABOUR && <MoneyContainer />}
         {content === ContentArea.MEDITATION && <MeditationContainer />}
         {content === ContentArea.FISHING && <FishingContainer />}
-        {content === ContentArea.MINING && <PlaceholderPanel title="Mining" description="Mine ores and spirit stones. Unlocks in a later update." />}
+        {content === ContentArea.MINING && <MiningContainer />}
         {content === ContentArea.GATHERING && <PlaceholderPanel title="Gathering" description="Gather herbs and wood. Unlocks in a later update." />}
         {content === ContentArea.CULTIVATION_TREE && <CultivationTreeContainer />}
         {content === ContentArea.ALCHEMY && <PlaceholderPanel title="Alchemy" description="Craft pills and elixirs. Unlocks in a later update." />}

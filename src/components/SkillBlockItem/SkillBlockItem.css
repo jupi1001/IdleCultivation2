@@ -48,6 +48,14 @@
   line-height: 1.25;
 }
 
+.skillBlockItem__level {
+  position: relative;
+  z-index: 1;
+  font-size: 0.85em;
+  font-weight: 500;
+  color: var(--path-accent);
+}
+
 .skillBlockItem__main-p {
   margin: 0.1rem 0 0;
   font-size: 0.8em;

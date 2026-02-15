@@ -2,6 +2,7 @@ import { CombatArea } from "../enum/CombatArea";
 import type { CultivationPath } from "./cultivationPath";
 import EnemyI from "../interfaces/EnemyI";
 import FishingAreaI from "../interfaces/FishingAreaI";
+import MiningAreaI from "../interfaces/MiningAreaI";
 import Item from "../interfaces/ItemI";
 import SkillI from "../interfaces/SkillI";
 import images from "./images";
@@ -143,6 +144,13 @@ export const enemies: EnemyI[] = [
   },
 ];
 
+/** Base path for fishing area images. Add images under public/assets/fishing/ */
+const FISHING_ASSETS = "/assets/fishing";
+/** Base path for fish item images. Add images under public/assets/fish/ */
+const FISH_ASSETS = "/assets/fish";
+/** Base path for mining area images. Add images under public/assets/mining/ */
+const MINING_ASSETS = "/assets/mining";
+
 export const fishingAreaData: FishingAreaI[] = [
   {
     id: 1,
@@ -151,7 +159,8 @@ export const fishingAreaData: FishingAreaI[] = [
     fishingXPUnlock: 0,
     fishingDelay: 3000,
     fishingLootIds: [301],
-    picture: images.puddle,
+    picture: `${FISHING_ASSETS}/village-pond.png`,
+    altText: "Village Pond – calm waters",
   },
   {
     id: 2,
@@ -160,7 +169,8 @@ export const fishingAreaData: FishingAreaI[] = [
     fishingXPUnlock: 25,
     fishingDelay: 4000,
     fishingLootIds: [301, 304],
-    picture: images.puddle,
+    picture: `${FISHING_ASSETS}/small-lake.png`,
+    altText: "Small Lake",
   },
   {
     id: 3,
@@ -169,7 +179,8 @@ export const fishingAreaData: FishingAreaI[] = [
     fishingXPUnlock: 100,
     fishingDelay: 5000,
     fishingLootIds: [302],
-    picture: images.puddle,
+    picture: `${FISHING_ASSETS}/spirit-river.png`,
+    altText: "Spirit River – Qi-rich waters",
   },
   {
     id: 4,
@@ -178,7 +189,8 @@ export const fishingAreaData: FishingAreaI[] = [
     fishingXPUnlock: 200,
     fishingDelay: 6000,
     fishingLootIds: [302, 303],
-    picture: images.puddle,
+    picture: `${FISHING_ASSETS}/spirit-sea.png`,
+    altText: "Spirit Sea",
   },
   {
     id: 5,
@@ -187,59 +199,123 @@ export const fishingAreaData: FishingAreaI[] = [
     fishingXPUnlock: 300,
     fishingDelay: 7000,
     fishingLootIds: [302, 303, 305],
-    picture: images.puddle,
+    picture: `${FISHING_ASSETS}/abyssal-ocean.png`,
+    altText: "Abyssal Ocean – deep spirit waters",
   },
 ];
 
 export const fishTypes: Item[] = [
   {
     id: 301,
-    name: "Sardine",
-    description: "Very small fish",
+    name: "Spirit Minnow",
+    description: "A small fish touched by Qi. Can be used in pills. Restores 1 Qi.",
     price: 1,
     quantity: 1,
-    picture: images.blueFish,
+    picture: `${FISH_ASSETS}/spirit-minnow.png`,
     value: 1,
-    effect: "health",
+    effect: "qi",
   },
   {
     id: 302,
-    name: "Salmon",
-    description: "Popular fish for cooking",
+    name: "River Carp",
+    description: "Common in Spirit River. Good for cooking.",
     price: 3,
     quantity: 1,
-    picture: images.redFish,
+    picture: `${FISH_ASSETS}/river-carp.png`,
     value: 2,
-    effect: "health",
+    effect: "vitality",
   },
   {
     id: 303,
-    name: "Tuna",
-    description: "Large and flavorful fish",
+    name: "Jade Tuna",
+    description: "Large spirit fish from the Spirit Sea.",
     price: 5,
     quantity: 1,
-    picture: images.purpleFish,
+    picture: `${FISH_ASSETS}/jade-tuna.png`,
     value: 3,
-    effect: "health",
+    effect: "vitality",
   },
   {
     id: 304,
-    name: "Mackerel",
-    description: "Rich in omega-3 fatty acids",
+    name: "Silver Mackerel",
+    description: "Swift fish rich in spiritual energy.",
     price: 2,
     quantity: 1,
-    picture: images.boneFishSmall,
+    picture: `${FISH_ASSETS}/silver-mackerel.png`,
     value: 2,
-    effect: "health",
+    effect: "vitality",
   },
   {
     id: 305,
-    name: "Pufferfish",
-    description: "Can be poisonous if not prepared correctly",
+    name: "Abyssal Puffer",
+    description: "Rare fish from the deep. Handle with care when preparing.",
     price: 7,
     quantity: 1,
-    picture: images.pufferFish,
+    picture: `${FISH_ASSETS}/abyssal-puffer.png`,
     value: 5,
-    effect: "health",
+    effect: "vitality",
+  },
+];
+
+export const miningAreaData: MiningAreaI[] = [
+  {
+    id: 1,
+    name: "Copper Ore",
+    miningXP: 1,
+    miningXPUnlock: 0,
+    miningDelay: 4000,
+    miningLootId: 501,
+    picture: `${MINING_ASSETS}/copper-ore.png`,
+    altText: "Copper ore vein",
+  },
+  {
+    id: 2,
+    name: "Iron Ore",
+    miningXP: 2,
+    miningXPUnlock: 25,
+    miningDelay: 5000,
+    miningLootId: 502,
+    picture: `${MINING_ASSETS}/iron-ore.png`,
+    altText: "Iron ore vein",
+  },
+  {
+    id: 3,
+    name: "Spirit Vein",
+    miningXP: 4,
+    miningXPUnlock: 100,
+    miningDelay: 6000,
+    miningLootId: 503,
+    picture: `${MINING_ASSETS}/spirit-vein.png`,
+    altText: "Spirit stone vein",
+  },
+];
+
+export const oreTypes: Item[] = [
+  {
+    id: 501,
+    name: "Copper Ore",
+    description: "Raw copper ore. Used in forging.",
+    price: 2,
+    quantity: 1,
+    picture: `${MINING_ASSETS}/item-copper-ore.png`,
+    value: 0,
+  },
+  {
+    id: 502,
+    name: "Iron Ore",
+    description: "Raw iron ore. Used in forging.",
+    price: 5,
+    quantity: 1,
+    picture: `${MINING_ASSETS}/item-iron-ore.png`,
+    value: 0,
+  },
+  {
+    id: 503,
+    name: "Spirit Stone",
+    description: "Condensed spirit energy. Used in cultivation and crafting.",
+    price: 3,
+    quantity: 1,
+    picture: `${MINING_ASSETS}/item-spirit-stone.png`,
+    value: 0,
   },
 ];
