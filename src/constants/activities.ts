@@ -6,4 +6,5 @@ export const ACTIVITY_LABELS: Record<string, string> = {
   gather: "Gathering",
   mine: "Mining",
   combat: "Combat",
+  expedition: "Expedition",
 };

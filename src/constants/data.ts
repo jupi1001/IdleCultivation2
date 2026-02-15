@@ -89,9 +89,10 @@ export const existingShopQiTechniques: Item[] = [
 ];
 
 export const existingSkills: SkillI[] = [
+  { id: 3, name: "Meditation", description: "Cultivate Qi in solitude" },
   { id: 1, name: "Martial Training", description: "Train combat and face trials" },
+  { id: 10, name: "Immortals Island", description: "Send expeditions for rewards" },
   { id: 2, name: "Labour", description: "Earn spirit stones" },
-  { id: 3, name: "Meditation", description: "Cultivate qi in solitude" },
   { id: 4, name: "Fishing", description: "Fish in waters for spirit fish" },
   { id: 5, name: "Mining", description: "Mine ores and spirit stones" },
   { id: 6, name: "Gathering", description: "Gather herbs and wood" },

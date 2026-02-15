@@ -17,6 +17,7 @@ import { PathChoiceScreen } from "../../components/PathChoiceScreen/PathChoiceSc
 import { PlaceholderPanel } from "../../components/PlaceholderPanel/PlaceholderPanel";
 import { MeditationContainer } from "../MeditationContainer/MeditationContainer";
 import { CultivationTreeContainer } from "../CultivationTreeContainer/CultivationTreeContainer";
+import { ImmortalsIslandContainer } from "../ImmortalsIslandContainer/ImmortalsIslandContainer";
 
 export const Main = () => {
   const content = useSelector((state: RootState) => state.content.page);
@@ -77,7 +78,7 @@ export const Main = () => {
         {content === ContentArea.CULTIVATION_TREE && <CultivationTreeContainer />}
         {content === ContentArea.ALCHEMY && <PlaceholderPanel title="Alchemy" description="Craft pills and elixirs. Unlocks in a later update." />}
         {content === ContentArea.FORGING && <PlaceholderPanel title="Forging" description="Upgrade spirit weapons. Unlocks in a later update." />}
-        {content === ContentArea.IMMORTALS_ISLAND && <PlaceholderPanel title="Immortals Island" description="Send expeditions for rewards. Unlocks in a later update." />}
+        {content === ContentArea.IMMORTALS_ISLAND && <ImmortalsIslandContainer />}
       </div>
 
       <div className="app__main-right">
