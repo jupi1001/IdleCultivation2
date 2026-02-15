@@ -1,33 +1,33 @@
 import React, { useState } from "react";
 import Item from "../../interfaces/ItemI";
 import LootTablePopover from "../LootTablePopover/LootTablePopover";
-import "./MiningArea.css";
+import "./GatheringArea.css";
 
-interface MiningAreaProps {
+interface GatheringAreaProps {
   title: string;
   imageSrc: string;
   altText: string;
-  miningXP: number;
-  miningDelay: number;
+  gatheringXP: number;
+  gatheringDelay: number;
   requiredLevel: number;
-  /** Possible ore from this area (single item; from data; dynamic). */
+  /** Possible wood/herbs from this area (from data; dynamic). */
   possibleLoot: Item[];
   unlocked: boolean;
   onClick: () => void;
 }
 
-function formatMiningDuration(ms: number): string {
+function formatGatheringDuration(ms: number): string {
   const sec = Math.round(ms / 1000);
   if (sec < 60) return `${sec}s`;
   return `${Math.floor(sec / 60)}m ${sec % 60}s`;
 }
 
-const MiningArea: React.FC<MiningAreaProps> = ({
+const GatheringArea: React.FC<GatheringAreaProps> = ({
   title,
   imageSrc,
   altText,
-  miningXP,
-  miningDelay,
+  gatheringXP,
+  gatheringDelay,
   requiredLevel,
   possibleLoot,
   unlocked,
@@ -37,7 +37,7 @@ const MiningArea: React.FC<MiningAreaProps> = ({
 
   return (
     <div
-      className={`miningAreaContainer__main-item ${unlocked ? "" : "miningAreaContainer__main-item--locked"}`}
+      className={`gatheringAreaContainer__main-item ${unlocked ? "" : "gatheringAreaContainer__main-item--locked"}`}
       onClick={unlocked ? onClick : undefined}
       onMouseEnter={() => unlocked && (document.body.style.cursor = "pointer")}
       onMouseLeave={() => (document.body.style.cursor = "default")}
@@ -46,18 +46,18 @@ const MiningArea: React.FC<MiningAreaProps> = ({
     >
       <h2>{title}</h2>
       <p>
-        Mining XP: {miningXP} · Duration: {formatMiningDuration(miningDelay)}
+        Gathering XP: {gatheringXP} · Duration: {formatGatheringDuration(gatheringDelay)}
       </p>
       {!unlocked && (
-        <p className="miningAreaContainer__lock">
-          Requires Mining Level {requiredLevel} to unlock
+        <p className="gatheringAreaContainer__lock">
+          Requires Gathering Level {requiredLevel} to unlock
         </p>
       )}
-      <LootTablePopover items={possibleLoot} label="Possible find" />
-      <div className="miningAreaContainer__img-wrap">
+      <LootTablePopover items={possibleLoot} label="Possible finds" />
+      <div className="gatheringAreaContainer__img-wrap">
         {imgError ? (
-          <div className="miningAreaContainer__placeholder" title={altText}>
-            Ore
+          <div className="gatheringAreaContainer__placeholder" title={altText}>
+            Gather
           </div>
         ) : (
           <img
@@ -73,4 +73,4 @@ const MiningArea: React.FC<MiningAreaProps> = ({
   );
 };
 
-export default MiningArea;
+export default GatheringArea;

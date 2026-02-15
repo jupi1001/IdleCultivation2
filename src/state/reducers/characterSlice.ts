@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { CultivationPath } from "../../constants/cultivationPath";
-import { fishTypes, oreTypes } from "../../constants/data";
+import { fishTypes, gatheringLootTypes, oreTypes } from "../../constants/data";
 import { getNextRealm, getStepIndex, type RealmId } from "../../constants/realmProgression";
 import { TALENT_NODES_BY_ID } from "../../constants/talents";
 import Item from "../../interfaces/ItemI";
@@ -19,6 +19,13 @@ export type CurrentMiningArea = {
   miningXP: number;
   miningDelay: number;
   miningLootId: number;
+};
+
+export type CurrentGatheringArea = {
+  areaId: number;
+  gatheringXP: number;
+  gatheringDelay: number;
+  gatheringLootIds: number[];
 };
 
 interface CharacterState {
@@ -51,6 +58,10 @@ interface CharacterState {
   currentMiningArea: CurrentMiningArea | null;
   miningCastStartTime: number | null;
   miningCastDuration: number;
+  gatheringXP: number;
+  currentGatheringArea: CurrentGatheringArea | null;
+  gatheringCastStartTime: number | null;
+  gatheringCastDuration: number;
 }
 
 const initialEquipment = ALL_EQUIPMENT_SLOTS.reduce(
@@ -83,6 +94,10 @@ const initialState: CharacterState = {
   currentMiningArea: null,
   miningCastStartTime: null,
   miningCastDuration: 0,
+  gatheringXP: 0,
+  currentGatheringArea: null,
+  gatheringCastStartTime: null,
+  gatheringCastDuration: 0,
 };
 
 export const characterSlice = createSlice({
@@ -182,6 +197,11 @@ export const characterSlice = createSlice({
         state.miningCastStartTime = null;
         state.miningCastDuration = 0;
       }
+      if (action.payload !== "gather") {
+        state.currentGatheringArea = null;
+        state.gatheringCastStartTime = null;
+        state.gatheringCastDuration = 0;
+      }
     },
     setCurrentFishingArea: (state, action: PayloadAction<CurrentFishingArea | null>) => {
       state.currentFishingArea = action.payload;
@@ -248,6 +268,41 @@ export const characterSlice = createSlice({
           existing.quantity = (existing.quantity ?? 1) + 1;
         } else {
           state.items.push({ ...ore, quantity: 1 });
+        }
+      }
+    },
+    setCurrentGatheringArea: (state, action: PayloadAction<CurrentGatheringArea | null>) => {
+      state.currentGatheringArea = action.payload;
+      if (!action.payload) {
+        state.gatheringCastStartTime = null;
+        state.gatheringCastDuration = 0;
+      }
+    },
+    setGatheringCast: (
+      state,
+      action: PayloadAction<{ startTime: number; duration: number }>
+    ) => {
+      state.gatheringCastStartTime = action.payload.startTime;
+      state.gatheringCastDuration = action.payload.duration;
+    },
+    completeGatheringCast: (
+      state,
+      action: PayloadAction<{ gatheringXP: number; gatheringLootIds: number[] }>
+    ) => {
+      state.gatheringCastStartTime = null;
+      state.gatheringCastDuration = 0;
+      if (state.currentActivity !== "gather" || !state.currentGatheringArea) return;
+      const { gatheringXP, gatheringLootIds } = action.payload;
+      state.gatheringXP += gatheringXP;
+      const randomId =
+        gatheringLootIds[Math.floor(Math.random() * gatheringLootIds.length)];
+      const loot = gatheringLootTypes.find((l) => l.id === randomId);
+      if (loot) {
+        const existing = state.items.find((i) => i.id === loot.id);
+        if (existing) {
+          existing.quantity = (existing.quantity ?? 1) + 1;
+        } else {
+          state.items.push({ ...loot, quantity: 1 });
         }
       }
     },
@@ -351,6 +406,9 @@ export const {
   setCurrentMiningArea,
   setMiningCast,
   completeMiningCast,
+  setCurrentGatheringArea,
+  setGatheringCast,
+  completeGatheringCast,
   equipItem,
   unequipItem,
   setPath,

@@ -1,0 +1,85 @@
+.lootTablePopover__wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.lootTablePopover__label {
+  font-size: 0.8em;
+  color: var(--text-muted);
+}
+
+.lootTablePopover__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--border);
+  border-radius: 4px;
+  cursor: help;
+}
+
+.lootTablePopover__icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.lootTablePopover__fallback {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.lootTablePopover__popover {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  bottom: 100%;
+  margin-bottom: 4px;
+  padding: 0.35rem 0.5rem;
+  min-width: 140px;
+  max-width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.lootTablePopover__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lootTablePopover__item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0;
+  font-size: 0.85em;
+}
+
+.lootTablePopover__item-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.lootTablePopover__item-placeholder {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.lootTablePopover__item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

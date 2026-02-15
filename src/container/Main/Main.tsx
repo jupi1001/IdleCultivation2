@@ -11,6 +11,7 @@ import MoneyContainer from "../MoneyContainer/MoneyContainer";
 import CombatContainer from "../CombatContainer/CombatContainer";
 import { ContentArea } from "../../enum/ContentArea";
 import FishingContainer from "../FishingContainer/FishingContainer";
+import GatheringContainer from "../GatheringContainer/GatheringContainer";
 import MiningContainer from "../MiningContainer/MiningContainer";
 import { PathChoiceScreen } from "../../components/PathChoiceScreen/PathChoiceScreen";
 import { PlaceholderPanel } from "../../components/PlaceholderPanel/PlaceholderPanel";
@@ -47,7 +48,7 @@ export const Main = () => {
         {content === ContentArea.MEDITATION && <MeditationContainer />}
         {content === ContentArea.FISHING && <FishingContainer />}
         {content === ContentArea.MINING && <MiningContainer />}
-        {content === ContentArea.GATHERING && <PlaceholderPanel title="Gathering" description="Gather herbs and wood. Unlocks in a later update." />}
+        {content === ContentArea.GATHERING && <GatheringContainer />}
         {content === ContentArea.CULTIVATION_TREE && <CultivationTreeContainer />}
         {content === ContentArea.ALCHEMY && <PlaceholderPanel title="Alchemy" description="Craft pills and elixirs. Unlocks in a later update." />}
         {content === ContentArea.FORGING && <PlaceholderPanel title="Forging" description="Upgrade spirit weapons. Unlocks in a later update." />}

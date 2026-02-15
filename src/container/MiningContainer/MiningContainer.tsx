@@ -4,7 +4,7 @@ import { setCurrentActivity, setCurrentMiningArea } from "../../state/reducers/c
 import "./MiningContainer.css";
 import { RootState } from "../../state/store";
 import MiningArea from "../../components/MiningArea/MiningArea";
-import { miningAreaData } from "../../constants/data";
+import { miningAreaData, oreTypes } from "../../constants/data";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
 
@@ -101,6 +101,10 @@ const MiningContainer = () => {
             miningXP={area.miningXP}
             miningDelay={area.miningDelay}
             requiredLevel={getMiningLevelInfo(area.miningXPUnlock).level}
+            possibleLoot={(() => {
+              const ore = oreTypes.find((o) => o.id === area.miningLootId);
+              return ore ? [ore] : [];
+            })()}
             unlocked={unlocked}
             onClick={() => {
               if (busyWithOther || !unlocked) return;

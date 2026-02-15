@@ -10,8 +10,10 @@ import {
   addMoney,
   addQi,
   completeFishingCast,
+  completeGatheringCast,
   completeMiningCast,
   setFishingCast,
+  setGatheringCast,
   setMiningCast,
 } from "../state/reducers/characterSlice";
 import { RootState } from "../state/store";
@@ -24,6 +26,8 @@ export function useActivityTicks() {
   const fishingCastStartTime = useSelector((state: RootState) => state.character.fishingCastStartTime);
   const currentMiningArea = useSelector((state: RootState) => state.character.currentMiningArea);
   const miningCastStartTime = useSelector((state: RootState) => state.character.miningCastStartTime);
+  const currentGatheringArea = useSelector((state: RootState) => state.character.currentGatheringArea);
+  const gatheringCastStartTime = useSelector((state: RootState) => state.character.gatheringCastStartTime);
   const equipment = useSelector((state: RootState) => state.character.equipment);
   const miner = useSelector((state: RootState) => state.character.miner);
   const minerRef = useRef(miner);
@@ -118,6 +122,42 @@ export function useActivityTicks() {
     currentActivity,
     currentMiningArea,
     miningCastStartTime,
+    dispatch,
+  ]);
+
+  // Gathering: one gather per duration, loop while currentActivity === "gather" && currentGatheringArea
+  const skipGatheringTimeoutClearRef = useRef(false);
+  useEffect(() => {
+    if (
+      currentActivity !== "gather" ||
+      !currentGatheringArea ||
+      gatheringCastStartTime != null
+    )
+      return;
+    const startTime = Date.now();
+    dispatch(
+      setGatheringCast({ startTime, duration: currentGatheringArea.gatheringDelay })
+    );
+    const id = setTimeout(() => {
+      dispatch(
+        completeGatheringCast({
+          gatheringXP: currentGatheringArea.gatheringXP,
+          gatheringLootIds: currentGatheringArea.gatheringLootIds,
+        })
+      );
+    }, currentGatheringArea.gatheringDelay);
+    skipGatheringTimeoutClearRef.current = true;
+    return () => {
+      if (skipGatheringTimeoutClearRef.current) {
+        skipGatheringTimeoutClearRef.current = false;
+        return;
+      }
+      clearTimeout(id);
+    };
+  }, [
+    currentActivity,
+    currentGatheringArea,
+    gatheringCastStartTime,
     dispatch,
   ]);
 }

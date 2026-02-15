@@ -1,4 +1,6 @@
 import React from "react";
+import Item from "../../interfaces/ItemI";
+import LootTablePopover from "../LootTablePopover/LootTablePopover";
 import "./FishingArea.css";
 
 interface FishingAreaProps {
@@ -9,6 +11,8 @@ interface FishingAreaProps {
   fishingDelay: number;
   /** Minimum fishing level required to unlock (display only; unlock still uses XP in container). */
   requiredLevel: number;
+  /** Possible fish from this area (from data; dynamic). */
+  possibleLoot: Item[];
   unlocked: boolean;
   onClick: () => void;
 }
@@ -26,6 +30,7 @@ const FishingArea: React.FC<FishingAreaProps> = ({
   fishingXP,
   fishingDelay,
   requiredLevel,
+  possibleLoot,
   unlocked,
   onClick,
 }) => {
@@ -47,6 +52,7 @@ const FishingArea: React.FC<FishingAreaProps> = ({
           Requires Fishing Level {requiredLevel} to unlock
         </p>
       )}
+      <LootTablePopover items={possibleLoot} label="Possible finds" />
       <img
         src={imageSrc}
         alt={altText}

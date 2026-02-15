@@ -5,6 +5,7 @@ import SkillI from "../../interfaces/SkillI";
 import "./SkillBlockItem.css";
 import { changeContent } from "../../state/reducers/contentSlice";
 import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
+import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
 import { isLockingActivity } from "../../constants/activities";
 
@@ -30,11 +31,13 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
   const currentActivity = useSelector((state: RootState) => state.character.currentActivity);
   const fishingXP = useSelector((state: RootState) => state.character.fishingXP);
   const miningXP = useSelector((state: RootState) => state.character.miningXP);
+  const gatheringXP = useSelector((state: RootState) => state.character.gatheringXP);
   const accentColor = PATH_ACCENT_COLORS[skill.name] ?? "var(--accent)";
   const isNavigationLocked = isLockingActivity(currentActivity);
   const isBlocked = isNavigationLocked && skill.name !== "Immortals Island";
   const fishingLevel = skill.name === "Fishing" ? getFishingLevelInfo(fishingXP).level : null;
   const miningLevel = skill.name === "Mining" ? getMiningLevelInfo(miningXP).level : null;
+  const gatheringLevel = skill.name === "Gathering" ? getGatheringLevelInfo(gatheringXP).level : null;
 
   const openSkill = (input: string) => {
     if (isBlocked) return;
@@ -58,6 +61,9 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
         )}
         {miningLevel !== null && (
           <span className="skillBlockItem__level"> Level {miningLevel}/{MINING_MAX_LEVEL}</span>
+        )}
+        {gatheringLevel !== null && (
+          <span className="skillBlockItem__level"> Level {gatheringLevel}/{GATHERING_MAX_LEVEL}</span>
         )}
       </h3>
       <p className="skillBlockItem__main-p">{skill.description}</p>

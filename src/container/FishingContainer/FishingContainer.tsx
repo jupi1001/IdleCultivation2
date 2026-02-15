@@ -4,7 +4,7 @@ import { setCurrentActivity, setCurrentFishingArea } from "../../state/reducers/
 import "./FishingContainer.css";
 import { RootState } from "../../state/store";
 import FishingArea from "../../components/FishingArea/FishingArea";
-import { fishingAreaData } from "../../constants/data";
+import { fishTypes, fishingAreaData } from "../../constants/data";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
 
@@ -101,6 +101,9 @@ const FishingContainer = () => {
             fishingXP={area.fishingXP}
             fishingDelay={area.fishingDelay}
             requiredLevel={getFishingLevelInfo(area.fishingXPUnlock).level}
+            possibleLoot={area.fishingLootIds
+              .map((id) => fishTypes.find((f) => f.id === id))
+              .filter((f): f is NonNullable<typeof f> => f != null)}
             unlocked={unlocked}
             onClick={() => {
               if (busyWithOther || !unlocked) return;

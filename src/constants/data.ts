@@ -2,6 +2,7 @@ import { CombatArea } from "../enum/CombatArea";
 import type { CultivationPath } from "./cultivationPath";
 import EnemyI from "../interfaces/EnemyI";
 import FishingAreaI from "../interfaces/FishingAreaI";
+import GatheringAreaI from "../interfaces/GatheringAreaI";
 import MiningAreaI from "../interfaces/MiningAreaI";
 import Item from "../interfaces/ItemI";
 import SkillI from "../interfaces/SkillI";
@@ -150,6 +151,8 @@ const FISHING_ASSETS = "/assets/fishing";
 const FISH_ASSETS = "/assets/fish";
 /** Base path for mining area images. Add images under public/assets/mining/ */
 const MINING_ASSETS = "/assets/mining";
+/** Base path for gathering area images. Add images under public/assets/gathering/ */
+const GATHERING_ASSETS = "/assets/gathering";
 
 export const fishingAreaData: FishingAreaI[] = [
   {
@@ -319,3 +322,156 @@ export const oreTypes: Item[] = [
     value: 0,
   },
 ];
+
+export const gatheringAreaData: GatheringAreaI[] = [
+  {
+    id: 1,
+    name: "Mortal Oak Grove",
+    gatheringXP: 1,
+    gatheringXPUnlock: 0,
+    gatheringDelay: 4000,
+    gatheringLootIds: [601],
+    picture: `${GATHERING_ASSETS}/mortal-oak-grove.png`,
+    altText: "Mortal Oak Grove",
+  },
+  {
+    id: 2,
+    name: "Hundred Herb Garden",
+    gatheringXP: 1,
+    gatheringXPUnlock: 0,
+    gatheringDelay: 4000,
+    gatheringLootIds: [611, 612],
+    picture: `${GATHERING_ASSETS}/hundred-herb-garden.png`,
+    altText: "Hundred Herb Garden",
+  },
+  {
+    id: 3,
+    name: "Iron Bamboo Forest",
+    gatheringXP: 2,
+    gatheringXPUnlock: 25,
+    gatheringDelay: 5000,
+    gatheringLootIds: [602],
+    picture: `${GATHERING_ASSETS}/iron-bamboo-forest.png`,
+    altText: "Iron Bamboo Forest",
+  },
+  {
+    id: 4,
+    name: "Spirit Grass Valley",
+    gatheringXP: 4,
+    gatheringXPUnlock: 100,
+    gatheringDelay: 6000,
+    gatheringLootIds: [613, 614],
+    picture: `${GATHERING_ASSETS}/spirit-grass-valley.png`,
+    altText: "Spirit Grass Valley",
+  },
+  {
+    id: 5,
+    name: "Ancient Cypress Peak",
+    gatheringXP: 8,
+    gatheringXPUnlock: 200,
+    gatheringDelay: 7000,
+    gatheringLootIds: [603],
+    picture: `${GATHERING_ASSETS}/ancient-cypress-peak.png`,
+    altText: "Ancient Cypress Peak",
+  },
+  {
+    id: 6,
+    name: "Heavenly Herb Cliff",
+    gatheringXP: 8,
+    gatheringXPUnlock: 300,
+    gatheringDelay: 7000,
+    gatheringLootIds: [614, 615, 616],
+    picture: `${GATHERING_ASSETS}/heavenly-herb-cliff.png`,
+    altText: "Heavenly Herb Cliff",
+  },
+];
+
+export const woodTypes: Item[] = [
+  {
+    id: 601,
+    name: "Oak Wood",
+    description: "Common oak. Used for weapons and to light the alchemy forge.",
+    price: 2,
+    quantity: 1,
+    picture: `${GATHERING_ASSETS}/item-oak-wood.png`,
+    value: 0,
+  },
+  {
+    id: 602,
+    name: "Iron Bamboo",
+    description: "Hard bamboo favoured by cultivators. Used in forging and cooking fires.",
+    price: 5,
+    quantity: 1,
+    picture: `${GATHERING_ASSETS}/item-iron-bamboo.png`,
+    value: 0,
+  },
+  {
+    id: 603,
+    name: "Spirit Cypress Wood",
+    description: "Wood touched by Qi. Used for spirit weapons and high-grade alchemy.",
+    price: 12,
+    quantity: 1,
+    picture: `${GATHERING_ASSETS}/item-spirit-cypress.png`,
+    value: 0,
+  },
+];
+
+export const herbTypes: Item[] = [
+  {
+    id: 611,
+    name: "Common Herb",
+    description: "A basic herb. Used in pills and alchemy.",
+    price: 1,
+    quantity: 1,
+    picture: `${GATHERING_ASSETS}/item-common-herb.png`,
+    value: 0,
+  },
+  {
+    id: 612,
+    name: "Spirit Leaf",
+    description: "Leaf imbued with faint Qi. Used in low-grade pills.",
+    price: 2,
+    quantity: 1,
+    picture: `${GATHERING_ASSETS}/item-spirit-leaf.png`,
+    value: 0,
+  },
+  {
+    id: 613,
+    name: "Spirit Grass",
+    description: "Grass from spirit-rich soil. Used in alchemy pills.",
+    price: 4,
+    quantity: 1,
+    picture: `${GATHERING_ASSETS}/item-spirit-grass.png`,
+    value: 0,
+  },
+  {
+    id: 614,
+    name: "Silver Leaf",
+    description: "Rare herb with a silvery sheen. Used in refinement pills.",
+    price: 6,
+    quantity: 1,
+    picture: `${GATHERING_ASSETS}/item-silver-leaf.png`,
+    value: 0,
+  },
+  {
+    id: 615,
+    name: "Jade Spirit Herb",
+    description: "Precious herb favoured in high-level alchemy.",
+    price: 10,
+    quantity: 1,
+    picture: `${GATHERING_ASSETS}/item-jade-spirit-herb.png`,
+    value: 0,
+  },
+  {
+    id: 616,
+    name: "Heavenly Ginseng",
+    description: "Rare ginseng said to touch the heavens. Used in breakthrough pills.",
+    price: 15,
+    quantity: 1,
+    picture: `${GATHERING_ASSETS}/item-heavenly-ginseng.png`,
+    value: 0,
+  },
+];
+
+/** All gathering loot (wood + herbs) for lookup when completing a gather. */
+export const gatheringLootTypes: Item[] = [...woodTypes, ...herbTypes];
