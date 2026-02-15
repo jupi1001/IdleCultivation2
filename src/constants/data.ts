@@ -1,9 +1,18 @@
 import { CombatArea } from "../enum/CombatArea";
+import type { CultivationPath } from "./cultivationPath";
 import EnemyI from "../interfaces/EnemyI";
 import FishingAreaI from "../interfaces/FishingAreaI";
 import Item from "../interfaces/ItemI";
 import SkillI from "../interfaces/SkillI";
 import images from "./images";
+
+/** Short descriptions for the Righteous vs Demonic path choice at game start. */
+export const pathDescriptions: Record<CultivationPath, { title: string; description: string }> = {
+  Righteous:
+    { title: "Righteous Path", description: "Walk the path of virtue. Righteous sects and talents will open to you." },
+  Demonic:
+    { title: "Demonic Path", description: "Embrace the demonic way. Demonic sects and darker talents await." },
+};
 
 export const existingShopItemUpgrades: Item[] = [
   {
@@ -52,6 +61,30 @@ export const existingShopItems: Item[] = [
     picture: images.potion1,
     value: 10,
     effect: "attack",
+  },
+];
+
+/** Qi technique equipment - can be bought and equipped in Qi Technique slot */
+export const existingShopQiTechniques: Item[] = [
+  {
+    id: 400,
+    name: "Basic Qi Circulation",
+    description: "A simple technique. +0.2 Qi/s when meditating.",
+    price: 200,
+    quantity: 1,
+    picture: images.potion1,
+    equipmentSlot: "qiTechnique",
+    qiGainBonus: 0.2,
+  },
+  {
+    id: 401,
+    name: "Spirit Gathering Method",
+    description: "Improves qi absorption. +0.5 Qi/s when meditating.",
+    price: 600,
+    quantity: 1,
+    picture: images.potion1,
+    equipmentSlot: "qiTechnique",
+    qiGainBonus: 0.5,
   },
 ];
 

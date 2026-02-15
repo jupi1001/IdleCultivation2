@@ -1,0 +1,5 @@
+.fishingContainer__busy {
+  margin: 0 0 0.5rem;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}

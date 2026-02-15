@@ -1,18 +1,18 @@
-import React from "react";
+import type { EquipmentSlot } from "../types/EquipmentSlot";
 
 interface Item {
   id: number;
   name: string;
   description: string;
-  //For the shop and inventory
   quantity: number;
-  //For the shop and maybe selling
   price: number;
-  //To display
   picture?: string;
-  //For Consumables
   value?: number;
   effect?: string;
+  /** Equipment slot this item can be equipped in */
+  equipmentSlot?: EquipmentSlot;
+  /** Qi gain per second when equipped in qiTechnique slot */
+  qiGainBonus?: number;
 }
 
 export default Item;

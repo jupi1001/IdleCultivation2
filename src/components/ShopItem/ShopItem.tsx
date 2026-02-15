@@ -7,9 +7,10 @@ import "./ShopItem.css";
 
 interface ShopItemProps {
   item: Item;
+  isEquipment?: boolean;
 }
 
-const ShopItem: React.FC<ShopItemProps> = ({ item }) => {
+const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
   const [moneyMessage, setMoneyMessage] = useState("hidden");
 
   const character = useSelector((state: RootState) => state.character);
@@ -47,17 +48,29 @@ const ShopItem: React.FC<ShopItemProps> = ({ item }) => {
     }
   };
 
+  const addEquipment = (cost: number) => {
+    if (character.money >= cost) {
+      dispatch(addItem({ ...item, quantity: 1 }));
+      dispatch(reduceMoney(cost));
+      setMoneyMessage("hidden");
+    } else {
+      setMoneyMessage("show");
+    }
+  };
+
+  const showItem = isEquipment || item.quantity > 0;
+
   return (
     <>
-      {item.quantity > 0 && (
+      {showItem && (
         <div className="shopitem__main">
           <h3>{item.name}</h3>
           <p>{item.description}</p>
           <p>Cost: {item.price} Spirit Stones</p>
-          {/* Dumb check if it is attack or defensive item or consumable */}
           {item.id < 100 && item.id > 0 && <button onClick={() => addAttackFunction(item.price, 1)}>Buy</button>}
-          {item.id < 200 && item.id >= 100 && <button onClick={() => addDefenseFunction(item.price, 1)}>Buy</button>}
-          {item.id < 300 && item.id >= 200 && <button onClick={() => addConsumable(item.price, 1)}>Buy</button>}
+          {item.id < 200 && item.id >= 100 && !item.equipmentSlot && <button onClick={() => addDefenseFunction(item.price, 1)}>Buy</button>}
+          {item.id < 300 && item.id >= 200 && !item.equipmentSlot && <button onClick={() => addConsumable(item.price, 1)}>Buy</button>}
+          {item.equipmentSlot && <button onClick={() => addEquipment(item.price)}>Buy</button>}
           {moneyMessage === "show" && <h4>Not enough Spirit Stones</h4>}
         </div>
       )}

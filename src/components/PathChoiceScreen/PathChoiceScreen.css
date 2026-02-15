@@ -1,0 +1,66 @@
+.pathChoiceScreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 60vh;
+}
+
+.pathChoiceScreen__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+.pathChoiceScreen__subtitle {
+  margin: 0 0 2rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  max-width: 32rem;
+  text-align: center;
+}
+
+.pathChoiceScreen__options {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pathChoiceScreen__card {
+  width: 100%;
+  max-width: 280px;
+  padding: 1.5rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+  text-align: left;
+}
+
+.pathChoiceScreen__card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.pathChoiceScreen__card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.pathChoiceScreen__card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.pathChoiceScreen__card--righteous:hover {
+  border-color: var(--accent);
+}
+
+.pathChoiceScreen__card--demonic:hover {
+  border-color: #c44;
+}

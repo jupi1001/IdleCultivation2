@@ -1,0 +1,65 @@
+.meditation-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.meditation-container__character {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.meditation-container__character-img {
+  width: 160px;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.meditation-container__breakthrough {
+  position: absolute;
+  top: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5em 1em;
+  font-size: 0.95em;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.meditation-container__breakthrough:hover {
+  opacity: 0.9;
+}
+
+.meditation-container__qi {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 100%;
+  text-align: center;
+}
+
+.meditation-container__qi-value {
+  font-size: 1.1em;
+  color: var(--text);
+}
+
+.meditation-container__start,
+.meditation-container__stop {
+  margin-bottom: 0.5rem;
+}
+
+.meditation-container__hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}

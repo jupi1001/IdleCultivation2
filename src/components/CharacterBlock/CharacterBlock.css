@@ -7,6 +7,12 @@
   font-size: 1.1em;
 }
 
+.app__characterBlock-path {
+  margin: 0 0 0.5rem;
+  font-size: 0.95em;
+  color: var(--text-muted);
+}
+
 .app__characterBlock-ul {
   list-style: none;
   margin: 0;
