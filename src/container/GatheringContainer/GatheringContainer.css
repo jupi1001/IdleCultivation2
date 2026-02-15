@@ -1,45 +1,49 @@
-.fishingContainer__level {
+.gatheringContainer__main {
+  padding: 0.5rem;
+}
+
+.gatheringContainer__level {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   margin-bottom: 0.75rem;
 }
 
-.fishingContainer__xp-text {
+.gatheringContainer__xp-text {
   font-size: 0.9em;
   color: var(--text-muted);
 }
 
-.fishingContainer__stop {
+.gatheringContainer__stop {
   margin-bottom: 0.5rem;
   padding: 0.35rem 0.75rem;
   font-size: 0.9em;
   cursor: pointer;
 }
 
-.fishingContainer__xp-bar-track {
+.gatheringContainer__xp-bar-track {
   height: 10px;
   background: var(--border);
   border-radius: 5px;
   overflow: hidden;
 }
 
-.fishingContainer__xp-bar-fill {
+.gatheringContainer__xp-bar-fill {
   height: 100%;
   background: var(--accent);
   border-radius: 5px;
   transition: width 0.2s ease-out;
 }
 
-.fishingContainer__busy {
+.gatheringContainer__busy {
   margin: 0 0 0.5rem;
   font-size: 0.9em;
   color: var(--text-muted);
 }
 
-.fishingContainer__cast-bar.progress-bar {
+.gatheringContainer__cast-bar.progress-bar {
   height: 30px;
-  background-color: lightblue;
+  background-color: #4a7c59;
   border-radius: 15px;
   transition: width 0.08s linear;
 }
