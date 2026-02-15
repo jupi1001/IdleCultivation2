@@ -1,0 +1,93 @@
+.sectWindow__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.sectWindow__main {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.sectWindow__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+}
+
+.sectWindow__path {
+  margin: 0 0 0.75rem;
+  font-size: 0.85em;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.sectWindow__description {
+  margin: 0 0 0.75rem;
+  font-size: 0.95em;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.sectWindow__pathOnly {
+  margin: 0 0 1rem;
+  font-size: 0.85em;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.sectWindow__pathOnly--info {
+  font-style: normal;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  border-left: 3px solid var(--accent);
+}
+
+.sectWindow__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sectWindow__btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9em;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.sectWindow__btn--join {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.sectWindow__btn--join:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.sectWindow__btn--join:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sectWindow__btn--leave {
+  color: var(--text-muted);
+}
+
+.sectWindow__btn--close:hover {
+  border-color: var(--accent);
+}

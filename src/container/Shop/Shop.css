@@ -1,5 +1,11 @@
 .shop__main h2 {
+  margin: 0 0 0.5rem;
+}
+
+.shop__subtitle {
   margin: 0 0 1rem;
+  font-size: 0.95em;
+  color: var(--text-muted, #888);
 }
 
 .shop__main h3 {

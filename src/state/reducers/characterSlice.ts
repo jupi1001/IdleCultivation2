@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { CultivationPath } from "../../constants/cultivationPath";
-import { fishTypes, gatheringLootTypes, oreTypes } from "../../constants/data";
+import { fishTypes, gatheringLootTypes, oreTypes, SECT_POSITIONS } from "../../constants/data";
 import { getNextRealm, getStepIndex, type RealmId } from "../../constants/realmProgression";
 import { TALENT_NODES_BY_ID } from "../../constants/talents";
 import Item from "../../interfaces/ItemI";
@@ -44,6 +44,14 @@ interface CharacterState {
   equipment: Record<EquipmentSlot, Item | null>;
   /** Righteous vs Demonic; chosen once at game start. Affects sects and cultivation tree. */
   path: CultivationPath | null;
+  /** Sect id the character has joined; null if none. Only one sect at a time. */
+  currentSectId: number | null;
+  /** Rank index inside the sect: 0 = Sect Aspirant, 1 = Outer, 2 = Inner, 3 = Core. Affects sect store availability. */
+  sectRankIndex: number;
+  /** When set, promotion is in progress; at this timestamp it completes. */
+  promotionEndTime: number | null;
+  /** Rank index we're promoting to (while promotion in progress). */
+  promotionToRankIndex: number | null;
   /** Talent id -> current level (0 = not purchased) */
   talentLevels: Record<number, number>;
   /** Immortals Island: when non-null, character is on expedition until this timestamp (ms) */
@@ -84,6 +92,10 @@ const initialState: CharacterState = {
   currentActivity: "none",
   equipment: initialEquipment,
   path: null,
+  currentSectId: null,
+  sectRankIndex: 0,
+  promotionEndTime: null,
+  promotionToRankIndex: null,
   talentLevels: {},
   expeditionEndTime: null,
   expeditionMissionId: null,
@@ -344,6 +356,44 @@ export const characterSlice = createSlice({
     setPath: (state, action: PayloadAction<CultivationPath>) => {
       state.path = action.payload;
     },
+    setSect: (state, action: PayloadAction<number | null>) => {
+      state.currentSectId = action.payload;
+      state.promotionEndTime = null;
+      state.promotionToRankIndex = null;
+      if (action.payload == null) {
+        state.sectRankIndex = 0;
+        return;
+      }
+      const step = getStepIndex(state.realm, state.realmLevel);
+      let rank = 0;
+      for (let i = 0; i < SECT_POSITIONS.length; i++) {
+        if (step >= SECT_POSITIONS[i].requiredStepIndex) rank = i;
+      }
+      state.sectRankIndex = rank;
+    },
+    setSectRank: (state, action: PayloadAction<number>) => {
+      state.sectRankIndex = Math.max(0, Math.min(3, action.payload));
+    },
+    startPromotion: (
+      state,
+      action: PayloadAction<{ targetRankIndex: number; durationMs: number }>
+    ) => {
+      state.promotionEndTime = Date.now() + action.payload.durationMs;
+      state.promotionToRankIndex = action.payload.targetRankIndex;
+    },
+    completePromotion: (state) => {
+      if (state.promotionEndTime == null || state.promotionToRankIndex == null) return;
+      if (Date.now() < state.promotionEndTime) return;
+      const step = getStepIndex(state.realm, state.realmLevel);
+      const required = SECT_POSITIONS[state.promotionToRankIndex].requiredStepIndex;
+      if (step >= required) state.sectRankIndex = state.promotionToRankIndex;
+      state.promotionEndTime = null;
+      state.promotionToRankIndex = null;
+    },
+    cancelPromotion: (state) => {
+      state.promotionEndTime = null;
+      state.promotionToRankIndex = null;
+    },
     startExpedition: (
       state,
       action: PayloadAction<{ endTime: number; missionId: number }>
@@ -412,6 +462,11 @@ export const {
   equipItem,
   unequipItem,
   setPath,
+  setSect,
+  setSectRank,
+  startPromotion,
+  completePromotion,
+  cancelPromotion,
   startExpedition,
   clearExpedition,
   purchaseTalentLevel,

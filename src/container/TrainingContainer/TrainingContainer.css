@@ -1,0 +1,47 @@
+.trainingContainer__main {
+  padding: 0.5rem;
+}
+
+.trainingContainer__main h2 {
+  margin: 0 0 0.5rem;
+}
+
+.trainingContainer__intro {
+  margin: 0 0 1rem;
+  font-size: 0.95em;
+  color: var(--text-muted);
+}
+
+.trainingContainer__areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.trainingContainer__immortals {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.trainingContainer__immortals:hover {
+  border-color: var(--accent);
+}
+
+.trainingContainer__immortals h4 {
+  margin: 0 0 0.25rem;
+}
+
+.trainingContainer__immortals-hint {
+  margin: 0;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}

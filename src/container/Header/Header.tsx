@@ -32,6 +32,9 @@ export const Header = ({ theme, setTheme }: HeaderProps) => {
           <button onClick={() => openContent(ContentArea.MAP)}>Map</button>
         </li>
         <li>
+          <button onClick={() => openContent(ContentArea.SECT)}>Sect</button>
+        </li>
+        <li>
           <button onClick={() => openContent(ContentArea.SHOP)}>Shop</button>
         </li>
         <li>

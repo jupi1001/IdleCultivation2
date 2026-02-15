@@ -1,33 +1,123 @@
-.map__main {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.map__immortals-island {
+.map__wrap {
+  position: relative;
+  margin: -1rem;
+  height: 100%;
+  min-height: min(400px, calc(100vh - 8rem));
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+
+.map__canvas {
+  position: absolute;
+  inset: 0;
+  background-color: var(--surface);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.map__canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
+  pointer-events: none;
+}
+
+.map__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.map__overlay .map__pin {
+  pointer-events: auto;
+}
+
+.map__pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 140px;
-  padding: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.map__pin:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.map__pin--sect {
+  background: var(--surface);
+}
+
+.map__pin--pavilion {
+  background: var(--surface);
+}
+
+.map__pin-label {
+  font-size: 1.25rem;
+  line-height: 1;
+  opacity: 0.95;
+}
+
+.map__pin--sect .map__pin-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.map__pin-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  padding: 0.5rem 0.75rem;
+  min-width: 160px;
+  max-width: 280px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: border-color 0.2s;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--text);
+  white-space: normal;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.15s, opacity 0.15s;
+  pointer-events: none;
+  z-index: 10;
 }
 
-.map__immortals-island:hover {
-  border-color: var(--accent);
+.map__pin:hover .map__pin-tooltip {
+  visibility: visible;
+  opacity: 1;
 }
 
-.map__immortals-island h4 {
-  margin: 0 0 0.25rem;
+.map__pin-tooltip strong {
+  display: block;
+  margin-bottom: 0.25rem;
 }
 
-.map__immortals-island-hint {
-  margin: 0;
-  font-size: 0.9em;
+.map__pin-tooltip-desc {
+  display: block;
+  font-size: 0.8em;
   color: var(--text-muted);
+  font-weight: normal;
 }
