@@ -42,7 +42,7 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
   const openSkill = (input: string) => {
     if (isBlocked) return;
     if (input === "Martial Training") {
-      dispatch(changeContent("Map"));
+      dispatch(changeContent("Training"));
       return;
     }
     dispatch(changeContent(input));

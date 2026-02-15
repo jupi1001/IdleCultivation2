@@ -4,6 +4,9 @@ import { LeftMain } from "../LeftMain/LeftMain";
 import { RightMain } from "../RightMain/RightMain";
 import { Shop } from "../Shop/Shop";
 import { Map } from "../Map/Map";
+import { SectContainer } from "../SectContainer/SectContainer";
+import { BlackMarket } from "../BlackMarket/BlackMarket";
+import { TrainingContainer } from "../TrainingContainer/TrainingContainer";
 import { RootState } from "../../state/store";
 import "./Main.css";
 import { Inventory } from "../Inventory/Inventory";
@@ -41,7 +44,10 @@ export const Main = () => {
       </div>
       <div className="app__main-content">
         {content === ContentArea.MAP && <Map />}
+        {content === ContentArea.SECT && <SectContainer />}
+        {content === ContentArea.TRAINING && <TrainingContainer />}
         {content === ContentArea.SHOP && <Shop />}
+        {content === ContentArea.BLACK_MARKET && <BlackMarket />}
         {content === ContentArea.INVENTORY && <Inventory />}
         {content.split(":").shift() === ContentArea.COMBAT && <CombatContainer area={content.split(":").pop()} />}
         {content === ContentArea.LABOUR && <MoneyContainer />}
