@@ -72,6 +72,8 @@ interface CharacterState {
   gatheringCastDuration: number;
   /** XP for alchemy; level = 1 + floor(alchemyXP / 100), affects pill craft success chance */
   alchemyXP: number;
+  /** XP for forging; level = 1 + floor( forgingXP / 100 ) */
+  forgingXP: number;
 }
 
 const initialEquipment = ALL_EQUIPMENT_SLOTS.reduce(
@@ -113,6 +115,7 @@ const initialState: CharacterState = {
   gatheringCastStartTime: null,
   gatheringCastDuration: 0,
   alchemyXP: 0,
+  forgingXP: 0,
 };
 
 export const characterSlice = createSlice({
@@ -195,6 +198,9 @@ export const characterSlice = createSlice({
     },
     addAlchemyXP: (state, action: PayloadAction<number>) => {
       state.alchemyXP = state.alchemyXP + action.payload;
+    },
+    addForgingXP: (state, action: PayloadAction<number>) => {
+      state.forgingXP = state.forgingXP + action.payload;
     },
     addFishingXP: (state, action: PayloadAction<number>) => {
       state.fishingXP = state.fishingXP + action.payload;
@@ -466,6 +472,7 @@ export const {
   removeItem,
   consumeItems,
   addAlchemyXP,
+  addForgingXP,
   addFishingXP,
   addQi,
   setQi,

@@ -8,6 +8,7 @@ import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingL
 import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
 import { ALCHEMY_MAX_LEVEL, getAlchemyLevel } from "../../constants/alchemy";
+import { FORGING_MAX_LEVEL, getForgingLevel } from "../../constants/forging";
 import { isLockingActivity } from "../../constants/activities";
 
 const PATH_ACCENT_COLORS: Record<string, string> = {
@@ -34,6 +35,7 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
   const miningXP = useSelector((state: RootState) => state.character.miningXP);
   const gatheringXP = useSelector((state: RootState) => state.character.gatheringXP);
   const alchemyXP = useSelector((state: RootState) => state.character.alchemyXP);
+  const forgingXP = useSelector((state: RootState) => state.character.forgingXP);
   const accentColor = PATH_ACCENT_COLORS[skill.name] ?? "var(--accent)";
   const isNavigationLocked = isLockingActivity(currentActivity);
   const isBlocked = isNavigationLocked && skill.name !== "Immortals Island";
@@ -41,6 +43,7 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
   const miningLevel = skill.name === "Mining" ? getMiningLevelInfo(miningXP).level : null;
   const gatheringLevel = skill.name === "Gathering" ? getGatheringLevelInfo(gatheringXP).level : null;
   const alchemyLevel = skill.name === "Alchemy" ? getAlchemyLevel(alchemyXP) : null;
+  const forgingLevel = skill.name === "Forging" ? getForgingLevel(forgingXP) : null;
 
   const openSkill = (input: string) => {
     if (isBlocked) return;
@@ -70,6 +73,9 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
         )}
         {alchemyLevel !== null && (
           <span className="skillBlockItem__level"> Level {alchemyLevel}/{ALCHEMY_MAX_LEVEL}</span>
+        )}
+        {forgingLevel !== null && (
+          <span className="skillBlockItem__level"> Level {forgingLevel}/{FORGING_MAX_LEVEL}</span>
         )}
       </h3>
       <p className="skillBlockItem__main-p">{skill.description}</p>

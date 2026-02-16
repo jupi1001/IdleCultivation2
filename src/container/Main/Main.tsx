@@ -19,6 +19,7 @@ import MiningContainer from "../MiningContainer/MiningContainer";
 import { PathChoiceScreen } from "../../components/PathChoiceScreen/PathChoiceScreen";
 import { PlaceholderPanel } from "../../components/PlaceholderPanel/PlaceholderPanel";
 import { AlchemyContainer } from "../AlchemyContainer/AlchemyContainer";
+import { ForgingContainer } from "../ForgingContainer/ForgingContainer";
 import { MeditationContainer } from "../MeditationContainer/MeditationContainer";
 import { CultivationTreeContainer } from "../CultivationTreeContainer/CultivationTreeContainer";
 import { ImmortalsIslandContainer } from "../ImmortalsIslandContainer/ImmortalsIslandContainer";
@@ -58,7 +59,7 @@ export const Main = () => {
         {content === ContentArea.GATHERING && <GatheringContainer />}
         {content === ContentArea.CULTIVATION_TREE && <CultivationTreeContainer />}
         {content === ContentArea.ALCHEMY && <AlchemyContainer />}
-        {content === ContentArea.FORGING && <PlaceholderPanel title="Forging" description="Upgrade spirit weapons. Unlocks in a later update." />}
+        {content === ContentArea.FORGING && <ForgingContainer />}
         {content === ContentArea.IMMORTALS_ISLAND && <ImmortalsIslandContainer />}
       </div>
 
