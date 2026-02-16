@@ -9,7 +9,6 @@ import pig from "../assets/animals/pig.jpg";
 import goblin from "../assets/goblin.png";
 import character from "../assets/character.jpg";
 import bag from "../assets/bag.jpg";
-import potion1 from "../assets/potion1.png";
 import puddle from "../assets/puddle.png";
 import blueFish from "../assets/animals/blueFish.png";
 import boneFish from "../assets/animals/boneFish.png";
@@ -34,7 +33,6 @@ export default {
   goblin,
   character,
   bag,
-  potion1,
   puddle,
   blueFish,
   boneFish,

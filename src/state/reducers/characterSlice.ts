@@ -70,6 +70,8 @@ interface CharacterState {
   currentGatheringArea: CurrentGatheringArea | null;
   gatheringCastStartTime: number | null;
   gatheringCastDuration: number;
+  /** XP for alchemy; level = 1 + floor(alchemyXP / 100), affects pill craft success chance */
+  alchemyXP: number;
 }
 
 const initialEquipment = ALL_EQUIPMENT_SLOTS.reduce(
@@ -110,6 +112,7 @@ const initialState: CharacterState = {
   currentGatheringArea: null,
   gatheringCastStartTime: null,
   gatheringCastDuration: 0,
+  alchemyXP: 0,
 };
 
 export const characterSlice = createSlice({
@@ -175,6 +178,23 @@ export const characterSlice = createSlice({
       } else {
         entry.quantity = qty - 1;
       }
+    },
+    /** Consume multiple items by id and amount. Caller must ensure sufficient quantity. */
+    consumeItems: (state, action: PayloadAction<{ itemId: number; amount: number }[]>) => {
+      action.payload.forEach(({ itemId, amount }) => {
+        const idx = state.items.findIndex((i) => i.id === itemId);
+        if (idx < 0) return;
+        const entry = state.items[idx];
+        const qty = entry.quantity ?? 1;
+        if (qty <= amount) {
+          state.items.splice(idx, 1);
+        } else {
+          entry.quantity = qty - amount;
+        }
+      });
+    },
+    addAlchemyXP: (state, action: PayloadAction<number>) => {
+      state.alchemyXP = state.alchemyXP + action.payload;
     },
     addFishingXP: (state, action: PayloadAction<number>) => {
       state.fishingXP = state.fishingXP + action.payload;
@@ -444,6 +464,8 @@ export const {
   addItem,
   addItems,
   removeItem,
+  consumeItems,
+  addAlchemyXP,
   addFishingXP,
   addQi,
   setQi,
