@@ -20,6 +20,7 @@ import { PathChoiceScreen } from "../../components/PathChoiceScreen/PathChoiceSc
 import { PlaceholderPanel } from "../../components/PlaceholderPanel/PlaceholderPanel";
 import { AlchemyContainer } from "../AlchemyContainer/AlchemyContainer";
 import { ForgingContainer } from "../ForgingContainer/ForgingContainer";
+import { CookingContainer } from "../CookingContainer/CookingContainer";
 import { MeditationContainer } from "../MeditationContainer/MeditationContainer";
 import { CultivationTreeContainer } from "../CultivationTreeContainer/CultivationTreeContainer";
 import { ImmortalsIslandContainer } from "../ImmortalsIslandContainer/ImmortalsIslandContainer";
@@ -60,6 +61,7 @@ export const Main = () => {
         {content === ContentArea.CULTIVATION_TREE && <CultivationTreeContainer />}
         {content === ContentArea.ALCHEMY && <AlchemyContainer />}
         {content === ContentArea.FORGING && <ForgingContainer />}
+        {content === ContentArea.COOKING && <CookingContainer />}
         {content === ContentArea.IMMORTALS_ISLAND && <ImmortalsIslandContainer />}
       </div>
 

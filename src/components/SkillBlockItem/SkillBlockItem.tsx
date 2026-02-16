@@ -9,6 +9,7 @@ import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gath
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
 import { ALCHEMY_MAX_LEVEL, getAlchemyLevel } from "../../constants/alchemy";
 import { FORGING_MAX_LEVEL, getForgingLevel } from "../../constants/forging";
+import { COOKING_MAX_LEVEL, getCookingLevel } from "../../constants/cooking";
 import { isLockingActivity } from "../../constants/activities";
 
 const PATH_ACCENT_COLORS: Record<string, string> = {
@@ -22,6 +23,7 @@ const PATH_ACCENT_COLORS: Record<string, string> = {
   "Cultivation Tree": "#9a7b4a",
   "Alchemy": "#4a9b8e",
   "Forging": "#b85c38",
+  "Cooking": "#c17f59",
 };
 
 interface SkillItemProps {
@@ -36,6 +38,7 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
   const gatheringXP = useSelector((state: RootState) => state.character.gatheringXP);
   const alchemyXP = useSelector((state: RootState) => state.character.alchemyXP);
   const forgingXP = useSelector((state: RootState) => state.character.forgingXP);
+  const cookingXP = useSelector((state: RootState) => state.character.cookingXP);
   const accentColor = PATH_ACCENT_COLORS[skill.name] ?? "var(--accent)";
   const isNavigationLocked = isLockingActivity(currentActivity);
   const isBlocked = isNavigationLocked && skill.name !== "Immortals Island";
@@ -44,6 +47,7 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
   const gatheringLevel = skill.name === "Gathering" ? getGatheringLevelInfo(gatheringXP).level : null;
   const alchemyLevel = skill.name === "Alchemy" ? getAlchemyLevel(alchemyXP) : null;
   const forgingLevel = skill.name === "Forging" ? getForgingLevel(forgingXP) : null;
+  const cookingLevel = skill.name === "Cooking" ? getCookingLevel(cookingXP) : null;
 
   const openSkill = (input: string) => {
     if (isBlocked) return;
@@ -76,6 +80,9 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
         )}
         {forgingLevel !== null && (
           <span className="skillBlockItem__level"> Level {forgingLevel}/{FORGING_MAX_LEVEL}</span>
+        )}
+        {cookingLevel !== null && (
+          <span className="skillBlockItem__level"> Level {cookingLevel}/{COOKING_MAX_LEVEL}</span>
         )}
       </h3>
       <p className="skillBlockItem__main-p">{skill.description}</p>

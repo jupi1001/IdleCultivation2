@@ -10,7 +10,7 @@ import {
   type RefineRecipeI,
   type CraftRecipeI,
 } from "../../constants/forging";
-import { oreTypes, woodTypes } from "../../constants/data";
+import { oreTypes } from "../../constants/data";
 import "./ForgingContainer.css";
 
 function countItem(items: { id: number; quantity?: number }[], itemId: number): number {
@@ -26,16 +26,13 @@ function getItemName(
 }
 
 function canRefine(items: { id: number; quantity?: number }[], recipe: RefineRecipeI): boolean {
-  if (countItem(items, recipe.ore.itemId) < recipe.ore.amount) return false;
-  if (countItem(items, recipe.woodForFire.itemId) < recipe.woodForFire.amount) return false;
-  return true;
+  return countItem(items, recipe.ore.itemId) >= recipe.ore.amount;
 }
 
 function canCraft(items: { id: number; quantity?: number }[], recipe: CraftRecipeI): boolean {
   for (const { itemId, amount } of recipe.bars) {
     if (countItem(items, itemId) < amount) return false;
   }
-  if (countItem(items, recipe.woodForFire.itemId) < recipe.woodForFire.amount) return false;
   return true;
 }
 
@@ -50,7 +47,6 @@ export const ForgingContainer = () => {
   const allItemNames = useMemo(
     () => [
       ...oreTypes.map((i) => ({ id: i.id, name: i.name })),
-      ...woodTypes.map((i) => ({ id: i.id, name: i.name })),
       ...FORGE_BAR_ITEMS.map((i) => ({ id: i.id, name: i.name })),
       ...CRAFT_RECIPES.map((r) => ({ id: r.output.id, name: r.output.name })),
     ],
@@ -60,12 +56,7 @@ export const ForgingContainer = () => {
   const doRefine = useCallback(
     (recipe: RefineRecipeI) => {
       if (!canRefine(items, recipe)) return;
-      dispatch(
-        consumeItems([
-          { itemId: recipe.ore.itemId, amount: recipe.ore.amount },
-          { itemId: recipe.woodForFire.itemId, amount: recipe.woodForFire.amount },
-        ])
-      );
+      dispatch(consumeItems([{ itemId: recipe.ore.itemId, amount: recipe.ore.amount }]));
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
       dispatch(addForgingXP(10));
     },
@@ -75,10 +66,7 @@ export const ForgingContainer = () => {
   const doCraft = useCallback(
     (recipe: CraftRecipeI) => {
       if (!canCraft(items, recipe)) return;
-      const toConsume = [
-        ...recipe.bars.map(({ itemId, amount }) => ({ itemId, amount })),
-        { itemId: recipe.woodForFire.itemId, amount: recipe.woodForFire.amount },
-      ];
+      const toConsume = recipe.bars.map(({ itemId, amount }) => ({ itemId, amount }));
       dispatch(consumeItems(toConsume));
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
       dispatch(addForgingXP(15));
@@ -90,7 +78,7 @@ export const ForgingContainer = () => {
     <div className="forging">
       <h2 className="forging__title">Forging</h2>
       <p className="forging__intro">
-        Refine raw ore into bars (ore + wood for the furnace), then craft weapons and armour from bars and wood.
+        Refine raw ore into bars, then craft weapons and armour from bars.
       </p>
       <div className="forging__level">
         <span className="forging__levelLabel">Forging level: {forgingLevel}</span>
@@ -103,7 +91,7 @@ export const ForgingContainer = () => {
       </div>
 
       <h3 className="forging__sectionTitle">Refine ore → bars</h3>
-      <p className="forging__hint">Raw ore + wood for the furnace. Each recipe produces one bar.</p>
+      <p className="forging__hint">Raw ore only. Each recipe produces one bar.</p>
       <div className="forging__recipes">
         {REFINE_RECIPES.map((recipe) => {
           const canDo = canRefine(items, recipe);
@@ -118,12 +106,6 @@ export const ForgingContainer = () => {
                     <span className="forging__short"> (have {countItem(items, recipe.ore.itemId)})</span>
                   )}
                 </span>
-                <span className="forging__wood">
-                  Wood: {getItemName(recipe.woodForFire.itemId, allItemNames)} × {recipe.woodForFire.amount}
-                  {countItem(items, recipe.woodForFire.itemId) < recipe.woodForFire.amount && (
-                    <span className="forging__short"> (have {countItem(items, recipe.woodForFire.itemId)})</span>
-                  )}
-                </span>
               </div>
               <p className="forging__output">→ {recipe.output.name} × {recipe.outputAmount}</p>
               <button
@@ -131,7 +113,7 @@ export const ForgingContainer = () => {
                 className="forging__btn"
                 disabled={!canDo}
                 onClick={() => doRefine(recipe)}
-                title={!canDo ? "Mine ore and gather wood first" : undefined}
+                title={!canDo ? "Mine ore first" : undefined}
               >
                 Refine
               </button>
@@ -141,7 +123,7 @@ export const ForgingContainer = () => {
       </div>
 
       <h3 className="forging__sectionTitle">Craft weapons & armour</h3>
-      <p className="forging__hint">Bars + wood for the forge. Equip crafted gear in the character panel.</p>
+      <p className="forging__hint">Bars only. Equip crafted gear in the character panel.</p>
       <div className="forging__recipes">
         {CRAFT_RECIPES.map((recipe) => {
           const canDo = canCraft(items, recipe);
@@ -158,12 +140,6 @@ export const ForgingContainer = () => {
                     )}
                   </span>
                 ))}
-                <span className="forging__wood">
-                  Wood: {getItemName(recipe.woodForFire.itemId, allItemNames)} × {recipe.woodForFire.amount}
-                  {countItem(items, recipe.woodForFire.itemId) < recipe.woodForFire.amount && (
-                    <span className="forging__short"> (have {countItem(items, recipe.woodForFire.itemId)})</span>
-                  )}
-                </span>
               </div>
               <p className="forging__output">→ {recipe.output.name}</p>
               <button
@@ -171,7 +147,7 @@ export const ForgingContainer = () => {
                 className="forging__btn"
                 disabled={!canDo}
                 onClick={() => doCraft(recipe)}
-                title={!canDo ? "Refine bars and gather wood first" : undefined}
+                title={!canDo ? "Refine bars first" : undefined}
               >
                 Craft
               </button>

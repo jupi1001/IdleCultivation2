@@ -74,6 +74,8 @@ interface CharacterState {
   alchemyXP: number;
   /** XP for forging; level = 1 + floor( forgingXP / 100 ) */
   forgingXP: number;
+  /** XP for cooking; level = 1 + floor( cookingXP / 100 ) */
+  cookingXP: number;
 }
 
 const initialEquipment = ALL_EQUIPMENT_SLOTS.reduce(
@@ -116,6 +118,7 @@ const initialState: CharacterState = {
   gatheringCastDuration: 0,
   alchemyXP: 0,
   forgingXP: 0,
+  cookingXP: 0,
 };
 
 export const characterSlice = createSlice({
@@ -201,6 +204,9 @@ export const characterSlice = createSlice({
     },
     addForgingXP: (state, action: PayloadAction<number>) => {
       state.forgingXP = state.forgingXP + action.payload;
+    },
+    addCookingXP: (state, action: PayloadAction<number>) => {
+      state.cookingXP = state.cookingXP + action.payload;
     },
     addFishingXP: (state, action: PayloadAction<number>) => {
       state.fishingXP = state.fishingXP + action.payload;
@@ -473,6 +479,7 @@ export const {
   consumeItems,
   addAlchemyXP,
   addForgingXP,
+  addCookingXP,
   addFishingXP,
   addQi,
   setQi,

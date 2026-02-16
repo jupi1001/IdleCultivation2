@@ -18,30 +18,27 @@ export interface ForgingIngredient {
   amount: number;
 }
 
-/** Refine raw ore + wood into bars (consumes ore and wood) */
+/** Refine raw ore into bars (consumes ore only) */
 export interface RefineRecipeI {
   id: string;
   name: string;
   description: string;
   ore: ForgingIngredient;
-  woodForFire: ForgingIngredient;
   output: Item;
   outputAmount: number;
 }
 
-/** Craft bars + wood into weapon or armour */
+/** Craft bars into weapon or armour */
 export interface CraftRecipeI {
   id: string;
   name: string;
   description: string;
   bars: ForgingIngredient[];
-  woodForFire: ForgingIngredient;
   output: Item;
   outputAmount: number;
 }
 
 const ORE = { copper: 501, iron: 502, spirit: 503 };
-const WOOD = { oak: 601, bamboo: 602, cypress: 603 };
 const BAR = { copper: 801, iron: 802, spirit: 803 };
 
 /** Bar items (refined from ore). Use public/mining or forging assets for icons. */
@@ -79,40 +76,36 @@ export const REFINE_RECIPES: RefineRecipeI[] = [
   {
     id: "refine-copper",
     name: "Refine Copper Bar",
-    description: "Smelt copper ore with wood to produce a copper bar.",
+    description: "Smelt copper ore to produce a copper bar.",
     ore: { itemId: ORE.copper, amount: 1 },
-    woodForFire: { itemId: WOOD.oak, amount: 1 },
     output: FORGE_BAR_ITEMS[0],
     outputAmount: 1,
   },
   {
     id: "refine-iron",
     name: "Refine Iron Bar",
-    description: "Smelt iron ore with wood to produce an iron bar.",
+    description: "Smelt iron ore to produce an iron bar.",
     ore: { itemId: ORE.iron, amount: 1 },
-    woodForFire: { itemId: WOOD.bamboo, amount: 1 },
     output: FORGE_BAR_ITEMS[1],
     outputAmount: 1,
   },
   {
     id: "refine-spirit",
     name: "Refine Spirit Bar",
-    description: "Condense spirit stones with spirit wood into a spirit bar.",
+    description: "Condense spirit stones into a spirit bar.",
     ore: { itemId: ORE.spirit, amount: 3 },
-    woodForFire: { itemId: WOOD.cypress, amount: 1 },
     output: FORGE_BAR_ITEMS[2],
     outputAmount: 1,
   },
 ];
 
-/** Craft recipes: bars + wood → weapon or armour. Outputs are equippable. */
+/** Craft recipes: bars → weapon or armour. Outputs are equippable. */
 export const CRAFT_RECIPES: CraftRecipeI[] = [
   {
     id: "craft-copper-sword",
     name: "Copper Sword",
     description: "A basic forged weapon. Equip in combat technique slot.",
     bars: [{ itemId: BAR.copper, amount: 2 }],
-    woodForFire: { itemId: WOOD.oak, amount: 1 },
     output: {
       id: 901,
       name: "Copper Sword",
@@ -129,7 +122,6 @@ export const CRAFT_RECIPES: CraftRecipeI[] = [
     name: "Iron Sword",
     description: "A stronger forged weapon.",
     bars: [{ itemId: BAR.iron, amount: 3 }],
-    woodForFire: { itemId: WOOD.bamboo, amount: 2 },
     output: {
       id: 902,
       name: "Iron Sword",
@@ -146,7 +138,6 @@ export const CRAFT_RECIPES: CraftRecipeI[] = [
     name: "Spirit Sword",
     description: "A spirit-infused weapon.",
     bars: [{ itemId: BAR.spirit, amount: 4 }],
-    woodForFire: { itemId: WOOD.cypress, amount: 2 },
     output: {
       id: 903,
       name: "Spirit Sword",
@@ -163,7 +154,6 @@ export const CRAFT_RECIPES: CraftRecipeI[] = [
     name: "Copper Helmet",
     description: "Forged head protection.",
     bars: [{ itemId: BAR.copper, amount: 3 }],
-    woodForFire: { itemId: WOOD.oak, amount: 2 },
     output: {
       id: 911,
       name: "Copper Helmet",
@@ -180,7 +170,6 @@ export const CRAFT_RECIPES: CraftRecipeI[] = [
     name: "Iron Helmet",
     description: "Stronger head protection.",
     bars: [{ itemId: BAR.iron, amount: 4 }],
-    woodForFire: { itemId: WOOD.bamboo, amount: 2 },
     output: {
       id: 912,
       name: "Iron Helmet",
@@ -197,7 +186,6 @@ export const CRAFT_RECIPES: CraftRecipeI[] = [
     name: "Copper Chestplate",
     description: "Forged body armour.",
     bars: [{ itemId: BAR.copper, amount: 4 }],
-    woodForFire: { itemId: WOOD.oak, amount: 2 },
     output: {
       id: 921,
       name: "Copper Chestplate",
@@ -214,7 +202,6 @@ export const CRAFT_RECIPES: CraftRecipeI[] = [
     name: "Iron Chestplate",
     description: "Stronger body armour.",
     bars: [{ itemId: BAR.iron, amount: 5 }],
-    woodForFire: { itemId: WOOD.bamboo, amount: 3 },
     output: {
       id: 922,
       name: "Iron Chestplate",

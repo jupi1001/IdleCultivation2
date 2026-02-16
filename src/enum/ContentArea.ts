@@ -17,5 +17,6 @@ export enum ContentArea {
   CULTIVATION_TREE = "Cultivation Tree",
   ALCHEMY = "Alchemy",
   FORGING = "Forging",
+  COOKING = "Cooking",
   IMMORTALS_ISLAND = "Immortals Island",
 }
