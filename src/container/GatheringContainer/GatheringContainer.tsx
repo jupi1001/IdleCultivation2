@@ -95,6 +95,7 @@ const GatheringContainer = () => {
         className="gatheringContainer__cast-bar progress-bar"
         style={{ width: `${progress}%` }}
       />
+      <div className="gatheringContainer__areas">
       {gatheringAreaData.map((area) => {
         const unlocked = character.gatheringXP >= area.gatheringXPUnlock;
         return (
@@ -124,6 +125,7 @@ const GatheringContainer = () => {
           />
         );
       })}
+      </div>
     </div>
   );
 };

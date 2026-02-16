@@ -59,6 +59,52 @@
   color: var(--text-muted);
 }
 
+.forging__tierList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.forging__tierGroup {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.forging__tierHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  background: var(--bg);
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.forging__tierHeader:hover {
+  background: var(--border);
+}
+
+.forging__tierName {
+  color: var(--text);
+}
+
+.forging__tierChevron {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.forging__tierGroup .forging__recipes {
+  padding: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
 .forging__recipes {
   display: flex;
   flex-direction: row;

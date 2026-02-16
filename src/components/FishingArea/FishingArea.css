@@ -2,7 +2,10 @@
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.5rem;
-  margin-bottom: 0.5rem;
+  min-width: 260px;
+  max-width: 320px;
+  flex: 1 1 260px;
+  box-sizing: border-box;
 }
 
 .fishingAreaContainer__main-item--locked {
