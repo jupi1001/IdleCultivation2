@@ -1,0 +1,150 @@
+.alchemy {
+  max-width: 100%;
+}
+
+.alchemy__title {
+  margin: 0 0 0.5rem;
+}
+
+.alchemy__intro {
+  margin: 0 0 1rem;
+  font-size: 0.95em;
+  color: var(--text-muted);
+}
+
+.alchemy__level {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.alchemy__levelLabel {
+  font-weight: 600;
+}
+
+.alchemy__xp {
+  margin-left: 0.5rem;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
+.alchemy__xpBar {
+  margin-top: 0.5rem;
+  height: 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.alchemy__xpBarFill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+.alchemy__recipesTitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.alchemy__recipes {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.alchemy__recipe {
+  padding: 1rem;
+  min-width: 260px;
+  max-width: 320px;
+  flex: 1 1 260px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.alchemy__recipeName {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.alchemy__recipeDesc {
+  margin: 0 0 0.5rem;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
+.alchemy__recipeLevel {
+  margin: 0 0 0.5rem;
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
+.alchemy__mats {
+  margin-bottom: 0.5rem;
+  font-size: 0.9em;
+}
+
+.alchemy__matsLabel {
+  font-weight: 600;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.alchemy__matsLabel:first-of-type {
+  margin-top: 0;
+}
+
+.alchemy__matsList {
+  margin: 0.15rem 0 0 1rem;
+  padding: 0;
+}
+
+.alchemy__wood {
+  display: block;
+  margin-left: 0;
+  margin-top: 0.15rem;
+}
+
+.alchemy__matsShort {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.alchemy__success {
+  margin: 0 0 0.25rem;
+  font-size: 0.9em;
+}
+
+.alchemy__successNote {
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
+.alchemy__output {
+  margin: 0 0 0.5rem;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
+.alchemy__attempt {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9em;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.alchemy__attempt:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.alchemy__attempt:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

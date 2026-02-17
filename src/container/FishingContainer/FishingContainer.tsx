@@ -90,6 +90,7 @@ const FishingContainer = () => {
         className="fishingContainer__cast-bar progress-bar"
         style={{ width: `${progress}%` }}
       />
+      <div className="fishingContainer__areas">
       {fishingAreaData.map((area) => {
         const unlocked = character.fishingXP >= area.fishingXPUnlock;
         return (
@@ -114,6 +115,7 @@ const FishingContainer = () => {
           />
         );
       })}
+      </div>
     </div>
   );
 };

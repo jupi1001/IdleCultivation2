@@ -1,0 +1,120 @@
+.cooking {
+  max-width: 100%;
+}
+
+.cooking__title {
+  margin: 0 0 0.5rem;
+}
+
+.cooking__intro {
+  margin: 0 0 1rem;
+  font-size: 0.95em;
+  color: var(--text-muted);
+}
+
+.cooking__level {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cooking__levelLabel {
+  font-weight: 600;
+}
+
+.cooking__xp {
+  margin-left: 0.5rem;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
+.cooking__xpBar {
+  margin-top: 0.5rem;
+  height: 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.cooking__xpBarFill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+.cooking__recipesTitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.cooking__recipes {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cooking__recipe {
+  padding: 1rem;
+  min-width: 260px;
+  max-width: 320px;
+  flex: 1 1 260px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cooking__recipeName {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.cooking__recipeDesc {
+  margin: 0 0 0.5rem;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
+.cooking__mats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9em;
+}
+
+.cooking__wood {
+  margin-top: 0.15rem;
+}
+
+.cooking__short {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.cooking__output {
+  margin: 0 0 0.5rem;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
+.cooking__btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9em;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.cooking__btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.cooking__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

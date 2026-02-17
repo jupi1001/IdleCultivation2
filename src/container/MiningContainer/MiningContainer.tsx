@@ -90,6 +90,7 @@ const MiningContainer = () => {
         className="miningContainer__cast-bar progress-bar"
         style={{ width: `${progress}%` }}
       />
+      <div className="miningContainer__areas">
       {miningAreaData.map((area) => {
         const unlocked = character.miningXP >= area.miningXPUnlock;
         return (
@@ -115,6 +116,7 @@ const MiningContainer = () => {
           />
         );
       })}
+      </div>
     </div>
   );
 };

@@ -7,7 +7,7 @@ import Modal from "react-modal";
 import "./CombatContainer.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { addItems } from "../../state/reducers/characterSlice";
+import { addItems, addHealth, consumeItems } from "../../state/reducers/characterSlice";
 import Item from "../../interfaces/ItemI";
 import { changeContent } from "../../state/reducers/contentSlice";
 import { ContentArea } from "../../enum/ContentArea";
@@ -62,6 +62,19 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   };
 
   const [currentEnemy, setCurrentEnemy] = useState(getRandomEnemy());
+
+  /** Food that restores vitality – use during combat to heal */
+  const vitalityFood = character.items.filter(
+    (i) => i.effect === "vitality" && i.value != null && (i.quantity ?? 1) > 0
+  );
+
+  const useVitalityFood = (item: Item) => {
+    const heal = item.value ?? 0;
+    if (heal <= 0) return;
+    dispatch(addHealth(heal));
+    dispatch(consumeItems([{ itemId: item.id, amount: 1 }]));
+    setCharacterState((prev) => ({ ...prev, health: prev.health + heal }));
+  };
 
   /**
    * Add items to redux state and clear item bag
@@ -234,6 +247,22 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         </div>
       </div>
       <div className="combatContainer__main-footer">
+        {vitalityFood.length > 0 && (
+          <div className="combatContainer__consumables">
+            <span className="combatContainer__consumables-label">Food (heal):</span>
+            {vitalityFood.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className="combatContainer__use-food"
+                onClick={() => useVitalityFood(item)}
+                title={`${item.name}: restores ${item.value} vitality`}
+              >
+                {item.name} (+{item.value})
+              </button>
+            ))}
+          </div>
+        )}
         <img src={images.bag} alt="Inventory Bag" onClick={() => setIsOpen(true)} />
         <Modal isOpen={isOpen} onRequestClose={toggleModal} contentLabel="item dialog" style={customStyles}>
           Loot Display
