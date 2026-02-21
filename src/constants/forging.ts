@@ -1,9 +1,8 @@
 import type Item from "../interfaces/ItemI";
 import type { EquipmentSlot } from "../types/EquipmentSlot";
 
-/** Base path for forging/weapon/armour images. Place images under public/assets/forging/ */
+/** Base path for forging images (weapons, armour, bars). Place images under public/assets/forging/ */
 const FORGING_ASSETS = "/assets/forging";
-const MINING_ASSETS = "/assets/mining";
 
 /** Max display level in left-panel card */
 export const FORGING_MAX_LEVEL = 99;
@@ -89,21 +88,21 @@ const BAR = {
   celestial: 813,
 };
 
-/** Bar items (refined from ore). */
+/** Bar items (refined from ore). Icons in /assets/forging/ use -bar.png. */
 export const FORGE_BAR_ITEMS: Item[] = [
-  { id: BAR.copper, name: "Copper Bar", description: "Refined copper.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/copper-ore.png`, value: 0 },
-  { id: BAR.iron, name: "Iron Bar", description: "Refined iron.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/iron-ore.png`, value: 0 },
-  { id: BAR.spirit, name: "Spirit Bar", description: "Condensed spirit bar.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/spirit-stone.png`, value: 0 },
-  { id: BAR.tin, name: "Tin Bar", description: "Refined tin.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/tin-ore.png`, value: 0 },
-  { id: BAR.jade, name: "Jade Bar", description: "Polished jade bar.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/jade-ore.png`, value: 0 },
-  { id: BAR.silver, name: "Silver Bar", description: "Refined silver.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/silver-ore.png`, value: 0 },
-  { id: BAR.gold, name: "Gold Bar", description: "Refined gold.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/gold-ore.png`, value: 0 },
-  { id: BAR.thunder, name: "Thunder Crystal Bar", description: "Crystal fused with lightning Qi.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/thunder-crystal.png`, value: 0 },
-  { id: BAR.obsidian, name: "Obsidian Bar", description: "Forged volcanic glass.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/obsidian.png`, value: 0 },
-  { id: BAR.starIron, name: "Star Iron Bar", description: "Meteor iron bar.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/star-iron.png`, value: 0 },
-  { id: BAR.voidstone, name: "Voidstone Bar", description: "Condensed voidstone.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/voidstone.png`, value: 0 },
-  { id: BAR.dragonbone, name: "Dragonbone Bar", description: "Reinforced dragonbone.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/dragonbone-ore.png`, value: 0 },
-  { id: BAR.celestial, name: "Celestial Bar", description: "Heavenly Qi condensed.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/celestial-crystal.png`, value: 0 },
+  { id: BAR.copper, name: "Copper Bar", description: "Refined copper.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/copper-bar.png`, value: 0 },
+  { id: BAR.iron, name: "Iron Bar", description: "Refined iron.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/iron-bar.png`, value: 0 },
+  { id: BAR.spirit, name: "Spirit Bar", description: "Condensed spirit bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/spirit-bar.png`, value: 0 },
+  { id: BAR.tin, name: "Tin Bar", description: "Refined tin.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/tin-bar.png`, value: 0 },
+  { id: BAR.jade, name: "Jade Bar", description: "Polished jade bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/jade-bar.png`, value: 0 },
+  { id: BAR.silver, name: "Silver Bar", description: "Refined silver.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/silver-bar.png`, value: 0 },
+  { id: BAR.gold, name: "Gold Bar", description: "Refined gold.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/gold-bar.png`, value: 0 },
+  { id: BAR.thunder, name: "Thunder Crystal Bar", description: "Crystal fused with lightning Qi.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/thunder-crystal-bar.png`, value: 0 },
+  { id: BAR.obsidian, name: "Obsidian Bar", description: "Forged volcanic glass.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/obsidian-bar.png`, value: 0 },
+  { id: BAR.starIron, name: "Star Iron Bar", description: "Meteor iron bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/star-iron-bar.png`, value: 0 },
+  { id: BAR.voidstone, name: "Voidstone Bar", description: "Condensed voidstone.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/voidstone-bar.png`, value: 0 },
+  { id: BAR.dragonbone, name: "Dragonbone Bar", description: "Reinforced dragonbone.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/dragonbone-bar.png`, value: 0 },
+  { id: BAR.celestial, name: "Celestial Bar", description: "Heavenly Qi condensed.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/celestial-bar.png`, value: 0 },
 ];
 
 export const REFINE_RECIPES: RefineRecipeI[] = [

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Item from "../../interfaces/ItemI";
 import LootTablePopover from "../LootTablePopover/LootTablePopover";
 import "./GatheringArea.css";
@@ -33,41 +33,29 @@ const GatheringArea: React.FC<GatheringAreaProps> = ({
   unlocked,
   onClick,
 }) => {
-  const [imgError, setImgError] = useState(false);
-
   return (
     <div
       className={`gatheringAreaContainer__main-item ${unlocked ? "" : "gatheringAreaContainer__main-item--locked"}`}
+      style={{ backgroundImage: `url(${imageSrc})` }}
       onClick={unlocked ? onClick : undefined}
       onMouseEnter={() => unlocked && (document.body.style.cursor = "pointer")}
       onMouseLeave={() => (document.body.style.cursor = "default")}
       role={unlocked ? "button" : undefined}
       aria-disabled={!unlocked}
+      title={altText}
     >
-      <h2>{title}</h2>
-      <p>
-        Gathering XP: {gatheringXP} · Duration: {formatGatheringDuration(gatheringDelay)}
-      </p>
-      {!unlocked && (
-        <p className="gatheringAreaContainer__lock">
-          Requires Gathering Level {requiredLevel} to unlock
+      <div className="gatheringAreaContainer__overlay" aria-hidden="true" />
+      <div className="gatheringAreaContainer__content">
+        <h2 className="gatheringAreaContainer__title">{title}</h2>
+        <p className="gatheringAreaContainer__meta">
+          Gathering XP: {gatheringXP} · Duration: {formatGatheringDuration(gatheringDelay)}
         </p>
-      )}
-      <LootTablePopover items={possibleLoot} label="Possible finds" />
-      <div className="gatheringAreaContainer__img-wrap">
-        {imgError ? (
-          <div className="gatheringAreaContainer__placeholder" title={altText}>
-            Gather
-          </div>
-        ) : (
-          <img
-            src={imageSrc}
-            alt={altText}
-            height={50}
-            draggable={false}
-            onError={() => setImgError(true)}
-          />
+        {!unlocked && (
+          <p className="gatheringAreaContainer__lock">
+            Requires Gathering Level {requiredLevel} to unlock
+          </p>
         )}
+        <LootTablePopover items={possibleLoot} label="Possible finds" />
       </div>
     </div>
   );

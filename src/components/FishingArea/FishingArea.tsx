@@ -37,28 +37,27 @@ const FishingArea: React.FC<FishingAreaProps> = ({
   return (
     <div
       className={`fishingAreaContainer__main-item ${unlocked ? "" : "fishingAreaContainer__main-item--locked"}`}
+      style={{ backgroundImage: `url(${imageSrc})` }}
       onClick={unlocked ? onClick : undefined}
       onMouseEnter={() => unlocked && (document.body.style.cursor = "pointer")}
       onMouseLeave={() => (document.body.style.cursor = "default")}
       role={unlocked ? "button" : undefined}
       aria-disabled={!unlocked}
+      title={altText}
     >
-      <h2>{title}</h2>
-      <p>
-        Fishing XP: {fishingXP} · Duration: {formatFishingDuration(fishingDelay)}
-      </p>
-      {!unlocked && (
-        <p className="fishingAreaContainer__lock">
-          Requires Fishing Level {requiredLevel} to unlock
+      <div className="fishingAreaContainer__overlay" aria-hidden="true" />
+      <div className="fishingAreaContainer__content">
+        <h2 className="fishingAreaContainer__title">{title}</h2>
+        <p className="fishingAreaContainer__meta">
+          Fishing XP: {fishingXP} · Duration: {formatFishingDuration(fishingDelay)}
         </p>
-      )}
-      <LootTablePopover items={possibleLoot} label="Possible finds" />
-      <img
-        src={imageSrc}
-        alt={altText}
-        height={50}
-        draggable={false}
-      />
+        {!unlocked && (
+          <p className="fishingAreaContainer__lock">
+            Requires Fishing Level {requiredLevel} to unlock
+          </p>
+        )}
+        <LootTablePopover items={possibleLoot} label="Possible finds" />
+      </div>
     </div>
   );
 };

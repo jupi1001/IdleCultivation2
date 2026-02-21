@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Item from "../../interfaces/ItemI";
 import LootTablePopover from "../LootTablePopover/LootTablePopover";
 import "./MiningArea.css";
@@ -33,41 +33,29 @@ const MiningArea: React.FC<MiningAreaProps> = ({
   unlocked,
   onClick,
 }) => {
-  const [imgError, setImgError] = useState(false);
-
   return (
     <div
       className={`miningAreaContainer__main-item ${unlocked ? "" : "miningAreaContainer__main-item--locked"}`}
+      style={{ backgroundImage: `url(${imageSrc})` }}
       onClick={unlocked ? onClick : undefined}
       onMouseEnter={() => unlocked && (document.body.style.cursor = "pointer")}
       onMouseLeave={() => (document.body.style.cursor = "default")}
       role={unlocked ? "button" : undefined}
       aria-disabled={!unlocked}
+      title={altText}
     >
-      <h2>{title}</h2>
-      <p>
-        Mining XP: {miningXP} · Duration: {formatMiningDuration(miningDelay)}
-      </p>
-      {!unlocked && (
-        <p className="miningAreaContainer__lock">
-          Requires Mining Level {requiredLevel} to unlock
+      <div className="miningAreaContainer__overlay" aria-hidden="true" />
+      <div className="miningAreaContainer__content">
+        <h2 className="miningAreaContainer__title">{title}</h2>
+        <p className="miningAreaContainer__meta">
+          Mining XP: {miningXP} · Duration: {formatMiningDuration(miningDelay)}
         </p>
-      )}
-      <LootTablePopover items={possibleLoot} label="Possible find" />
-      <div className="miningAreaContainer__img-wrap">
-        {imgError ? (
-          <div className="miningAreaContainer__placeholder" title={altText}>
-            Ore
-          </div>
-        ) : (
-          <img
-            src={imageSrc}
-            alt={altText}
-            height={50}
-            draggable={false}
-            onError={() => setImgError(true)}
-          />
+        {!unlocked && (
+          <p className="miningAreaContainer__lock">
+            Requires Mining Level {requiredLevel} to unlock
+          </p>
         )}
+        <LootTablePopover items={possibleLoot} label="Possible find" />
       </div>
     </div>
   );

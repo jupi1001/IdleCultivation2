@@ -255,12 +255,14 @@ export const enemies: EnemyI[] = [
 const FISHING_ASSETS = "/assets/fishing";
 /** Base path for fish item images. Add images under public/assets/fish/ */
 const FISH_ASSETS = "/assets/fish";
-/** Base path for mining area images. Add images under public/assets/mining/ */
+/** Base path for mining area images (location cards). Add under public/assets/mining/ */
 const MINING_ASSETS = "/assets/mining";
-/** Base path for mining loot item images (ore icons). */
-const MINING_LOOT_ASSETS = "/assets/mining";
-/** Base path for gathering area images. Add images under public/assets/gathering/ */
+/** Base path for mining loot item icons (ore in inventory). Add under public/assets/mining/items/ */
+const MINING_LOOT_ASSETS = "/assets/mining/items";
+/** Base path for gathering area images (location cards). Add under public/assets/gathering/ */
 const GATHERING_ASSETS = "/assets/gathering";
+/** Base path for gathering loot item icons (wood, herbs in inventory). Add under public/assets/gathering/items/ */
+const GATHERING_ITEMS = "/assets/gathering/items";
 
 /** Fishing areas: unlock by level (stored as XP via totalXpForLevel). Spread varied: ~5–10 levels between unlocks. */
 export const fishingAreaData: FishingAreaI[] = [
@@ -648,7 +650,7 @@ export const miningAreaData: MiningAreaI[] = [
     miningXPUnlock: totalXpForMiningLevel(1),
     miningDelay: 4000,
     miningLootId: 501,
-    picture: `${MINING_ASSETS}/copper-ore.png`,
+    picture: `${MINING_ASSETS}/copper-mine.png`,
     altText: "Copper ore vein",
   },
   {
@@ -658,7 +660,7 @@ export const miningAreaData: MiningAreaI[] = [
     miningXPUnlock: totalXpForMiningLevel(5),
     miningDelay: 5000,
     miningLootId: 502,
-    picture: `${MINING_ASSETS}/iron-ore.png`,
+    picture: `${MINING_ASSETS}/iron-mine.png`,
     altText: "Iron ore vein",
   },
   {
@@ -1077,7 +1079,7 @@ export const woodTypes: Item[] = [
     description: "Common oak. Used for weapons and to light the alchemy forge.",
     price: 2,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-oak-wood.png`,
+    picture: `${GATHERING_ITEMS}/item-oak-wood.png`,
     value: 0,
   },
   {
@@ -1086,7 +1088,7 @@ export const woodTypes: Item[] = [
     description: "Hard bamboo favoured by cultivators. Used in forging and cooking fires.",
     price: 5,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-iron-bamboo.png`,
+    picture: `${GATHERING_ITEMS}/item-iron-bamboo.png`,
     value: 0,
   },
   {
@@ -1095,7 +1097,7 @@ export const woodTypes: Item[] = [
     description: "Wood touched by Qi. Used for spirit weapons and high-grade alchemy.",
     price: 12,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-spirit-cypress.png`,
+    picture: `${GATHERING_ITEMS}/item-spirit-cypress.png`,
     value: 0,
   },
   {
@@ -1104,7 +1106,7 @@ export const woodTypes: Item[] = [
     description: "Resinous pine. Burns long; used in alchemy and campfires.",
     price: 4,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-pine-wood.png`,
+    picture: `${GATHERING_ITEMS}/item-pine-wood.png`,
     value: 0,
   },
   {
@@ -1113,7 +1115,7 @@ export const woodTypes: Item[] = [
     description: "Dense dark wood. Used for high-grade crafting and arrays.",
     price: 14,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-ebony-wood.png`,
+    picture: `${GATHERING_ITEMS}/item-ebony-wood.png`,
     value: 0,
   },
   {
@@ -1122,7 +1124,7 @@ export const woodTypes: Item[] = [
     description: "Willow that grows near rifts. Used in spatial and void arrays.",
     price: 20,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-void-willow.png`,
+    picture: `${GATHERING_ITEMS}/item-void-willow.png`,
     value: 0,
   },
   {
@@ -1131,7 +1133,7 @@ export const woodTypes: Item[] = [
     description: "Ashen wood from dragon territories. Used in top-tier forging.",
     price: 26,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-dragon-ash-wood.png`,
+    picture: `${GATHERING_ITEMS}/item-dragon-ash-wood.png`,
     value: 0,
   },
   {
@@ -1140,7 +1142,7 @@ export const woodTypes: Item[] = [
     description: "Bamboo infused with heavenly Qi. Used in transcendent alchemy.",
     price: 35,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-celestial-bamboo.png`,
+    picture: `${GATHERING_ITEMS}/item-celestial-bamboo.png`,
     value: 0,
   },
 ];
@@ -1152,7 +1154,7 @@ export const herbTypes: Item[] = [
     description: "A basic herb. Used in pills and alchemy.",
     price: 1,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-common-herb.png`,
+    picture: `${GATHERING_ITEMS}/item-common-herb.png`,
     value: 0,
   },
   {
@@ -1161,7 +1163,7 @@ export const herbTypes: Item[] = [
     description: "Leaf imbued with faint Qi. Used in low-grade pills.",
     price: 2,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-spirit-leaf.png`,
+    picture: `${GATHERING_ITEMS}/item-spirit-leaf.png`,
     value: 0,
   },
   {
@@ -1170,7 +1172,7 @@ export const herbTypes: Item[] = [
     description: "Grass from spirit-rich soil. Used in alchemy pills.",
     price: 4,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-spirit-grass.png`,
+    picture: `${GATHERING_ITEMS}/item-spirit-grass.png`,
     value: 0,
   },
   {
@@ -1179,7 +1181,7 @@ export const herbTypes: Item[] = [
     description: "Rare herb with a silvery sheen. Used in refinement pills.",
     price: 6,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-silver-leaf.png`,
+    picture: `${GATHERING_ITEMS}/item-silver-leaf.png`,
     value: 0,
   },
   {
@@ -1188,7 +1190,7 @@ export const herbTypes: Item[] = [
     description: "Precious herb favoured in high-level alchemy.",
     price: 10,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-jade-spirit-herb.png`,
+    picture: `${GATHERING_ITEMS}/item-jade-spirit-herb.png`,
     value: 0,
   },
   {
@@ -1197,7 +1199,7 @@ export const herbTypes: Item[] = [
     description: "Rare ginseng said to touch the heavens. Used in breakthrough pills.",
     price: 15,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-heavenly-ginseng.png`,
+    picture: `${GATHERING_ITEMS}/item-heavenly-ginseng.png`,
     value: 0,
   },
   {
@@ -1206,7 +1208,7 @@ export const herbTypes: Item[] = [
     description: "Herb that blooms under the full moon. Used in awareness pills.",
     price: 12,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-moon-petal.png`,
+    picture: `${GATHERING_ITEMS}/item-moon-petal.png`,
     value: 0,
   },
   {
@@ -1215,7 +1217,7 @@ export const herbTypes: Item[] = [
     description: "Moss that glows like starlight. Used in stellar alchemy.",
     price: 18,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-star-moss.png`,
+    picture: `${GATHERING_ITEMS}/item-star-moss.png`,
     value: 0,
   },
   {
@@ -1224,7 +1226,7 @@ export const herbTypes: Item[] = [
     description: "Root from the dawn of Qi. Used in ancient formulae.",
     price: 22,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-primordial-root.png`,
+    picture: `${GATHERING_ITEMS}/item-primordial-root.png`,
     value: 0,
   },
   {
@@ -1233,7 +1235,7 @@ export const herbTypes: Item[] = [
     description: "Flower that grows near rifts. Used in void-attuned pills.",
     price: 28,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-void-bloom.png`,
+    picture: `${GATHERING_ITEMS}/item-void-bloom.png`,
     value: 0,
   },
   {
@@ -1242,7 +1244,7 @@ export const herbTypes: Item[] = [
     description: "Lotus touched by heaven. Used in transcendent pills.",
     price: 34,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-celestial-lotus.png`,
+    picture: `${GATHERING_ITEMS}/item-celestial-lotus.png`,
     value: 0,
   },
   {
@@ -1251,7 +1253,7 @@ export const herbTypes: Item[] = [
     description: "Herb that transcends mortal classification. Peak alchemy ingredient.",
     price: 45,
     quantity: 1,
-    picture: `${GATHERING_ASSETS}/item-transcendent-herb.png`,
+    picture: `${GATHERING_ITEMS}/item-transcendent-herb.png`,
     value: 0,
   },
 ];
