@@ -1,7 +1,7 @@
 import type Item from "../interfaces/ItemI";
 
 /** Base path for alchemy/pill images. Place images under public/assets/alchemy/ */
-const ALCHEMY_ASSETS = "/assets/alchemy";
+export const ALCHEMY_ASSETS = "/assets/alchemy";
 
 /** Max display level in left-panel card (e.g. Level 5/99) */
 export const ALCHEMY_MAX_LEVEL = 99;

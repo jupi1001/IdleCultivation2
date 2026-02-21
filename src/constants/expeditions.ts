@@ -1,6 +1,6 @@
 import type { MissionI } from "../interfaces/MissionI";
 import type Item from "../interfaces/ItemI";
-import images from "./images";
+import { ALCHEMY_ASSETS } from "./alchemy";
 
 /** Expedition-only items (techniques, herbs). Each obtainable from one mission only. */
 export const EXPEDITION_ITEMS_BY_ID: Record<number, Item> = {
@@ -10,7 +10,7 @@ export const EXPEDITION_ITEMS_BY_ID: Record<number, Item> = {
     description: "A herb found on Immortals Island. Used in alchemy.",
     quantity: 1,
     price: 0,
-    picture: images.potion1,
+    picture: `${ALCHEMY_ASSETS}/potion1.png`,
   },
   501: {
     id: 501,
@@ -18,7 +18,7 @@ export const EXPEDITION_ITEMS_BY_ID: Record<number, Item> = {
     description: "Qi technique from the island. +0.3 Qi/s when meditating.",
     quantity: 1,
     price: 0,
-    picture: images.potion1,
+    picture: `${ALCHEMY_ASSETS}/potion1.png`,
     equipmentSlot: "qiTechnique",
     qiGainBonus: 0.3,
   },
@@ -28,7 +28,7 @@ export const EXPEDITION_ITEMS_BY_ID: Record<number, Item> = {
     description: "Combat technique from the island.",
     quantity: 1,
     price: 0,
-    picture: images.potion1,
+    picture: `${ALCHEMY_ASSETS}/potion1.png`,
     equipmentSlot: "combatTechnique",
   },
   503: {
@@ -37,7 +37,7 @@ export const EXPEDITION_ITEMS_BY_ID: Record<number, Item> = {
     description: "Rare Qi technique from the island. +0.4 Qi/s when meditating.",
     quantity: 1,
     price: 0,
-    picture: images.potion1,
+    picture: `${ALCHEMY_ASSETS}/potion1.png`,
     equipmentSlot: "qiTechnique",
     qiGainBonus: 0.4,
   },
