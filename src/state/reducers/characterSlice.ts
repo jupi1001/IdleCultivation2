@@ -44,6 +44,8 @@ interface CharacterState {
   equipment: Record<EquipmentSlot, Item | null>;
   /** Righteous vs Demonic; chosen once at game start. Affects sects and cultivation tree. */
   path: CultivationPath | null;
+  /** Male or Female; chosen at game start. Affects character portrait (default vs lotus in meditation). */
+  gender: "Male" | "Female" | null;
   /** Sect id the character has joined; null if none. Only one sect at a time. */
   currentSectId: number | null;
   /** Rank index inside the sect: 0 = Sect Aspirant, 1 = Outer, 2 = Inner, 3 = Core. Affects sect store availability. */
@@ -98,6 +100,7 @@ const initialState: CharacterState = {
   currentActivity: "none",
   equipment: initialEquipment,
   path: null,
+  gender: null,
   currentSectId: null,
   sectRankIndex: 0,
   promotionEndTime: null,
@@ -388,6 +391,9 @@ export const characterSlice = createSlice({
     setPath: (state, action: PayloadAction<CultivationPath>) => {
       state.path = action.payload;
     },
+    setGender: (state, action: PayloadAction<"Male" | "Female">) => {
+      state.gender = action.payload;
+    },
     setSect: (state, action: PayloadAction<number | null>) => {
       state.currentSectId = action.payload;
       state.promotionEndTime = null;
@@ -498,6 +504,7 @@ export const {
   equipItem,
   unequipItem,
   setPath,
+  setGender,
   setSect,
   setSectRank,
   startPromotion,

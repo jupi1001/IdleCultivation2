@@ -10,7 +10,8 @@ import { ContentArea } from "../../enum/ContentArea";
 interface MapAreaProps {
   image: string;
   text: string;
-  information: string;
+  /** Optional; if omitted, only "Requires …" is shown when locked */
+  information?: string;
   requiredRealm?: RealmRequirement;
   requiredRealmLabel?: string;
   characterRealm?: RealmId;
@@ -20,7 +21,6 @@ interface MapAreaProps {
 const MapAreaComponent: React.FC<MapAreaProps> = ({
   image,
   text,
-  information,
   requiredRealm,
   requiredRealmLabel,
   characterRealm = "Mortal",
@@ -39,17 +39,20 @@ const MapAreaComponent: React.FC<MapAreaProps> = ({
     <div
       className={`mapAreaComponent__main ${!canEnter ? "mapAreaComponent__main--locked" : ""}`}
     >
-      <h4>{text}</h4>
-      <img
-        className="mapAreaComponent__main-image"
-        src={image}
-        alt={text}
-        onClick={() => handleOnClick(text)}
-      />
-      <p>{information}</p>
-      {!canEnter && requiredRealmLabel && (
-        <p className="mapAreaComponent__main-requirement">Requires {requiredRealmLabel}</p>
-      )}
+      <h4 className="mapAreaComponent__title">{text}</h4>
+      <div className="mapAreaComponent__image-wrap" onClick={() => canEnter && handleOnClick(text)}>
+        <img
+          className="mapAreaComponent__main-image"
+          src={image}
+          alt={text}
+        />
+      </div>
+      <div className="mapAreaComponent__divider" />
+      <div className="mapAreaComponent__footer">
+        {requiredRealmLabel && (
+          <p className="mapAreaComponent__main-requirement">Requires {requiredRealmLabel}</p>
+        )}
+      </div>
     </div>
   );
 };

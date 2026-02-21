@@ -5,7 +5,7 @@ import { breakthrough, setCurrentActivity } from "../../state/reducers/character
 import { getBreakthroughQiRequired, getNextRealm } from "../../constants/realmProgression";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
-import { UI_ASSETS } from "../../constants/ui";
+import { getCharacterImage } from "../../constants/ui";
 import "./MeditationContainer.css";
 
 export const MeditationContainer = () => {
@@ -39,7 +39,7 @@ export const MeditationContainer = () => {
     <div className="meditation-container">
       <div className="meditation-container__character">
         <img
-          src={`${UI_ASSETS}/character.webp`}
+          src={getCharacterImage(character.gender ?? "Male", "lotus")}
           alt="Meditating"
           className="meditation-container__character-img"
         />

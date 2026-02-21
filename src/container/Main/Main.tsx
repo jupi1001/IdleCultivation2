@@ -31,8 +31,9 @@ export const Main = () => {
 
   const content = useSelector((state: RootState) => state.content.page);
   const path = useSelector((state: RootState) => state.character.path);
+  const gender = useSelector((state: RootState) => state.character.gender);
 
-  if (path === null) {
+  if (path === null || gender === null) {
     return (
       <div className="app__main app__main--pathChoice">
         <PathChoiceScreen />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { enemies } from "../../constants/data";
-import { UI_ASSETS } from "../../constants/ui";
+import { getCharacterImage, UI_ASSETS } from "../../constants/ui";
 import EnemyI from "../../interfaces/EnemyI";
 import Modal from "react-modal";
 import "./CombatContainer.css";
@@ -54,14 +54,22 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
 
   /**
    * Method to get a random new enemy from the current area
-   * @returns  Enemy
+   * @returns  Enemy or undefined if area has no enemies
    */
-  const getRandomEnemy = () => {
+  const getRandomEnemy = (): EnemyI | undefined => {
+    if (currentEnemies.length === 0) return undefined;
     const random = Math.floor(Math.random() * currentEnemies.length);
     return currentEnemies[random];
   };
 
-  const [currentEnemy, setCurrentEnemy] = useState(getRandomEnemy());
+  const [currentEnemy, setCurrentEnemy] = useState<EnemyI | undefined>(getRandomEnemy());
+
+  // Redirect to map if no valid area or no enemies (e.g. bad state)
+  useEffect(() => {
+    if (!area || currentEnemies.length === 0) {
+      dispatch(changeContent(ContentArea.MAP));
+    }
+  }, [area, currentEnemies.length, dispatch]);
 
   /** Food that restores vitality – use during combat to heal */
   const vitalityFood = character.items.filter(
@@ -205,6 +213,8 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     };
   }, [fightingInterval]);
 
+  if (!currentEnemy) return null;
+
   return (
     <div className="combatContainer__main">
       Attack Speed: {fightingInterval / 1000}s
@@ -222,7 +232,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       <div className="combatContainer__main-combat">
         {/* CharacterSection */}
         <div className="combatContainer__main-character">
-          <img className="combatContainer__main-img" src={`${UI_ASSETS}/character.webp`} alt="You" />
+          <img className="combatContainer__main-img" src={getCharacterImage(character.gender ?? "Male", "default")} alt="You" />
         </div>
         {/* EnemySection */}
         <div className="combatContainer__main-enemy">
