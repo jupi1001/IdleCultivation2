@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { enemies } from "../../constants/data";
 import { getCharacterImage, UI_ASSETS } from "../../constants/ui";
 import EnemyI from "../../interfaces/EnemyI";
+import EnemyLootPopover from "../../components/EnemyLootPopover/EnemyLootPopover";
 import "./CombatContainer.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { addItems, addMoney, consumeItems, setCurrentHealth } from "../../state/reducers/characterSlice";
-import { getEffectiveCombatStats } from "../../state/selectors/characterSelectors";
+import { getEffectiveCombatStats, getOwnedTechniqueIds } from "../../state/selectors/characterSelectors";
 import Item from "../../interfaces/ItemI";
 import { changeContent } from "../../state/reducers/contentSlice";
 import { ContentArea } from "../../enum/ContentArea";
@@ -23,6 +24,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
 
   const character = useSelector((state: RootState) => state.character);
   const effectiveStats = useSelector(getEffectiveCombatStats);
+  const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
   const [characterState, setCharacterState] = useState(() => ({
     ...effectiveStats,
     health: Math.min(effectiveStats.health, character.currentHealth),
@@ -59,8 +61,9 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     return () => clearTimeout(t);
   }, [lastDamageToCharacter]);
 
-  // Character attack speed (ms). Can be made dynamic later (e.g. from weapon).
-  const [fightingInterval, setFightingInterval] = useState(2000);
+  const BASE_ATTACK_INTERVAL_MS = 2000;
+  const MIN_ATTACK_INTERVAL_MS = 500;
+  const fightingInterval = Math.max(MIN_ATTACK_INTERVAL_MS, BASE_ATTACK_INTERVAL_MS - (effectiveStats.attackSpeedReduction ?? 0));
   // Progress 0–100 for character and enemy attack bars
   const [characterProgress, setCharacterProgress] = useState(0);
   const [enemyProgress, setEnemyProgress] = useState(0);
@@ -88,9 +91,11 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const currentEnemyRef = useRef(currentEnemy);
   const lastCharAttackRef = useRef(Date.now());
   const lastEnemyAttackRef = useRef(Date.now());
+  const ownedTechniqueIdsRef = useRef(ownedTechniqueIds);
 
   characterStateRef.current = characterState;
   currentEnemyRef.current = currentEnemy ?? null;
+  ownedTechniqueIdsRef.current = ownedTechniqueIds;
 
   // Redirect if no valid area, no enemies, or realm too low for this area
   useEffect(() => {
@@ -155,28 +160,33 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   };
 
   /**
-   * Adds 1 item from the enemy drop table to the item bag.
+   * Adds 1 item from the enemy drop table to the item bag. Techniques (qi/combat) are only added once per character; duplicates are skipped.
    */
   const addLootToItemBag = (enemy: EnemyI) => {
     const items = enemy.loot?.items;
-    const weights = enemy.loot?.weight;
+    const weightRef = enemy.loot?.weight;
 
     if (!items) return;
-    if (!weights) return;
+    if (!weightRef) return;
 
+    const weights = weightRef.slice();
     let i: number;
 
     for (i = 0; i < weights.length; i++) {
       weights[i] += weights[i - 1] || 0;
     }
 
-    var random = Math.random() * weights[weights.length - 1];
+    const random = Math.random() * weights[weights.length - 1];
 
     for (i = 0; i < weights.length; i++) {
       if (weights[i] > random) break;
     }
 
-    setItemBag((prevItems) => [...prevItems, items[i]]);
+    const dropped = items[i];
+    const isTechnique = dropped.equipmentSlot === "qiTechnique" || dropped.equipmentSlot === "combatTechnique";
+    if (isTechnique && ownedTechniqueIdsRef.current.has(dropped.id)) return;
+
+    setItemBag((prevItems) => [...prevItems, dropped]);
   };
 
   /** Character attacks on their own timer. Uses refs for latest state. */
@@ -249,6 +259,20 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     }, 50);
     return () => clearInterval(id);
   }, [fightingInterval]);
+
+  const enemyLootEntries = useMemo(() => {
+    const items = currentEnemy?.loot?.items;
+    const weights = currentEnemy?.loot?.weight;
+    if (!currentEnemy || !items?.length || !weights?.length || items.length !== weights.length)
+      return [];
+    const total = weights.reduce((a, b) => a + b, 0);
+    if (total <= 0) return [];
+    return items.map((item, i) => ({
+      item,
+      chancePercent: (weights[i] / total) * 100,
+      amount: item.quantity ?? 1,
+    }));
+  }, [currentEnemy]);
 
   if (!currentEnemy) return null;
 
@@ -346,6 +370,11 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
               </tr>
             </tbody>
           </table>
+          <EnemyLootPopover
+            spiritStoneAmount={getSpiritStonesFromEnemy(currentEnemy)}
+            lootEntries={enemyLootEntries}
+            ownedTechniqueIds={ownedTechniqueIds}
+          />
         </div>
       </div>
       <section className="combatContainer__loot">

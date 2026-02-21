@@ -11,3 +11,9 @@
   background: var(--surface);
   min-width: 180px;
 }
+
+.shopitem__already {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}

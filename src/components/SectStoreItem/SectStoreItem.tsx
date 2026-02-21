@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem, reduceMoney } from "../../state/reducers/characterSlice";
 import { RootState } from "../../state/store";
+import { getOwnedTechniqueIds } from "../../state/selectors/characterSelectors";
 import type { SectStoreEntryI } from "../../constants/data";
 import "./SectStoreItem.css";
 
@@ -16,10 +17,14 @@ interface SectStoreItemProps {
 export const SectStoreItem: React.FC<SectStoreItemProps> = ({ entry, locked, requiredPositionName, sectName }) => {
   const dispatch = useDispatch();
   const money = useSelector((state: RootState) => state.character.money);
+  const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
   const [showPoor, setShowPoor] = useState(false);
   const { item } = entry;
+  const isTechnique = item.equipmentSlot === "qiTechnique" || item.equipmentSlot === "combatTechnique";
+  const alreadyOwned = isTechnique && ownedTechniqueIds.has(item.id);
 
   const handleBuy = () => {
+    if (alreadyOwned) return;
     if (money < item.price) {
       setShowPoor(true);
       return;
@@ -39,6 +44,8 @@ export const SectStoreItem: React.FC<SectStoreItemProps> = ({ entry, locked, req
       <p className="sectStoreItem__price">Cost: {item.price} Spirit Stones</p>
       {locked ? (
         <p className="sectStoreItem__requires">Requires: {requiredPositionName}</p>
+      ) : alreadyOwned ? (
+        <p className="sectStoreItem__already">Already owned</p>
       ) : (
         <>
           <button type="button" className="sectStoreItem__buy" onClick={handleBuy}>
