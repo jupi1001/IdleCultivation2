@@ -2,7 +2,7 @@ export enum ContentArea {
   MAP = "Map",
   /** My Sect – current sect info, leave, link to Map to join/switch. */
   SECT = "Sect",
-  /** Training areas (Village Outskirts, Cave, etc.) + Immortals Island entry – from left panel "Martial Training". */
+  /** Training areas (Village Outskirts, Spirit Beast Cave, etc.) – from left panel "Martial Training". */
   TRAINING = "Training",
   COMBAT = "Combat",
   SHOP = "Shop",

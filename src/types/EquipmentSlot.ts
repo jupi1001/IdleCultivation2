@@ -1,4 +1,5 @@
 export type EquipmentSlot =
+  | "sword"
   | "helmet"
   | "body"
   | "shoes"
@@ -9,6 +10,7 @@ export type EquipmentSlot =
   | "combatTechnique";
 
 export const EQUIPMENT_SLOT_LABELS: Record<EquipmentSlot, string> = {
+  sword: "Sword",
   helmet: "Helmet",
   body: "Body",
   shoes: "Shoes",
@@ -20,6 +22,7 @@ export const EQUIPMENT_SLOT_LABELS: Record<EquipmentSlot, string> = {
 };
 
 export const ALL_EQUIPMENT_SLOTS: EquipmentSlot[] = [
+  "sword",
   "helmet",
   "body",
   "shoes",

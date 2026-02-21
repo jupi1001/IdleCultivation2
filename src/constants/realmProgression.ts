@@ -70,3 +70,16 @@ export function formatRealm(realmId: RealmId, realmLevel: number): string {
   if (realmId === "Mortal") return "Mortal";
   return `${realmId} ${realmLevel}`;
 }
+
+/** Combat stats from cultivation realm. Step 0 (Mortal) = 10/1/10; scales with step. Items can add on top later. */
+export function getCombatStatsFromRealm(
+  realmId: RealmId,
+  realmLevel: number
+): { attack: number; defense: number; health: number } {
+  const step = getStepIndex(realmId, realmLevel);
+  return {
+    attack: 10 + step * 2,
+    defense: 1 + step,
+    health: 10 + step * 3,
+  };
+}

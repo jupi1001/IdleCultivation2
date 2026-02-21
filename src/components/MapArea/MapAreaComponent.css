@@ -1,42 +1,66 @@
 .mapAreaComponent__main {
   margin: 0;
-  padding: 1rem;
+  padding: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   transition: border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  min-width: 260px;
+  width: 280px;
+  overflow: hidden;
 }
 
 .mapAreaComponent__main:hover {
   border-color: var(--accent);
 }
 
-.mapAreaComponent__main h4 {
-  margin: 0 0 0.5rem;
+.mapAreaComponent__title {
+  margin: 0;
+  padding: 0.5rem 0.75rem 0.25rem;
+  font-size: 1rem;
 }
 
-.mapAreaComponent__main-image {
-  height: 100px;
-  width: 200px;
+.mapAreaComponent__image-wrap {
+  width: 100%;
+  flex: 1;
+  min-height: 140px;
   cursor: pointer;
-  border-radius: 6px;
   display: block;
+  overflow: hidden;
 }
 
-.mapAreaComponent__main p {
-  margin: 0.5rem 0 0;
-  font-size: 0.9em;
-  color: var(--text-muted);
-}
-
-.mapAreaComponent__main--locked .mapAreaComponent__main-image {
-  opacity: 0.6;
+.mapAreaComponent__main--locked .mapAreaComponent__image-wrap {
   cursor: not-allowed;
   pointer-events: none;
 }
 
+.mapAreaComponent__main-image {
+  width: 100%;
+  height: 100%;
+  min-height: 140px;
+  object-fit: cover;
+  display: block;
+  vertical-align: middle;
+}
+
+.mapAreaComponent__main--locked .mapAreaComponent__main-image {
+  opacity: 0.7;
+}
+
+.mapAreaComponent__divider {
+  height: 0;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+.mapAreaComponent__footer {
+  padding: 0.25rem 0.75rem 0.5rem;
+}
+
 .mapAreaComponent__main-requirement {
-  margin-top: 0.25rem;
+  margin: 0;
   font-size: 0.85em;
   color: var(--accent);
 }

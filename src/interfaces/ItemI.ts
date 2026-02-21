@@ -13,6 +13,12 @@ interface Item {
   equipmentSlot?: EquipmentSlot;
   /** Qi gain per second when equipped in qiTechnique slot */
   qiGainBonus?: number;
+  /** Attack bonus when equipped (e.g. sword) */
+  attackBonus?: number;
+  /** Defense bonus when equipped (e.g. helmet, body) */
+  defenseBonus?: number;
+  /** Vitality (max health) bonus when equipped (e.g. helmet, body) */
+  vitalityBonus?: number;
 }
 
 export default Item;
