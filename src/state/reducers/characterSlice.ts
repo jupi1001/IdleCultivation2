@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { CultivationPath } from "../../constants/cultivationPath";
 import { fishTypes, gatheringLootTypes, oreTypes, SECT_POSITIONS } from "../../constants/data";
-import { getNextRealm, getStepIndex, type RealmId } from "../../constants/realmProgression";
+import { getNextRealm, getStepIndex, getCombatStatsFromRealm, type RealmId } from "../../constants/realmProgression";
 import { TALENT_NODES_BY_ID } from "../../constants/talents";
 import Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
@@ -78,6 +78,14 @@ interface CharacterState {
   forgingXP: number;
   /** XP for cooking; level = 1 + floor( cookingXP / 100 ) */
   cookingXP: number;
+  /** Permanent bonus to attack from consumables/shop (effective = realm + equipment + this) */
+  bonusAttack: number;
+  /** Permanent bonus to defense from consumables/shop */
+  bonusDefense: number;
+  /** Permanent bonus to max vitality/health from consumables/shop */
+  bonusHealth: number;
+  /** Current vitality (HP); persists between combats. Capped by effective max (realm + equipment + bonus). */
+  currentHealth: number;
 }
 
 const initialEquipment = ALL_EQUIPMENT_SLOTS.reduce(
@@ -85,11 +93,13 @@ const initialEquipment = ALL_EQUIPMENT_SLOTS.reduce(
   {} as Record<EquipmentSlot, Item | null>
 );
 
+const initialCombatStats = getCombatStatsFromRealm("Mortal", 0);
+
 const initialState: CharacterState = {
   name: "Mortal",
-  attack: 10,
-  defense: 1,
-  health: 10,
+  attack: initialCombatStats.attack,
+  defense: initialCombatStats.defense,
+  health: initialCombatStats.health,
   money: 500,
   miner: 0,
   items: [],
@@ -122,6 +132,10 @@ const initialState: CharacterState = {
   alchemyXP: 0,
   forgingXP: 0,
   cookingXP: 0,
+  bonusAttack: 0,
+  bonusDefense: 0,
+  bonusHealth: 0,
+  currentHealth: initialCombatStats.health,
 };
 
 export const characterSlice = createSlice({
@@ -129,22 +143,22 @@ export const characterSlice = createSlice({
   initialState,
   reducers: {
     addAttack: (state, action: PayloadAction<number>) => {
-      state.attack = state.attack + action.payload;
+      state.bonusAttack = state.bonusAttack + action.payload;
     },
     reduceAttack: (state, action: PayloadAction<number>) => {
-      state.attack = state.attack - action.payload;
+      state.bonusAttack = Math.max(0, state.bonusAttack - action.payload);
     },
     addDefense: (state, action: PayloadAction<number>) => {
-      state.defense = state.defense + action.payload;
+      state.bonusDefense = state.bonusDefense + action.payload;
     },
     reduceDefense: (state, action: PayloadAction<number>) => {
-      state.defense = state.defense - action.payload;
+      state.bonusDefense = Math.max(0, state.bonusDefense - action.payload);
     },
     addHealth: (state, action: PayloadAction<number>) => {
-      state.health = state.health + action.payload;
+      state.bonusHealth = state.bonusHealth + action.payload;
     },
     reduceHealth: (state, action: PayloadAction<number>) => {
-      state.health = state.health - action.payload;
+      state.bonusHealth = Math.max(0, state.bonusHealth - action.payload);
     },
     addMoney: (state, action: PayloadAction<number>) => {
       state.money = state.money + action.payload;
@@ -223,6 +237,11 @@ export const characterSlice = createSlice({
     setRealm: (state, action: PayloadAction<{ realm: RealmId; realmLevel: number }>) => {
       state.realm = action.payload.realm;
       state.realmLevel = action.payload.realmLevel;
+      const stats = getCombatStatsFromRealm(action.payload.realm, action.payload.realmLevel);
+      state.attack = stats.attack;
+      state.defense = stats.defense;
+      state.health = stats.health;
+      state.currentHealth = stats.health;
     },
     breakthrough: (state) => {
       state.qi = 0;
@@ -230,7 +249,19 @@ export const characterSlice = createSlice({
       if (next) {
         state.realm = next.realmId;
         state.realmLevel = next.realmLevel;
+        const stats = getCombatStatsFromRealm(next.realmId, next.realmLevel);
+        state.attack = stats.attack;
+        state.defense = stats.defense;
+        state.health = stats.health;
+        state.currentHealth = stats.health;
       }
+    },
+    setCurrentHealth: (state, action: PayloadAction<number>) => {
+      state.currentHealth = Math.max(0, action.payload);
+    },
+    regenerateVitality: (state, action: PayloadAction<{ amount: number; maxHealth: number }>) => {
+      const { amount, maxHealth } = action.payload;
+      state.currentHealth = Math.min(maxHealth, state.currentHealth + amount);
     },
     setCurrentActivity: (state, action: PayloadAction<string>) => {
       state.currentActivity = action.payload;
@@ -491,6 +522,8 @@ export const {
   setQi,
   setRealm,
   breakthrough,
+  setCurrentHealth,
+  regenerateVitality,
   setCurrentActivity,
   setCurrentFishingArea,
   setFishingCast,

@@ -6,6 +6,45 @@
   margin: 0 0 0.75rem;
 }
 
+.combatContainer__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.combatContainer__bar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.combatContainer__bar-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.combatContainer__bar-track {
+  height: 22px;
+  background: var(--border);
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.combatContainer__bar-fill {
+  height: 100%;
+  border-radius: 11px;
+  transition: width 0.05s ease-out;
+}
+
+.combatContainer__bar-fill--character {
+  background: var(--accent);
+}
+
+.combatContainer__bar-fill--enemy {
+  background: #c0392b;
+}
+
 .combatContainer__main-combat {
   display: flex;
   align-items: center;
@@ -17,10 +56,196 @@
   margin: 1rem 0;
 }
 
+.combatContainer__main-character {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.combatContainer__portrait-wrap {
+  position: relative;
+  display: inline-block;
+}
+
 .combatContainer__main-img {
   width: 200px;
   height: 100%;
   border-radius: 50px;
+  display: block;
+}
+
+.combatContainer__damage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #e74c3c;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.9), 0 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  animation: combatContainer__damage-pop 0.3s ease-out;
+}
+
+@keyframes combatContainer__damage-pop {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.combatContainer__hp-bar-wrap {
+  width: 100%;
+  max-width: 200px;
+}
+
+.combatContainer__hp-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.combatContainer__hp-track {
+  height: 14px;
+  background: var(--border);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.combatContainer__hp-fill {
+  height: 100%;
+  border-radius: 7px;
+  transition: width 0.15s ease-out;
+}
+
+.combatContainer__hp-fill--character {
+  background: #27ae60;
+}
+
+.combatContainer__hp-fill--enemy {
+  background: #c0392b;
+}
+
+.combatContainer__stats {
+  font-size: 0.9rem;
+}
+
+.combatContainer__stats th,
+.combatContainer__stats td {
+  padding: 0.2em 0.5em;
+  text-align: center;
+}
+
+.combatContainer__stats th {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.combatContainer__loot {
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.combatContainer__loot-title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.combatContainer__loot-empty {
+  margin: 0 0 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.combatContainer__loot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.combatContainer__loot-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.combatContainer__loot-icon-wrap {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.combatContainer__loot-icon {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.combatContainer__loot-icon-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
+
+.combatContainer__loot-name {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--text);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combatContainer__loot-amount {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+
+.combatContainer__loot-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.combatContainer__btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.combatContainer__btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.combatContainer__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .combatContainer__main-footer {

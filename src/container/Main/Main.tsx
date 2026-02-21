@@ -25,9 +25,11 @@ import { MeditationContainer } from "../MeditationContainer/MeditationContainer"
 import { CultivationTreeContainer } from "../CultivationTreeContainer/CultivationTreeContainer";
 import { ImmortalsIslandContainer } from "../ImmortalsIslandContainer/ImmortalsIslandContainer";
 import { useActivityTicks } from "../../hooks/useActivityTicks";
+import { useVitalityRegen } from "../../hooks/useVitalityRegen";
 
 export const Main = () => {
   useActivityTicks();
+  useVitalityRegen();
 
   const content = useSelector((state: RootState) => state.content.page);
   const path = useSelector((state: RootState) => state.character.path);

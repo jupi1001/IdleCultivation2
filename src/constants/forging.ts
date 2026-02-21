@@ -121,96 +121,151 @@ export const REFINE_RECIPES: RefineRecipeI[] = [
   { id: "refine-celestial", name: "Refine Celestial Bar", description: "Condense celestial crystals into a bar.", tier: "Celestial", ore: { itemId: ORE.celestial, amount: 3 }, output: FORGE_BAR_ITEMS[12], outputAmount: 1 },
 ];
 
-function mkWeapon(id: number, name: string, desc: string, barId: number, barAmount: number, tier: string): CraftRecipeI {
+function mkWeapon(
+  id: number,
+  name: string,
+  desc: string,
+  barId: number,
+  barAmount: number,
+  tier: string,
+  attackBonus: number
+): CraftRecipeI {
   return {
     id: `craft-${name.toLowerCase().replace(/\s+/g, "-")}`,
     name,
     description: desc,
     tier,
     bars: [{ itemId: barId, amount: barAmount }],
-    output: { id, name, description: desc, price: 0, quantity: 1, picture: `${FORGING_ASSETS}/sword/${tier.toLowerCase().replace(/\s+/g, "-")}-sword.webp`, equipmentSlot: "combatTechnique" as EquipmentSlot },
+    output: {
+      id,
+      name,
+      description: desc,
+      price: 0,
+      quantity: 1,
+      picture: `${FORGING_ASSETS}/sword/${tier.toLowerCase().replace(/\s+/g, "-")}-sword.webp`,
+      equipmentSlot: "sword" as EquipmentSlot,
+      attackBonus,
+    },
     outputAmount: 1,
   };
 }
 
-function mkHelmet(id: number, name: string, desc: string, barId: number, barAmount: number, tier: string): CraftRecipeI {
+function mkHelmet(
+  id: number,
+  name: string,
+  desc: string,
+  barId: number,
+  barAmount: number,
+  tier: string,
+  defenseBonus: number,
+  vitalityBonus: number
+): CraftRecipeI {
   return {
     id: `craft-${name.toLowerCase().replace(/\s+/g, "-")}`,
     name,
     description: desc,
     tier,
     bars: [{ itemId: barId, amount: barAmount }],
-    output: { id, name, description: desc, price: 0, quantity: 1, picture: `${FORGING_ASSETS}/helmet/${tier.toLowerCase().replace(/\s+/g, "-")}-helmet.webp`, equipmentSlot: "helmet" as EquipmentSlot },
+    output: {
+      id,
+      name,
+      description: desc,
+      price: 0,
+      quantity: 1,
+      picture: `${FORGING_ASSETS}/helmet/${tier.toLowerCase().replace(/\s+/g, "-")}-helmet.webp`,
+      equipmentSlot: "helmet" as EquipmentSlot,
+      defenseBonus,
+      vitalityBonus,
+    },
     outputAmount: 1,
   };
 }
 
-function mkBody(id: number, name: string, desc: string, barId: number, barAmount: number, tier: string): CraftRecipeI {
+function mkBody(
+  id: number,
+  name: string,
+  desc: string,
+  barId: number,
+  barAmount: number,
+  tier: string,
+  defenseBonus: number,
+  vitalityBonus: number
+): CraftRecipeI {
   return {
     id: `craft-${name.toLowerCase().replace(/\s+/g, "-")}`,
     name,
     description: desc,
     tier,
     bars: [{ itemId: barId, amount: barAmount }],
-    output: { id, name, description: desc, price: 0, quantity: 1, picture: `${FORGING_ASSETS}/body/${tier.toLowerCase().replace(/\s+/g, "-")}-body.webp`, equipmentSlot: "body" as EquipmentSlot },
+    output: {
+      id,
+      name,
+      description: desc,
+      price: 0,
+      quantity: 1,
+      picture: `${FORGING_ASSETS}/body/${tier.toLowerCase().replace(/\s+/g, "-")}-body.webp`,
+      equipmentSlot: "body" as EquipmentSlot,
+      defenseBonus,
+      vitalityBonus,
+    },
     outputAmount: 1,
   };
 }
 
-/** Craft recipes: bars → weapon or armour. Grouped by tier in UI. Level-50 tier has Obsidian (defensive) and Thunder (offensive) focus. */
+/** Craft recipes: bars → weapon or armour. Sword gives attack; helmet & body give defense and vitality. */
 export const CRAFT_RECIPES: CraftRecipeI[] = [
   // Copper
-  mkWeapon(901, "Copper Sword", "A sturdy copper blade.", BAR.copper, 2, "Copper"),
-  mkHelmet(911, "Copper Helmet", "A copper helmet.", BAR.copper, 3, "Copper"),
-  mkBody(921, "Copper Chestplate", "Copper body armour.", BAR.copper, 4, "Copper"),
+  mkWeapon(901, "Copper Sword", "A sturdy copper blade.", BAR.copper, 2, "Copper", 2),
+  mkHelmet(911, "Copper Helmet", "A copper helmet.", BAR.copper, 3, "Copper", 3, 3),
+  mkBody(921, "Copper Chestplate", "Copper body armour.", BAR.copper, 4, "Copper", 4, 4),
   // Iron
-  mkWeapon(902, "Iron Sword", "A sharp iron blade.", BAR.iron, 3, "Iron"),
-  mkHelmet(912, "Iron Helmet", "An iron helmet.", BAR.iron, 4, "Iron"),
-  mkBody(922, "Iron Chestplate", "Iron body armour.", BAR.iron, 5, "Iron"),
+  mkWeapon(902, "Iron Sword", "A sharp iron blade.", BAR.iron, 3, "Iron", 3),
+  mkHelmet(912, "Iron Helmet", "An iron helmet.", BAR.iron, 4, "Iron", 4, 4),
+  mkBody(922, "Iron Chestplate", "Iron body armour.", BAR.iron, 5, "Iron", 5, 5),
   // Spirit
-  mkWeapon(903, "Spirit Sword", "A blade touched by spirit energy.", BAR.spirit, 4, "Spirit"),
-  mkHelmet(913, "Spirit Helmet", "Helmet infused with Qi.", BAR.spirit, 5, "Spirit"),
-  mkBody(923, "Spirit Chestplate", "Spirit-reinforced armour.", BAR.spirit, 6, "Spirit"),
+  mkWeapon(903, "Spirit Sword", "A blade touched by spirit energy.", BAR.spirit, 4, "Spirit", 4),
+  mkHelmet(913, "Spirit Helmet", "Helmet infused with Qi.", BAR.spirit, 5, "Spirit", 5, 5),
+  mkBody(923, "Spirit Chestplate", "Spirit-reinforced armour.", BAR.spirit, 6, "Spirit", 6, 6),
   // Tin
-  mkWeapon(904, "Tin Blade", "Light tin weapon.", BAR.tin, 2, "Tin"),
-  mkHelmet(914, "Tin Helmet", "Tin head protection.", BAR.tin, 3, "Tin"),
-  mkBody(924, "Tin Chestplate", "Tin body armour.", BAR.tin, 4, "Tin"),
+  mkWeapon(904, "Tin Blade", "Light tin weapon.", BAR.tin, 2, "Tin", 2),
+  mkHelmet(914, "Tin Helmet", "Tin head protection.", BAR.tin, 3, "Tin", 3, 3),
+  mkBody(924, "Tin Chestplate", "Tin body armour.", BAR.tin, 4, "Tin", 4, 4),
   // Jade
-  mkWeapon(905, "Jade Sabre", "Jade blade for talismans.", BAR.jade, 3, "Jade"),
-  mkHelmet(915, "Jade Circlet", "Jade headpiece.", BAR.jade, 4, "Jade"),
-  mkBody(925, "Jade Vest", "Jade-reinforced vest.", BAR.jade, 5, "Jade"),
+  mkWeapon(905, "Jade Sabre", "Jade blade for talismans.", BAR.jade, 3, "Jade", 3),
+  mkHelmet(915, "Jade Circlet", "Jade headpiece.", BAR.jade, 4, "Jade", 4, 4),
+  mkBody(925, "Jade Vest", "Jade-reinforced vest.", BAR.jade, 5, "Jade", 5, 5),
   // Silver
-  mkWeapon(906, "Silver Rapier", "Conductive silver blade.", BAR.silver, 3, "Silver"),
-  mkHelmet(916, "Silver Helm", "Silver helmet.", BAR.silver, 4, "Silver"),
-  mkBody(926, "Silver Cuirass", "Silver body armour.", BAR.silver, 5, "Silver"),
+  mkWeapon(906, "Silver Rapier", "Conductive silver blade.", BAR.silver, 3, "Silver", 3),
+  mkHelmet(916, "Silver Helm", "Silver helmet.", BAR.silver, 4, "Silver", 4, 4),
+  mkBody(926, "Silver Cuirass", "Silver body armour.", BAR.silver, 5, "Silver", 5, 5),
   // Gold
-  mkWeapon(907, "Gold Sword", "Noble gold blade.", BAR.gold, 4, "Gold"),
-  mkHelmet(917, "Gold Helm", "Gold helmet.", BAR.gold, 5, "Gold"),
-  mkBody(927, "Gold Chestplate", "Gold body armour.", BAR.gold, 6, "Gold"),
+  mkWeapon(907, "Gold Sword", "Noble gold blade.", BAR.gold, 4, "Gold", 4),
+  mkHelmet(917, "Gold Helm", "Gold helmet.", BAR.gold, 5, "Gold", 5, 5),
+  mkBody(927, "Gold Chestplate", "Gold body armour.", BAR.gold, 6, "Gold", 6, 6),
   // Obsidian (defensive focus: strong armour, lighter weapon)
-  mkWeapon(908, "Obsidian Dagger", "Sharp but light obsidian blade.", BAR.obsidian, 2, "Obsidian"),
-  mkHelmet(918, "Obsidian Great Helm", "Heavy obsidian helmet.", BAR.obsidian, 5, "Obsidian"),
-  mkBody(928, "Obsidian Bulwark", "Heavy obsidian body armour.", BAR.obsidian, 6, "Obsidian"),
+  mkWeapon(908, "Obsidian Dagger", "Sharp but light obsidian blade.", BAR.obsidian, 2, "Obsidian", 2),
+  mkHelmet(918, "Obsidian Great Helm", "Heavy obsidian helmet.", BAR.obsidian, 5, "Obsidian", 5, 5),
+  mkBody(928, "Obsidian Bulwark", "Heavy obsidian body armour.", BAR.obsidian, 6, "Obsidian", 6, 6),
   // Thunder Crystal (offensive focus: strong weapon, lighter armour)
-  mkWeapon(909, "Thunder Blade", "Crackling lightning weapon.", BAR.thunder, 5, "Thunder Crystal"),
-  mkHelmet(919, "Thunder Crest", "Light helm with thunder Qi.", BAR.thunder, 3, "Thunder Crystal"),
-  mkBody(929, "Thunder Guard", "Light armour with thunder resonance.", BAR.thunder, 4, "Thunder Crystal"),
+  mkWeapon(909, "Thunder Blade", "Crackling lightning weapon.", BAR.thunder, 5, "Thunder Crystal", 5),
+  mkHelmet(919, "Thunder Crest", "Light helm with thunder Qi.", BAR.thunder, 3, "Thunder Crystal", 3, 3),
+  mkBody(929, "Thunder Guard", "Light armour with thunder resonance.", BAR.thunder, 4, "Thunder Crystal", 4, 4),
   // Star Iron
-  mkWeapon(910, "Star Iron Sword", "Enchantment-holding blade.", BAR.starIron, 4, "Star Iron"),
-  mkHelmet(920, "Star Iron Helm", "Star iron helmet.", BAR.starIron, 5, "Star Iron"),
-  mkBody(930, "Star Iron Chestplate", "Star iron body armour.", BAR.starIron, 6, "Star Iron"),
+  mkWeapon(910, "Star Iron Sword", "Enchantment-holding blade.", BAR.starIron, 4, "Star Iron", 4),
+  mkHelmet(920, "Star Iron Helm", "Star iron helmet.", BAR.starIron, 5, "Star Iron", 5, 5),
+  mkBody(930, "Star Iron Chestplate", "Star iron body armour.", BAR.starIron, 6, "Star Iron", 6, 6),
   // Voidstone
-  mkWeapon(940, "Void Edge", "Light-bending blade.", BAR.voidstone, 4, "Voidstone"),
-  mkHelmet(941, "Voidstone Helm", "Voidstone helmet.", BAR.voidstone, 5, "Voidstone"),
-  mkBody(942, "Voidstone Cuirass", "Voidstone body armour.", BAR.voidstone, 6, "Voidstone"),
+  mkWeapon(940, "Void Edge", "Light-bending blade.", BAR.voidstone, 4, "Voidstone", 4),
+  mkHelmet(941, "Voidstone Helm", "Voidstone helmet.", BAR.voidstone, 5, "Voidstone", 5, 5),
+  mkBody(942, "Voidstone Cuirass", "Voidstone body armour.", BAR.voidstone, 6, "Voidstone", 6, 6),
   // Dragonbone
-  mkWeapon(943, "Dragonbone Blade", "Blade from dragon strata.", BAR.dragonbone, 5, "Dragonbone"),
-  mkHelmet(944, "Dragonbone Helm", "Dragonbone helmet.", BAR.dragonbone, 6, "Dragonbone"),
-  mkBody(945, "Dragonbone Armour", "Dragonbone body armour.", BAR.dragonbone, 7, "Dragonbone"),
+  mkWeapon(943, "Dragonbone Blade", "Blade from dragon strata.", BAR.dragonbone, 5, "Dragonbone", 5),
+  mkHelmet(944, "Dragonbone Helm", "Dragonbone helmet.", BAR.dragonbone, 6, "Dragonbone", 6, 6),
+  mkBody(945, "Dragonbone Armour", "Dragonbone body armour.", BAR.dragonbone, 7, "Dragonbone", 7, 7),
   // Celestial
-  mkWeapon(946, "Celestial Sword", "Radiant heavenly blade.", BAR.celestial, 6, "Celestial"),
-  mkHelmet(947, "Celestial Crown", "Celestial helmet.", BAR.celestial, 7, "Celestial"),
-  mkBody(948, "Celestial Plate", "Celestial body armour.", BAR.celestial, 8, "Celestial"),
+  mkWeapon(946, "Celestial Sword", "Radiant heavenly blade.", BAR.celestial, 6, "Celestial", 6),
+  mkHelmet(947, "Celestial Crown", "Celestial helmet.", BAR.celestial, 7, "Celestial", 7, 7),
+  mkBody(948, "Celestial Plate", "Celestial body armour.", BAR.celestial, 8, "Celestial", 8, 8),
 ];
 
 /** All items that can appear from forging (bars + crafted gear) for lookup */

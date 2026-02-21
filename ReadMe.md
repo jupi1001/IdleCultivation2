@@ -4,6 +4,10 @@ npm run dev
 
 
 ## TODO
+- Add more combat loot
+- Add misc items like rings, amuletts
+- Add combat techniques(attack multiplier and attack speed up) and more qi techniques
+- Add shoes and legs(maybe only for skilling sets)
 - All skill expansion with content to level 99
 - **Immortals Island (Phase 2)** – Avatars, “send avatar” flow
 **Phase 2 – Avatars**:
