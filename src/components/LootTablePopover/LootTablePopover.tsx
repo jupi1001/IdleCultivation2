@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Item from "../../interfaces/ItemI";
 import "./LootTablePopover.css";
 
-const BACKPACK_ICON = "/assets/ui/backpack.png";
+const BACKPACK_ICON = "/assets/ui/backpack.webp";
 
 interface LootTablePopoverProps {
   /** Possible items from this location (from data; fully dynamic when new items are added). */

@@ -222,7 +222,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       <div className="combatContainer__main-combat">
         {/* CharacterSection */}
         <div className="combatContainer__main-character">
-          <img className="combatContainer__main-img" src={`${UI_ASSETS}/character.jpg`} alt="You" />
+          <img className="combatContainer__main-img" src={`${UI_ASSETS}/character.webp`} alt="You" />
         </div>
         {/* EnemySection */}
         <div className="combatContainer__main-enemy">
@@ -263,7 +263,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
             ))}
           </div>
         )}
-        <img src={`${UI_ASSETS}/bag.jpg`} alt="Inventory Bag" onClick={() => setIsOpen(true)} />
+        <img src={`${UI_ASSETS}/bag.webp`} alt="Inventory Bag" onClick={() => setIsOpen(true)} />
         <Modal isOpen={isOpen} onRequestClose={toggleModal} contentLabel="item dialog" style={customStyles}>
           Loot Display
           {itemBag.map((item) => (

@@ -39,7 +39,7 @@ export const MeditationContainer = () => {
     <div className="meditation-container">
       <div className="meditation-container__character">
         <img
-          src={`${UI_ASSETS}/character.jpg`}
+          src={`${UI_ASSETS}/character.webp`}
           alt="Meditating"
           className="meditation-container__character-img"
         />

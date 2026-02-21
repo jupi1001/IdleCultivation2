@@ -9,7 +9,7 @@ import { CombatArea } from "../../enum/CombatArea";
 import { ContentArea } from "../../enum/ContentArea";
 import { changeContent } from "../../state/reducers/contentSlice";
 import { RootState } from "../../state/store";
-import { EXPLORATION_ASSETS } from "../../constants/exploration";
+import { TRAINING_ASSETS } from "../../constants/training";
 import "./TrainingContainer.css";
 
 export const TrainingContainer = () => {
@@ -22,7 +22,7 @@ export const TrainingContainer = () => {
       <p className="trainingContainer__intro">Choose a training area to face trials and earn rewards.</p>
       <div className="trainingContainer__areas">
         <MapAreaComponent
-          image={`${EXPLORATION_ASSETS}/farm.jpg`}
+          image={`${TRAINING_ASSETS}/farm.webp`}
           text={CombatArea.FARM}
           information="Level 1"
           requiredRealm={AREA_REALM_REQUIREMENTS[CombatArea.FARM]}
@@ -31,7 +31,7 @@ export const TrainingContainer = () => {
           characterRealmLevel={character.realmLevel}
         />
         <MapAreaComponent
-          image={`${EXPLORATION_ASSETS}/cave.png`}
+          image={`${TRAINING_ASSETS}/cave.webp`}
           text={CombatArea.CAVE}
           information="Level 5"
           requiredRealm={AREA_REALM_REQUIREMENTS[CombatArea.CAVE]}
@@ -40,7 +40,7 @@ export const TrainingContainer = () => {
           characterRealmLevel={character.realmLevel}
         />
         <MapAreaComponent
-          image={`${EXPLORATION_ASSETS}/crystalCave.jpg`}
+          image={`${TRAINING_ASSETS}/crystalCave.webp`}
           text={CombatArea.CRYSTALCAVE}
           information="Level 10"
           requiredRealm={AREA_REALM_REQUIREMENTS[CombatArea.CRYSTALCAVE]}

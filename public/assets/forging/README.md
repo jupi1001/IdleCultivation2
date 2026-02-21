@@ -1,63 +1,15 @@
 # Forging / weapon, armour & bar images
 
-Place images here (`public/assets/forging/`). The app expects filenames by tier (used in `src/constants/forging.ts`). For each tier: `{tier}-sword.png`, `{tier}-helmet.png`, `{tier}-body.png`. Bar icons use `-bar.png` and live in this folder too.
+Place images under `public/assets/forging/` in subfolders. The app expects **.webp** and paths from `src/constants/forging.ts`.
 
-**Bars (refined from ore; inventory/forge UI):**
-- `copper-bar.png`
-- `iron-bar.png`
-- `spirit-bar.png`
-- `tin-bar.png`
-- `jade-bar.png`
-- `silver-bar.png`
-- `gold-bar.png`
-- `thunder-crystal-bar.png`
-- `obsidian-bar.png`
-- `star-iron-bar.png`
-- `voidstone-bar.png`
-- `dragonbone-bar.png`
-- `celestial-bar.png`
+**bar/** – refined bars (inventory/forge UI):
+- `copper-bar.webp`, `iron-bar.webp`, `spirit-bar.webp`, `tin-bar.webp`, `jade-bar.webp`, `silver-bar.webp`, `gold-bar.webp`, `thunder-crystal-bar.webp`, `obsidian-bar.webp`, `star-iron-bar.webp`, `voidstone-bar.webp`, `dragonbone-bar.webp`, `celestial-bar.webp`
 
-**Weapons (combat technique slot):**
-- `copper-sword.png`
-- `iron-sword.png`
-- `spirit-sword.png`
-- `tin-sword.png`
-- `jade-sword.png`
-- `silver-sword.png`
-- `gold-sword.png`
-- `obsidian-sword.png`
-- `thunder-crystal-sword.png`
-- `star-iron-sword.png`
-- `voidstone-sword.png`
-- `dragonbone-sword.png`
-- `celestial-sword.png`
+**sword/** – weapons (combat technique slot):
+- `copper-sword.webp`, `iron-sword.webp`, `spirit-sword.webp`, `tin-sword.webp`, `jade-sword.webp`, `silver-sword.webp`, `gold-sword.webp`, `obsidian-sword.webp`, `thunder-crystal-sword.webp`, `star-iron-sword.webp`, `voidstone-sword.webp`, `dragonbone-sword.webp`, `celestial-sword.webp`
 
-**Helmets:**
-- `copper-helmet.png`
-- `iron-helmet.png`
-- `spirit-helmet.png`
-- `tin-helmet.png`
-- `jade-helmet.png`
-- `silver-helmet.png`
-- `gold-helmet.png`
-- `obsidian-helmet.png`
-- `thunder-crystal-helmet.png`
-- `star-iron-helmet.png`
-- `voidstone-helmet.png`
-- `dragonbone-helmet.png`
-- `celestial-helmet.png`
+**helmet/**:
+- `copper-helmet.webp`, `iron-helmet.webp`, `spirit-helmet.webp`, `tin-helmet.webp`, `jade-helmet.webp`, `silver-helmet.webp`, `gold-helmet.webp`, `obsidian-helmet.webp`, `thunder-crystal-helmet.webp`, `star-iron-helmet.webp`, `voidstone-helmet.webp`, `dragonbone-helmet.webp`, `celestial-helmet.webp`
 
-**Body armour:**
-- `copper-body.png`
-- `iron-body.png`
-- `spirit-body.png`
-- `tin-body.png`
-- `jade-body.png`
-- `silver-body.png`
-- `gold-body.png`
-- `obsidian-body.png`
-- `thunder-crystal-body.png`
-- `star-iron-body.png`
-- `voidstone-body.png`
-- `dragonbone-body.png`
-- `celestial-body.png`
+**body/** – body armour:
+- `copper-body.webp`, `iron-body.webp`, `spirit-body.webp`, `tin-body.webp`, `jade-body.webp`, `silver-body.webp`, `gold-body.webp`, `obsidian-body.webp`, `thunder-crystal-body.webp`, `star-iron-body.webp`, `voidstone-body.webp`, `dragonbone-body.webp`, `celestial-body.webp`
