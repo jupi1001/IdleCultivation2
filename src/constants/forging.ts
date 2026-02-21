@@ -1,9 +1,8 @@
 import type Item from "../interfaces/ItemI";
 import type { EquipmentSlot } from "../types/EquipmentSlot";
 
-/** Base path for forging/weapon/armour images. Place images under public/assets/forging/ */
+/** Base path for forging images. Subfolders: bar/, sword/, helmet/, body/. Place under public/assets/forging/ */
 const FORGING_ASSETS = "/assets/forging";
-const MINING_ASSETS = "/assets/mining";
 
 /** Max display level in left-panel card */
 export const FORGING_MAX_LEVEL = 99;
@@ -89,21 +88,21 @@ const BAR = {
   celestial: 813,
 };
 
-/** Bar items (refined from ore). */
+/** Bar items (refined from ore). Icons in /assets/forging/bar/ use -bar.webp. */
 export const FORGE_BAR_ITEMS: Item[] = [
-  { id: BAR.copper, name: "Copper Bar", description: "Refined copper.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/copper-ore.png`, value: 0 },
-  { id: BAR.iron, name: "Iron Bar", description: "Refined iron.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/iron-ore.png`, value: 0 },
-  { id: BAR.spirit, name: "Spirit Bar", description: "Condensed spirit bar.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/spirit-stone.png`, value: 0 },
-  { id: BAR.tin, name: "Tin Bar", description: "Refined tin.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/tin-ore.png`, value: 0 },
-  { id: BAR.jade, name: "Jade Bar", description: "Polished jade bar.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/jade-ore.png`, value: 0 },
-  { id: BAR.silver, name: "Silver Bar", description: "Refined silver.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/silver-ore.png`, value: 0 },
-  { id: BAR.gold, name: "Gold Bar", description: "Refined gold.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/gold-ore.png`, value: 0 },
-  { id: BAR.thunder, name: "Thunder Crystal Bar", description: "Crystal fused with lightning Qi.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/thunder-crystal.png`, value: 0 },
-  { id: BAR.obsidian, name: "Obsidian Bar", description: "Forged volcanic glass.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/obsidian.png`, value: 0 },
-  { id: BAR.starIron, name: "Star Iron Bar", description: "Meteor iron bar.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/star-iron.png`, value: 0 },
-  { id: BAR.voidstone, name: "Voidstone Bar", description: "Condensed voidstone.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/voidstone.png`, value: 0 },
-  { id: BAR.dragonbone, name: "Dragonbone Bar", description: "Reinforced dragonbone.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/dragonbone-ore.png`, value: 0 },
-  { id: BAR.celestial, name: "Celestial Bar", description: "Heavenly Qi condensed.", price: 0, quantity: 1, picture: `${MINING_ASSETS}/celestial-crystal.png`, value: 0 },
+  { id: BAR.copper, name: "Copper Bar", description: "Refined copper.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/copper-bar.webp`, value: 0 },
+  { id: BAR.iron, name: "Iron Bar", description: "Refined iron.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/iron-bar.webp`, value: 0 },
+  { id: BAR.spirit, name: "Spirit Bar", description: "Condensed spirit bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/spirit-bar.webp`, value: 0 },
+  { id: BAR.tin, name: "Tin Bar", description: "Refined tin.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/tin-bar.webp`, value: 0 },
+  { id: BAR.jade, name: "Jade Bar", description: "Polished jade bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/jade-bar.webp`, value: 0 },
+  { id: BAR.silver, name: "Silver Bar", description: "Refined silver.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/silver-bar.webp`, value: 0 },
+  { id: BAR.gold, name: "Gold Bar", description: "Refined gold.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/gold-bar.webp`, value: 0 },
+  { id: BAR.thunder, name: "Thunder Crystal Bar", description: "Crystal fused with lightning Qi.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/thunder-crystal-bar.webp`, value: 0 },
+  { id: BAR.obsidian, name: "Obsidian Bar", description: "Forged volcanic glass.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/obsidian-bar.webp`, value: 0 },
+  { id: BAR.starIron, name: "Star Iron Bar", description: "Meteor iron bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/star-iron-bar.webp`, value: 0 },
+  { id: BAR.voidstone, name: "Voidstone Bar", description: "Condensed voidstone.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/voidstone-bar.webp`, value: 0 },
+  { id: BAR.dragonbone, name: "Dragonbone Bar", description: "Reinforced dragonbone.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/dragonbone-bar.webp`, value: 0 },
+  { id: BAR.celestial, name: "Celestial Bar", description: "Heavenly Qi condensed.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/celestial-bar.webp`, value: 0 },
 ];
 
 export const REFINE_RECIPES: RefineRecipeI[] = [
@@ -129,7 +128,7 @@ function mkWeapon(id: number, name: string, desc: string, barId: number, barAmou
     description: desc,
     tier,
     bars: [{ itemId: barId, amount: barAmount }],
-    output: { id, name, description: desc, price: 0, quantity: 1, picture: `${FORGING_ASSETS}/${tier.toLowerCase().replace(/\s+/g, "-")}-sword.png`, equipmentSlot: "combatTechnique" as EquipmentSlot },
+    output: { id, name, description: desc, price: 0, quantity: 1, picture: `${FORGING_ASSETS}/sword/${tier.toLowerCase().replace(/\s+/g, "-")}-sword.webp`, equipmentSlot: "combatTechnique" as EquipmentSlot },
     outputAmount: 1,
   };
 }
@@ -141,7 +140,7 @@ function mkHelmet(id: number, name: string, desc: string, barId: number, barAmou
     description: desc,
     tier,
     bars: [{ itemId: barId, amount: barAmount }],
-    output: { id, name, description: desc, price: 0, quantity: 1, picture: `${FORGING_ASSETS}/${tier.toLowerCase().replace(/\s+/g, "-")}-helmet.png`, equipmentSlot: "helmet" as EquipmentSlot },
+    output: { id, name, description: desc, price: 0, quantity: 1, picture: `${FORGING_ASSETS}/helmet/${tier.toLowerCase().replace(/\s+/g, "-")}-helmet.webp`, equipmentSlot: "helmet" as EquipmentSlot },
     outputAmount: 1,
   };
 }
@@ -153,7 +152,7 @@ function mkBody(id: number, name: string, desc: string, barId: number, barAmount
     description: desc,
     tier,
     bars: [{ itemId: barId, amount: barAmount }],
-    output: { id, name, description: desc, price: 0, quantity: 1, picture: `${FORGING_ASSETS}/${tier.toLowerCase().replace(/\s+/g, "-")}-body.png`, equipmentSlot: "body" as EquipmentSlot },
+    output: { id, name, description: desc, price: 0, quantity: 1, picture: `${FORGING_ASSETS}/body/${tier.toLowerCase().replace(/\s+/g, "-")}-body.webp`, equipmentSlot: "body" as EquipmentSlot },
     outputAmount: 1,
   };
 }

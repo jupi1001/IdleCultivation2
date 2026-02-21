@@ -7,7 +7,7 @@ import { sectsData } from "../../constants/data";
 import { SectWindow } from "../../components/SectWindow/SectWindow";
 import type SectI from "../../interfaces/SectI";
 
-const SECTS_MAP_IMAGE = "/assets/map/sects-map.png";
+const SECTS_MAP_IMAGE = "/assets/map/sects-map.webp";
 
 /** Shadow Bazaar: black market on the map – different shop than header Shop. Position on map (percentage). */
 const SHADOW_BAZAAR = { positionX: 20, positionY: 12, name: "Shadow Bazaar", description: "Rare and forbidden wares. No questions asked." };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { enemies } from "../../constants/data";
-import images from "../../constants/images";
+import { UI_ASSETS } from "../../constants/ui";
 import EnemyI from "../../interfaces/EnemyI";
 import Modal from "react-modal";
 import "./CombatContainer.css";
@@ -222,7 +222,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       <div className="combatContainer__main-combat">
         {/* CharacterSection */}
         <div className="combatContainer__main-character">
-          <img className="combatContainer__main-img" src={images.character} alt="You" />
+          <img className="combatContainer__main-img" src={`${UI_ASSETS}/character.webp`} alt="You" />
         </div>
         {/* EnemySection */}
         <div className="combatContainer__main-enemy">
@@ -263,7 +263,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
             ))}
           </div>
         )}
-        <img src={images.bag} alt="Inventory Bag" onClick={() => setIsOpen(true)} />
+        <img src={`${UI_ASSETS}/bag.webp`} alt="Inventory Bag" onClick={() => setIsOpen(true)} />
         <Modal isOpen={isOpen} onRequestClose={toggleModal} contentLabel="item dialog" style={customStyles}>
           Loot Display
           {itemBag.map((item) => (
