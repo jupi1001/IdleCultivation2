@@ -25,7 +25,7 @@ export const Header = ({ theme, setTheme }: HeaderProps) => {
   return (
     <nav className="app__header">
       <div className="app__header-logo">
-        <img src="https://i.pinimg.com/originals/b8/2a/b7/b82ab759c26dd1d5bcf8170fb4a0f206.jpg" alt="Logo" />
+        <img src="/logo.webp" alt="Idle Cultivation 2" />
       </div>
       <ul className="app__header-links">
         <li>
