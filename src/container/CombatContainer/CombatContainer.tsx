@@ -88,7 +88,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     : 1;
 
   const characterStateRef = useRef(characterState);
-  const currentEnemyRef = useRef(currentEnemy);
+  const currentEnemyRef = useRef<EnemyI | null>(currentEnemy ?? null);
   const lastCharAttackRef = useRef(Date.now());
   const lastEnemyAttackRef = useRef(Date.now());
   const ownedTechniqueIdsRef = useRef(ownedTechniqueIds);
