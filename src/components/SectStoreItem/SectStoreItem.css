@@ -44,6 +44,12 @@
   font-style: italic;
 }
 
+.sectStoreItem__already {
+  margin: 0;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
 .sectStoreItem__buy {
   padding: 0.4rem 0.75rem;
   font-size: 0.9em;

@@ -19,6 +19,10 @@ interface Item {
   defenseBonus?: number;
   /** Vitality (max health) bonus when equipped (e.g. helmet, body) */
   vitalityBonus?: number;
+  /** Combat technique: multiplicative attack modifier (e.g. 1.1 = +10% damage) */
+  attackMultiplier?: number;
+  /** Combat technique: flat attack speed bonus in ms (reduces time between attacks) */
+  attackSpeedReduction?: number;
 }
 
 export default Item;

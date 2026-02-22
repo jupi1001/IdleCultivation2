@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { CultivationPath } from "../../constants/cultivationPath";
 import { fishTypes, gatheringLootTypes, oreTypes, SECT_POSITIONS } from "../../constants/data";
-import { getNextRealm, getStepIndex, getCombatStatsFromRealm, type RealmId } from "../../constants/realmProgression";
+import { getBreakthroughQiRequired, getNextRealm, getStepIndex, getCombatStatsFromRealm, type RealmId } from "../../constants/realmProgression";
 import { TALENT_NODES_BY_ID } from "../../constants/talents";
 import Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
@@ -244,9 +244,10 @@ export const characterSlice = createSlice({
       state.currentHealth = stats.health;
     },
     breakthrough: (state) => {
-      state.qi = 0;
       const next = getNextRealm(state.realm, state.realmLevel);
       if (next) {
+        const requiredQi = getBreakthroughQiRequired(state.realm, state.realmLevel);
+        state.qi = Math.max(0, Math.round((state.qi - requiredQi) * 100) / 100);
         state.realm = next.realmId;
         state.realmLevel = next.realmLevel;
         const stats = getCombatStatsFromRealm(next.realmId, next.realmLevel);

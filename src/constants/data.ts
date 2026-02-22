@@ -38,6 +38,49 @@ export interface SectStoreEntryI {
   requiredRankIndex: number;
 }
 
+/** All 15 qi techniques. #0 in basic shop; #1–14 from sects and monster drops. qiGainBonus is exponential: with base 1 Qi/s, totals go 2, 5, 10, 20, 50, 100, … */
+export const QI_TECHNIQUES: Item[] = [
+  { id: 700, name: "Gentle Breath Circulation", description: "A foundational technique. +2 Qi/s when meditating.", price: 200, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 1 },
+  { id: 701, name: "Flowing Meridian Method", description: "Qi flows along meridians. +5 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 4 },
+  { id: 702, name: "Earth-Root Breathing Art", description: "Grounds the cultivator. +10 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 9 },
+  { id: 703, name: "Clear Mind Qi Cycle", description: "Clears the mind for refinement. +20 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 19 },
+  { id: 704, name: "Eight Meridian Resonance", description: "Resonates with the eight meridians. +50 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 49 },
+  { id: 705, name: "Jade Pulse Refinement", description: "Refines qi like jade. +100 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 99 },
+  { id: 706, name: "Spirit River Circulation", description: "Qi flows like a river. +200 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 199 },
+  { id: 707, name: "Inner Sea Condensation Art", description: "Condenses qi in the inner sea. +500 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 499 },
+  { id: 708, name: "Heavenly Breath Harmonization", description: "Harmonizes with heavenly breath. +1,000 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 999 },
+  { id: 709, name: "Golden Core Resonance Method", description: "Resonates with the golden core. +2,000 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 1999 },
+  { id: 710, name: "Starflow Meridian Scripture", description: "Qi follows the starflow. +5,000 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 4999 },
+  { id: 711, name: "Void Pulse Refinement", description: "Refines the void pulse. +10,000 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 9999 },
+  { id: 712, name: "Heaven-Earth Unity Technique", description: "Unifies heaven and earth. +20,000 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 19999 },
+  { id: 713, name: "Immortal Breath Sutra", description: "The breath of immortals. +50,000 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 49999 },
+  { id: 714, name: "Eternal Dao Circulation", description: "Circulation of the eternal Dao. +100,000 Qi/s when meditating.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 99999 },
+];
+
+/** All 15 combat techniques. #0 in basic shop; #1–14 from sects and monster drops. Base attack interval 2 s; reduction is flat ms. */
+export const COMBAT_TECHNIQUES: Item[] = [
+  { id: 720, name: "Swift Wind Steps", description: "Basic footwork. Attack ×1.10, attack interval 1.95 s.", price: 250, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 1.1, attackSpeedReduction: 50 },
+  { id: 721, name: "Flowing Blade Rhythm", description: "Blade moves in rhythm. Attack ×1.30, attack interval 1.93 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 1.3, attackSpeedReduction: 70 },
+  { id: 722, name: "Iron Body Assault Art", description: "Hardens the body for assault. Attack ×1.50, attack interval 1.91 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 1.5, attackSpeedReduction: 90 },
+  { id: 723, name: "Flashing Shadow Technique", description: "Strike from shadow. Attack ×1.70, attack interval 1.89 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 1.7, attackSpeedReduction: 110 },
+  { id: 724, name: "Tiger Pounce Method", description: "Pounce like a tiger. Attack ×1.90, attack interval 1.87 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 1.9, attackSpeedReduction: 130 },
+  { id: 725, name: "Gale Strike Footwork", description: "Footwork like the gale. Attack ×2.10, attack interval 1.85 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 2.1, attackSpeedReduction: 150 },
+  { id: 726, name: "Thousand Fang Assault", description: "A thousand fangs. Attack ×2.30, attack interval 1.83 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 2.3, attackSpeedReduction: 170 },
+  { id: 727, name: "Stormblade Tempo", description: "The tempo of the storm blade. Attack ×2.50, attack interval 1.81 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 2.5, attackSpeedReduction: 190 },
+  { id: 728, name: "Dragon Fang Momentum", description: "Momentum of the dragon fang. Attack ×2.70, attack interval 1.79 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 2.7, attackSpeedReduction: 210 },
+  { id: 729, name: "Thunder Pulse Combat Art", description: "Combat like thunder. Attack ×2.90, attack interval 1.77 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 2.9, attackSpeedReduction: 230 },
+  { id: 730, name: "Phantom Step Assault", description: "Assault with phantom steps. Attack ×3.10, attack interval 1.75 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 3.1, attackSpeedReduction: 250 },
+  { id: 731, name: "Void Flash Technique", description: "Strike from the void. Attack ×3.30, attack interval 1.73 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 3.3, attackSpeedReduction: 270 },
+  { id: 732, name: "Heaven-Splitting Momentum", description: "Momentum that splits heaven. Attack ×3.50, attack interval 1.71 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 3.5, attackSpeedReduction: 290 },
+  { id: 733, name: "Celestial War Rhythm", description: "The rhythm of celestial war. Attack ×3.70, attack interval 1.69 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 3.7, attackSpeedReduction: 310 },
+  { id: 734, name: "Immortal Slaughter Art", description: "The art of immortal slaughter. Attack ×3.90, attack interval 1.67 s.", price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "combatTechnique", attackMultiplier: 3.9, attackSpeedReduction: 330 },
+];
+
+/** Qi technique in basic shop (first of list). */
+export const existingShopQiTechniques: Item[] = [QI_TECHNIQUES[0]];
+/** Combat technique in basic shop (first of list). */
+export const existingShopCombatTechniques: Item[] = [COMBAT_TECHNIQUES[0]];
+
 /** Sect store by sect id. requiredRankIndex: 0=Sect Aspirant, 1=Outer, 2=Inner, 3=Core. */
 export const sectStoreData: Record<number, SectStoreEntryI[]> = {
   1: [
@@ -45,36 +88,60 @@ export const sectStoreData: Record<number, SectStoreEntryI[]> = {
     { item: { id: 601, name: "Mountain Heart Pill", description: "Sect pill for qi refinement.", price: 80, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, value: 5, effect: "attack" }, requiredRankIndex: 1 },
     { item: { id: 602, name: "Inner Gate Qi Circulation", description: "Inner disciple technique. +0.35 Qi/s when meditating.", price: 400, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.35 }, requiredRankIndex: 2 },
     { item: { id: 603, name: "Jade Severance Recipe", description: "Alchemy recipe: Jade Severance Pill. Unlocks in Alchemy when learned.", price: 600, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp` }, requiredRankIndex: 3 },
+    { item: QI_TECHNIQUES[1], requiredRankIndex: 1 },
+    { item: QI_TECHNIQUES[2], requiredRankIndex: 2 },
+    { item: COMBAT_TECHNIQUES[1], requiredRankIndex: 1 },
+    { item: COMBAT_TECHNIQUES[2], requiredRankIndex: 2 },
   ],
   2: [
     { item: { id: 610, name: "Valley Healing Herbs", description: "Herbs used in healing and pill recipes.", price: 60, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp` }, requiredRankIndex: 1 },
     { item: { id: 611, name: "Verdant Qi Method", description: "Valley qi technique. +0.25 Qi/s when meditating.", price: 300, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.25 }, requiredRankIndex: 1 },
     { item: { id: 612, name: "Valley Restoration Recipe", description: "Alchemy recipe: restoration pill. Requires Inner Disciple.", price: 500, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp` }, requiredRankIndex: 2 },
     { item: { id: 613, name: "Elder's Meditation Scroll", description: "Core disciple only. +0.5 Qi/s when meditating.", price: 800, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.5 }, requiredRankIndex: 3 },
+    { item: QI_TECHNIQUES[3], requiredRankIndex: 1 },
+    { item: QI_TECHNIQUES[4], requiredRankIndex: 2 },
+    { item: COMBAT_TECHNIQUES[3], requiredRankIndex: 1 },
+    { item: COMBAT_TECHNIQUES[4], requiredRankIndex: 2 },
   ],
   3: [
     { item: { id: 620, name: "Sky Pavilion Qi Primer", description: "Basic qi refinement manual.", price: 200, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.2 }, requiredRankIndex: 1 },
     { item: { id: 621, name: "Azure Condensation Pill", description: "Pill that aids qi condensation.", price: 120, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, value: 8, effect: "attack" }, requiredRankIndex: 1 },
     { item: { id: 622, name: "High Peak Technique", description: "Inner disciple technique. +0.4 Qi/s when meditating.", price: 550, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.4 }, requiredRankIndex: 2 },
     { item: { id: 623, name: "Pavilion Core Manual", description: "Core disciple combat and qi manual. Requires Core Disciple.", price: 1000, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp` }, requiredRankIndex: 3 },
+    { item: QI_TECHNIQUES[5], requiredRankIndex: 1 },
+    { item: QI_TECHNIQUES[6], requiredRankIndex: 2 },
+    { item: COMBAT_TECHNIQUES[5], requiredRankIndex: 1 },
+    { item: COMBAT_TECHNIQUES[6], requiredRankIndex: 2 },
   ],
   4: [
     { item: { id: 630, name: "Crimson Demon Strike", description: "Basic demonic combat technique.", price: 180, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp` }, requiredRankIndex: 1 },
     { item: { id: 631, name: "Blood Qi Pill", description: "Demonic qi pill.", price: 90, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, value: 6, effect: "attack" }, requiredRankIndex: 1 },
     { item: { id: 632, name: "Inner Demon Circulation", description: "Inner disciple. +0.35 Qi/s when meditating.", price: 450, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.35 }, requiredRankIndex: 2 },
     { item: { id: 633, name: "Core Demon Art", description: "Forbidden technique. Core Disciple only.", price: 900, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.55 }, requiredRankIndex: 3 },
+    { item: QI_TECHNIQUES[7], requiredRankIndex: 1 },
+    { item: QI_TECHNIQUES[8], requiredRankIndex: 2 },
+    { item: COMBAT_TECHNIQUES[7], requiredRankIndex: 1 },
+    { item: COMBAT_TECHNIQUES[8], requiredRankIndex: 2 },
   ],
   5: [
     { item: { id: 640, name: "Serpent Venom Recipe", description: "Basic poison recipe.", price: 100, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp` }, requiredRankIndex: 1 },
     { item: { id: 641, name: "Shadow Step", description: "Assassin qi technique. +0.3 Qi/s when meditating.", price: 350, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.3 }, requiredRankIndex: 1 },
     { item: { id: 642, name: "Inner Serpent Formula", description: "Poison formula. Requires Inner Disciple.", price: 480, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp` }, requiredRankIndex: 2 },
     { item: { id: 643, name: "Shadow Serpent Core Manual", description: "Core disciple manual. Requires Core Disciple.", price: 850, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp` }, requiredRankIndex: 3 },
+    { item: QI_TECHNIQUES[9], requiredRankIndex: 1 },
+    { item: QI_TECHNIQUES[10], requiredRankIndex: 2 },
+    { item: COMBAT_TECHNIQUES[9], requiredRankIndex: 1 },
+    { item: COMBAT_TECHNIQUES[10], requiredRankIndex: 2 },
   ],
   6: [
     { item: { id: 650, name: "Bone Refinement Pill", description: "Sect pill for bone tempering.", price: 110, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, value: 7, effect: "attack" }, requiredRankIndex: 1 },
     { item: { id: 651, name: "Abyss Qi Draw", description: "Basic abyss technique. +0.28 Qi/s when meditating.", price: 320, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.28 }, requiredRankIndex: 1 },
     { item: { id: 652, name: "Undead Cultivation Fragment", description: "Inner disciple fragment. Requires Inner Disciple.", price: 520, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp` }, requiredRankIndex: 2 },
     { item: { id: 653, name: "Bone Abyss Core Scripture", description: "Core disciple forbidden scripture. Requires Core Disciple.", price: 950, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.52 }, requiredRankIndex: 3 },
+    { item: QI_TECHNIQUES[11], requiredRankIndex: 1 },
+    { item: QI_TECHNIQUES[12], requiredRankIndex: 2 },
+    { item: COMBAT_TECHNIQUES[11], requiredRankIndex: 1 },
+    { item: COMBAT_TECHNIQUES[12], requiredRankIndex: 2 },
   ],
 };
 
@@ -172,30 +239,6 @@ export const existingShopItems: Item[] = [
   },
 ];
 
-/** Qi technique equipment - can be bought and equipped in Qi Technique slot */
-export const existingShopQiTechniques: Item[] = [
-  {
-    id: 400,
-    name: "Basic Qi Circulation",
-    description: "A simple technique. +0.2 Qi/s when meditating.",
-    price: 200,
-    quantity: 1,
-    picture: `${ALCHEMY_ASSETS}/potion1.webp`,
-    equipmentSlot: "qiTechnique",
-    qiGainBonus: 0.2,
-  },
-  {
-    id: 401,
-    name: "Spirit Gathering Method",
-    description: "Improves qi absorption. +0.5 Qi/s when meditating.",
-    price: 600,
-    quantity: 1,
-    picture: `${ALCHEMY_ASSETS}/potion1.webp`,
-    equipmentSlot: "qiTechnique",
-    qiGainBonus: 0.5,
-  },
-];
-
 export const existingSkills: SkillI[] = [
   { id: 3, name: "Meditation", description: "Cultivate Qi in solitude" },
   { id: 1, name: "Martial Training", description: "Train combat and face trials" },
@@ -257,7 +300,7 @@ export const enemies: EnemyI[] = [
   // Void Rift Expanse (Void Refinement)
   { id: 31, name: "Riftshade Stalker", attack: 24, defense: 18, health: 120, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Riftshade Stalker")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   { id: 32, name: "Void-Touched Scorpion", attack: 25, defense: 19, health: 125, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Void-Touched Scorpion")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 33, name: "Starless Horror", attack: 27, defense: 20, health: 135, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Starless Horror")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 33, name: "Starless Horror", attack: 27, defense: 20, health: 135, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Starless Horror")}.webp`, loot: { items: [existingShopItems[0], QI_TECHNIQUES[13]], weight: [8, 1] } },
   { id: 34, name: "Fraying Reality Wisp", attack: 23, defense: 17, health: 115, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Fraying Reality Wisp")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   { id: 35, name: "Astral Bonehound", attack: 26, defense: 19, health: 130, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Astral Bonehound")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   // Heavenpiercer Peak (Body Integration)
@@ -265,7 +308,7 @@ export const enemies: EnemyI[] = [
   { id: 37, name: "Sky-Cutting Eagle", attack: 32, defense: 21, health: 145, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sky-Cutting Eagle")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   { id: 38, name: "Frostwind Leopard", attack: 31, defense: 24, health: 155, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Frostwind Leopard")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   { id: 39, name: "Cloudstep Monkey", attack: 29, defense: 22, health: 142, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Cloudstep Monkey")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 40, name: "Sword-Sparring Hermit", attack: 34, defense: 26, health: 165, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sword-Sparring Hermit")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 40, name: "Sword-Sparring Hermit", attack: 34, defense: 26, health: 165, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sword-Sparring Hermit")}.webp`, loot: { items: [existingShopItems[0], COMBAT_TECHNIQUES[13]], weight: [8, 1] } },
   // Endless Cloudsea Sanctuary (Mahayana)
   { id: 41, name: "Cloudsea Serpent", attack: 38, defense: 29, health: 185, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Cloudsea Serpent")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   { id: 42, name: "Lotus Guard Crane", attack: 37, defense: 30, health: 190, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Lotus Guard Crane")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
@@ -277,13 +320,13 @@ export const enemies: EnemyI[] = [
   { id: 47, name: "Lightning Wraith", attack: 44, defense: 34, health: 218, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Lightning Wraith")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   { id: 48, name: "Stormforged Golem", attack: 47, defense: 37, health: 235, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Stormforged Golem")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   { id: 49, name: "Tribulation Echo", attack: 46, defense: 36, health: 230, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Tribulation Echo")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 50, name: "Crackling Sky Oni", attack: 48, defense: 38, health: 245, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Crackling Sky Oni")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 50, name: "Crackling Sky Oni", attack: 48, defense: 38, health: 245, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Crackling Sky Oni")}.webp`, loot: { items: [existingShopItems[0], COMBAT_TECHNIQUES[14]], weight: [8, 1] } },
   // Jade Immortal Court (Immortal)
   { id: 51, name: "Jade Court Envoy", attack: 54, defense: 42, health: 270, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Jade Court Envoy")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   { id: 52, name: "Immortal Attendant", attack: 53, defense: 43, health: 275, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Immortal Attendant")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   { id: 53, name: "Golden Seal Arbiter", attack: 56, defense: 45, health: 285, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Golden Seal Arbiter")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
   { id: 54, name: "Azure Hall Guardian", attack: 55, defense: 44, health: 280, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Azure Hall Guardian")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 55, name: "Celestial Punisher", attack: 58, defense: 47, health: 300, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Celestial Punisher")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 55, name: "Celestial Punisher", attack: 58, defense: 47, health: 300, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Celestial Punisher")}.webp`, loot: { items: [existingShopItems[0], QI_TECHNIQUES[14]], weight: [8, 1] } },
 ];
 
 /** Base path for fishing area images. Add images under public/assets/fishing/ */
