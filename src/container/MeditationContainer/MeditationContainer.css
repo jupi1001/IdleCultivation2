@@ -1,3 +1,56 @@
+/* --- Qi collection (meditating) --- */
+@keyframes meditation-qi-pulse {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  50% { opacity: 0.92; filter: brightness(1.08); }
+}
+
+@keyframes meditation-qi-rate-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.02); }
+}
+
+.meditation-container--meditating .meditation-container__progress-fill--active {
+  animation: meditation-qi-pulse 1.8s ease-in-out infinite;
+}
+
+.meditation-container--meditating .meditation-container__qi-rate--active {
+  animation: meditation-qi-rate-pulse 2s ease-in-out infinite;
+}
+
+/* --- Breakthrough celebration --- */
+@keyframes breakthrough-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+  35% { transform: translate(-50%, -50%) scale(0.98); }
+  50% { transform: translate(-50%, -50%) scale(1.05); }
+  70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes breakthrough-realm-flash {
+  0% { transform: scale(1); color: var(--text); }
+  15% { transform: scale(1.12); color: var(--accent); }
+  30% { transform: scale(1.05); }
+  100% { transform: scale(1); color: var(--text); }
+}
+
+.meditation-container__celebration {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 100;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  animation: breakthrough-pop 2.5s ease-out forwards;
+}
+
+.meditation-container--breakthrough .meditation-container__realm {
+  animation: breakthrough-realm-flash 1.2s ease-out;
+}
+
 .meditation-container {
   display: flex;
   flex-direction: column;
@@ -5,6 +58,13 @@
   padding: 1.5rem;
   max-width: 360px;
   margin: 0 auto;
+}
+
+.meditation-container__realm {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .meditation-container__character {
@@ -20,10 +80,9 @@
 }
 
 .meditation-container__breakthrough {
-  position: absolute;
-  top: -0.5rem;
-  left: 50%;
-  transform: translateX(-50%);
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
   padding: 0.5em 1em;
   font-size: 0.95em;
   background: var(--accent);
@@ -38,19 +97,38 @@
   opacity: 0.9;
 }
 
-.meditation-container__qi {
-  margin-bottom: 1rem;
-  padding: 0.5rem 1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+.meditation-container__progress-wrap {
   width: 100%;
+  margin-bottom: 1rem;
+}
+
+.meditation-container__progress-track {
+  height: 12px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.meditation-container__progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 6px;
+  transition: width 0.2s ease-out;
+}
+
+.meditation-container__progress-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
   text-align: center;
 }
 
-.meditation-container__qi-value {
-  font-size: 1.1em;
+.meditation-container__qi-rate {
+  margin: 0;
+  font-size: 0.9rem;
   color: var(--text);
+  text-align: center;
 }
 
 .meditation-container__start,
