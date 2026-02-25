@@ -124,10 +124,10 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     }));
   };
 
-  /** Spirit stones awarded per kill (based on enemy max HP). */
+  /** Spirit stones awarded per kill (scaled by enemy max HP for stronger rewards). */
   const getSpiritStonesFromEnemy = (enemy: EnemyI) => {
     const maxHp = enemies.find((e) => e.id === enemy.id)?.health ?? enemy.health;
-    return Math.max(1, 2 + Math.floor(maxHp / 10));
+    return Math.max(1, 5 + Math.floor(maxHp / 5));
   };
 
   /**
