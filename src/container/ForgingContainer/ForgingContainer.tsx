@@ -5,7 +5,10 @@ import { addItem, consumeItems, addForgingXP } from "../../state/reducers/charac
 import {
   REFINE_RECIPES,
   CRAFT_RECIPES,
-  getForgingLevel,
+  getForgingLevelInfo,
+  getForgingTierIndex,
+  getForgingXPRefine,
+  getForgingXPCraft,
   FORGE_BAR_ITEMS,
   FORGING_TIER_ORDER,
   type RefineRecipeI,
@@ -51,9 +54,7 @@ export const ForgingContainer = () => {
   const dispatch = useDispatch();
   const items = useSelector((state: RootState) => state.character.items);
   const forgingXP = useSelector((state: RootState) => state.character.forgingXP);
-  const forgingLevel = getForgingLevel(forgingXP);
-  const xpInLevel = forgingXP % 100;
-  const xpForNext = 100;
+  const { level: forgingLevel, xpInLevel, xpRequiredForNext: xpForNext } = getForgingLevelInfo(forgingXP);
 
   /** Which tier sections are expanded. Default: all true. */
   const [tiersOpen, setTiersOpen] = useState<Record<string, boolean>>(() =>
@@ -79,7 +80,8 @@ export const ForgingContainer = () => {
       if (!canRefine(items, recipe)) return;
       dispatch(consumeItems([{ itemId: recipe.ore.itemId, amount: recipe.ore.amount }]));
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
-      dispatch(addForgingXP(10));
+      const tierIndex = getForgingTierIndex(recipe.tier);
+      dispatch(addForgingXP(getForgingXPRefine(tierIndex)));
     },
     [dispatch, items]
   );
@@ -90,7 +92,8 @@ export const ForgingContainer = () => {
       const toConsume = recipe.bars.map(({ itemId, amount }) => ({ itemId, amount }));
       dispatch(consumeItems(toConsume));
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
-      dispatch(addForgingXP(15));
+      const tierIndex = getForgingTierIndex(recipe.tier);
+      dispatch(addForgingXP(getForgingXPCraft(tierIndex)));
     },
     [dispatch, items]
   );

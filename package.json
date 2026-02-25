@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "skilling-stats": "node scripts/generate-skilling-stats.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.3.0",

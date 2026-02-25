@@ -6,9 +6,60 @@ export const ALCHEMY_ASSETS = "/assets/alchemy";
 /** Max display level in left-panel card (e.g. Level 5/99) */
 export const ALCHEMY_MAX_LEVEL = 99;
 
-/** Alchemy level from XP: level 1 at 0 XP, +1 level per 100 XP */
+/** Backloaded curve (generous for consumable skills + failure rate): XP for L→L+1 = floor(BASE × L^EXP). */
+const XP_CURVE_BASE = 4;
+const XP_CURVE_EXPONENT = 1.25;
+
+export function totalXpForLevel(level: number): number {
+  if (level <= 1) return 0;
+  let sum = 0;
+  for (let L = 1; L < level; L++) {
+    sum += xpRequiredForNextLevel(L);
+  }
+  return sum;
+}
+
+export function xpRequiredForNextLevel(level: number): number {
+  if (level >= ALCHEMY_MAX_LEVEL) return 0;
+  return Math.floor(XP_CURVE_BASE * Math.pow(level, XP_CURVE_EXPONENT));
+}
+
+/** Level from total XP (backloaded curve). */
 export function getAlchemyLevel(alchemyXP: number): number {
-  return Math.max(1, Math.min(ALCHEMY_MAX_LEVEL, 1 + Math.floor(alchemyXP / 100)));
+  const total = Math.max(0, Math.floor(alchemyXP));
+  let level = 1;
+  while (level < ALCHEMY_MAX_LEVEL && total >= totalXpForLevel(level + 1)) {
+    level++;
+  }
+  return level;
+}
+
+export interface AlchemyLevelInfo {
+  level: number;
+  xpInLevel: number;
+  xpRequiredForNext: number;
+  totalXp: number;
+}
+
+export function getAlchemyLevelInfo(totalXp: number): AlchemyLevelInfo {
+  const total = Math.max(0, Math.floor(totalXp));
+  let level = 1;
+  while (level < ALCHEMY_MAX_LEVEL && total >= totalXpForLevel(level + 1)) {
+    level++;
+  }
+  const xpInLevel = total - totalXpForLevel(level);
+  const xpRequiredForNext = xpRequiredForNextLevel(level);
+  return { level, xpInLevel, xpRequiredForNext, totalXp: total };
+}
+
+/** XP on successful craft; scales by recipe level (generous: high-tier pills give much more). */
+export function getAlchemyXPSuccess(recipeLevel: number): number {
+  return Math.max(1, Math.floor(2.5 * recipeLevel));
+}
+
+/** XP on failed craft; still some progress, scales by recipe level. */
+export function getAlchemyXPFail(recipeLevel: number): number {
+  return Math.max(0, Math.floor(0.6 * recipeLevel));
 }
 
 /**

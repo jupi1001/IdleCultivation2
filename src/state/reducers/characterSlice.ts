@@ -72,11 +72,11 @@ interface CharacterState {
   currentGatheringArea: CurrentGatheringArea | null;
   gatheringCastStartTime: number | null;
   gatheringCastDuration: number;
-  /** XP for alchemy; level = 1 + floor(alchemyXP / 100), affects pill craft success chance */
+  /** XP for alchemy; backloaded curve, level from total XP; affects pill craft success chance */
   alchemyXP: number;
-  /** XP for forging; level = 1 + floor( forgingXP / 100 ) */
+  /** XP for forging; backloaded curve, level from total XP */
   forgingXP: number;
-  /** XP for cooking; level = 1 + floor( cookingXP / 100 ) */
+  /** XP for cooking; backloaded curve, level from total XP */
   cookingXP: number;
   /** Permanent bonus to attack from consumables/shop (effective = realm + equipment + this) */
   bonusAttack: number;

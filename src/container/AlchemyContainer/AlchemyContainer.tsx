@@ -4,8 +4,10 @@ import { RootState } from "../../state/store";
 import { addItem, consumeItems, addAlchemyXP } from "../../state/reducers/characterSlice";
 import {
   ALCHEMY_RECIPES,
-  getAlchemyLevel,
+  getAlchemyLevelInfo,
   getAlchemySuccessChance,
+  getAlchemyXPSuccess,
+  getAlchemyXPFail,
   type AlchemyRecipeI,
 } from "../../constants/alchemy";
 import { gatheringLootTypes } from "../../constants/data";
@@ -33,9 +35,7 @@ export const AlchemyContainer = () => {
   const dispatch = useDispatch();
   const items = useSelector((state: RootState) => state.character.items);
   const alchemyXP = useSelector((state: RootState) => state.character.alchemyXP);
-  const alchemyLevel = getAlchemyLevel(alchemyXP);
-  const xpInLevel = alchemyXP % 100;
-  const xpForNext = 100;
+  const { level: alchemyLevel, xpInLevel, xpRequiredForNext: xpForNext } = getAlchemyLevelInfo(alchemyXP);
 
   const attemptCraft = useCallback(
     (recipe: AlchemyRecipeI) => {
@@ -56,9 +56,9 @@ export const AlchemyContainer = () => {
             quantity: recipe.outputAmount,
           })
         );
-        dispatch(addAlchemyXP(10));
+        dispatch(addAlchemyXP(getAlchemyXPSuccess(recipe.recipeLevel)));
       } else {
-        dispatch(addAlchemyXP(2));
+        dispatch(addAlchemyXP(getAlchemyXPFail(recipe.recipeLevel)));
       }
     },
     [dispatch, items, alchemyLevel]
