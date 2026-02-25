@@ -4,7 +4,8 @@ import { RootState } from "../../state/store";
 import { addItem, consumeItems, addCookingXP } from "../../state/reducers/characterSlice";
 import {
   COOKING_RECIPES,
-  getCookingLevel,
+  getCookingLevelInfo,
+  getCookingXP,
   type CookingRecipeI,
 } from "../../constants/cooking";
 import { fishTypes } from "../../constants/data";
@@ -30,9 +31,7 @@ export const CookingContainer = () => {
   const dispatch = useDispatch();
   const items = useSelector((state: RootState) => state.character.items);
   const cookingXP = useSelector((state: RootState) => state.character.cookingXP);
-  const cookingLevel = getCookingLevel(cookingXP);
-  const xpInLevel = cookingXP % 100;
-  const xpForNext = 100;
+  const { level: cookingLevel, xpInLevel, xpRequiredForNext: xpForNext } = getCookingLevelInfo(cookingXP);
 
   const allItemNames = useMemo(
     () => fishTypes.map((i) => ({ id: i.id, name: i.name })),
@@ -45,7 +44,7 @@ export const CookingContainer = () => {
       const toConsume = recipe.ingredients.map(({ itemId, amount }) => ({ itemId, amount }));
       dispatch(consumeItems(toConsume));
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
-      dispatch(addCookingXP(10));
+      dispatch(addCookingXP(getCookingXP(recipe.recipeLevel)));
     },
     [dispatch, items]
   );

@@ -7,9 +7,66 @@ const FORGING_ASSETS = "/assets/forging";
 /** Max display level in left-panel card */
 export const FORGING_MAX_LEVEL = 99;
 
-/** Forging level from XP: level 1 at 0 XP, +1 per 100 XP */
+/** Backloaded curve (generous for consumable skills): XP for L→L+1 = floor(BASE × L^EXP). */
+const XP_CURVE_BASE = 4;
+const XP_CURVE_EXPONENT = 1.25;
+
+export function totalXpForLevel(level: number): number {
+  if (level <= 1) return 0;
+  let sum = 0;
+  for (let L = 1; L < level; L++) {
+    sum += xpRequiredForNextLevel(L);
+  }
+  return sum;
+}
+
+export function xpRequiredForNextLevel(level: number): number {
+  if (level >= FORGING_MAX_LEVEL) return 0;
+  return Math.floor(XP_CURVE_BASE * Math.pow(level, XP_CURVE_EXPONENT));
+}
+
+/** Level from total XP (backloaded curve). */
 export function getForgingLevel(forgingXP: number): number {
-  return Math.max(1, Math.min(FORGING_MAX_LEVEL, 1 + Math.floor(forgingXP / 100)));
+  const total = Math.max(0, Math.floor(forgingXP));
+  let level = 1;
+  while (level < FORGING_MAX_LEVEL && total >= totalXpForLevel(level + 1)) {
+    level++;
+  }
+  return level;
+}
+
+export interface ForgingLevelInfo {
+  level: number;
+  xpInLevel: number;
+  xpRequiredForNext: number;
+  totalXp: number;
+}
+
+export function getForgingLevelInfo(totalXp: number): ForgingLevelInfo {
+  const total = Math.max(0, Math.floor(totalXp));
+  let level = 1;
+  while (level < FORGING_MAX_LEVEL && total >= totalXpForLevel(level + 1)) {
+    level++;
+  }
+  const xpInLevel = total - totalXpForLevel(level);
+  const xpRequiredForNext = xpRequiredForNextLevel(level);
+  return { level, xpInLevel, xpRequiredForNext, totalXp: total };
+}
+
+/** Tier index 0..N-1 for XP scaling. Use FORGING_TIER_ORDER.indexOf(tier). */
+export function getForgingTierIndex(tier: string): number {
+  const i = FORGING_TIER_ORDER.indexOf(tier);
+  return i >= 0 ? i : 0;
+}
+
+/** XP per refine; scales by tier (early ore = less, celestial = more). */
+export function getForgingXPRefine(tierIndex: number): number {
+  return Math.max(1, 4 + 3 * tierIndex);
+}
+
+/** XP per craft (weapon/armour); scales by tier. */
+export function getForgingXPCraft(tierIndex: number): number {
+  return Math.max(1, 6 + 4 * tierIndex);
 }
 
 export interface ForgingIngredient {

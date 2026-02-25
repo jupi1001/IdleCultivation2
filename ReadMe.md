@@ -27,3 +27,4 @@ npm run preview
 ## For developers
 
 - **Roadmap and ideas:** See [TODO.md](TODO.md) for planned features and changes (updated frequently).
+- **Skilling stats (1–99):** See [docs/SKILLING_ANALYSIS.md](docs/SKILLING_ANALYSIS.md) for actions and time per level for Fishing, Mining, Gathering, Forging, Cooking, and Alchemy, and for the XP curve reference.

@@ -5,8 +5,55 @@ const COOKING_ASSETS = "/assets/cooking";
 
 export const COOKING_MAX_LEVEL = 99;
 
+/** Backloaded curve (generous for consumable skills): XP for L→L+1 = floor(BASE × L^EXP). */
+const XP_CURVE_BASE = 4;
+const XP_CURVE_EXPONENT = 1.25;
+
+export function totalXpForLevel(level: number): number {
+  if (level <= 1) return 0;
+  let sum = 0;
+  for (let L = 1; L < level; L++) {
+    sum += xpRequiredForNextLevel(L);
+  }
+  return sum;
+}
+
+export function xpRequiredForNextLevel(level: number): number {
+  if (level >= COOKING_MAX_LEVEL) return 0;
+  return Math.floor(XP_CURVE_BASE * Math.pow(level, XP_CURVE_EXPONENT));
+}
+
+/** Level from total XP (backloaded curve). */
 export function getCookingLevel(cookingXP: number): number {
-  return Math.max(1, Math.min(COOKING_MAX_LEVEL, 1 + Math.floor(cookingXP / 100)));
+  const total = Math.max(0, Math.floor(cookingXP));
+  let level = 1;
+  while (level < COOKING_MAX_LEVEL && total >= totalXpForLevel(level + 1)) {
+    level++;
+  }
+  return level;
+}
+
+export interface CookingLevelInfo {
+  level: number;
+  xpInLevel: number;
+  xpRequiredForNext: number;
+  totalXp: number;
+}
+
+export function getCookingLevelInfo(totalXp: number): CookingLevelInfo {
+  const total = Math.max(0, Math.floor(totalXp));
+  let level = 1;
+  while (level < COOKING_MAX_LEVEL && total >= totalXpForLevel(level + 1)) {
+    level++;
+  }
+  const xpInLevel = total - totalXpForLevel(level);
+  const xpRequiredForNext = xpRequiredForNextLevel(level);
+  return { level, xpInLevel, xpRequiredForNext, totalXp: total };
+}
+
+/** XP granted per cook; scales by recipe tier (early recipes give less, late more). */
+export function getCookingXP(recipeLevel: number): number {
+  return Math.max(1, Math.floor(2 * recipeLevel));
 }
 
 export interface CookingIngredient {
@@ -18,7 +65,8 @@ export interface CookingRecipeI {
   id: string;
   name: string;
   description: string;
-  /** Fish (and optionally other ingredients) */
+  /** Recipe tier 1–N; higher = later game, more XP per cook */
+  recipeLevel: number;
   ingredients: CookingIngredient[];
   output: Item;
   outputAmount: number;
@@ -54,6 +102,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-carp",
     name: "Grilled River Carp",
     description: "Cooked carp. Restores vitality when used (e.g. in combat).",
+    recipeLevel: 1,
     ingredients: [{ itemId: FISH.carp, amount: 1 }],
     output: {
       id: 750,
@@ -71,6 +120,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-tuna",
     name: "Grilled Jade Tuna",
     description: "Cooked tuna. Restores more vitality.",
+    recipeLevel: 2,
     ingredients: [{ itemId: FISH.tuna, amount: 1 }],
     output: {
       id: 751,
@@ -88,6 +138,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-mackerel",
     name: "Grilled Silver Mackerel",
     description: "Cooked mackerel.",
+    recipeLevel: 3,
     ingredients: [{ itemId: FISH.mackerel, amount: 1 }],
     output: {
       id: 752,
@@ -105,6 +156,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-puffer",
     name: "Prepared Abyssal Puffer",
     description: "Carefully prepared puffer. Restores more vitality.",
+    recipeLevel: 4,
     ingredients: [{ itemId: FISH.puffer, amount: 1 }],
     output: {
       id: 753,
@@ -122,6 +174,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-minnow",
     name: "Dried Spirit Minnow",
     description: "Light snack from a spirit minnow. Small vitality restore.",
+    recipeLevel: 5,
     ingredients: [{ itemId: FISH.minnow, amount: 1 }],
     output: {
       id: 754,
@@ -140,6 +193,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-lotus-koi",
     name: "Stewed Lotus Koi",
     description: "Calming koi stew. Restores Qi.",
+    recipeLevel: 6,
     ingredients: [{ itemId: FISH.lotusKoi, amount: 1 }],
     output: {
       id: 755,
@@ -157,6 +211,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-azure-eel",
     name: "Grilled Azure Eel",
     description: "Eel crackling with lightning Qi.",
+    recipeLevel: 7,
     ingredients: [{ itemId: FISH.azureEel, amount: 1 }],
     output: {
       id: 756,
@@ -174,6 +229,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-golden-bass",
     name: "Grilled Golden Bass",
     description: "Rare bass prized by alchemists. Restores vitality.",
+    recipeLevel: 8,
     ingredients: [{ itemId: FISH.goldenBass, amount: 1 }],
     output: {
       id: 757,
@@ -191,6 +247,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-frostfin-trout",
     name: "Frostfin Trout Fillet",
     description: "Cold jade-like trout. Restores vitality.",
+    recipeLevel: 9,
     ingredients: [{ itemId: FISH.frostfinTrout, amount: 1 }],
     output: {
       id: 758,
@@ -208,6 +265,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-shadow-catfish",
     name: "Prepared Shadow Catfish",
     description: "Dark Qi-infused catfish. Restores Qi.",
+    recipeLevel: 10,
     ingredients: [{ itemId: FISH.shadowCatfish, amount: 1 }],
     output: {
       id: 759,
@@ -225,6 +283,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-celestial-salmon",
     name: "Grilled Celestial Salmon",
     description: "Heavenly salmon. Restores vitality.",
+    recipeLevel: 11,
     ingredients: [{ itemId: FISH.celestialSalmon, amount: 1 }],
     output: {
       id: 760,
@@ -242,6 +301,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-dragon-sturgeon",
     name: "Braised Dragon Sturgeon",
     description: "Sturgeon from dragon veins. Restores Qi.",
+    recipeLevel: 12,
     ingredients: [{ itemId: FISH.dragonSturgeon, amount: 1 }],
     output: {
       id: 761,
@@ -259,6 +319,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-emberfin-snapper",
     name: "Grilled Emberfin Snapper",
     description: "Warm glowing snapper. Restores vitality.",
+    recipeLevel: 13,
     ingredients: [{ itemId: FISH.emberfinSnapper, amount: 1 }],
     output: {
       id: 762,
@@ -276,6 +337,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-moonwhisker-carp",
     name: "Steamed Moonwhisker Carp",
     description: "Moonlit carp. Enhances spiritual awareness. Restores Qi.",
+    recipeLevel: 14,
     ingredients: [{ itemId: FISH.moonwhiskerCarp, amount: 1 }],
     output: {
       id: 763,
@@ -293,6 +355,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-starfall-guppy",
     name: "Starfall Guppy Fry",
     description: "Tiny shimmering fry. Restores Qi.",
+    recipeLevel: 15,
     ingredients: [{ itemId: FISH.starfallGuppy, amount: 1 }],
     output: {
       id: 764,
@@ -310,6 +373,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-thunderjaw-pike",
     name: "Grilled Thunderjaw Pike",
     description: "Thunder-crackling pike. Restores vitality.",
+    recipeLevel: 16,
     ingredients: [{ itemId: FISH.thunderjawPike, amount: 1 }],
     output: {
       id: 765,
@@ -327,6 +391,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-verdant-tilapia",
     name: "Herbed Verdant Tilapia",
     description: "Spirit-herb fed tilapia. Restores Qi.",
+    recipeLevel: 17,
     ingredients: [{ itemId: FISH.verdantTilapia, amount: 1 }],
     output: {
       id: 766,
@@ -344,6 +409,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-void-lantern",
     name: "Prepared Void Lantern",
     description: "Ghostly lantern fish. Restores Qi.",
+    recipeLevel: 18,
     ingredients: [{ itemId: FISH.voidLantern, amount: 1 }],
     output: {
       id: 767,
@@ -361,6 +427,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-crimson-koi",
     name: "Braised Crimson Koi",
     description: "Symbol of fortune. Restores vitality.",
+    recipeLevel: 19,
     ingredients: [{ itemId: FISH.crimsonKoi, amount: 1 }],
     output: {
       id: 768,
@@ -378,6 +445,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-mirror-ray",
     name: "Grilled Heaven's Mirror Ray",
     description: "Sky-reflecting ray. Restores Qi.",
+    recipeLevel: 20,
     ingredients: [{ itemId: FISH.mirrorRay, amount: 1 }],
     output: {
       id: 769,
@@ -395,6 +463,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-nine-whisker-catfish",
     name: "Nine-Whisker Catfish Stew",
     description: "Ancient catfish stew. Restores vitality.",
+    recipeLevel: 21,
     ingredients: [{ itemId: FISH.nineWhiskerCatfish, amount: 1 }],
     output: {
       id: 770,
@@ -412,6 +481,7 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
     id: "cook-pearl-eel",
     name: "Mythic Pearl Eel Fillet",
     description: "Spirit-pearl eel. Restores Qi.",
+    recipeLevel: 22,
     ingredients: [{ itemId: FISH.pearlEel, amount: 1 }],
     output: {
       id: 771,
