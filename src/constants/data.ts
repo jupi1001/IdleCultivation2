@@ -12,6 +12,7 @@ import SectI from "../interfaces/SectI";
 import SkillI from "../interfaces/SkillI";
 import { ALCHEMY_ASSETS } from "./alchemy";
 import { COMBAT_LOOT_QI_PILLS } from "./alchemy";
+import { RING_IDS, AMULET_IDS } from "./ringsAmulets";
 import { TRAINING_ENEMIES } from "./training";
 
 /** Base path for technique images (qi and combat). Place under public/assets/techniques/ */
@@ -452,6 +453,8 @@ export const fishingAreaData: FishingAreaI[] = [
     fishingLootIds: [311, 308],
     picture: `${FISHING_ASSETS}/heavenly-river.webp`,
     altText: "River flowing through the heavens",
+    rareDropChancePercent: 1,
+    rareDropItemIds: [AMULET_IDS.eightMeridian],
   },
   {
     id: 10,
@@ -482,6 +485,8 @@ export const fishingAreaData: FishingAreaI[] = [
     fishingLootIds: [314, 319],
     picture: `${FISHING_ASSETS}/moon-pool.webp`,
     altText: "Still waters reflecting the full moon",
+    rareDropChancePercent: 1,
+    rareDropItemIds: [RING_IDS.moonlitReflection],
   },
   {
     id: 13,
@@ -512,6 +517,8 @@ export const fishingAreaData: FishingAreaI[] = [
     fishingLootIds: [322, 312, 320],
     picture: `${FISHING_ASSETS}/primordial-sea.webp`,
     altText: "Ancient sea filled with primordial Qi",
+    rareDropChancePercent: 1,
+    rareDropItemIds: [AMULET_IDS.transcendentDao],
   },
 ];
 
@@ -1146,6 +1153,8 @@ export const gatheringAreaData: GatheringAreaI[] = [
     gatheringLootIds: [618, 619, 620],
     picture: `${GATHERING_ASSETS}/primordial-herb-garden.webp`,
     altText: "Ancient herbs from the dawn of Qi",
+    rareDropChancePercent: 1,
+    rareDropItemIds: [AMULET_IDS.spiritHerbCharm],
   },
   {
     id: 14,
@@ -1166,6 +1175,8 @@ export const gatheringAreaData: GatheringAreaI[] = [
     gatheringLootIds: [620, 621, 622],
     picture: `${GATHERING_ASSETS}/transcendent-spirit-peak.webp`,
     altText: "Peak where spirit herbs reach beyond",
+    rareDropChancePercent: 1,
+    rareDropItemIds: [RING_IDS.primordialSeal],
   },
 ];
 

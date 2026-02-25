@@ -1,6 +1,6 @@
 import React from "react";
 import Item from "../../interfaces/ItemI";
-import LootTablePopover from "../LootTablePopover/LootTablePopover";
+import LootTablePopover, { type LootTableEntry } from "../LootTablePopover/LootTablePopover";
 import "./GatheringArea.css";
 
 interface GatheringAreaProps {
@@ -12,6 +12,10 @@ interface GatheringAreaProps {
   requiredLevel: number;
   /** Possible wood/herbs from this area (from data; dynamic). */
   possibleLoot: Item[];
+  /** Optional: entries with chance % and rare drops. */
+  lootEntries?: LootTableEntry[];
+  /** Optional: ring/amulet ids already owned (show checkmark in popover). */
+  ownedRingAmuletIds?: Set<number>;
   unlocked: boolean;
   onClick: () => void;
 }
@@ -30,6 +34,8 @@ const GatheringArea: React.FC<GatheringAreaProps> = ({
   gatheringDelay,
   requiredLevel,
   possibleLoot,
+  lootEntries,
+  ownedRingAmuletIds,
   unlocked,
   onClick,
 }) => {
@@ -55,7 +61,12 @@ const GatheringArea: React.FC<GatheringAreaProps> = ({
             Requires Gathering Level {requiredLevel} to unlock
           </p>
         )}
-        <LootTablePopover items={possibleLoot} label="Possible finds" />
+        <LootTablePopover
+          entries={lootEntries}
+          items={lootEntries == null ? possibleLoot : undefined}
+          ownedItemIds={ownedRingAmuletIds}
+          label="Possible finds"
+        />
       </div>
     </div>
   );

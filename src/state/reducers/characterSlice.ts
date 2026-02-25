@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { CultivationPath } from "../../constants/cultivationPath";
 import { fishTypes, gatheringLootTypes, oreTypes, SECT_POSITIONS } from "../../constants/data";
+import { GEODE_ITEM_ID, GEODE_ITEM, rollGemFromGeode } from "../../constants/gems";
+import { getRingAmuletItemById } from "../../constants/ringsAmulets";
 import { getBreakthroughQiRequired, getNextRealm, getStepIndex, getCombatStatsFromRealm, type RealmId } from "../../constants/realmProgression";
 import { TALENT_NODES_BY_ID } from "../../constants/talents";
 import Item from "../../interfaces/ItemI";
@@ -12,6 +14,9 @@ export type CurrentFishingArea = {
   fishingXP: number;
   fishingDelay: number;
   fishingLootIds: number[];
+  /** Optional rare drop: chance 0–100, item ids (e.g. ring/amulet). */
+  rareDropChancePercent?: number;
+  rareDropItemIds?: number[];
 };
 
 export type CurrentMiningArea = {
@@ -26,6 +31,9 @@ export type CurrentGatheringArea = {
   gatheringXP: number;
   gatheringDelay: number;
   gatheringLootIds: number[];
+  /** Optional rare drop: chance 0–100, item ids (e.g. ring/amulet). */
+  rareDropChancePercent?: number;
+  rareDropItemIds?: number[];
 };
 
 interface CharacterState {
@@ -225,6 +233,26 @@ export const characterSlice = createSlice({
     addCookingXP: (state, action: PayloadAction<number>) => {
       state.cookingXP = state.cookingXP + action.payload;
     },
+    /** Open geodes: consume up to `amount` geodes, roll gem from table for each, add gems to inventory. */
+    openGeodes: (state, action: PayloadAction<number>) => {
+      const amount = Math.max(0, Math.floor(action.payload));
+      if (amount <= 0) return;
+      const geodeEntry = state.items.find((i) => i.id === GEODE_ITEM_ID);
+      const have = geodeEntry ? (geodeEntry.quantity ?? 1) : 0;
+      const toOpen = Math.min(amount, have);
+      if (toOpen <= 0) return;
+      if (geodeEntry) {
+        const qty = (geodeEntry.quantity ?? 1) - toOpen;
+        if (qty <= 0) state.items.splice(state.items.indexOf(geodeEntry), 1);
+        else geodeEntry.quantity = qty;
+      }
+      for (let i = 0; i < toOpen; i++) {
+        const gem = rollGemFromGeode();
+        const existing = state.items.find((j) => j.id === gem.id);
+        if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
+        else state.items.push({ ...gem, quantity: 1 });
+      }
+    },
     addFishingXP: (state, action: PayloadAction<number>) => {
       state.fishingXP = state.fishingXP + action.payload;
     },
@@ -298,12 +326,17 @@ export const characterSlice = createSlice({
     },
     completeFishingCast: (
       state,
-      action: PayloadAction<{ fishingXP: number; fishingLootIds: number[] }>
+      action: PayloadAction<{
+        fishingXP: number;
+        fishingLootIds: number[];
+        rareDropChancePercent?: number;
+        rareDropItemIds?: number[];
+      }>
     ) => {
       state.fishingCastStartTime = null;
       state.fishingCastDuration = 0;
       if (state.currentActivity !== "fish" || !state.currentFishingArea) return;
-      const { fishingXP, fishingLootIds } = action.payload;
+      const { fishingXP, fishingLootIds, rareDropChancePercent, rareDropItemIds } = action.payload;
       state.fishingXP += fishingXP;
       const randomId =
         fishingLootIds[Math.floor(Math.random() * fishingLootIds.length)];
@@ -314,6 +347,20 @@ export const characterSlice = createSlice({
           existing.quantity = (existing.quantity ?? 1) + 1;
         } else {
           state.items.push({ ...fish, quantity: 1 });
+        }
+      }
+      if (
+        rareDropChancePercent != null &&
+        rareDropItemIds != null &&
+        rareDropItemIds.length > 0 &&
+        Math.random() * 100 < rareDropChancePercent
+      ) {
+        const rareId = rareDropItemIds[Math.floor(Math.random() * rareDropItemIds.length)];
+        const rareItem = getRingAmuletItemById(rareId);
+        if (rareItem) {
+          const existing = state.items.find((i) => i.id === rareItem.id);
+          if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
+          else state.items.push({ ...rareItem, quantity: 1 });
         }
       }
     },
@@ -349,6 +396,11 @@ export const characterSlice = createSlice({
           state.items.push({ ...ore, quantity: 1 });
         }
       }
+      if (Math.random() * 100 < 3) {
+        const existing = state.items.find((i) => i.id === GEODE_ITEM_ID);
+        if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
+        else state.items.push({ ...GEODE_ITEM, quantity: 1 });
+      }
     },
     setCurrentGatheringArea: (state, action: PayloadAction<CurrentGatheringArea | null>) => {
       state.currentGatheringArea = action.payload;
@@ -366,12 +418,17 @@ export const characterSlice = createSlice({
     },
     completeGatheringCast: (
       state,
-      action: PayloadAction<{ gatheringXP: number; gatheringLootIds: number[] }>
+      action: PayloadAction<{
+        gatheringXP: number;
+        gatheringLootIds: number[];
+        rareDropChancePercent?: number;
+        rareDropItemIds?: number[];
+      }>
     ) => {
       state.gatheringCastStartTime = null;
       state.gatheringCastDuration = 0;
       if (state.currentActivity !== "gather" || !state.currentGatheringArea) return;
-      const { gatheringXP, gatheringLootIds } = action.payload;
+      const { gatheringXP, gatheringLootIds, rareDropChancePercent, rareDropItemIds } = action.payload;
       state.gatheringXP += gatheringXP;
       const randomId =
         gatheringLootIds[Math.floor(Math.random() * gatheringLootIds.length)];
@@ -382,6 +439,20 @@ export const characterSlice = createSlice({
           existing.quantity = (existing.quantity ?? 1) + 1;
         } else {
           state.items.push({ ...loot, quantity: 1 });
+        }
+      }
+      if (
+        rareDropChancePercent != null &&
+        rareDropItemIds != null &&
+        rareDropItemIds.length > 0 &&
+        Math.random() * 100 < rareDropChancePercent
+      ) {
+        const rareId = rareDropItemIds[Math.floor(Math.random() * rareDropItemIds.length)];
+        const rareItem = getRingAmuletItemById(rareId);
+        if (rareItem) {
+          const existing = state.items.find((i) => i.id === rareItem.id);
+          if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
+          else state.items.push({ ...rareItem, quantity: 1 });
         }
       }
     },
@@ -518,6 +589,7 @@ export const {
   addAlchemyXP,
   addForgingXP,
   addCookingXP,
+  openGeodes,
   addFishingXP,
   addQi,
   setQi,

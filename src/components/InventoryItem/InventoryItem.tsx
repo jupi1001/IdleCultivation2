@@ -7,7 +7,9 @@ import {
   addHealth,
   addQi,
   removeItem,
+  openGeodes,
 } from "../../state/reducers/characterSlice";
+import { GEODE_ITEM_ID } from "../../constants/gems";
 import "./InventoryItem.css";
 
 interface InventoryItemProps {
@@ -20,6 +22,7 @@ const InventoryItem: React.FC<InventoryItemProps> = ({ item }) => {
 
   const canUse =
     item.effect && item.value != null && ["attack", "defense", "vitality", "qi"].includes(item.effect);
+  const isGeode = item.id === GEODE_ITEM_ID;
 
   function useItem() {
     if (!canUse) return;
@@ -28,6 +31,12 @@ const InventoryItem: React.FC<InventoryItemProps> = ({ item }) => {
     if (item.effect === "defense" && item.value != null) dispatch(addDefense(item.value));
     if (item.effect === "vitality" && item.value != null) dispatch(addHealth(item.value));
     if (item.effect === "qi" && item.value != null) dispatch(addQi(item.value));
+    setMenuOpen(false);
+  }
+
+  function useGeode(amount: number) {
+    if (!isGeode || amount <= 0) return;
+    dispatch(openGeodes(amount));
     setMenuOpen(false);
   }
 
@@ -60,7 +69,19 @@ const InventoryItem: React.FC<InventoryItemProps> = ({ item }) => {
             aria-hidden
           />
           <div className="inventoryItem__menu" onClick={(e) => e.stopPropagation()}>
-            {canUse && (
+            {isGeode && (
+              <>
+                <button type="button" className="inventoryItem__menu-btn" onClick={() => useGeode(1)}>
+                  Use 1
+                </button>
+                {(item.quantity ?? 1) > 1 && (
+                  <button type="button" className="inventoryItem__menu-btn" onClick={() => useGeode(item.quantity ?? 1)}>
+                    Use all
+                  </button>
+                )}
+              </>
+            )}
+            {canUse && !isGeode && (
               <button type="button" className="inventoryItem__menu-btn" onClick={useItem}>
                 Use
               </button>

@@ -5,8 +5,11 @@ import "./GatheringContainer.css";
 import { RootState } from "../../state/store";
 import GatheringArea from "../../components/GatheringArea/GatheringArea";
 import { gatheringAreaData, gatheringLootTypes } from "../../constants/data";
+import { getRingAmuletItemById } from "../../constants/ringsAmulets";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
+import { getOwnedRingAmuletIds } from "../../state/selectors/characterSelectors";
+import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
 
 const TICK_MS = 80;
 
@@ -20,6 +23,7 @@ const GatheringContainer = () => {
     currentActivity !== "none" && currentActivity !== "gather";
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
   const levelInfo = getGatheringLevelInfo(character.gatheringXP);
+  const ownedRingAmuletIds = useSelector(getOwnedRingAmuletIds);
   const isGathering = currentActivity === "gather" && currentGatheringArea != null;
 
   const progress =
@@ -40,10 +44,12 @@ const GatheringContainer = () => {
     areaId: number,
     gatheringXP: number,
     gatheringDelay: number,
-    gatheringLootIds: number[]
+    gatheringLootIds: number[],
+    rareDropChancePercent?: number,
+    rareDropItemIds?: number[]
   ) => {
     dispatch(
-      setCurrentGatheringArea({ areaId, gatheringXP, gatheringDelay, gatheringLootIds })
+      setCurrentGatheringArea({ areaId, gatheringXP, gatheringDelay, gatheringLootIds, rareDropChancePercent, rareDropItemIds })
     );
     dispatch(setCurrentActivity("gather"));
   };
@@ -110,6 +116,22 @@ const GatheringContainer = () => {
             possibleLoot={area.gatheringLootIds
               .map((id) => gatheringLootTypes.find((l) => l.id === id))
               .filter((l): l is NonNullable<typeof l> => l != null)}
+            lootEntries={(() => {
+              const n = area.gatheringLootIds.length;
+              const lootChancePercent = n > 0 ? Math.round(100 / n) : 0;
+              const entries: LootTableEntry[] = area.gatheringLootIds
+                .map((id) => gatheringLootTypes.find((l) => l.id === id))
+                .filter((l): l is NonNullable<typeof l> => l != null)
+                .map((item) => ({ item, chancePercent: lootChancePercent }));
+              if (area.rareDropChancePercent != null && area.rareDropItemIds?.length) {
+                for (const id of area.rareDropItemIds) {
+                  const rare = getRingAmuletItemById(id);
+                  if (rare) entries.push({ item: rare, chancePercent: area.rareDropChancePercent });
+                }
+              }
+              return entries.length > 0 ? entries : undefined;
+            })()}
+            ownedRingAmuletIds={ownedRingAmuletIds}
             unlocked={unlocked}
             onClick={() => {
               if (busyWithOther || !unlocked) return;
@@ -119,7 +141,9 @@ const GatheringContainer = () => {
                 area.id,
                 area.gatheringXP,
                 area.gatheringDelay,
-                area.gatheringLootIds
+                area.gatheringLootIds,
+                area.rareDropChancePercent,
+                area.rareDropItemIds
               );
             }}
           />

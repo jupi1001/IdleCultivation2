@@ -2,24 +2,28 @@ import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 
-/** Sum equipment bonuses for combat stats. Sword → attack; helmet & body → defense and vitality; combatTechnique → multiplicative attack and flat attack speed. */
+/** Sum equipment bonuses for combat stats. Sword & ring → attack; helmet, body & amulet → defense and vitality; combatTechnique & ring → attack speed; amulet → qiGainBonus. */
 function getEquipmentCombatBonuses(equipment: RootState["character"]["equipment"]) {
   let attack = 0;
   let defense = 0;
   let vitality = 0;
-  const slots: EquipmentSlot[] = ["sword", "helmet", "body"];
+  let qiGainBonus = 0;
+  let attackSpeedReduction = 0;
+  const slots: EquipmentSlot[] = ["sword", "helmet", "body", "ring", "amulet"];
   for (const slot of slots) {
     const item = equipment[slot];
     if (item) {
       if (item.attackBonus != null) attack += item.attackBonus;
       if (item.defenseBonus != null) defense += item.defenseBonus;
       if (item.vitalityBonus != null) vitality += item.vitalityBonus;
+      if (item.qiGainBonus != null) qiGainBonus += item.qiGainBonus;
     }
   }
   const combatTech = equipment.combatTechnique;
   const attackMultiplier = combatTech?.attackMultiplier ?? 1;
-  const attackSpeedReduction = combatTech?.attackSpeedReduction ?? 0;
-  return { attack, defense, vitality, attackMultiplier, attackSpeedReduction };
+  if (combatTech?.attackSpeedReduction != null) attackSpeedReduction += combatTech.attackSpeedReduction;
+  if (equipment.ring?.attackSpeedReduction != null) attackSpeedReduction += equipment.ring.attackSpeedReduction;
+  return { attack, defense, vitality, attackMultiplier, attackSpeedReduction, qiGainBonus };
 }
 
 /** Item ids the character owns that are techniques (qi or combat). Used to show "Already bought/owned" and to avoid duplicate technique drops. */
@@ -32,6 +36,20 @@ export const getOwnedTechniqueIds = createSelector(
     }
     if (equipment.qiTechnique?.id != null) ids.add(equipment.qiTechnique.id);
     if (equipment.combatTechnique?.id != null) ids.add(equipment.combatTechnique.id);
+    return ids;
+  }
+);
+
+/** Item ids the character owns that are rings or amulets. Used for "Possible loot" checkmark in fishing/gathering. */
+export const getOwnedRingAmuletIds = createSelector(
+  [(state: RootState) => state.character.items, (state: RootState) => state.character.equipment],
+  (items, equipment) => {
+    const ids = new Set<number>();
+    for (const item of items) {
+      if (item.equipmentSlot === "ring" || item.equipmentSlot === "amulet") ids.add(item.id);
+    }
+    if (equipment.ring?.id != null) ids.add(equipment.ring.id);
+    if (equipment.amulet?.id != null) ids.add(equipment.amulet.id);
     return ids;
   }
 );
@@ -55,6 +73,7 @@ export const getEffectiveCombatStats = createSelector(
       defense: defense + bonusDefense + equipmentBonuses.defense,
       health: health + bonusHealth + equipmentBonuses.vitality,
       attackSpeedReduction: equipmentBonuses.attackSpeedReduction,
+      qiGainBonus: equipmentBonuses.qiGainBonus,
     };
   }
 );

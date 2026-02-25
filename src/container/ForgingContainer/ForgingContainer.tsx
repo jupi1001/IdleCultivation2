@@ -14,6 +14,8 @@ import {
   type RefineRecipeI,
   type CraftRecipeI,
 } from "../../constants/forging";
+import { RING_AMULET_RECIPES, type RingAmuletRecipeI } from "../../constants/ringsAmulets";
+import { GEM_ITEMS } from "../../constants/gems";
 import { oreTypes } from "../../constants/data";
 import "./ForgingContainer.css";
 
@@ -36,6 +38,18 @@ function canRefine(items: { id: number; quantity?: number }[], recipe: RefineRec
 function canCraft(items: { id: number; quantity?: number }[], recipe: CraftRecipeI): boolean {
   for (const { itemId, amount } of recipe.bars) {
     if (countItem(items, itemId) < amount) return false;
+  }
+  return true;
+}
+
+function canCraftRingAmulet(items: { id: number; quantity?: number }[], recipe: RingAmuletRecipeI): boolean {
+  for (const { itemId, amount } of recipe.bars) {
+    if (countItem(items, itemId) < amount) return false;
+  }
+  if (recipe.gems) {
+    for (const { itemId, amount } of recipe.gems) {
+      if (countItem(items, itemId) < amount) return false;
+    }
   }
   return true;
 }
@@ -69,6 +83,8 @@ export const ForgingContainer = () => {
       ...oreTypes.map((i) => ({ id: i.id, name: i.name })),
       ...FORGE_BAR_ITEMS.map((i) => ({ id: i.id, name: i.name })),
       ...CRAFT_RECIPES.map((r) => ({ id: r.output.id, name: r.output.name })),
+      ...GEM_ITEMS.map((i) => ({ id: i.id, name: i.name })),
+      ...RING_AMULET_RECIPES.map((r) => ({ id: r.output.id, name: r.output.name })),
     ],
     []
   );
@@ -90,6 +106,21 @@ export const ForgingContainer = () => {
     (recipe: CraftRecipeI) => {
       if (!canCraft(items, recipe)) return;
       const toConsume = recipe.bars.map(({ itemId, amount }) => ({ itemId, amount }));
+      dispatch(consumeItems(toConsume));
+      dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
+      const tierIndex = getForgingTierIndex(recipe.tier);
+      dispatch(addForgingXP(getForgingXPCraft(tierIndex)));
+    },
+    [dispatch, items]
+  );
+
+  const doCraftRingAmulet = useCallback(
+    (recipe: RingAmuletRecipeI) => {
+      if (!canCraftRingAmulet(items, recipe)) return;
+      const toConsume = [
+        ...recipe.bars.map(({ itemId, amount }) => ({ itemId, amount })),
+        ...(recipe.gems ?? []).map(({ itemId, amount }) => ({ itemId, amount })),
+      ];
       dispatch(consumeItems(toConsume));
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
       const tierIndex = getForgingTierIndex(recipe.tier);
@@ -197,6 +228,48 @@ export const ForgingContainer = () => {
             )}
           </div>
         ))}
+      </div>
+
+      <h3 className="forging__sectionTitle">Rings & amulets</h3>
+      <p className="forging__hint">Bars + gems. Equip in character panel. Rare rings/amulets can also drop from fishing and gathering.</p>
+      <div className="forging__recipes">
+        {RING_AMULET_RECIPES.map((recipe) => {
+          const canDo = canCraftRingAmulet(items, recipe);
+          return (
+            <div key={recipe.id} className="forging__recipe">
+              <h4 className="forging__recipeName">{recipe.name}</h4>
+              <p className="forging__recipeDesc">{recipe.description}</p>
+              <div className="forging__mats">
+                {recipe.bars.map(({ itemId, amount }) => (
+                  <span key={`b-${itemId}`}>
+                    {getItemName(itemId, allItemNames)} × {amount}
+                    {countItem(items, itemId) < amount && (
+                      <span className="forging__short"> (have {countItem(items, itemId)})</span>
+                    )}
+                  </span>
+                ))}
+                {recipe.gems?.map(({ itemId, amount }) => (
+                  <span key={`g-${itemId}`}>
+                    {getItemName(itemId, allItemNames)} × {amount}
+                    {countItem(items, itemId) < amount && (
+                      <span className="forging__short"> (have {countItem(items, itemId)})</span>
+                    )}
+                  </span>
+                ))}
+              </div>
+              <p className="forging__output">→ {recipe.output.name}</p>
+              <button
+                type="button"
+                className="forging__btn"
+                disabled={!canDo}
+                onClick={() => doCraftRingAmulet(recipe)}
+                title={!canDo ? "Get bars and gems first" : undefined}
+              >
+                Craft
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
