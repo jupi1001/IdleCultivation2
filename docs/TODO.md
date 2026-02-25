@@ -2,6 +2,10 @@
 
 - Add more combat loot
 - Add misc items like rings, amulets
+- **Rings & amulets – images to generate** (place under `public/assets/forging/`):
+  - **Rings** (`ring/*.webp`): Spirit Gathering Ring, Meridian Flow Ring, Earth Root Ring, Jade Pulse Ring, Thunder Spark Ring, Void Whisper Ring, Dragon Vein Ring, Celestial Glow Ring, Moonlit Reflection Ring, Primordial Seal Ring.
+  - **Amulets** (`amulet/*.webp`): Clear Mind Amulet, Guardian Talisman, Blood Qi Pendant, Star Anchor Amulet, Demon Ward Amulet, Heaven's Breath Amulet, Eight Meridian Amulet, Spirit Herb Charm, Void Refuge Amulet, Transcendent Dao Amulet.
+  - **Exact filenames**: `ring/spirit-gathering-ring.webp`, `ring/meridian-flow-ring.webp`, `ring/earth-root-ring.webp`, `ring/jade-pulse-ring.webp`, `ring/thunder-spark-ring.webp`, `ring/void-whisper-ring.webp`, `ring/dragon-vein-ring.webp`, `ring/celestial-glow-ring.webp`, `ring/moonlit-reflection-ring.webp`, `ring/primordial-seal-ring.webp`, `amulet/clear-mind-amulet.webp`, `amulet/guardian-talisman.webp`, `amulet/blood-qi-pendant.webp`, `amulet/star-anchor-amulet.webp`, `amulet/demon-ward-amulet.webp`, `amulet/heavens-breath-amulet.webp`, `amulet/eight-meridian-amulet.webp`, `amulet/spirit-herb-charm.webp`, `amulet/void-refuge-amulet.webp`, `amulet/transcendent-dao-amulet.webp`.
 - Add images for combat techniques and qi techniques
 - Add shoes and legs (maybe only for skilling sets)
 - All skill expansion with content to level 99

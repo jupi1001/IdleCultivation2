@@ -46,7 +46,7 @@ export function useActivityTicks() {
 
   // Meditation: +Qi per second while currentActivity === "meditate"
   const qiPerSecond =
-    Math.round((BASE_QI_PER_SECOND + (equipment.qiTechnique?.qiGainBonus ?? 0)) * 10) / 10;
+    Math.round((BASE_QI_PER_SECOND + (equipment.qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0)) * 10) / 10;
   useEffect(() => {
     if (currentActivity !== "meditate") return;
     const id = setInterval(() => dispatch(addQi(qiPerSecond)), 1000);
@@ -71,6 +71,8 @@ export function useActivityTicks() {
         completeFishingCast({
           fishingXP: currentFishingArea.fishingXP,
           fishingLootIds: currentFishingArea.fishingLootIds,
+          rareDropChancePercent: currentFishingArea.rareDropChancePercent,
+          rareDropItemIds: currentFishingArea.rareDropItemIds,
         })
       );
     }, currentFishingArea.fishingDelay);
@@ -143,6 +145,8 @@ export function useActivityTicks() {
         completeGatheringCast({
           gatheringXP: currentGatheringArea.gatheringXP,
           gatheringLootIds: currentGatheringArea.gatheringLootIds,
+          rareDropChancePercent: currentGatheringArea.rareDropChancePercent,
+          rareDropItemIds: currentGatheringArea.rareDropItemIds,
         })
       );
     }, currentGatheringArea.gatheringDelay);

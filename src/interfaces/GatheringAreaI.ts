@@ -8,6 +8,9 @@ interface GatheringAreaI {
   gatheringLootIds: number[];
   picture: string;
   altText: string;
+  /** Optional rare drop chance (0–100) and item ids (e.g. ring/amulet). */
+  rareDropChancePercent?: number;
+  rareDropItemIds?: number[];
 }
 
 export default GatheringAreaI;

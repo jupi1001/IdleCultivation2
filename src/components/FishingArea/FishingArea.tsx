@@ -1,6 +1,6 @@
 import React from "react";
 import Item from "../../interfaces/ItemI";
-import LootTablePopover from "../LootTablePopover/LootTablePopover";
+import LootTablePopover, { type LootTableEntry } from "../LootTablePopover/LootTablePopover";
 import "./FishingArea.css";
 
 interface FishingAreaProps {
@@ -13,6 +13,10 @@ interface FishingAreaProps {
   requiredLevel: number;
   /** Possible fish from this area (from data; dynamic). */
   possibleLoot: Item[];
+  /** Optional: entries with chance % and rare drops. When set, used for LootTablePopover instead of possibleLoot. */
+  lootEntries?: LootTableEntry[];
+  /** Optional: ring/amulet ids already owned (show checkmark in popover). */
+  ownedRingAmuletIds?: Set<number>;
   unlocked: boolean;
   onClick: () => void;
 }
@@ -31,6 +35,8 @@ const FishingArea: React.FC<FishingAreaProps> = ({
   fishingDelay,
   requiredLevel,
   possibleLoot,
+  lootEntries,
+  ownedRingAmuletIds,
   unlocked,
   onClick,
 }) => {
@@ -56,7 +62,12 @@ const FishingArea: React.FC<FishingAreaProps> = ({
             Requires Fishing Level {requiredLevel} to unlock
           </p>
         )}
-        <LootTablePopover items={possibleLoot} label="Possible finds" />
+        <LootTablePopover
+          entries={lootEntries}
+          items={lootEntries == null ? possibleLoot : undefined}
+          ownedItemIds={ownedRingAmuletIds}
+          label="Possible finds"
+        />
       </div>
     </div>
   );

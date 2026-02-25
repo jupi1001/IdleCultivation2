@@ -5,8 +5,11 @@ import "./FishingContainer.css";
 import { RootState } from "../../state/store";
 import FishingArea from "../../components/FishingArea/FishingArea";
 import { fishTypes, fishingAreaData } from "../../constants/data";
+import { getRingAmuletItemById } from "../../constants/ringsAmulets";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
+import { getOwnedRingAmuletIds } from "../../state/selectors/characterSelectors";
+import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
 
 const TICK_MS = 80;
 
@@ -20,6 +23,7 @@ const FishingContainer = () => {
     currentActivity !== "none" && currentActivity !== "fish";
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
   const levelInfo = getFishingLevelInfo(character.fishingXP);
+  const ownedRingAmuletIds = useSelector(getOwnedRingAmuletIds);
   const isFishing = currentActivity === "fish" && currentFishingArea != null;
 
   const progress =
@@ -36,9 +40,9 @@ const FishingContainer = () => {
     return () => clearInterval(id);
   }, [fishingCastStartTime]);
 
-  const startFishing = (areaId: number, fishingXP: number, fishingDelay: number, fishingLootIds: number[]) => {
+  const startFishing = (areaId: number, fishingXP: number, fishingDelay: number, fishingLootIds: number[], rareDropChancePercent?: number, rareDropItemIds?: number[]) => {
     dispatch(
-      setCurrentFishingArea({ areaId, fishingXP, fishingDelay, fishingLootIds })
+      setCurrentFishingArea({ areaId, fishingXP, fishingDelay, fishingLootIds, rareDropChancePercent, rareDropItemIds })
     );
     dispatch(setCurrentActivity("fish"));
   };
@@ -105,12 +109,28 @@ const FishingContainer = () => {
             possibleLoot={area.fishingLootIds
               .map((id) => fishTypes.find((f) => f.id === id))
               .filter((f): f is NonNullable<typeof f> => f != null)}
+            lootEntries={(() => {
+              const n = area.fishingLootIds.length;
+              const fishChancePercent = n > 0 ? Math.round(100 / n) : 0;
+              const fishEntries: LootTableEntry[] = area.fishingLootIds
+                .map((id) => fishTypes.find((f) => f.id === id))
+                .filter((f): f is NonNullable<typeof f> => f != null)
+                .map((item) => ({ item, chancePercent: fishChancePercent }));
+              if (area.rareDropChancePercent != null && area.rareDropItemIds?.length) {
+                for (const id of area.rareDropItemIds) {
+                  const rare = getRingAmuletItemById(id);
+                  if (rare) fishEntries.push({ item: rare, chancePercent: area.rareDropChancePercent });
+                }
+              }
+              return fishEntries.length > 0 ? fishEntries : undefined;
+            })()}
+            ownedRingAmuletIds={ownedRingAmuletIds}
             unlocked={unlocked}
             onClick={() => {
               if (busyWithOther || !unlocked) return;
               if (currentFishingArea?.areaId === area.id) return;
               stopFishing();
-              startFishing(area.id, area.fishingXP, area.fishingDelay, area.fishingLootIds);
+              startFishing(area.id, area.fishingXP, area.fishingDelay, area.fishingLootIds, area.rareDropChancePercent, area.rareDropItemIds);
             }}
           />
         );
