@@ -11,6 +11,7 @@ import Item from "../interfaces/ItemI";
 import SectI from "../interfaces/SectI";
 import SkillI from "../interfaces/SkillI";
 import { ALCHEMY_ASSETS } from "./alchemy";
+import { COMBAT_LOOT_QI_PILLS } from "./alchemy";
 import { TRAINING_ENEMIES } from "./training";
 
 /** Base path for technique images (qi and combat). Place under public/assets/techniques/ */
@@ -263,73 +264,88 @@ function enemyImageSlug(name: string): string {
     .replace(/[^a-z0-9-]/g, "");
 }
 
+/** Combat area -> pill tier (0 = Basic Qi Pill, 9 = Transcendent). Used for scaled combat loot. */
+const COMBAT_AREA_PILL_INDEX: Record<CombatArea, number> = {
+  [CombatArea.FARM]: 0,
+  [CombatArea.CAVE]: 1,
+  [CombatArea.CRYSTALCAVE]: 2,
+  [CombatArea.RIVER]: 3,
+  [CombatArea.RUINS]: 4,
+  [CombatArea.SWAMP]: 5,
+  [CombatArea.RIFT]: 6,
+  [CombatArea.PEAK]: 7,
+  [CombatArea.SEA]: 8,
+  [CombatArea.STORM]: 9,
+  [CombatArea.PALACE]: 9,
+};
+
 export const enemies: EnemyI[] = [
   // Village Outskirts (Mortal)
-  { id: 1, name: "Starving Wolf", attack: 1, defense: 1, health: 10, location: CombatArea.FARM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Starving Wolf")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 2, name: "Bandit Lookout", attack: 2, defense: 1, health: 12, location: CombatArea.FARM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bandit Lookout")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 3, name: "Wild Boar", attack: 2, defense: 1, health: 14, location: CombatArea.FARM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Wild Boar")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 4, name: "Snake in the Grass", attack: 1, defense: 1, health: 8, location: CombatArea.FARM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Snake in the Grass")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 5, name: "Hungry Crow", attack: 1, defense: 0, health: 6, location: CombatArea.FARM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Hungry Crow")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 1, name: "Starving Wolf", attack: 1, defense: 1, health: 10, location: CombatArea.FARM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Starving Wolf")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[0]], weight: [1] } },
+  { id: 2, name: "Bandit Lookout", attack: 2, defense: 1, health: 12, location: CombatArea.FARM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bandit Lookout")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[0]], weight: [1] } },
+  { id: 3, name: "Wild Boar", attack: 2, defense: 1, health: 14, location: CombatArea.FARM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Wild Boar")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[0]], weight: [1] } },
+  { id: 4, name: "Snake in the Grass", attack: 1, defense: 1, health: 8, location: CombatArea.FARM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Snake in the Grass")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[0]], weight: [1] } },
+  { id: 5, name: "Hungry Crow", attack: 1, defense: 0, health: 6, location: CombatArea.FARM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Hungry Crow")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[0]], weight: [1] } },
   // Spirit Beast Cave (Qi Condensation)
-  { id: 6, name: "Stonehide Bat", attack: 3, defense: 2, health: 18, location: CombatArea.CAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Stonehide Bat")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 7, name: "Ember-Eyed Weasel", attack: 4, defense: 2, health: 22, location: CombatArea.CAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Ember-Eyed Weasel")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 8, name: "Ripplefang Serpent", attack: 4, defense: 3, health: 25, location: CombatArea.CAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Ripplefang Serpent")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 9, name: "Cave Howler", attack: 5, defense: 3, health: 28, location: CombatArea.CAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Cave Howler")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 10, name: "Lesser Spirit Bear", attack: 5, defense: 4, health: 30, location: CombatArea.CAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Lesser Spirit Bear")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 6, name: "Stonehide Bat", attack: 3, defense: 2, health: 18, location: CombatArea.CAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Stonehide Bat")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[1]], weight: [1] } },
+  { id: 7, name: "Ember-Eyed Weasel", attack: 4, defense: 2, health: 22, location: CombatArea.CAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Ember-Eyed Weasel")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[1]], weight: [1] } },
+  { id: 8, name: "Ripplefang Serpent", attack: 4, defense: 3, health: 25, location: CombatArea.CAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Ripplefang Serpent")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[1]], weight: [1] } },
+  { id: 9, name: "Cave Howler", attack: 5, defense: 3, health: 28, location: CombatArea.CAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Cave Howler")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[1]], weight: [1] } },
+  { id: 10, name: "Lesser Spirit Bear", attack: 5, defense: 4, health: 30, location: CombatArea.CAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Lesser Spirit Bear")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[1]], weight: [1] } },
   // Crystal Mine (Foundation Establishment)
-  { id: 11, name: "Shardback Lizard", attack: 6, defense: 4, health: 35, location: CombatArea.CRYSTALCAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Shardback Lizard")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 12, name: "Crystal Leech", attack: 5, defense: 5, health: 32, location: CombatArea.CRYSTALCAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Crystal Leech")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 13, name: "Quartz Golem", attack: 8, defense: 6, health: 45, location: CombatArea.CRYSTALCAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Quartz Golem")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 14, name: "Shardfang Spider", attack: 7, defense: 5, health: 38, location: CombatArea.CRYSTALCAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Shardfang Spider")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 15, name: "Mine Wraith", attack: 7, defense: 4, health: 40, location: CombatArea.CRYSTALCAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Mine Wraith")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 11, name: "Shardback Lizard", attack: 6, defense: 4, health: 35, location: CombatArea.CRYSTALCAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Shardback Lizard")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[2]], weight: [1] } },
+  { id: 12, name: "Crystal Leech", attack: 5, defense: 5, health: 32, location: CombatArea.CRYSTALCAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Crystal Leech")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[2]], weight: [1] } },
+  { id: 13, name: "Quartz Golem", attack: 8, defense: 6, health: 45, location: CombatArea.CRYSTALCAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Quartz Golem")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[2]], weight: [1] } },
+  { id: 14, name: "Shardfang Spider", attack: 7, defense: 5, health: 38, location: CombatArea.CRYSTALCAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Shardfang Spider")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[2]], weight: [1] } },
+  { id: 15, name: "Mine Wraith", attack: 7, defense: 4, health: 40, location: CombatArea.CRYSTALCAVE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Mine Wraith")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[2]], weight: [1] } },
   // Blackwater River Gorge (Golden Core)
-  { id: 16, name: "Blackwater Crocodile", attack: 10, defense: 7, health: 55, location: CombatArea.RIVER, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Blackwater Crocodile")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 17, name: "Bloodfin Carp Demon", attack: 9, defense: 6, health: 50, location: CombatArea.RIVER, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bloodfin Carp Demon")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 18, name: "Torrent Serpent", attack: 11, defense: 8, health: 60, location: CombatArea.RIVER, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Torrent Serpent")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 19, name: "Mist-Reed Assassin", attack: 12, defense: 6, health: 52, location: CombatArea.RIVER, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Mist-Reed Assassin")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 20, name: "Gorge Cliff Ape", attack: 11, defense: 9, health: 65, location: CombatArea.RIVER, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Gorge Cliff Ape")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 16, name: "Blackwater Crocodile", attack: 10, defense: 7, health: 55, location: CombatArea.RIVER, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Blackwater Crocodile")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[3]], weight: [1] } },
+  { id: 17, name: "Bloodfin Carp Demon", attack: 9, defense: 6, health: 50, location: CombatArea.RIVER, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bloodfin Carp Demon")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[3]], weight: [1] } },
+  { id: 18, name: "Torrent Serpent", attack: 11, defense: 8, health: 60, location: CombatArea.RIVER, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Torrent Serpent")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[3]], weight: [1] } },
+  { id: 19, name: "Mist-Reed Assassin", attack: 12, defense: 6, health: 52, location: CombatArea.RIVER, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Mist-Reed Assassin")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[3]], weight: [1] } },
+  { id: 20, name: "Gorge Cliff Ape", attack: 11, defense: 9, health: 65, location: CombatArea.RIVER, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Gorge Cliff Ape")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[3]], weight: [1] } },
   // Ancient Sect Ruins (Nascent Soul)
-  { id: 21, name: "Sect Remnant Puppet", attack: 14, defense: 10, health: 70, location: CombatArea.RUINS, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sect Remnant Puppet")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 22, name: "Seal-Script Specter", attack: 13, defense: 9, health: 68, location: CombatArea.RUINS, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Seal-Script Specter")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 23, name: "Bronze Bell Revenant", attack: 15, defense: 11, health: 78, location: CombatArea.RUINS, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bronze Bell Revenant")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 24, name: "Dustbone Skeleton", attack: 14, defense: 10, health: 72, location: CombatArea.RUINS, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Dustbone Skeleton")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 25, name: "Hallway Mirage", attack: 12, defense: 8, health: 65, location: CombatArea.RUINS, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Hallway Mirage")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 21, name: "Sect Remnant Puppet", attack: 14, defense: 10, health: 70, location: CombatArea.RUINS, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sect Remnant Puppet")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[4]], weight: [1] } },
+  { id: 22, name: "Seal-Script Specter", attack: 13, defense: 9, health: 68, location: CombatArea.RUINS, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Seal-Script Specter")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[4]], weight: [1] } },
+  { id: 23, name: "Bronze Bell Revenant", attack: 15, defense: 11, health: 78, location: CombatArea.RUINS, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bronze Bell Revenant")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[4]], weight: [1] } },
+  { id: 24, name: "Dustbone Skeleton", attack: 14, defense: 10, health: 72, location: CombatArea.RUINS, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Dustbone Skeleton")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[4]], weight: [1] } },
+  { id: 25, name: "Hallway Mirage", attack: 12, defense: 8, health: 65, location: CombatArea.RUINS, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Hallway Mirage")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[4]], weight: [1] } },
   // Thousand Miasma Marsh (Soul Formation)
-  { id: 26, name: "Miasma Swamp Hag", attack: 18, defense: 13, health: 90, location: CombatArea.SWAMP, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Miasma Swamp Hag")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 27, name: "Mudscale Basilisk", attack: 19, defense: 14, health: 95, location: CombatArea.SWAMP, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Mudscale Basilisk")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 28, name: "Venom Lotus Sprite", attack: 17, defense: 12, health: 85, location: CombatArea.SWAMP, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Venom Lotus Sprite")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 29, name: "Rotbloom Treant", attack: 20, defense: 15, health: 105, location: CombatArea.SWAMP, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Rotbloom Treant")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 30, name: "Sporecloud Shambler", attack: 18, defense: 13, health: 92, location: CombatArea.SWAMP, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sporecloud Shambler")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 26, name: "Miasma Swamp Hag", attack: 18, defense: 13, health: 90, location: CombatArea.SWAMP, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Miasma Swamp Hag")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[5]], weight: [1] } },
+  { id: 27, name: "Mudscale Basilisk", attack: 19, defense: 14, health: 95, location: CombatArea.SWAMP, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Mudscale Basilisk")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[5]], weight: [1] } },
+  { id: 28, name: "Venom Lotus Sprite", attack: 17, defense: 12, health: 85, location: CombatArea.SWAMP, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Venom Lotus Sprite")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[5]], weight: [1] } },
+  { id: 29, name: "Rotbloom Treant", attack: 20, defense: 15, health: 105, location: CombatArea.SWAMP, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Rotbloom Treant")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[5]], weight: [1] } },
+  { id: 30, name: "Sporecloud Shambler", attack: 18, defense: 13, health: 92, location: CombatArea.SWAMP, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sporecloud Shambler")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[5]], weight: [1] } },
   // Void Rift Expanse (Void Refinement)
-  { id: 31, name: "Riftshade Stalker", attack: 24, defense: 18, health: 120, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Riftshade Stalker")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 32, name: "Void-Touched Scorpion", attack: 25, defense: 19, health: 125, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Void-Touched Scorpion")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 33, name: "Starless Horror", attack: 27, defense: 20, health: 135, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Starless Horror")}.webp`, loot: { items: [existingShopItems[0], QI_TECHNIQUES[13]], weight: [8, 1] } },
-  { id: 34, name: "Fraying Reality Wisp", attack: 23, defense: 17, health: 115, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Fraying Reality Wisp")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 35, name: "Astral Bonehound", attack: 26, defense: 19, health: 130, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Astral Bonehound")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 31, name: "Riftshade Stalker", attack: 24, defense: 18, health: 120, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Riftshade Stalker")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[6]], weight: [1] } },
+  { id: 32, name: "Void-Touched Scorpion", attack: 25, defense: 19, health: 125, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Void-Touched Scorpion")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[6]], weight: [1] } },
+  { id: 33, name: "Starless Horror", attack: 27, defense: 20, health: 135, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Starless Horror")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[6], QI_TECHNIQUES[13]], weight: [8, 1] } },
+  { id: 34, name: "Fraying Reality Wisp", attack: 23, defense: 17, health: 115, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Fraying Reality Wisp")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[6]], weight: [1] } },
+  { id: 35, name: "Astral Bonehound", attack: 26, defense: 19, health: 130, location: CombatArea.RIFT, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Astral Bonehound")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[6]], weight: [1] } },
   // Heavenpiercer Peak (Body Integration)
-  { id: 36, name: "Stonevein Mountain Bear", attack: 30, defense: 23, health: 150, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Stonevein Mountain Bear")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 37, name: "Sky-Cutting Eagle", attack: 32, defense: 21, health: 145, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sky-Cutting Eagle")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 38, name: "Frostwind Leopard", attack: 31, defense: 24, health: 155, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Frostwind Leopard")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 39, name: "Cloudstep Monkey", attack: 29, defense: 22, health: 142, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Cloudstep Monkey")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 40, name: "Sword-Sparring Hermit", attack: 34, defense: 26, health: 165, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sword-Sparring Hermit")}.webp`, loot: { items: [existingShopItems[0], COMBAT_TECHNIQUES[13]], weight: [8, 1] } },
+  { id: 36, name: "Stonevein Mountain Bear", attack: 30, defense: 23, health: 150, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Stonevein Mountain Bear")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[7]], weight: [1] } },
+  { id: 37, name: "Sky-Cutting Eagle", attack: 32, defense: 21, health: 145, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sky-Cutting Eagle")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[7]], weight: [1] } },
+  { id: 38, name: "Frostwind Leopard", attack: 31, defense: 24, health: 155, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Frostwind Leopard")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[7]], weight: [1] } },
+  { id: 39, name: "Cloudstep Monkey", attack: 29, defense: 22, health: 142, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Cloudstep Monkey")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[7]], weight: [1] } },
+  { id: 40, name: "Sword-Sparring Hermit", attack: 34, defense: 26, health: 165, location: CombatArea.PEAK, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Sword-Sparring Hermit")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[7], COMBAT_TECHNIQUES[13]], weight: [8, 1] } },
   // Endless Cloudsea Sanctuary (Mahayana)
-  { id: 41, name: "Cloudsea Serpent", attack: 38, defense: 29, health: 185, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Cloudsea Serpent")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 42, name: "Lotus Guard Crane", attack: 37, defense: 30, health: 190, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Lotus Guard Crane")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 43, name: "Rainbow Koi Monarch", attack: 39, defense: 28, health: 182, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Rainbow Koi Monarch")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 44, name: "Celestial Herb Keeper", attack: 36, defense: 27, health: 178, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Celestial Herb Keeper")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 45, name: "Cloud Palace Sentinel", attack: 40, defense: 32, health: 200, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Cloud Palace Sentinel")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
+  { id: 41, name: "Cloudsea Serpent", attack: 38, defense: 29, health: 185, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Cloudsea Serpent")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[8]], weight: [1] } },
+  { id: 42, name: "Lotus Guard Crane", attack: 37, defense: 30, health: 190, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Lotus Guard Crane")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[8]], weight: [1] } },
+  { id: 43, name: "Rainbow Koi Monarch", attack: 39, defense: 28, health: 182, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Rainbow Koi Monarch")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[8]], weight: [1] } },
+  { id: 44, name: "Celestial Herb Keeper", attack: 36, defense: 27, health: 178, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Celestial Herb Keeper")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[8]], weight: [1] } },
+  { id: 45, name: "Cloud Palace Sentinel", attack: 40, defense: 32, health: 200, location: CombatArea.SEA, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Cloud Palace Sentinel")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[8]], weight: [1] } },
   // Nine Heavens Thunder Plateau (Tribulation Transcendent)
-  { id: 46, name: "Thunderclap Roc", attack: 45, defense: 35, health: 225, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Thunderclap Roc")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 47, name: "Lightning Wraith", attack: 44, defense: 34, health: 218, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Lightning Wraith")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 48, name: "Stormforged Golem", attack: 47, defense: 37, health: 235, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Stormforged Golem")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 49, name: "Tribulation Echo", attack: 46, defense: 36, health: 230, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Tribulation Echo")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 50, name: "Crackling Sky Oni", attack: 48, defense: 38, health: 245, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Crackling Sky Oni")}.webp`, loot: { items: [existingShopItems[0], COMBAT_TECHNIQUES[14]], weight: [8, 1] } },
+  { id: 46, name: "Thunderclap Roc", attack: 45, defense: 35, health: 225, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Thunderclap Roc")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9]], weight: [1] } },
+  { id: 47, name: "Lightning Wraith", attack: 44, defense: 34, health: 218, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Lightning Wraith")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9]], weight: [1] } },
+  { id: 48, name: "Stormforged Golem", attack: 47, defense: 37, health: 235, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Stormforged Golem")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9]], weight: [1] } },
+  { id: 49, name: "Tribulation Echo", attack: 46, defense: 36, health: 230, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Tribulation Echo")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9]], weight: [1] } },
+  { id: 50, name: "Crackling Sky Oni", attack: 48, defense: 38, health: 245, location: CombatArea.STORM, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Crackling Sky Oni")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9], COMBAT_TECHNIQUES[14]], weight: [8, 1] } },
   // Jade Immortal Court (Immortal)
-  { id: 51, name: "Jade Court Envoy", attack: 54, defense: 42, health: 270, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Jade Court Envoy")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 52, name: "Immortal Attendant", attack: 53, defense: 43, health: 275, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Immortal Attendant")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 53, name: "Golden Seal Arbiter", attack: 56, defense: 45, health: 285, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Golden Seal Arbiter")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 54, name: "Azure Hall Guardian", attack: 55, defense: 44, health: 280, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Azure Hall Guardian")}.webp`, loot: { items: new Array(existingShopItems[0]), weight: [1] } },
-  { id: 55, name: "Celestial Punisher", attack: 58, defense: 47, health: 300, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Celestial Punisher")}.webp`, loot: { items: [existingShopItems[0], QI_TECHNIQUES[14]], weight: [8, 1] } },
+  { id: 51, name: "Jade Court Envoy", attack: 54, defense: 42, health: 270, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Jade Court Envoy")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9]], weight: [1] } },
+  { id: 52, name: "Immortal Attendant", attack: 53, defense: 43, health: 275, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Immortal Attendant")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9]], weight: [1] } },
+  { id: 53, name: "Golden Seal Arbiter", attack: 56, defense: 45, health: 285, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Golden Seal Arbiter")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9]], weight: [1] } },
+  { id: 54, name: "Azure Hall Guardian", attack: 55, defense: 44, health: 280, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Azure Hall Guardian")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9]], weight: [1] } },
+  { id: 55, name: "Celestial Punisher", attack: 58, defense: 47, health: 300, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Celestial Punisher")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9], QI_TECHNIQUES[14]], weight: [8, 1] } },
 ];
 
 /** Base path for fishing area images. Add images under public/assets/fishing/ */

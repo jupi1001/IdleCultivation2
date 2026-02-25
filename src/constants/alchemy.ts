@@ -365,3 +365,12 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     outputAmount: 1,
   },
 ];
+
+/** Qi pills used as combat loot, ordered by strength (tier 0 = Basic, tier 9 = Transcendent). Maps to combat area tier. */
+export const COMBAT_LOOT_QI_PILLS: Item[] = ALCHEMY_RECIPES.filter((r) => r.id.startsWith("qi-pill-"))
+  .sort((a, b) => {
+    const nA = parseInt(a.id.replace("qi-pill-", ""), 10);
+    const nB = parseInt(b.id.replace("qi-pill-", ""), 10);
+    return nA - nB;
+  })
+  .map((r) => r.output);
