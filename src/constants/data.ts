@@ -12,6 +12,7 @@ import SectI from "../interfaces/SectI";
 import SkillI from "../interfaces/SkillI";
 import { ALCHEMY_ASSETS } from "./alchemy";
 import { COMBAT_LOOT_QI_PILLS } from "./alchemy";
+import { CRAFT_RECIPES } from "./forging";
 import { RING_IDS, AMULET_IDS } from "./ringsAmulets";
 import { TRAINING_ENEMIES } from "./training";
 
@@ -161,30 +162,9 @@ export const sectsData: SectI[] = [
 ];
 
 export const existingShopItemUpgrades: Item[] = [
-  {
-    id: 1,
-    name: "Wooden Spirit Blade",
-    description: "A basic spirit weapon",
-    price: 500,
-    picture: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png",
-    quantity: 1,
-  },
-  {
-    id: 2,
-    name: "Iron Spirit Blade",
-    description: "An iron spirit weapon",
-    price: 1000,
-    picture: "https://www.pokewiki.de/images/thumb/7/72/Sugimori_386.png/250px-Sugimori_386.png",
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: "Gold Spirit Blade",
-    description: "A gold spirit weapon",
-    price: 10000,
-    picture: "https://www.pokewiki.de/images/thumb/7/72/Sugimori_386.png/250px-Sugimori_386.png",
-    quantity: 1,
-  },
+  { ...CRAFT_RECIPES[0].output, price: 500, quantity: 1 },
+  { ...CRAFT_RECIPES[3].output, price: 1000, quantity: 1 },
+  { ...CRAFT_RECIPES[18].output, price: 10000, quantity: 1 },
 ];
 
 /** Black market items (e.g. Shadow Bazaar on map) – forbidden or rare wares. */
@@ -222,26 +202,8 @@ export const existingBlackMarketItems: Item[] = [
 ];
 
 export const existingShopItems: Item[] = [
-  {
-    id: 200,
-    name: "Qi Pill",
-    description: "Pill containing a bit of qi",
-    price: 10,
-    quantity: 1,
-    picture: `${ALCHEMY_ASSETS}/potion1.webp`,
-    value: 1,
-    effect: "attack",
-  },
-  {
-    id: 201,
-    name: "Foundation Pill",
-    description: "Pill containing a bit of qi",
-    price: 100,
-    quantity: 1,
-    picture: `${ALCHEMY_ASSETS}/potion1.webp`,
-    value: 10,
-    effect: "attack",
-  },
+  { ...COMBAT_LOOT_QI_PILLS[0], price: 10, quantity: 1 },
+  { ...COMBAT_LOOT_QI_PILLS[4], price: 100, quantity: 1 },
 ];
 
 export const existingSkills: SkillI[] = [
