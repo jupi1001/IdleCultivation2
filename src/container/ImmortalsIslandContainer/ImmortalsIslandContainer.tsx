@@ -7,6 +7,7 @@ import {
   startExpedition,
   clearExpedition,
 } from "../../state/reducers/characterSlice";
+import { addToast } from "../../state/reducers/toastSlice";
 import { canEnterArea, formatRealmRequirement } from "../../constants/areaRealmRequirements";
 import {
   EXPEDITION_MISSIONS,
@@ -37,11 +38,6 @@ function formatDuration(seconds: number): string {
   return s > 0 ? `${m}m ${s}s` : `${m}m`;
 }
 
-interface RewardToastState {
-  spiritStones: number;
-  rareItem: { name: string } | null;
-}
-
 export const ImmortalsIslandContainer = () => {
   const dispatch = useDispatch();
   const character = useSelector((state: RootState) => state.character);
@@ -52,7 +48,6 @@ export const ImmortalsIslandContainer = () => {
     expeditionMissionId,
     currentActivity,
   } = character;
-  const [rewardToast, setRewardToast] = useState<RewardToastState | null>(null);
   const [tick, setTick] = useState(0);
   const completionCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const characterRef = useRef(character);
@@ -96,7 +91,7 @@ export const ImmortalsIslandContainer = () => {
           );
         dispatch(addMoney(spiritStones));
 
-        let rareItem: { name: string } | null = null;
+        let rareItemName: string | null = null;
         for (const drop of mission.rareDrops) {
           const alreadyHas = current.items.some((i) => i.id === drop.itemId);
           if (alreadyHas) continue;
@@ -104,14 +99,21 @@ export const ImmortalsIslandContainer = () => {
             const item = getExpeditionItem(drop.itemId);
             if (item) {
               dispatch(addItem({ ...item, quantity: 1 }));
-              rareItem = { name: item.name };
+              rareItemName = item.name;
               break;
             }
           }
         }
 
         dispatch(clearExpedition());
-        setRewardToast({ spiritStones, rareItem });
+        dispatch(
+          addToast({
+            type: "expedition",
+            expeditionName: mission.name,
+            spiritStones,
+            rareItemName,
+          })
+        );
       }
     }, 500);
     return () => {
@@ -194,25 +196,6 @@ export const ImmortalsIslandContainer = () => {
           </div>
         ))}
       </div>
-
-      {rewardToast && (
-        <div className="immortalsIsland__toast" role="dialog" aria-label="Expedition rewards">
-          <div className="immortalsIsland__toast-content">
-            <h3>Expedition complete!</h3>
-            <p>Spirit Stones: +{rewardToast.spiritStones}</p>
-            {rewardToast.rareItem && (
-              <p className="immortalsIsland__toast-rare">Rare: {rewardToast.rareItem.name}</p>
-            )}
-            <button
-              type="button"
-              className="immortalsIsland__toast-dismiss"
-              onClick={() => setRewardToast(null)}
-            >
-              Okay
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

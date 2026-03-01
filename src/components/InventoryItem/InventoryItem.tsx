@@ -8,8 +8,12 @@ import {
   addQi,
   removeItem,
   openGeodes,
+  equipItem,
+  addMoney,
+  consumeItems,
 } from "../../state/reducers/characterSlice";
 import { GEODE_ITEM_ID } from "../../constants/gems";
+import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import "./InventoryItem.css";
 
 interface InventoryItemProps {
@@ -23,6 +27,40 @@ const InventoryItem: React.FC<InventoryItemProps> = ({ item }) => {
   const canUse =
     item.effect && item.value != null && ["attack", "defense", "vitality", "qi"].includes(item.effect);
   const isGeode = item.id === GEODE_ITEM_ID;
+  const canEquip = !!item.equipmentSlot && ["sword", "helmet", "body", "shoes", "legs", "ring", "amulet", "qiTechnique", "combatTechnique"].includes(item.equipmentSlot);
+  const canSell = typeof item.price === "number" && item.price > 0;
+  const qty = item.quantity ?? 1;
+
+  function handleEquip() {
+    if (!canEquip) return;
+    dispatch(equipItem({ slot: item.equipmentSlot as EquipmentSlot, item }));
+    setMenuOpen(false);
+  }
+
+  function handleSellOne() {
+    if (!canSell) return;
+    dispatch(removeItem(item));
+    dispatch(addMoney(item.price!));
+    setMenuOpen(false);
+  }
+
+  function handleSellAll() {
+    if (!canSell || qty <= 0) return;
+    dispatch(consumeItems([{ itemId: item.id, amount: qty }]));
+    dispatch(addMoney(item.price! * qty));
+    setMenuOpen(false);
+  }
+
+  function handleDiscardOne() {
+    dispatch(removeItem(item));
+    setMenuOpen(false);
+  }
+
+  function handleDiscardAll() {
+    if (qty <= 0) return;
+    dispatch(consumeItems([{ itemId: item.id, amount: qty }]));
+    setMenuOpen(false);
+  }
 
   function useItem() {
     if (!canUse) return;
@@ -84,6 +122,31 @@ const InventoryItem: React.FC<InventoryItemProps> = ({ item }) => {
             {canUse && !isGeode && (
               <button type="button" className="inventoryItem__menu-btn" onClick={useItem}>
                 Use
+              </button>
+            )}
+            {canEquip && (
+              <button type="button" className="inventoryItem__menu-btn" onClick={handleEquip}>
+                Equip
+              </button>
+            )}
+            {canSell && (
+              <>
+                <button type="button" className="inventoryItem__menu-btn" onClick={handleSellOne}>
+                  Sell 1 ({item.price} spirit stones)
+                </button>
+                {qty > 1 && (
+                  <button type="button" className="inventoryItem__menu-btn" onClick={handleSellAll}>
+                    Sell all ({item.price! * qty} spirit stones)
+                  </button>
+                )}
+              </>
+            )}
+            <button type="button" className="inventoryItem__menu-btn" onClick={handleDiscardOne}>
+              Discard 1
+            </button>
+            {qty > 1 && (
+              <button type="button" className="inventoryItem__menu-btn" onClick={handleDiscardAll}>
+                Discard all
               </button>
             )}
             <button

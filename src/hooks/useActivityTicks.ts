@@ -16,6 +16,8 @@ import {
   setGatheringCast,
   setMiningCast,
 } from "../state/reducers/characterSlice";
+import { addToast } from "../state/reducers/toastSlice";
+import { getRingAmuletItemById } from "../constants/ringsAmulets";
 import { RootState } from "../state/store";
 import { BASE_QI_PER_SECOND } from "../constants/meditation";
 
@@ -67,14 +69,33 @@ export function useActivityTicks() {
       setFishingCast({ startTime, duration: currentFishingArea.fishingDelay })
     );
     const id = setTimeout(() => {
+      const rareDropItem = (() => {
+        if (
+          currentFishingArea.rareDropChancePercent != null &&
+          currentFishingArea.rareDropItemIds != null &&
+          currentFishingArea.rareDropItemIds.length > 0 &&
+          Math.random() * 100 < currentFishingArea.rareDropChancePercent
+        ) {
+          const rareId =
+            currentFishingArea.rareDropItemIds[
+              Math.floor(Math.random() * currentFishingArea.rareDropItemIds.length)
+            ];
+          return getRingAmuletItemById(rareId) ?? null;
+        }
+        return null;
+      })();
       dispatch(
         completeFishingCast({
           fishingXP: currentFishingArea.fishingXP,
           fishingLootIds: currentFishingArea.fishingLootIds,
           rareDropChancePercent: currentFishingArea.rareDropChancePercent,
           rareDropItemIds: currentFishingArea.rareDropItemIds,
+          rareDropItem: rareDropItem ?? undefined,
         })
       );
+      if (rareDropItem) {
+        dispatch(addToast({ type: "rareDrop", itemName: rareDropItem.name }));
+      }
     }, currentFishingArea.fishingDelay);
     skipFishingTimeoutClearRef.current = true;
     return () => {
@@ -105,12 +126,17 @@ export function useActivityTicks() {
       setMiningCast({ startTime, duration: currentMiningArea.miningDelay })
     );
     const id = setTimeout(() => {
+      const geodeDropped = Math.random() * 100 < 3;
       dispatch(
         completeMiningCast({
           miningXP: currentMiningArea.miningXP,
           miningLootId: currentMiningArea.miningLootId,
+          geodeDropped,
         })
       );
+      if (geodeDropped) {
+        dispatch(addToast({ type: "rareDrop", itemName: "Geode" }));
+      }
     }, currentMiningArea.miningDelay);
     skipMiningTimeoutClearRef.current = true;
     return () => {
@@ -141,14 +167,33 @@ export function useActivityTicks() {
       setGatheringCast({ startTime, duration: currentGatheringArea.gatheringDelay })
     );
     const id = setTimeout(() => {
+      const rareDropItem = (() => {
+        if (
+          currentGatheringArea.rareDropChancePercent != null &&
+          currentGatheringArea.rareDropItemIds != null &&
+          currentGatheringArea.rareDropItemIds.length > 0 &&
+          Math.random() * 100 < currentGatheringArea.rareDropChancePercent
+        ) {
+          const rareId =
+            currentGatheringArea.rareDropItemIds[
+              Math.floor(Math.random() * currentGatheringArea.rareDropItemIds.length)
+            ];
+          return getRingAmuletItemById(rareId) ?? null;
+        }
+        return null;
+      })();
       dispatch(
         completeGatheringCast({
           gatheringXP: currentGatheringArea.gatheringXP,
           gatheringLootIds: currentGatheringArea.gatheringLootIds,
           rareDropChancePercent: currentGatheringArea.rareDropChancePercent,
           rareDropItemIds: currentGatheringArea.rareDropItemIds,
+          rareDropItem: rareDropItem ?? undefined,
         })
       );
+      if (rareDropItem) {
+        dispatch(addToast({ type: "rareDrop", itemName: rareDropItem.name }));
+      }
     }, currentGatheringArea.gatheringDelay);
     skipGatheringTimeoutClearRef.current = true;
     return () => {

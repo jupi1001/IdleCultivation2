@@ -13,7 +13,7 @@ export const MeditationContainer = () => {
   const character = useSelector((state: RootState) => state.character);
   const { realm, realmLevel, qi, currentActivity, equipment } = character;
   const qiTechnique = equipment.qiTechnique;
-  const qiPerSecond = Math.round((BASE_QI_PER_SECOND + (qiTechnique?.qiGainBonus ?? 0)) * 10) / 10;
+  const qiPerSecond = Math.round((BASE_QI_PER_SECOND + (qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0)) * 10) / 10;
   const requiredQi = getBreakthroughQiRequired(realm, realmLevel);
   const nextRealm = getNextRealm(realm, realmLevel);
   const canBreakthrough = nextRealm !== null && qi >= requiredQi;
