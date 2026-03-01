@@ -17,12 +17,8 @@ import {
 import { RING_AMULET_RECIPES, type RingAmuletRecipeI } from "../../constants/ringsAmulets";
 import { GEM_ITEMS } from "../../constants/gems";
 import { oreTypes } from "../../constants/data";
+import { countItem } from "../../utils/inventory";
 import "./ForgingContainer.css";
-
-function countItem(items: { id: number; quantity?: number }[], itemId: number): number {
-  const entry = items.find((i) => i.id === itemId);
-  return entry ? (entry.quantity ?? 1) : 0;
-}
 
 function getItemName(
   itemId: number,

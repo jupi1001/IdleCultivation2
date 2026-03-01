@@ -11,15 +11,11 @@ import {
   type AlchemyRecipeI,
 } from "../../constants/alchemy";
 import { gatheringLootTypes } from "../../constants/data";
+import { countItem } from "../../utils/inventory";
 import "./AlchemyContainer.css";
 
 function getItemName(itemId: number): string {
   return gatheringLootTypes.find((i) => i.id === itemId)?.name ?? `Item ${itemId}`;
-}
-
-function countItem(items: { id: number; quantity?: number }[], itemId: number): number {
-  const entry = items.find((i) => i.id === itemId);
-  return entry ? (entry.quantity ?? 1) : 0;
 }
 
 function canCraft(items: { id: number; quantity?: number }[], recipe: AlchemyRecipeI): boolean {

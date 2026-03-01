@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import SkillI from "../../interfaces/SkillI";
 import "./SkillBlockItem.css";
-import { changeContent } from "../../state/reducers/contentSlice";
+import { changeContent, type PageValue } from "../../state/reducers/contentSlice";
+import { ContentArea } from "../../enum/ContentArea";
 import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
 import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
@@ -52,10 +53,10 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
   const openSkill = (input: string) => {
     if (isBlocked) return;
     if (input === "Martial Training") {
-      dispatch(changeContent("Training"));
+      dispatch(changeContent(ContentArea.TRAINING));
       return;
     }
-    dispatch(changeContent(input));
+    dispatch(changeContent(input as PageValue));
   };
 
   return (

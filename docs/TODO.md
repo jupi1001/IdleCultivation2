@@ -49,11 +49,6 @@ Skill icons:
     `gathering/perfected-helmet.webp`, `gathering/perfected-body.webp`, `gathering/perfected-legs.webp`, `gathering/perfected-shoes.webp`.
 
 
-## Minor Version
-
-Create a plan
-Cleanup. You are a senior react engineer. YOur job is to simplify and use best practices in this project. Reduce dependencies, use DRY princliple. Make the project easily scalable for future additions for items, items that give bonuses to skills and unique items dropped by enemies. Anaylze the current appraoch. Make sure the entire game logic flow is solid. Deeply inspect the skill action to make sure it is always transactional. So no double actions can be counted and always just one action is running at the same time. Try to optimize the components, dependencies and structure based on best react principles so it is easily maintainable. Add interfaces or other things to help. If there is similar logic like one time obtainable items used in different context make sure to centralize it and find a abtract, easily usable at different places, solution.
-
 ## Next Version
 - Skill sets for alchemy, forging, cooking
 - Add more combat loot

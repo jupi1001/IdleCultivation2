@@ -1,14 +1,19 @@
+/**
+ * Character state and reducers. One activity at a time (currentActivity); when switching
+ * activity, cast state for other skills is cleared. Cast completion is idempotent by castId:
+ * complete*Cast ignores the payload if payload.castId !== state.*CastId.
+ */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { CultivationPath } from "../../constants/cultivationPath";
 import { fishTypes, gatheringLootTypes, oreTypes, SECT_POSITIONS } from "../../constants/data";
 import { GEODE_ITEM_ID, GEODE_ITEM, rollGemFromGeode } from "../../constants/gems";
-import { getRingAmuletItemById } from "../../constants/ringsAmulets";
 import { getBreakthroughQiRequired, getNextRealm, getStepIndex, getCombatStatsFromRealm, type RealmId } from "../../constants/realmProgression";
 import { TALENT_NODES_BY_ID } from "../../constants/talents";
 import type { AvatarI } from "../../interfaces/AvatarI";
 import Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
+import type { ActivityType } from "../../constants/activities";
 import {
   AVATAR_CREATE_ORE_AMOUNT,
   AVATAR_CREATE_ORE_ID,
@@ -19,32 +24,42 @@ import {
   AVATAR_TRAIN_SPIRIT_STONES,
 } from "../../constants/avatars";
 
-export type CurrentFishingArea = {
+/** Common optional rare-drop fields shared by skill areas that support rare drops. */
+export interface RareDropFields {
+  rareDropChancePercent?: number;
+  rareDropItemIds?: number[];
+}
+
+export interface CurrentFishingArea extends RareDropFields {
   areaId: number;
   fishingXP: number;
   fishingDelay: number;
   fishingLootIds: number[];
-  /** Optional rare drop: chance 0–100, item ids (e.g. ring/amulet). */
-  rareDropChancePercent?: number;
-  rareDropItemIds?: number[];
-};
+}
 
-export type CurrentMiningArea = {
+export interface CurrentMiningArea {
   areaId: number;
   miningXP: number;
   miningDelay: number;
   miningLootId: number;
-};
+}
 
-export type CurrentGatheringArea = {
+export interface CurrentGatheringArea extends RareDropFields {
   areaId: number;
   gatheringXP: number;
   gatheringDelay: number;
   gatheringLootIds: number[];
-  /** Optional rare drop: chance 0–100, item ids (e.g. ring/amulet). */
-  rareDropChancePercent?: number;
-  rareDropItemIds?: number[];
-};
+}
+
+/** Add or increment an item in an inventory array (Immer-compatible). */
+function upsertItem(items: Item[], item: Item, qty = 1) {
+  const existing = items.find((i) => i.id === item.id);
+  if (existing) {
+    existing.quantity = (existing.quantity ?? 1) + qty;
+  } else {
+    items.push({ ...item, quantity: qty });
+  }
+}
 
 interface CharacterState {
   name: string;
@@ -58,7 +73,7 @@ interface CharacterState {
   realm: RealmId;
   realmLevel: number;
   qi: number;
-  currentActivity: string;
+  currentActivity: ActivityType;
   equipment: Record<EquipmentSlot, Item | null>;
   /** Righteous vs Demonic; chosen once at game start. Affects sects and cultivation tree. */
   path: CultivationPath | null;
@@ -86,14 +101,20 @@ interface CharacterState {
   /** Current cast progress: start time (ms) and duration (ms); null when no cast in progress */
   fishingCastStartTime: number | null;
   fishingCastDuration: number;
+  /** Monotonic id for the current/last fishing cast; completion is ignored unless payload.castId matches (idempotent). */
+  fishingCastId: number;
   miningXP: number;
   currentMiningArea: CurrentMiningArea | null;
   miningCastStartTime: number | null;
   miningCastDuration: number;
+  /** Monotonic id for the current/last mining cast; completion is ignored unless payload.castId matches (idempotent). */
+  miningCastId: number;
   gatheringXP: number;
   currentGatheringArea: CurrentGatheringArea | null;
   gatheringCastStartTime: number | null;
   gatheringCastDuration: number;
+  /** Monotonic id for the current/last gathering cast; completion is ignored unless payload.castId matches (idempotent). */
+  gatheringCastId: number;
   /** XP for alchemy; backloaded curve, level from total XP; affects pill craft success chance */
   alchemyXP: number;
   /** XP for forging; backloaded curve, level from total XP */
@@ -145,14 +166,17 @@ const initialState: CharacterState = {
   currentFishingArea: null,
   fishingCastStartTime: null,
   fishingCastDuration: 0,
+  fishingCastId: 0,
   miningXP: 0,
   currentMiningArea: null,
   miningCastStartTime: null,
   miningCastDuration: 0,
+  miningCastId: 0,
   gatheringXP: 0,
   currentGatheringArea: null,
   gatheringCastStartTime: null,
   gatheringCastDuration: 0,
+  gatheringCastId: 0,
   alchemyXP: 0,
   forgingXP: 0,
   cookingXP: 0,
@@ -194,25 +218,10 @@ export const characterSlice = createSlice({
       state.miner = state.miner + action.payload;
     },
     addItem: (state, action: PayloadAction<Item>) => {
-      const item = action.payload;
-      const qty = item.quantity ?? 1;
-      const existing = state.items.find((i) => i.id === item.id);
-      if (existing) {
-        existing.quantity = (existing.quantity ?? 1) + qty;
-      } else {
-        state.items.push({ ...item, quantity: qty });
-      }
+      upsertItem(state.items, action.payload, action.payload.quantity ?? 1);
     },
     addItems: (state, action: PayloadAction<Item[]>) => {
-      action.payload.forEach((item) => {
-        const qty = item.quantity ?? 1;
-        const existing = state.items.find((i) => i.id === item.id);
-        if (existing) {
-          existing.quantity = (existing.quantity ?? 1) + qty;
-        } else {
-          state.items.push({ ...item, quantity: qty });
-        }
-      });
+      action.payload.forEach((item) => upsertItem(state.items, item, item.quantity ?? 1));
     },
     removeItem: (state, action: PayloadAction<Item>) => {
       const { id } = action.payload;
@@ -263,10 +272,7 @@ export const characterSlice = createSlice({
         else geodeEntry.quantity = qty;
       }
       for (let i = 0; i < toOpen; i++) {
-        const gem = rollGemFromGeode();
-        const existing = state.items.find((j) => j.id === gem.id);
-        if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
-        else state.items.push({ ...gem, quantity: 1 });
+        upsertItem(state.items, rollGemFromGeode());
       }
     },
     addFishingXP: (state, action: PayloadAction<number>) => {
@@ -308,7 +314,7 @@ export const characterSlice = createSlice({
       const { amount, maxHealth } = action.payload;
       state.currentHealth = Math.min(maxHealth, state.currentHealth + amount);
     },
-    setCurrentActivity: (state, action: PayloadAction<string>) => {
+    setCurrentActivity: (state, action: PayloadAction<ActivityType>) => {
       state.currentActivity = action.payload;
       if (action.payload !== "fish") {
         state.currentFishingArea = null;
@@ -335,45 +341,33 @@ export const characterSlice = createSlice({
     },
     setFishingCast: (
       state,
-      action: PayloadAction<{ startTime: number; duration: number }>
+      action: PayloadAction<{ startTime: number; duration: number; castId: number }>
     ) => {
       state.fishingCastStartTime = action.payload.startTime;
       state.fishingCastDuration = action.payload.duration;
+      state.fishingCastId = action.payload.castId;
     },
+    /** Completion is idempotent: ignored if payload.castId !== state.fishingCastId (e.g. duplicate/late timeout). */
     completeFishingCast: (
       state,
       action: PayloadAction<{
+        castId: number;
         fishingXP: number;
         fishingLootIds: number[];
-        rareDropChancePercent?: number;
-        rareDropItemIds?: number[];
-        /** When set, this rare drop was rolled in the caller; add it and do not roll again. */
         rareDropItem?: Item | null;
-        /** When set, a skilling set piece was rolled in the caller; add it. */
         skillingSetDropItem?: Item | null;
       }>
     ) => {
       state.fishingCastStartTime = null;
       state.fishingCastDuration = 0;
+      if (action.payload.castId !== state.fishingCastId) return;
       if (state.currentActivity !== "fish" || !state.currentFishingArea) return;
       const { fishingXP, fishingLootIds, rareDropItem } = action.payload;
       state.fishingXP += fishingXP;
-      const randomId =
-        fishingLootIds[Math.floor(Math.random() * fishingLootIds.length)];
+      const randomId = fishingLootIds[Math.floor(Math.random() * fishingLootIds.length)];
       const fish = fishTypes.find((f) => f.id === randomId);
-      if (fish) {
-        const existing = state.items.find((i) => i.id === fish.id);
-        if (existing) {
-          existing.quantity = (existing.quantity ?? 1) + 1;
-        } else {
-          state.items.push({ ...fish, quantity: 1 });
-        }
-      }
-      if (rareDropItem) {
-        const existing = state.items.find((i) => i.id === rareDropItem.id);
-        if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
-        else state.items.push({ ...rareDropItem, quantity: 1 });
-      }
+      if (fish) upsertItem(state.items, fish);
+      if (rareDropItem) upsertItem(state.items, rareDropItem);
       if (action.payload.skillingSetDropItem) {
         const piece = action.payload.skillingSetDropItem;
         const inItems = state.items.some((i) => i.id === piece.id);
@@ -381,22 +375,6 @@ export const characterSlice = createSlice({
           (s) => state.equipment[s]?.id === piece.id
         );
         if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
-      }
-      if (
-        !rareDropItem &&
-        action.payload.rareDropChancePercent != null &&
-        action.payload.rareDropItemIds != null &&
-        action.payload.rareDropItemIds.length > 0 &&
-        Math.random() * 100 < action.payload.rareDropChancePercent
-      ) {
-        const rareDropItemIds = action.payload.rareDropItemIds;
-        const rareId = rareDropItemIds[Math.floor(Math.random() * rareDropItemIds.length)];
-        const rareItem = getRingAmuletItemById(rareId);
-        if (rareItem) {
-          const existing = state.items.find((i) => i.id === rareItem.id);
-          if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
-          else state.items.push({ ...rareItem, quantity: 1 });
-        }
       }
     },
     setCurrentMiningArea: (state, action: PayloadAction<CurrentMiningArea | null>) => {
@@ -408,34 +386,26 @@ export const characterSlice = createSlice({
     },
     setMiningCast: (
       state,
-      action: PayloadAction<{ startTime: number; duration: number }>
+      action: PayloadAction<{ startTime: number; duration: number; castId: number }>
     ) => {
       state.miningCastStartTime = action.payload.startTime;
       state.miningCastDuration = action.payload.duration;
+      state.miningCastId = action.payload.castId;
     },
+    /** Completion is idempotent: ignored if payload.castId !== state.miningCastId (e.g. duplicate/late timeout). */
     completeMiningCast: (
       state,
-      action: PayloadAction<{ miningXP: number; miningLootId: number; geodeDropped?: boolean; skillingSetDropItem?: Item | null }>
+      action: PayloadAction<{ castId: number; miningXP: number; miningLootId: number; geodeDropped?: boolean; skillingSetDropItem?: Item | null }>
     ) => {
       state.miningCastStartTime = null;
       state.miningCastDuration = 0;
+      if (action.payload.castId !== state.miningCastId) return;
       if (state.currentActivity !== "mine" || !state.currentMiningArea) return;
       const { miningXP, miningLootId, geodeDropped } = action.payload;
       state.miningXP += miningXP;
       const ore = oreTypes.find((o) => o.id === miningLootId);
-      if (ore) {
-        const existing = state.items.find((i) => i.id === ore.id);
-        if (existing) {
-          existing.quantity = (existing.quantity ?? 1) + 1;
-        } else {
-          state.items.push({ ...ore, quantity: 1 });
-        }
-      }
-      if (geodeDropped) {
-        const existing = state.items.find((i) => i.id === GEODE_ITEM_ID);
-        if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
-        else state.items.push({ ...GEODE_ITEM, quantity: 1 });
-      }
+      if (ore) upsertItem(state.items, ore);
+      if (geodeDropped) upsertItem(state.items, GEODE_ITEM);
       if (action.payload.skillingSetDropItem) {
         const piece = action.payload.skillingSetDropItem;
         const inItems = state.items.some((i) => i.id === piece.id);
@@ -454,45 +424,33 @@ export const characterSlice = createSlice({
     },
     setGatheringCast: (
       state,
-      action: PayloadAction<{ startTime: number; duration: number }>
+      action: PayloadAction<{ startTime: number; duration: number; castId: number }>
     ) => {
       state.gatheringCastStartTime = action.payload.startTime;
       state.gatheringCastDuration = action.payload.duration;
+      state.gatheringCastId = action.payload.castId;
     },
+    /** Completion is idempotent: ignored if payload.castId !== state.gatheringCastId (e.g. duplicate/late timeout). */
     completeGatheringCast: (
       state,
       action: PayloadAction<{
+        castId: number;
         gatheringXP: number;
         gatheringLootIds: number[];
-        rareDropChancePercent?: number;
-        rareDropItemIds?: number[];
-        /** When set, this rare drop was rolled in the caller; add it and do not roll again. */
         rareDropItem?: Item | null;
-        /** When set, a skilling set piece was rolled in the caller; add it. */
         skillingSetDropItem?: Item | null;
       }>
     ) => {
       state.gatheringCastStartTime = null;
       state.gatheringCastDuration = 0;
+      if (action.payload.castId !== state.gatheringCastId) return;
       if (state.currentActivity !== "gather" || !state.currentGatheringArea) return;
       const { gatheringXP, gatheringLootIds, rareDropItem } = action.payload;
       state.gatheringXP += gatheringXP;
-      const randomId =
-        gatheringLootIds[Math.floor(Math.random() * gatheringLootIds.length)];
+      const randomId = gatheringLootIds[Math.floor(Math.random() * gatheringLootIds.length)];
       const loot = gatheringLootTypes.find((l) => l.id === randomId);
-      if (loot) {
-        const existing = state.items.find((i) => i.id === loot.id);
-        if (existing) {
-          existing.quantity = (existing.quantity ?? 1) + 1;
-        } else {
-          state.items.push({ ...loot, quantity: 1 });
-        }
-      }
-      if (rareDropItem) {
-        const existing = state.items.find((i) => i.id === rareDropItem.id);
-        if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
-        else state.items.push({ ...rareDropItem, quantity: 1 });
-      }
+      if (loot) upsertItem(state.items, loot);
+      if (rareDropItem) upsertItem(state.items, rareDropItem);
       if (action.payload.skillingSetDropItem) {
         const piece = action.payload.skillingSetDropItem;
         const inItems = state.items.some((i) => i.id === piece.id);
@@ -500,22 +458,6 @@ export const characterSlice = createSlice({
           (s) => state.equipment[s]?.id === piece.id
         );
         if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
-      }
-      if (
-        !rareDropItem &&
-        action.payload.rareDropChancePercent != null &&
-        action.payload.rareDropItemIds != null &&
-        action.payload.rareDropItemIds.length > 0 &&
-        Math.random() * 100 < action.payload.rareDropChancePercent
-      ) {
-        const rareDropItemIds = action.payload.rareDropItemIds;
-        const rareId = rareDropItemIds[Math.floor(Math.random() * rareDropItemIds.length)];
-        const rareItem = getRingAmuletItemById(rareId);
-        if (rareItem) {
-          const existing = state.items.find((i) => i.id === rareItem.id);
-          if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
-          else state.items.push({ ...rareItem, quantity: 1 });
-        }
       }
     },
     equipItem: (state, action: PayloadAction<{ slot: EquipmentSlot; item: Item }>) => {
@@ -544,12 +486,7 @@ export const characterSlice = createSlice({
     unequipItem: (state, action: PayloadAction<EquipmentSlot>) => {
       const item = state.equipment[action.payload];
       if (item) {
-        const existing = state.items.find((i) => i.id === item.id);
-        if (existing) {
-          existing.quantity = (existing.quantity ?? 1) + 1;
-        } else {
-          state.items.push({ ...item, quantity: 1 });
-        }
+        upsertItem(state.items, item);
         state.equipment[action.payload] = null;
       }
     },
@@ -604,17 +541,17 @@ export const characterSlice = createSlice({
         | { endTime: number; missionId: number; entityType: "avatar"; avatarId: number }
       >
     ) => {
-      const { endTime, missionId, entityType } = action.payload;
-      if (entityType === "main") {
-        state.expeditionEndTime = endTime;
-        state.expeditionMissionId = missionId;
+      const payload = action.payload;
+      if (payload.entityType === "main") {
+        state.expeditionEndTime = payload.endTime;
+        state.expeditionMissionId = payload.missionId;
         state.currentActivity = "expedition";
       } else {
-        const avatar = state.avatars.find((a) => a.id === action.payload.avatarId);
+        const avatar = state.avatars.find((a) => a.id === payload.avatarId);
         if (avatar) {
           avatar.isBusy = true;
-          avatar.expeditionEndTime = endTime;
-          avatar.expeditionMissionId = missionId;
+          avatar.expeditionEndTime = payload.endTime;
+          avatar.expeditionMissionId = payload.missionId;
         }
       }
     },
@@ -622,12 +559,13 @@ export const characterSlice = createSlice({
       state,
       action: PayloadAction<{ entityType: "main" } | { entityType: "avatar"; avatarId: number }>
     ) => {
-      if (action.payload.entityType === "main") {
+      const payload = action.payload;
+      if (payload.entityType === "main") {
         state.expeditionEndTime = null;
         state.expeditionMissionId = null;
         if (state.currentActivity === "expedition") state.currentActivity = "none";
       } else {
-        const avatar = state.avatars.find((a) => a.id === action.payload.avatarId);
+        const avatar = state.avatars.find((a) => a.id === payload.avatarId);
         if (avatar) {
           avatar.isBusy = false;
           avatar.expeditionEndTime = null;

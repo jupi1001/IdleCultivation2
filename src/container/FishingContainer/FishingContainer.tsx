@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentActivity, setCurrentFishingArea } from "../../state/reducers/characterSlice";
 import "./FishingContainer.css";
@@ -10,16 +10,15 @@ import { getSkillingSetItemById, getSetPieceIds, getTierForFishingAreaIndex } fr
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
 import { getOwnedRingAmuletIds, getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
+import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
+import { useCastProgress } from "../../hooks/useCastProgress";
 import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
-
-const TICK_MS = 80;
 
 const FishingContainer = () => {
   const dispatch = useDispatch();
   const character = useSelector((state: RootState) => state.character);
   const { currentActivity, currentFishingArea, fishingCastStartTime, fishingCastDuration } =
     character;
-  const [, setTick] = useState(0);
   const busyWithOther =
     currentActivity !== "none" && currentActivity !== "fish";
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
@@ -31,20 +30,7 @@ const FishingContainer = () => {
     [ownedRingAmuletIds, ownedSkillingSetPieceIds]
   );
   const isFishing = currentActivity === "fish" && currentFishingArea != null;
-
-  const progress =
-    fishingCastStartTime != null && fishingCastDuration > 0
-      ? Math.min(
-          100,
-          ((Date.now() - fishingCastStartTime) / fishingCastDuration) * 100
-        )
-      : 0;
-
-  useEffect(() => {
-    if (fishingCastStartTime == null) return;
-    const id = setInterval(() => setTick((n) => n + 1), TICK_MS);
-    return () => clearInterval(id);
-  }, [fishingCastStartTime]);
+  const progress = useCastProgress(fishingCastStartTime, fishingCastDuration);
 
   const startFishing = (areaId: number, fishingXP: number, fishingDelay: number, fishingLootIds: number[], rareDropChancePercent?: number, rareDropItemIds?: number[]) => {
     dispatch(
@@ -58,30 +44,15 @@ const FishingContainer = () => {
     dispatch(setCurrentActivity("none"));
   };
 
-  const xpBarPct =
-    levelInfo.xpRequiredForNext > 0
-      ? (levelInfo.xpInLevel / levelInfo.xpRequiredForNext) * 100
-      : 100;
-
   return (
     <div className="fishingContainer__main">
-      <h2>
-        Fishing Level {levelInfo.level}/{FISHING_MAX_LEVEL}
-      </h2>
-      <div className="fishingContainer__level">
-        <span className="fishingContainer__xp-text">
-          XP{" "}
-          {levelInfo.xpRequiredForNext > 0
-            ? `${levelInfo.xpInLevel} / ${levelInfo.xpRequiredForNext}`
-            : "Max"}
-        </span>
-        <div className="fishingContainer__xp-bar-track">
-          <div
-            className="fishingContainer__xp-bar-fill"
-            style={{ width: `${xpBarPct}%` }}
-          />
-        </div>
-      </div>
+      <SkillXPBar
+        skillName="Fishing"
+        level={levelInfo.level}
+        maxLevel={FISHING_MAX_LEVEL}
+        xpInLevel={levelInfo.xpInLevel}
+        xpRequiredForNext={levelInfo.xpRequiredForNext}
+      />
       {busyWithOther && (
         <p className="fishingContainer__busy">
           You're busy ({activityLabel}). One activity at a time.
