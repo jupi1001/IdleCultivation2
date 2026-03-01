@@ -5,9 +5,19 @@ import { GEODE_ITEM_ID, GEODE_ITEM, rollGemFromGeode } from "../../constants/gem
 import { getRingAmuletItemById } from "../../constants/ringsAmulets";
 import { getBreakthroughQiRequired, getNextRealm, getStepIndex, getCombatStatsFromRealm, type RealmId } from "../../constants/realmProgression";
 import { TALENT_NODES_BY_ID } from "../../constants/talents";
+import type { AvatarI } from "../../interfaces/AvatarI";
 import Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
+import {
+  AVATAR_CREATE_ORE_AMOUNT,
+  AVATAR_CREATE_ORE_ID,
+  AVATAR_CREATE_SPIRIT_STONES,
+  AVATAR_CREATE_WOOD_AMOUNT,
+  AVATAR_CREATE_WOOD_ID,
+  AVATAR_TRAIN_QI_PILL_AMOUNT,
+  AVATAR_TRAIN_SPIRIT_STONES,
+} from "../../constants/avatars";
 
 export type CurrentFishingArea = {
   areaId: number;
@@ -67,6 +77,10 @@ interface CharacterState {
   /** Immortals Island: when non-null, character is on expedition until this timestamp (ms) */
   expeditionEndTime: number | null;
   expeditionMissionId: number | null;
+  /** Avatars: can be sent on expeditions so main can keep cultivating. Unlock at Nascent Soul. */
+  avatars: AvatarI[];
+  /** Next id to assign to a new avatar. */
+  nextAvatarId: number;
   /** When fishing: area being fished; cleared when activity changes away from fish */
   currentFishingArea: CurrentFishingArea | null;
   /** Current cast progress: start time (ms) and duration (ms); null when no cast in progress */
@@ -126,6 +140,8 @@ const initialState: CharacterState = {
   talentLevels: {},
   expeditionEndTime: null,
   expeditionMissionId: null,
+  avatars: [],
+  nextAvatarId: 1,
   currentFishingArea: null,
   fishingCastStartTime: null,
   fishingCastDuration: 0,
@@ -583,16 +599,99 @@ export const characterSlice = createSlice({
     },
     startExpedition: (
       state,
-      action: PayloadAction<{ endTime: number; missionId: number }>
+      action: PayloadAction<
+        | { endTime: number; missionId: number; entityType: "main" }
+        | { endTime: number; missionId: number; entityType: "avatar"; avatarId: number }
+      >
     ) => {
-      state.expeditionEndTime = action.payload.endTime;
-      state.expeditionMissionId = action.payload.missionId;
-      state.currentActivity = "expedition";
+      const { endTime, missionId, entityType } = action.payload;
+      if (entityType === "main") {
+        state.expeditionEndTime = endTime;
+        state.expeditionMissionId = missionId;
+        state.currentActivity = "expedition";
+      } else {
+        const avatar = state.avatars.find((a) => a.id === action.payload.avatarId);
+        if (avatar) {
+          avatar.isBusy = true;
+          avatar.expeditionEndTime = endTime;
+          avatar.expeditionMissionId = missionId;
+        }
+      }
     },
-    clearExpedition: (state) => {
-      state.expeditionEndTime = null;
-      state.expeditionMissionId = null;
-      if (state.currentActivity === "expedition") state.currentActivity = "none";
+    clearExpedition: (
+      state,
+      action: PayloadAction<{ entityType: "main" } | { entityType: "avatar"; avatarId: number }>
+    ) => {
+      if (action.payload.entityType === "main") {
+        state.expeditionEndTime = null;
+        state.expeditionMissionId = null;
+        if (state.currentActivity === "expedition") state.currentActivity = "none";
+      } else {
+        const avatar = state.avatars.find((a) => a.id === action.payload.avatarId);
+        if (avatar) {
+          avatar.isBusy = false;
+          avatar.expeditionEndTime = null;
+          avatar.expeditionMissionId = null;
+        }
+      }
+    },
+    createAvatar: (state, action: PayloadAction<{ name: string }>) => {
+      if (state.money < AVATAR_CREATE_SPIRIT_STONES) return;
+      const oreEntry = state.items.find((i) => i.id === AVATAR_CREATE_ORE_ID);
+      const oreQty = oreEntry?.quantity ?? 0;
+      if (oreQty < AVATAR_CREATE_ORE_AMOUNT) return;
+      const woodEntry = state.items.find((i) => i.id === AVATAR_CREATE_WOOD_ID);
+      const woodQty = woodEntry?.quantity ?? 0;
+      if (woodQty < AVATAR_CREATE_WOOD_AMOUNT) return;
+      state.money -= AVATAR_CREATE_SPIRIT_STONES;
+      if (oreEntry) {
+        oreEntry.quantity = oreEntry.quantity - AVATAR_CREATE_ORE_AMOUNT;
+        if (oreEntry.quantity <= 0) {
+          state.items = state.items.filter((i) => i.id !== AVATAR_CREATE_ORE_ID);
+        }
+      }
+      if (woodEntry) {
+        woodEntry.quantity = woodEntry.quantity - AVATAR_CREATE_WOOD_AMOUNT;
+        if (woodEntry.quantity <= 0) {
+          state.items = state.items.filter((i) => i.id !== AVATAR_CREATE_WOOD_ID);
+        }
+      }
+      const id = state.nextAvatarId++;
+      state.avatars.push({
+        id,
+        name: action.payload.name || `Avatar ${state.avatars.length + 1}`,
+        power: 1,
+        isBusy: false,
+        expeditionEndTime: null,
+        expeditionMissionId: null,
+      });
+    },
+    trainAvatar: (
+      state,
+      action: PayloadAction<
+        | { avatarId: number; costType: "spiritStones" }
+        | { avatarId: number; costType: "qiPill"; itemId: number }
+      >
+    ) => {
+      const avatar = state.avatars.find((a) => a.id === action.payload.avatarId);
+      if (!avatar || avatar.isBusy) return;
+      if (action.payload.costType === "spiritStones") {
+        if (state.money < AVATAR_TRAIN_SPIRIT_STONES) return;
+        state.money -= AVATAR_TRAIN_SPIRIT_STONES;
+        avatar.power += 1;
+      } else {
+        const { itemId } = action.payload;
+        const entry = state.items.find((i) => i.id === itemId);
+        if (!entry || entry.effect !== "qi") return;
+        const qty = entry.quantity ?? 1;
+        if (qty < AVATAR_TRAIN_QI_PILL_AMOUNT) return;
+        if (qty <= AVATAR_TRAIN_QI_PILL_AMOUNT) {
+          state.items = state.items.filter((i) => i.id !== itemId);
+        } else {
+          entry.quantity = qty - AVATAR_TRAIN_QI_PILL_AMOUNT;
+        }
+        avatar.power += 1;
+      }
     },
     purchaseTalentLevel: (state, action: PayloadAction<number>) => {
       const node = TALENT_NODES_BY_ID[action.payload];
@@ -664,6 +763,8 @@ export const {
   cancelPromotion,
   startExpedition,
   clearExpedition,
+  createAvatar,
+  trainAvatar,
   purchaseTalentLevel,
 } = characterSlice.actions;
 
