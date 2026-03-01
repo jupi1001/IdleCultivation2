@@ -77,29 +77,39 @@ export const getOwnedSkillingSetPieceIds = createSelector(
   }
 );
 
-/** Skill speed bonus (0–100) for a given skill from equipped set pieces + full-set bonuses. */
-export const getSkillSpeedBonus = (skill: SkillSetName) =>
-  createSelector(
-    [(state: RootState) => state.character.equipment],
-    (equipment) => {
-      let total = 0;
-      const slots: ("helmet" | "body" | "legs" | "shoes")[] = ["helmet", "body", "legs", "shoes"];
-      for (const slot of slots) {
-        const item = equipment[slot];
-        if (item?.skillSet === skill && item.skillSpeedBonus != null) {
-          total += item.skillSpeedBonus;
-        }
-      }
-      const tiers: SkillSetTier[] = ["lesser", "greater", "perfected"];
-      for (const tier of tiers) {
-        const ids = SKILLING_SET_IDS[skill][tier];
-        const required = [ids.helmet, ids.body, ids.legs, ids.shoes];
-        const allEquipped = slots.every((slot, i) => equipment[slot]?.id === required[i]);
-        if (allEquipped) total += FULL_SET_BONUS_PERCENT[tier];
-      }
-      return total;
+/** Compute skill speed bonus (0–100) for a given skill from equipped set pieces + full-set bonuses. */
+function computeSkillSpeedBonus(equipment: RootState["character"]["equipment"], skill: SkillSetName): number {
+  let total = 0;
+  const slots: ("helmet" | "body" | "legs" | "shoes")[] = ["helmet", "body", "legs", "shoes"];
+  for (const slot of slots) {
+    const item = equipment[slot];
+    if (item?.skillSet === skill && item.skillSpeedBonus != null) {
+      total += item.skillSpeedBonus;
     }
-  );
+  }
+  const tiers: SkillSetTier[] = ["lesser", "greater", "perfected"];
+  for (const tier of tiers) {
+    const ids = SKILLING_SET_IDS[skill][tier];
+    const required = [ids.helmet, ids.body, ids.legs, ids.shoes];
+    const allEquipped = slots.every((slot, i) => equipment[slot]?.id === required[i]);
+    if (allEquipped) total += FULL_SET_BONUS_PERCENT[tier];
+  }
+  return total;
+}
+
+/** Pre-built memoized selectors — one per skill so they never re-allocate. */
+export const getSkillSpeedBonusFishing = createSelector(
+  [(state: RootState) => state.character.equipment],
+  (equipment) => computeSkillSpeedBonus(equipment, "fishing")
+);
+export const getSkillSpeedBonusMining = createSelector(
+  [(state: RootState) => state.character.equipment],
+  (equipment) => computeSkillSpeedBonus(equipment, "mining")
+);
+export const getSkillSpeedBonusGathering = createSelector(
+  [(state: RootState) => state.character.equipment],
+  (equipment) => computeSkillSpeedBonus(equipment, "gathering")
+);
 
 /** Effective combat stats = realm + equipment + consumable bonus. Attack is multiplied by combat technique. Memoized so same inputs return same reference. */
 export const getEffectiveCombatStats = createSelector(

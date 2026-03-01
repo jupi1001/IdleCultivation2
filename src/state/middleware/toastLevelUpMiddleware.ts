@@ -25,67 +25,74 @@ const SKILL_LABELS: Record<string, string> = {
 };
 
 export const toastLevelUpMiddleware: Middleware = (store) => (next) => (action) => {
+  const stateBefore = store.getState();
   next(action);
-
-  const state = store.getState();
-  const char = state.character;
+  const stateAfter = store.getState();
+  const charBefore = stateBefore.character;
+  const charAfter = stateAfter.character;
 
   if (completeFishingCast.match(action)) {
-    const xpGain = action.payload.fishingXP;
-    const levelBefore = getFishingLevelInfo(char.fishingXP - xpGain).level;
-    const levelAfter = getFishingLevelInfo(char.fishingXP).level;
-    if (levelAfter > levelBefore) {
-      store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.fishing, level: levelAfter }));
+    if (charAfter.fishingXP > charBefore.fishingXP) {
+      const levelAfter = getFishingLevelInfo(charAfter.fishingXP).level;
+      const levelBefore = getFishingLevelInfo(charBefore.fishingXP).level;
+      if (levelAfter > levelBefore) {
+        store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.fishing, level: levelAfter }));
+      }
     }
     return;
   }
 
   if (completeMiningCast.match(action)) {
-    const xpGain = action.payload.miningXP;
-    const levelBefore = getMiningLevelInfo(char.miningXP - xpGain).level;
-    const levelAfter = getMiningLevelInfo(char.miningXP).level;
-    if (levelAfter > levelBefore) {
-      store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.mining, level: levelAfter }));
+    if (charAfter.miningXP > charBefore.miningXP) {
+      const levelAfter = getMiningLevelInfo(charAfter.miningXP).level;
+      const levelBefore = getMiningLevelInfo(charBefore.miningXP).level;
+      if (levelAfter > levelBefore) {
+        store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.mining, level: levelAfter }));
+      }
     }
     return;
   }
 
   if (completeGatheringCast.match(action)) {
-    const xpGain = action.payload.gatheringXP;
-    const levelBefore = getGatheringLevelInfo(char.gatheringXP - xpGain).level;
-    const levelAfter = getGatheringLevelInfo(char.gatheringXP).level;
-    if (levelAfter > levelBefore) {
-      store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.gathering, level: levelAfter }));
+    if (charAfter.gatheringXP > charBefore.gatheringXP) {
+      const levelAfter = getGatheringLevelInfo(charAfter.gatheringXP).level;
+      const levelBefore = getGatheringLevelInfo(charBefore.gatheringXP).level;
+      if (levelAfter > levelBefore) {
+        store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.gathering, level: levelAfter }));
+      }
     }
     return;
   }
 
   if (addCookingXP.match(action)) {
-    const xpGain = action.payload;
-    const levelBefore = getCookingLevelInfo(char.cookingXP - xpGain).level;
-    const levelAfter = getCookingLevelInfo(char.cookingXP).level;
-    if (levelAfter > levelBefore) {
-      store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.cooking, level: levelAfter }));
+    if (charAfter.cookingXP > charBefore.cookingXP) {
+      const levelAfter = getCookingLevelInfo(charAfter.cookingXP).level;
+      const levelBefore = getCookingLevelInfo(charBefore.cookingXP).level;
+      if (levelAfter > levelBefore) {
+        store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.cooking, level: levelAfter }));
+      }
     }
     return;
   }
 
   if (addAlchemyXP.match(action)) {
-    const xpGain = action.payload;
-    const levelBefore = getAlchemyLevelInfo(char.alchemyXP - xpGain).level;
-    const levelAfter = getAlchemyLevelInfo(char.alchemyXP).level;
-    if (levelAfter > levelBefore) {
-      store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.alchemy, level: levelAfter }));
+    if (charAfter.alchemyXP > charBefore.alchemyXP) {
+      const levelAfter = getAlchemyLevelInfo(charAfter.alchemyXP).level;
+      const levelBefore = getAlchemyLevelInfo(charBefore.alchemyXP).level;
+      if (levelAfter > levelBefore) {
+        store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.alchemy, level: levelAfter }));
+      }
     }
     return;
   }
 
   if (addForgingXP.match(action)) {
-    const xpGain = action.payload;
-    const levelBefore = getForgingLevelInfo(char.forgingXP - xpGain).level;
-    const levelAfter = getForgingLevelInfo(char.forgingXP).level;
-    if (levelAfter > levelBefore) {
-      store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.forging, level: levelAfter }));
+    if (charAfter.forgingXP > charBefore.forgingXP) {
+      const levelAfter = getForgingLevelInfo(charAfter.forgingXP).level;
+      const levelBefore = getForgingLevelInfo(charBefore.forgingXP).level;
+      if (levelAfter > levelBefore) {
+        store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.forging, level: levelAfter }));
+      }
     }
   }
 };

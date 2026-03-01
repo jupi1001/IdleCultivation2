@@ -1,4 +1,3 @@
-import React from "react";
 import { CombatArea } from "../enum/CombatArea";
 import Item from "./ItemI";
 

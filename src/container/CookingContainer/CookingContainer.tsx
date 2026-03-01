@@ -9,12 +9,8 @@ import {
   type CookingRecipeI,
 } from "../../constants/cooking";
 import { fishTypes } from "../../constants/data";
+import { countItem } from "../../utils/inventory";
 import "./CookingContainer.css";
-
-function countItem(items: { id: number; quantity?: number }[], itemId: number): number {
-  const entry = items.find((i) => i.id === itemId);
-  return entry ? (entry.quantity ?? 1) : 0;
-}
 
 function getItemName(itemId: number, allItems: { id: number; name: string }[]): string {
   return allItems.find((i) => i.id === itemId)?.name ?? `Item ${itemId}`;

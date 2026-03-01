@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addAttack, addDefense, addItem, reduceMoney } from "../../state/reducers/characterSlice";
 import { RootState } from "../../state/store";
@@ -12,56 +12,44 @@ interface ShopItemProps {
 }
 
 const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
-  const [moneyMessage, setMoneyMessage] = useState("hidden");
+  const [moneyMessage, setMoneyMessage] = useState(false);
+  const [stock, setStock] = useState(item.quantity);
 
-  const character = useSelector((state: RootState) => state.character);
+  const money = useSelector((state: RootState) => state.character.money);
   const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
   const dispatch = useDispatch();
   const alreadyOwned = isEquipment && ownedTechniqueIds.has(item.id);
 
-  const addAttackFunction = (cost: number, amount: number) => {
-    if (character.money >= cost) {
-      dispatch(addAttack(amount));
-      dispatch(reduceMoney(cost));
-      setMoneyMessage("hidden");
-      item.quantity--;
-    } else {
-      setMoneyMessage("show");
+  const buy = useCallback(() => {
+    if (money < item.price) {
+      setMoneyMessage(true);
+      return;
     }
-  };
+    setMoneyMessage(false);
+    dispatch(reduceMoney(item.price));
 
-  const addDefenseFunction = (cost: number, amount: number) => {
-    if (character.money >= cost) {
-      dispatch(addDefense(amount));
-      dispatch(reduceMoney(cost));
-      setMoneyMessage("hidden");
-      item.quantity--;
-    } else {
-      setMoneyMessage("show");
-    }
-  };
-
-  const addConsumable = (cost: number, amount: number) => {
-    if (character.money >= cost) {
-      dispatch(addItem(item));
-      dispatch(reduceMoney(cost));
-      setMoneyMessage("hidden");
-    } else {
-      setMoneyMessage("show");
-    }
-  };
-
-  const addEquipment = (cost: number) => {
-    if (character.money >= cost) {
+    if (item.equipmentSlot) {
       dispatch(addItem({ ...item, quantity: 1 }));
-      dispatch(reduceMoney(cost));
-      setMoneyMessage("hidden");
-    } else {
-      setMoneyMessage("show");
+      return;
     }
-  };
 
-  const showItem = isEquipment || item.quantity > 0;
+    switch (item.effect) {
+      case "attack":
+        dispatch(addAttack(item.value ?? 1));
+        setStock((s) => s - 1);
+        break;
+      case "defense":
+        dispatch(addDefense(item.value ?? 1));
+        setStock((s) => s - 1);
+        break;
+      default:
+        dispatch(addItem(item));
+        break;
+    }
+  }, [dispatch, money, item]);
+
+  const showItem = isEquipment || stock > 0;
+  const canBuy = !alreadyOwned;
 
   return (
     <>
@@ -70,12 +58,9 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
           <h3>{item.name}</h3>
           <p>{item.description}</p>
           <p>Cost: {item.price} Spirit Stones</p>
-          {item.id < 100 && item.id > 0 && <button onClick={() => addAttackFunction(item.price, 1)}>Buy</button>}
-          {item.id < 200 && item.id >= 100 && !item.equipmentSlot && <button onClick={() => addDefenseFunction(item.price, 1)}>Buy</button>}
-          {item.id < 300 && item.id >= 200 && !item.equipmentSlot && <button onClick={() => addConsumable(item.price, 1)}>Buy</button>}
-          {item.equipmentSlot && !alreadyOwned && <button onClick={() => addEquipment(item.price)}>Buy</button>}
-          {item.equipmentSlot && alreadyOwned && <p className="shopitem__already">Already bought</p>}
-          {moneyMessage === "show" && <h4>Not enough Spirit Stones</h4>}
+          {canBuy && <button onClick={buy}>Buy</button>}
+          {alreadyOwned && <p className="shopitem__already">Already bought</p>}
+          {moneyMessage && <h4>Not enough Spirit Stones</h4>}
         </div>
       )}
     </>

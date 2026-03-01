@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { changeContent } from "../../state/reducers/contentSlice";
+import { changeContent, type PageValue } from "../../state/reducers/contentSlice";
 import "./Header.css";
 import { ContentArea } from "../../enum/ContentArea";
 
@@ -14,7 +14,7 @@ interface HeaderProps {
 export const Header = ({ theme, setTheme }: HeaderProps) => {
   const dispatch = useDispatch();
 
-  const openContent = (input: string) => {
+  const openContent = (input: PageValue) => {
     dispatch(changeContent(input));
   };
 

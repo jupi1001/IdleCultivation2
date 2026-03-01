@@ -32,7 +32,7 @@ const MapAreaComponent: React.FC<MapAreaProps> = ({
 
   const handleOnClick = (areaName: string) => {
     if (!canEnter) return;
-    dispatch(changeContent(ContentArea.COMBAT + ":" + areaName));
+    dispatch(changeContent(`${ContentArea.COMBAT}:${areaName}`));
   };
 
   return (

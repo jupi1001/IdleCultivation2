@@ -231,22 +231,29 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       setLastDamageToCharacter(damage);
       setCharacterState((prev) => {
         const newHealth = prev.health - damage;
-        if (newHealth <= 0) setTimeout(() => handleEscapeButton(true), 0);
+        if (newHealth <= 0) setTimeout(() => handleEscapeRef.current(true), 0);
         return { ...prev, health: newHealth };
       });
     }
     lastEnemyAttackRef.current = Date.now();
   };
 
+  const doCharacterAttackRef = useRef(doCharacterAttack);
+  const doEnemyAttackRef = useRef(doEnemyAttack);
+  const handleEscapeRef = useRef(handleEscapeButton);
+  doCharacterAttackRef.current = doCharacterAttack;
+  doEnemyAttackRef.current = doEnemyAttack;
+  handleEscapeRef.current = handleEscapeButton;
+
   // Character attack timer (attack speed)
   useEffect(() => {
-    const id = setInterval(doCharacterAttack, fightingInterval);
+    const id = setInterval(() => doCharacterAttackRef.current(), fightingInterval);
     return () => clearInterval(id);
   }, [fightingInterval]);
 
   // Enemy attack timer (fixed 3s)
   useEffect(() => {
-    const id = setInterval(doEnemyAttack, ENEMY_ATTACK_INTERVAL_MS);
+    const id = setInterval(() => doEnemyAttackRef.current(), ENEMY_ATTACK_INTERVAL_MS);
     return () => clearInterval(id);
   }, []);
 

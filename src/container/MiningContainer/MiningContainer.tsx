@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentActivity, setCurrentMiningArea } from "../../state/reducers/characterSlice";
 import "./MiningContainer.css";
@@ -9,36 +9,22 @@ import { getSkillingSetItemById, getSetPieceIds, getTierForMiningAreaIndex } fro
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
 import { getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
+import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
+import { useCastProgress } from "../../hooks/useCastProgress";
 import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
-
-const TICK_MS = 80;
 
 const MiningContainer = () => {
   const dispatch = useDispatch();
   const character = useSelector((state: RootState) => state.character);
   const { currentActivity, currentMiningArea, miningCastStartTime, miningCastDuration } =
     character;
-  const [, setTick] = useState(0);
   const busyWithOther =
     currentActivity !== "none" && currentActivity !== "mine";
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
   const levelInfo = getMiningLevelInfo(character.miningXP);
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const isMining = currentActivity === "mine" && currentMiningArea != null;
-
-  const progress =
-    miningCastStartTime != null && miningCastDuration > 0
-      ? Math.min(
-          100,
-          ((Date.now() - miningCastStartTime) / miningCastDuration) * 100
-        )
-      : 0;
-
-  useEffect(() => {
-    if (miningCastStartTime == null) return;
-    const id = setInterval(() => setTick((n) => n + 1), TICK_MS);
-    return () => clearInterval(id);
-  }, [miningCastStartTime]);
+  const progress = useCastProgress(miningCastStartTime, miningCastDuration);
 
   const startMining = (areaId: number, miningXP: number, miningDelay: number, miningLootId: number) => {
     dispatch(
@@ -52,30 +38,15 @@ const MiningContainer = () => {
     dispatch(setCurrentActivity("none"));
   };
 
-  const xpBarPct =
-    levelInfo.xpRequiredForNext > 0
-      ? (levelInfo.xpInLevel / levelInfo.xpRequiredForNext) * 100
-      : 100;
-
   return (
     <div className="miningContainer__main">
-      <h2>
-        Mining Level {levelInfo.level}/{MINING_MAX_LEVEL}
-      </h2>
-      <div className="miningContainer__level">
-        <span className="miningContainer__xp-text">
-          XP{" "}
-          {levelInfo.xpRequiredForNext > 0
-            ? `${levelInfo.xpInLevel} / ${levelInfo.xpRequiredForNext}`
-            : "Max"}
-        </span>
-        <div className="miningContainer__xp-bar-track">
-          <div
-            className="miningContainer__xp-bar-fill"
-            style={{ width: `${xpBarPct}%` }}
-          />
-        </div>
-      </div>
+      <SkillXPBar
+        skillName="Mining"
+        level={levelInfo.level}
+        maxLevel={MINING_MAX_LEVEL}
+        xpInLevel={levelInfo.xpInLevel}
+        xpRequiredForNext={levelInfo.xpRequiredForNext}
+      />
       {busyWithOther && (
         <p className="miningContainer__busy">
           You're busy ({activityLabel}). One activity at a time.

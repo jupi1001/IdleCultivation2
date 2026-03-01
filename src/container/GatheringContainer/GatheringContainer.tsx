@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentActivity, setCurrentGatheringArea } from "../../state/reducers/characterSlice";
 import "./GatheringContainer.css";
@@ -10,16 +10,15 @@ import { getSkillingSetItemById, getSetPieceIds, getTierForGatheringAreaIndex } 
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
 import { getOwnedRingAmuletIds, getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
+import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
+import { useCastProgress } from "../../hooks/useCastProgress";
 import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
-
-const TICK_MS = 80;
 
 const GatheringContainer = () => {
   const dispatch = useDispatch();
   const character = useSelector((state: RootState) => state.character);
   const { currentActivity, currentGatheringArea, gatheringCastStartTime, gatheringCastDuration } =
     character;
-  const [, setTick] = useState(0);
   const busyWithOther =
     currentActivity !== "none" && currentActivity !== "gather";
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
@@ -31,20 +30,7 @@ const GatheringContainer = () => {
     [ownedRingAmuletIds, ownedSkillingSetPieceIds]
   );
   const isGathering = currentActivity === "gather" && currentGatheringArea != null;
-
-  const progress =
-    gatheringCastStartTime != null && gatheringCastDuration > 0
-      ? Math.min(
-          100,
-          ((Date.now() - gatheringCastStartTime) / gatheringCastDuration) * 100
-        )
-      : 0;
-
-  useEffect(() => {
-    if (gatheringCastStartTime == null) return;
-    const id = setInterval(() => setTick((n) => n + 1), TICK_MS);
-    return () => clearInterval(id);
-  }, [gatheringCastStartTime]);
+  const progress = useCastProgress(gatheringCastStartTime, gatheringCastDuration);
 
   const startGathering = (
     areaId: number,
@@ -65,30 +51,15 @@ const GatheringContainer = () => {
     dispatch(setCurrentActivity("none"));
   };
 
-  const xpBarPct =
-    levelInfo.xpRequiredForNext > 0
-      ? (levelInfo.xpInLevel / levelInfo.xpRequiredForNext) * 100
-      : 100;
-
   return (
     <div className="gatheringContainer__main">
-      <h2>
-        Gathering Level {levelInfo.level}/{GATHERING_MAX_LEVEL}
-      </h2>
-      <div className="gatheringContainer__level">
-        <span className="gatheringContainer__xp-text">
-          XP{" "}
-          {levelInfo.xpRequiredForNext > 0
-            ? `${levelInfo.xpInLevel} / ${levelInfo.xpRequiredForNext}`
-            : "Max"}
-        </span>
-        <div className="gatheringContainer__xp-bar-track">
-          <div
-            className="gatheringContainer__xp-bar-fill"
-            style={{ width: `${xpBarPct}%` }}
-          />
-        </div>
-      </div>
+      <SkillXPBar
+        skillName="Gathering"
+        level={levelInfo.level}
+        maxLevel={GATHERING_MAX_LEVEL}
+        xpInLevel={levelInfo.xpInLevel}
+        xpRequiredForNext={levelInfo.xpRequiredForNext}
+      />
       {busyWithOther && (
         <p className="gatheringContainer__busy">
           You're busy ({activityLabel}). One activity at a time.

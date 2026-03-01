@@ -30,7 +30,12 @@ import {
   SKILLING_SET_DROP_CHANCE_PERCENT,
 } from "../constants/skillingSets";
 import { fishingAreaData, gatheringAreaData, miningAreaData } from "../constants/data";
-import { getSkillSpeedBonus, getOwnedSkillingSetPieceIds } from "../state/selectors/characterSelectors";
+import {
+  getSkillSpeedBonusFishing,
+  getSkillSpeedBonusMining,
+  getSkillSpeedBonusGathering,
+  getOwnedSkillingSetPieceIds,
+} from "../state/selectors/characterSelectors";
 import { rollOneTimeDrop } from "../utils/oneTimeDrops";
 import { RootState } from "../state/store";
 import { BASE_QI_PER_SECOND } from "../constants/meditation";
@@ -77,9 +82,9 @@ export function useActivityTicks() {
   const equipment = useSelector((state: RootState) => state.character.equipment);
   const miner = useSelector((state: RootState) => state.character.miner);
   const minerRef = useRef(miner);
-  const skillSpeedBonusFishing = useSelector(getSkillSpeedBonus("fishing"));
-  const skillSpeedBonusMining = useSelector(getSkillSpeedBonus("mining"));
-  const skillSpeedBonusGathering = useSelector(getSkillSpeedBonus("gathering"));
+  const skillSpeedBonusFishing = useSelector(getSkillSpeedBonusFishing);
+  const skillSpeedBonusMining = useSelector(getSkillSpeedBonusMining);
+  const skillSpeedBonusGathering = useSelector(getSkillSpeedBonusGathering);
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const ownedSkillingSetRef = useRef<Set<number>>(new Set());
   ownedSkillingSetRef.current = ownedSkillingSetPieceIds;
@@ -131,8 +136,6 @@ export function useActivityTicks() {
             castId,
             fishingXP: area.fishingXP,
             fishingLootIds: area.fishingLootIds,
-            rareDropChancePercent: area.rareDropChancePercent,
-            rareDropItemIds: area.rareDropItemIds,
             rareDropItem: rareDropItem ?? undefined,
             skillingSetDropItem: skillingSetDropItem ?? undefined,
           })
@@ -205,8 +208,6 @@ export function useActivityTicks() {
             castId,
             gatheringXP: area.gatheringXP,
             gatheringLootIds: area.gatheringLootIds,
-            rareDropChancePercent: area.rareDropChancePercent,
-            rareDropItemIds: area.rareDropItemIds,
             rareDropItem: rareDropItem ?? undefined,
             skillingSetDropItem: skillingSetDropItem ?? undefined,
           })
