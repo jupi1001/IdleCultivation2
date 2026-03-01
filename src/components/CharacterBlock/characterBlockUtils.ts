@@ -1,5 +1,6 @@
 import type { RootState } from "../../state/store";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import { createSelector } from "@reduxjs/toolkit";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 
 const EQUIPMENT_SLOT_LABELS: Partial<Record<EquipmentSlot, string>> = {
@@ -46,46 +47,63 @@ function getEquipmentBreakdown(equipment: RootState["character"]["equipment"]) {
   return { attackSources, defenseSources, vitalitySources, attackMultiplier };
 }
 
-export function getAttackBreakdown(state: RootState): StatBreakdown {
-  const { character } = state;
-  const base = character.attack + (character.bonusAttack ?? 0);
-  const { attackSources, attackMultiplier } = getEquipmentBreakdown(character.equipment);
-  const flatAttack = base + attackSources.reduce((s, x) => s + x.value, 0);
-  const total = Math.floor(flatAttack * attackMultiplier);
+const getEquipmentBreakdownMemo = createSelector(
+  [(state: RootState) => state.character.equipment],
+  (equipment) => getEquipmentBreakdown(equipment)
+);
 
-  return {
-    base,
-    sources: attackSources,
-    multiplier: attackMultiplier !== 1 ? attackMultiplier : undefined,
-    total,
-  };
-}
+export const getAttackBreakdown = createSelector(
+  [
+    (state: RootState) => state.character.attack,
+    (state: RootState) => state.character.bonusAttack,
+    getEquipmentBreakdownMemo,
+  ],
+  (attack, bonusAttack, { attackSources, attackMultiplier }): StatBreakdown => {
+    const base = attack + (bonusAttack ?? 0);
+    const flatAttack = base + attackSources.reduce((s, x) => s + x.value, 0);
+    const total = Math.floor(flatAttack * attackMultiplier);
+    return {
+      base,
+      sources: attackSources,
+      multiplier: attackMultiplier !== 1 ? attackMultiplier : undefined,
+      total,
+    };
+  }
+);
 
-export function getDefenseBreakdown(state: RootState): StatBreakdown {
-  const { character } = state;
-  const base = character.defense + (character.bonusDefense ?? 0);
-  const { defenseSources } = getEquipmentBreakdown(character.equipment);
-  const total = base + defenseSources.reduce((s, x) => s + x.value, 0);
+export const getDefenseBreakdown = createSelector(
+  [
+    (state: RootState) => state.character.defense,
+    (state: RootState) => state.character.bonusDefense,
+    getEquipmentBreakdownMemo,
+  ],
+  (defense, bonusDefense, { defenseSources }): StatBreakdown => {
+    const base = defense + (bonusDefense ?? 0);
+    const total = base + defenseSources.reduce((s, x) => s + x.value, 0);
+    return {
+      base,
+      sources: defenseSources,
+      total,
+    };
+  }
+);
 
-  return {
-    base,
-    sources: defenseSources,
-    total,
-  };
-}
-
-export function getHealthBreakdown(state: RootState): StatBreakdown {
-  const { character } = state;
-  const base = character.health + (character.bonusHealth ?? 0);
-  const { vitalitySources } = getEquipmentBreakdown(character.equipment);
-  const total = base + vitalitySources.reduce((s, x) => s + x.value, 0);
-
-  return {
-    base,
-    sources: vitalitySources,
-    total,
-  };
-}
+export const getHealthBreakdown = createSelector(
+  [
+    (state: RootState) => state.character.health,
+    (state: RootState) => state.character.bonusHealth,
+    getEquipmentBreakdownMemo,
+  ],
+  (health, bonusHealth, { vitalitySources }): StatBreakdown => {
+    const base = health + (bonusHealth ?? 0);
+    const total = base + vitalitySources.reduce((s, x) => s + x.value, 0);
+    return {
+      base,
+      sources: vitalitySources,
+      total,
+    };
+  }
+);
 
 export function formatStatBreakdown(b: StatBreakdown, statName: string): string {
   const lines: string[] = [];

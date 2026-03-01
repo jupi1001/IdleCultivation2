@@ -120,6 +120,143 @@
   width: 100%;
 }
 
+.immortalsIsland__mission-send {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.immortalsIsland__mission-send .immortalsIsland__mission-start {
+  width: auto;
+  min-width: 120px;
+}
+
+.immortalsIsland__mission-start--avatar {
+  flex: 1;
+  min-width: 100px;
+}
+
+.immortalsIsland__active--avatar {
+  border-color: var(--border);
+}
+
+.immortalsIsland__avatars {
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.immortalsIsland__avatars-toggle {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.immortalsIsland__avatars-toggle:hover {
+  background: var(--border);
+}
+
+.immortalsIsland__avatars-content {
+  padding: 0 0.75rem 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.immortalsIsland__avatars-list {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.immortalsIsland__avatar-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--bg, #1a1a1e);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.immortalsIsland__avatar-name {
+  font-weight: 600;
+}
+
+.immortalsIsland__avatar-power {
+  color: var(--text-muted);
+}
+
+.immortalsIsland__avatar-status {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.immortalsIsland__avatar-train {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--border);
+}
+
+.immortalsIsland__avatar-train-btn {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.immortalsIsland__create-avatar {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.immortalsIsland__create-avatar-cost {
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.immortalsIsland__create-avatar-missing {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.immortalsIsland__create-avatar-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.immortalsIsland__create-avatar-input {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg, #1a1a1e);
+  color: var(--text);
+}
+
+.immortalsIsland__create-avatar-btn {
+  padding: 0.4rem 0.75rem;
+  white-space: nowrap;
+}
+
 .immortalsIsland__toast {
   position: fixed;
   inset: 0;
