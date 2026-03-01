@@ -333,6 +333,8 @@ export const characterSlice = createSlice({
         rareDropItemIds?: number[];
         /** When set, this rare drop was rolled in the caller; add it and do not roll again. */
         rareDropItem?: Item | null;
+        /** When set, a skilling set piece was rolled in the caller; add it. */
+        skillingSetDropItem?: Item | null;
       }>
     ) => {
       state.fishingCastStartTime = null;
@@ -355,7 +357,17 @@ export const characterSlice = createSlice({
         const existing = state.items.find((i) => i.id === rareDropItem.id);
         if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
         else state.items.push({ ...rareDropItem, quantity: 1 });
-      } else if (
+      }
+      if (action.payload.skillingSetDropItem) {
+        const piece = action.payload.skillingSetDropItem;
+        const inItems = state.items.some((i) => i.id === piece.id);
+        const inEquip = (["helmet", "body", "legs", "shoes"] as const).some(
+          (s) => state.equipment[s]?.id === piece.id
+        );
+        if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
+      }
+      if (
+        !rareDropItem &&
         action.payload.rareDropChancePercent != null &&
         action.payload.rareDropItemIds != null &&
         action.payload.rareDropItemIds.length > 0 &&
@@ -387,7 +399,7 @@ export const characterSlice = createSlice({
     },
     completeMiningCast: (
       state,
-      action: PayloadAction<{ miningXP: number; miningLootId: number; geodeDropped?: boolean }>
+      action: PayloadAction<{ miningXP: number; miningLootId: number; geodeDropped?: boolean; skillingSetDropItem?: Item | null }>
     ) => {
       state.miningCastStartTime = null;
       state.miningCastDuration = 0;
@@ -407,6 +419,14 @@ export const characterSlice = createSlice({
         const existing = state.items.find((i) => i.id === GEODE_ITEM_ID);
         if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
         else state.items.push({ ...GEODE_ITEM, quantity: 1 });
+      }
+      if (action.payload.skillingSetDropItem) {
+        const piece = action.payload.skillingSetDropItem;
+        const inItems = state.items.some((i) => i.id === piece.id);
+        const inEquip = (["helmet", "body", "legs", "shoes"] as const).some(
+          (s) => state.equipment[s]?.id === piece.id
+        );
+        if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
       }
     },
     setCurrentGatheringArea: (state, action: PayloadAction<CurrentGatheringArea | null>) => {
@@ -432,6 +452,8 @@ export const characterSlice = createSlice({
         rareDropItemIds?: number[];
         /** When set, this rare drop was rolled in the caller; add it and do not roll again. */
         rareDropItem?: Item | null;
+        /** When set, a skilling set piece was rolled in the caller; add it. */
+        skillingSetDropItem?: Item | null;
       }>
     ) => {
       state.gatheringCastStartTime = null;
@@ -454,7 +476,17 @@ export const characterSlice = createSlice({
         const existing = state.items.find((i) => i.id === rareDropItem.id);
         if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
         else state.items.push({ ...rareDropItem, quantity: 1 });
-      } else if (
+      }
+      if (action.payload.skillingSetDropItem) {
+        const piece = action.payload.skillingSetDropItem;
+        const inItems = state.items.some((i) => i.id === piece.id);
+        const inEquip = (["helmet", "body", "legs", "shoes"] as const).some(
+          (s) => state.equipment[s]?.id === piece.id
+        );
+        if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
+      }
+      if (
+        !rareDropItem &&
         action.payload.rareDropChancePercent != null &&
         action.payload.rareDropItemIds != null &&
         action.payload.rareDropItemIds.length > 0 &&

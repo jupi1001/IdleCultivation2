@@ -23,6 +23,12 @@ interface Item {
   attackMultiplier?: number;
   /** Combat technique: flat attack speed bonus in ms (reduces time between attacks) */
   attackSpeedReduction?: number;
+  /** Skilling set: which skill this piece boosts (fishing / mining / gathering) */
+  skillSet?: "fishing" | "mining" | "gathering";
+  /** Skilling set tier: lesser / greater / perfected (better tier = better per-piece and set bonus) */
+  skillSetTier?: "lesser" | "greater" | "perfected";
+  /** Skilling set: percent faster for that skill per piece (e.g. 2 = +2% speed) */
+  skillSpeedBonus?: number;
 }
 
 export default Item;

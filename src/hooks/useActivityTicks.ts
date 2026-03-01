@@ -18,6 +18,16 @@ import {
 } from "../state/reducers/characterSlice";
 import { addToast } from "../state/reducers/toastSlice";
 import { getRingAmuletItemById } from "../constants/ringsAmulets";
+import {
+  getSkillingSetItemById,
+  getSetPieceIds,
+  getTierForFishingAreaIndex,
+  getTierForGatheringAreaIndex,
+  getTierForMiningAreaIndex,
+  SKILLING_SET_DROP_CHANCE_PERCENT,
+} from "../constants/skillingSets";
+import { fishingAreaData, gatheringAreaData, miningAreaData } from "../constants/data";
+import { getSkillSpeedBonus, getOwnedSkillingSetPieceIds } from "../state/selectors/characterSelectors";
 import { RootState } from "../state/store";
 import { BASE_QI_PER_SECOND } from "../constants/meditation";
 
@@ -33,6 +43,12 @@ export function useActivityTicks() {
   const equipment = useSelector((state: RootState) => state.character.equipment);
   const miner = useSelector((state: RootState) => state.character.miner);
   const minerRef = useRef(miner);
+  const skillSpeedBonusFishing = useSelector(getSkillSpeedBonus("fishing"));
+  const skillSpeedBonusMining = useSelector(getSkillSpeedBonus("mining"));
+  const skillSpeedBonusGathering = useSelector(getSkillSpeedBonus("gathering"));
+  const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
+  const ownedSkillingSetRef = useRef<Set<number>>(new Set());
+  ownedSkillingSetRef.current = ownedSkillingSetPieceIds;
 
   useEffect(() => {
     minerRef.current = miner;
@@ -64,9 +80,13 @@ export function useActivityTicks() {
       fishingCastStartTime != null
     )
       return;
+    const effectiveDuration = Math.max(
+      100,
+      currentFishingArea.fishingDelay * (1 - skillSpeedBonusFishing / 100)
+    );
     const startTime = Date.now();
     dispatch(
-      setFishingCast({ startTime, duration: currentFishingArea.fishingDelay })
+      setFishingCast({ startTime, duration: effectiveDuration })
     );
     const id = setTimeout(() => {
       const rareDropItem = (() => {
@@ -84,6 +104,17 @@ export function useActivityTicks() {
         }
         return null;
       })();
+      const skillingSetDropItem = (() => {
+        const areaIndex = fishingAreaData.findIndex((a) => a.id === currentFishingArea.areaId);
+        if (areaIndex < 0) return null;
+        if (Math.random() * 100 >= SKILLING_SET_DROP_CHANCE_PERCENT) return null;
+        const tier = getTierForFishingAreaIndex(areaIndex);
+        const pieceIds = getSetPieceIds("fishing", tier);
+        const available = pieceIds.filter((id) => !ownedSkillingSetRef.current.has(id));
+        if (available.length === 0) return null;
+        const pieceId = available[Math.floor(Math.random() * available.length)];
+        return getSkillingSetItemById(pieceId) ?? null;
+      })();
       dispatch(
         completeFishingCast({
           fishingXP: currentFishingArea.fishingXP,
@@ -91,12 +122,16 @@ export function useActivityTicks() {
           rareDropChancePercent: currentFishingArea.rareDropChancePercent,
           rareDropItemIds: currentFishingArea.rareDropItemIds,
           rareDropItem: rareDropItem ?? undefined,
+          skillingSetDropItem: skillingSetDropItem ?? undefined,
         })
       );
       if (rareDropItem) {
         dispatch(addToast({ type: "rareDrop", itemName: rareDropItem.name }));
       }
-    }, currentFishingArea.fishingDelay);
+      if (skillingSetDropItem) {
+        dispatch(addToast({ type: "rareDrop", itemName: skillingSetDropItem.name }));
+      }
+    }, effectiveDuration);
     skipFishingTimeoutClearRef.current = true;
     return () => {
       if (skipFishingTimeoutClearRef.current) {
@@ -110,6 +145,7 @@ export function useActivityTicks() {
     currentFishingArea,
     fishingCastStartTime,
     dispatch,
+    skillSpeedBonusFishing,
   ]);
 
   // Mining: one swing per duration, loop while currentActivity === "mine" && currentMiningArea
@@ -121,23 +157,42 @@ export function useActivityTicks() {
       miningCastStartTime != null
     )
       return;
+    const effectiveDuration = Math.max(
+      100,
+      currentMiningArea.miningDelay * (1 - skillSpeedBonusMining / 100)
+    );
     const startTime = Date.now();
     dispatch(
-      setMiningCast({ startTime, duration: currentMiningArea.miningDelay })
+      setMiningCast({ startTime, duration: effectiveDuration })
     );
     const id = setTimeout(() => {
       const geodeDropped = Math.random() * 100 < 3;
+      const skillingSetDropItem = (() => {
+        const areaIndex = miningAreaData.findIndex((a) => a.id === currentMiningArea.areaId);
+        if (areaIndex < 0) return null;
+        if (Math.random() * 100 >= SKILLING_SET_DROP_CHANCE_PERCENT) return null;
+        const tier = getTierForMiningAreaIndex(areaIndex);
+        const pieceIds = getSetPieceIds("mining", tier);
+        const available = pieceIds.filter((id) => !ownedSkillingSetRef.current.has(id));
+        if (available.length === 0) return null;
+        const pieceId = available[Math.floor(Math.random() * available.length)];
+        return getSkillingSetItemById(pieceId) ?? null;
+      })();
       dispatch(
         completeMiningCast({
           miningXP: currentMiningArea.miningXP,
           miningLootId: currentMiningArea.miningLootId,
           geodeDropped,
+          skillingSetDropItem: skillingSetDropItem ?? undefined,
         })
       );
       if (geodeDropped) {
         dispatch(addToast({ type: "rareDrop", itemName: "Geode" }));
       }
-    }, currentMiningArea.miningDelay);
+      if (skillingSetDropItem) {
+        dispatch(addToast({ type: "rareDrop", itemName: skillingSetDropItem.name }));
+      }
+    }, effectiveDuration);
     skipMiningTimeoutClearRef.current = true;
     return () => {
       if (skipMiningTimeoutClearRef.current) {
@@ -151,6 +206,7 @@ export function useActivityTicks() {
     currentMiningArea,
     miningCastStartTime,
     dispatch,
+    skillSpeedBonusMining,
   ]);
 
   // Gathering: one gather per duration, loop while currentActivity === "gather" && currentGatheringArea
@@ -162,9 +218,13 @@ export function useActivityTicks() {
       gatheringCastStartTime != null
     )
       return;
+    const effectiveDuration = Math.max(
+      100,
+      currentGatheringArea.gatheringDelay * (1 - skillSpeedBonusGathering / 100)
+    );
     const startTime = Date.now();
     dispatch(
-      setGatheringCast({ startTime, duration: currentGatheringArea.gatheringDelay })
+      setGatheringCast({ startTime, duration: effectiveDuration })
     );
     const id = setTimeout(() => {
       const rareDropItem = (() => {
@@ -182,6 +242,17 @@ export function useActivityTicks() {
         }
         return null;
       })();
+      const skillingSetDropItem = (() => {
+        const areaIndex = gatheringAreaData.findIndex((a) => a.id === currentGatheringArea.areaId);
+        if (areaIndex < 0) return null;
+        if (Math.random() * 100 >= SKILLING_SET_DROP_CHANCE_PERCENT) return null;
+        const tier = getTierForGatheringAreaIndex(areaIndex);
+        const pieceIds = getSetPieceIds("gathering", tier);
+        const available = pieceIds.filter((id) => !ownedSkillingSetRef.current.has(id));
+        if (available.length === 0) return null;
+        const pieceId = available[Math.floor(Math.random() * available.length)];
+        return getSkillingSetItemById(pieceId) ?? null;
+      })();
       dispatch(
         completeGatheringCast({
           gatheringXP: currentGatheringArea.gatheringXP,
@@ -189,12 +260,16 @@ export function useActivityTicks() {
           rareDropChancePercent: currentGatheringArea.rareDropChancePercent,
           rareDropItemIds: currentGatheringArea.rareDropItemIds,
           rareDropItem: rareDropItem ?? undefined,
+          skillingSetDropItem: skillingSetDropItem ?? undefined,
         })
       );
       if (rareDropItem) {
         dispatch(addToast({ type: "rareDrop", itemName: rareDropItem.name }));
       }
-    }, currentGatheringArea.gatheringDelay);
+      if (skillingSetDropItem) {
+        dispatch(addToast({ type: "rareDrop", itemName: skillingSetDropItem.name }));
+      }
+    }, effectiveDuration);
     skipGatheringTimeoutClearRef.current = true;
     return () => {
       if (skipGatheringTimeoutClearRef.current) {
@@ -208,5 +283,6 @@ export function useActivityTicks() {
     currentGatheringArea,
     gatheringCastStartTime,
     dispatch,
+    skillSpeedBonusGathering,
   ]);
 }

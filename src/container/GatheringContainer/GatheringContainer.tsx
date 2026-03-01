@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentActivity, setCurrentGatheringArea } from "../../state/reducers/characterSlice";
 import "./GatheringContainer.css";
@@ -6,9 +6,10 @@ import { RootState } from "../../state/store";
 import GatheringArea from "../../components/GatheringArea/GatheringArea";
 import { gatheringAreaData, gatheringLootTypes } from "../../constants/data";
 import { getRingAmuletItemById } from "../../constants/ringsAmulets";
+import { getSkillingSetItemById, getSetPieceIds, getTierForGatheringAreaIndex } from "../../constants/skillingSets";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
-import { getOwnedRingAmuletIds } from "../../state/selectors/characterSelectors";
+import { getOwnedRingAmuletIds, getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
 import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
 
 const TICK_MS = 80;
@@ -24,6 +25,11 @@ const GatheringContainer = () => {
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
   const levelInfo = getGatheringLevelInfo(character.gatheringXP);
   const ownedRingAmuletIds = useSelector(getOwnedRingAmuletIds);
+  const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
+  const ownedLootIds = useMemo(
+    () => new Set([...ownedRingAmuletIds, ...ownedSkillingSetPieceIds]),
+    [ownedRingAmuletIds, ownedSkillingSetPieceIds]
+  );
   const isGathering = currentActivity === "gather" && currentGatheringArea != null;
 
   const progress =
@@ -102,8 +108,10 @@ const GatheringContainer = () => {
         style={{ width: `${progress}%` }}
       />
       <div className="gatheringContainer__areas">
-      {gatheringAreaData.map((area) => {
+      {gatheringAreaData.map((area, areaIndex) => {
         const unlocked = character.gatheringXP >= area.gatheringXPUnlock;
+        const tier = getTierForGatheringAreaIndex(areaIndex);
+        const setPieceIds = getSetPieceIds("gathering", tier);
         return (
           <GatheringArea
             key={area.id}
@@ -129,9 +137,14 @@ const GatheringContainer = () => {
                   if (rare) entries.push({ item: rare, chancePercent: area.rareDropChancePercent });
                 }
               }
+              const setChancePercent = 1 / 4;
+              for (const pieceId of setPieceIds) {
+                const piece = getSkillingSetItemById(pieceId);
+                if (piece) entries.push({ item: piece, chancePercent: setChancePercent });
+              }
               return entries.length > 0 ? entries : undefined;
             })()}
-            ownedRingAmuletIds={ownedRingAmuletIds}
+            ownedRingAmuletIds={ownedLootIds}
             unlocked={unlocked}
             onClick={() => {
               if (busyWithOther || !unlocked) return;
