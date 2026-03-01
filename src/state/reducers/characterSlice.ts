@@ -331,12 +331,14 @@ export const characterSlice = createSlice({
         fishingLootIds: number[];
         rareDropChancePercent?: number;
         rareDropItemIds?: number[];
+        /** When set, this rare drop was rolled in the caller; add it and do not roll again. */
+        rareDropItem?: Item | null;
       }>
     ) => {
       state.fishingCastStartTime = null;
       state.fishingCastDuration = 0;
       if (state.currentActivity !== "fish" || !state.currentFishingArea) return;
-      const { fishingXP, fishingLootIds, rareDropChancePercent, rareDropItemIds } = action.payload;
+      const { fishingXP, fishingLootIds, rareDropItem } = action.payload;
       state.fishingXP += fishingXP;
       const randomId =
         fishingLootIds[Math.floor(Math.random() * fishingLootIds.length)];
@@ -349,12 +351,17 @@ export const characterSlice = createSlice({
           state.items.push({ ...fish, quantity: 1 });
         }
       }
-      if (
-        rareDropChancePercent != null &&
-        rareDropItemIds != null &&
-        rareDropItemIds.length > 0 &&
-        Math.random() * 100 < rareDropChancePercent
+      if (rareDropItem) {
+        const existing = state.items.find((i) => i.id === rareDropItem.id);
+        if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
+        else state.items.push({ ...rareDropItem, quantity: 1 });
+      } else if (
+        action.payload.rareDropChancePercent != null &&
+        action.payload.rareDropItemIds != null &&
+        action.payload.rareDropItemIds.length > 0 &&
+        Math.random() * 100 < action.payload.rareDropChancePercent
       ) {
+        const rareDropItemIds = action.payload.rareDropItemIds;
         const rareId = rareDropItemIds[Math.floor(Math.random() * rareDropItemIds.length)];
         const rareItem = getRingAmuletItemById(rareId);
         if (rareItem) {
@@ -380,12 +387,12 @@ export const characterSlice = createSlice({
     },
     completeMiningCast: (
       state,
-      action: PayloadAction<{ miningXP: number; miningLootId: number }>
+      action: PayloadAction<{ miningXP: number; miningLootId: number; geodeDropped?: boolean }>
     ) => {
       state.miningCastStartTime = null;
       state.miningCastDuration = 0;
       if (state.currentActivity !== "mine" || !state.currentMiningArea) return;
-      const { miningXP, miningLootId } = action.payload;
+      const { miningXP, miningLootId, geodeDropped } = action.payload;
       state.miningXP += miningXP;
       const ore = oreTypes.find((o) => o.id === miningLootId);
       if (ore) {
@@ -396,7 +403,7 @@ export const characterSlice = createSlice({
           state.items.push({ ...ore, quantity: 1 });
         }
       }
-      if (Math.random() * 100 < 3) {
+      if (geodeDropped) {
         const existing = state.items.find((i) => i.id === GEODE_ITEM_ID);
         if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
         else state.items.push({ ...GEODE_ITEM, quantity: 1 });
@@ -423,12 +430,14 @@ export const characterSlice = createSlice({
         gatheringLootIds: number[];
         rareDropChancePercent?: number;
         rareDropItemIds?: number[];
+        /** When set, this rare drop was rolled in the caller; add it and do not roll again. */
+        rareDropItem?: Item | null;
       }>
     ) => {
       state.gatheringCastStartTime = null;
       state.gatheringCastDuration = 0;
       if (state.currentActivity !== "gather" || !state.currentGatheringArea) return;
-      const { gatheringXP, gatheringLootIds, rareDropChancePercent, rareDropItemIds } = action.payload;
+      const { gatheringXP, gatheringLootIds, rareDropItem } = action.payload;
       state.gatheringXP += gatheringXP;
       const randomId =
         gatheringLootIds[Math.floor(Math.random() * gatheringLootIds.length)];
@@ -441,12 +450,17 @@ export const characterSlice = createSlice({
           state.items.push({ ...loot, quantity: 1 });
         }
       }
-      if (
-        rareDropChancePercent != null &&
-        rareDropItemIds != null &&
-        rareDropItemIds.length > 0 &&
-        Math.random() * 100 < rareDropChancePercent
+      if (rareDropItem) {
+        const existing = state.items.find((i) => i.id === rareDropItem.id);
+        if (existing) existing.quantity = (existing.quantity ?? 1) + 1;
+        else state.items.push({ ...rareDropItem, quantity: 1 });
+      } else if (
+        action.payload.rareDropChancePercent != null &&
+        action.payload.rareDropItemIds != null &&
+        action.payload.rareDropItemIds.length > 0 &&
+        Math.random() * 100 < action.payload.rareDropChancePercent
       ) {
+        const rareDropItemIds = action.payload.rareDropItemIds;
         const rareId = rareDropItemIds[Math.floor(Math.random() * rareDropItemIds.length)];
         const rareItem = getRingAmuletItemById(rareId);
         if (rareItem) {

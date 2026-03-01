@@ -3,6 +3,8 @@ import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, R
 import storage from "redux-persist/lib/storage";
 import characterReducer from "./reducers/characterSlice";
 import contentReducer from "./reducers/contentSlice";
+import toastReducer from "./reducers/toastSlice";
+import { toastLevelUpMiddleware } from "./middleware/toastLevelUpMiddleware";
 
 const persistConfig = {
   key: "idle-cultivation",
@@ -14,6 +16,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   character: characterReducer,
   content: contentReducer,
+  toast: toastReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -25,7 +28,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }),
+    }).concat(toastLevelUpMiddleware),
 });
 
 export const persistor = persistStore(store);
