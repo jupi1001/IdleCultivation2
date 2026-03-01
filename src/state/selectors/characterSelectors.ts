@@ -1,6 +1,12 @@
 import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import {
+  FULL_SET_BONUS_PERCENT,
+  SKILLING_SET_IDS,
+  type SkillSetName,
+  type SkillSetTier,
+} from "../../constants/skillingSets";
 
 /** Sum equipment bonuses for combat stats. Sword & ring → attack; helmet, body & amulet → defense and vitality; combatTechnique & ring → attack speed; amulet → qiGainBonus. */
 function getEquipmentCombatBonuses(equipment: RootState["character"]["equipment"]) {
@@ -53,6 +59,47 @@ export const getOwnedRingAmuletIds = createSelector(
     return ids;
   }
 );
+
+/** Item ids the character owns that are skilling set pieces (for "Possible loot" checkmark). */
+export const getOwnedSkillingSetPieceIds = createSelector(
+  [(state: RootState) => state.character.items, (state: RootState) => state.character.equipment],
+  (items, equipment) => {
+    const ids = new Set<number>();
+    const slots: EquipmentSlot[] = ["helmet", "body", "legs", "shoes"];
+    for (const item of items) {
+      if (item.skillSet != null && item.skillSetTier != null) ids.add(item.id);
+    }
+    for (const slot of slots) {
+      const eq = equipment[slot];
+      if (eq?.skillSet != null && eq.skillSetTier != null) ids.add(eq.id);
+    }
+    return ids;
+  }
+);
+
+/** Skill speed bonus (0–100) for a given skill from equipped set pieces + full-set bonuses. */
+export const getSkillSpeedBonus = (skill: SkillSetName) =>
+  createSelector(
+    [(state: RootState) => state.character.equipment],
+    (equipment) => {
+      let total = 0;
+      const slots: ("helmet" | "body" | "legs" | "shoes")[] = ["helmet", "body", "legs", "shoes"];
+      for (const slot of slots) {
+        const item = equipment[slot];
+        if (item?.skillSet === skill && item.skillSpeedBonus != null) {
+          total += item.skillSpeedBonus;
+        }
+      }
+      const tiers: SkillSetTier[] = ["lesser", "greater", "perfected"];
+      for (const tier of tiers) {
+        const ids = SKILLING_SET_IDS[skill][tier];
+        const required = [ids.helmet, ids.body, ids.legs, ids.shoes];
+        const allEquipped = slots.every((slot, i) => equipment[slot]?.id === required[i]);
+        if (allEquipped) total += FULL_SET_BONUS_PERCENT[tier];
+      }
+      return total;
+    }
+  );
 
 /** Effective combat stats = realm + equipment + consumable bonus. Attack is multiplied by combat technique. Memoized so same inputs return same reference. */
 export const getEffectiveCombatStats = createSelector(

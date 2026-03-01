@@ -1,6 +1,6 @@
 import React from "react";
 import Item from "../../interfaces/ItemI";
-import LootTablePopover from "../LootTablePopover/LootTablePopover";
+import LootTablePopover, { type LootTableEntry } from "../LootTablePopover/LootTablePopover";
 import "./MiningArea.css";
 
 interface MiningAreaProps {
@@ -12,6 +12,10 @@ interface MiningAreaProps {
   requiredLevel: number;
   /** Possible ore from this area (single item; from data; dynamic). */
   possibleLoot: Item[];
+  /** Optional: entries with chance % (ore + set pieces). When set, used for LootTablePopover instead of possibleLoot. */
+  lootEntries?: LootTableEntry[];
+  /** Optional: item ids already owned (show checkmark in popover). */
+  ownedItemIds?: Set<number>;
   unlocked: boolean;
   onClick: () => void;
 }
@@ -30,6 +34,8 @@ const MiningArea: React.FC<MiningAreaProps> = ({
   miningDelay,
   requiredLevel,
   possibleLoot,
+  lootEntries,
+  ownedItemIds,
   unlocked,
   onClick,
 }) => {
@@ -55,7 +61,12 @@ const MiningArea: React.FC<MiningAreaProps> = ({
             Requires Mining Level {requiredLevel} to unlock
           </p>
         )}
-        <LootTablePopover items={possibleLoot} label="Possible find" />
+        <LootTablePopover
+          entries={lootEntries}
+          items={lootEntries == null ? possibleLoot : undefined}
+          ownedItemIds={ownedItemIds}
+          label="Possible find"
+        />
       </div>
     </div>
   );

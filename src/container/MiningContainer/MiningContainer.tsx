@@ -5,8 +5,11 @@ import "./MiningContainer.css";
 import { RootState } from "../../state/store";
 import MiningArea from "../../components/MiningArea/MiningArea";
 import { miningAreaData, oreTypes } from "../../constants/data";
+import { getSkillingSetItemById, getSetPieceIds, getTierForMiningAreaIndex } from "../../constants/skillingSets";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
+import { getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
+import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
 
 const TICK_MS = 80;
 
@@ -20,6 +23,7 @@ const MiningContainer = () => {
     currentActivity !== "none" && currentActivity !== "mine";
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
   const levelInfo = getMiningLevelInfo(character.miningXP);
+  const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const isMining = currentActivity === "mine" && currentMiningArea != null;
 
   const progress =
@@ -91,8 +95,19 @@ const MiningContainer = () => {
         style={{ width: `${progress}%` }}
       />
       <div className="miningContainer__areas">
-      {miningAreaData.map((area) => {
+      {miningAreaData.map((area, areaIndex) => {
         const unlocked = character.miningXP >= area.miningXPUnlock;
+        const tier = getTierForMiningAreaIndex(areaIndex);
+        const setPieceIds = getSetPieceIds("mining", tier);
+        const ore = oreTypes.find((o) => o.id === area.miningLootId);
+        const lootEntries: LootTableEntry[] = ore
+          ? [{ item: ore, chancePercent: 100 }]
+          : [];
+        const setChancePercent = 1 / 4;
+        for (const pieceId of setPieceIds) {
+          const piece = getSkillingSetItemById(pieceId);
+          if (piece) lootEntries.push({ item: piece, chancePercent: setChancePercent });
+        }
         return (
           <MiningArea
             key={area.id}
@@ -102,10 +117,9 @@ const MiningContainer = () => {
             miningXP={area.miningXP}
             miningDelay={area.miningDelay}
             requiredLevel={getMiningLevelInfo(area.miningXPUnlock).level}
-            possibleLoot={(() => {
-              const ore = oreTypes.find((o) => o.id === area.miningLootId);
-              return ore ? [ore] : [];
-            })()}
+            possibleLoot={ore ? [ore] : []}
+            lootEntries={lootEntries.length > 0 ? lootEntries : undefined}
+            ownedItemIds={ownedSkillingSetPieceIds}
             unlocked={unlocked}
             onClick={() => {
               if (busyWithOther || !unlocked) return;
