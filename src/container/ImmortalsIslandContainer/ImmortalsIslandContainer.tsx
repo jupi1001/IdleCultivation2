@@ -25,6 +25,8 @@ import {
   EXPEDITION_MISSIONS,
   getExpeditionItem,
 } from "../../constants/expeditions";
+import { rollOneTimeDropFromTable } from "../../utils/oneTimeDrops";
+import { getOwnedItemIds } from "../../utils/ownership";
 import type { MissionI } from "../../interfaces/MissionI";
 import "./ImmortalsIslandContainer.css";
 
@@ -108,18 +110,12 @@ export const ImmortalsIslandContainer = () => {
             mission.spiritStonesMin +
             Math.floor(Math.random() * (mission.spiritStonesMax - mission.spiritStonesMin + 1));
           dispatch(addMoney(spiritStones));
+          const ownedIds = getOwnedItemIds({ items: current.items, equipment: current.equipment });
+          const rareItem = rollOneTimeDropFromTable(ownedIds, mission.rareDrops, getExpeditionItem);
           let rareItemName: string | null = null;
-          for (const drop of mission.rareDrops) {
-            const alreadyHas = current.items.some((i) => i.id === drop.itemId);
-            if (alreadyHas) continue;
-            if (Math.random() < drop.chance) {
-              const item = getExpeditionItem(drop.itemId);
-              if (item) {
-                dispatch(addItem({ ...item, quantity: 1 }));
-                rareItemName = item.name;
-                break;
-              }
-            }
+          if (rareItem) {
+            dispatch(addItem({ ...rareItem, quantity: 1 }));
+            rareItemName = rareItem.name;
           }
           dispatch(clearExpedition({ entityType: "main" }));
           dispatch(addToast({ type: "expedition", expeditionName: mission.name, spiritStones, rareItemName }));
@@ -136,19 +132,13 @@ export const ImmortalsIslandContainer = () => {
             mission.spiritStonesMin +
             Math.floor(Math.random() * (mission.spiritStonesMax - mission.spiritStonesMin + 1));
           dispatch(addMoney(spiritStones));
-          let rareItemName: string | null = null;
           const stateForRare = characterRef.current;
-          for (const drop of mission.rareDrops) {
-            const alreadyHas = stateForRare.items.some((i) => i.id === drop.itemId);
-            if (alreadyHas) continue;
-            if (Math.random() < drop.chance) {
-              const item = getExpeditionItem(drop.itemId);
-              if (item) {
-                dispatch(addItem({ ...item, quantity: 1 }));
-                rareItemName = item.name;
-                break;
-              }
-            }
+          const ownedIds = getOwnedItemIds({ items: stateForRare.items, equipment: stateForRare.equipment });
+          const rareItem = rollOneTimeDropFromTable(ownedIds, mission.rareDrops, getExpeditionItem);
+          let rareItemName: string | null = null;
+          if (rareItem) {
+            dispatch(addItem({ ...rareItem, quantity: 1 }));
+            rareItemName = rareItem.name;
           }
           dispatch(clearExpedition({ entityType: "avatar", avatarId: avatar.id }));
           dispatch(

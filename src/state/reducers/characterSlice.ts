@@ -1,3 +1,8 @@
+/**
+ * Character state and reducers. One activity at a time (currentActivity); when switching
+ * activity, cast state for other skills is cleared. Cast completion is idempotent by castId:
+ * complete*Cast ignores the payload if payload.castId !== state.*CastId.
+ */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { CultivationPath } from "../../constants/cultivationPath";
 import { fishTypes, gatheringLootTypes, oreTypes, SECT_POSITIONS } from "../../constants/data";
@@ -86,14 +91,20 @@ interface CharacterState {
   /** Current cast progress: start time (ms) and duration (ms); null when no cast in progress */
   fishingCastStartTime: number | null;
   fishingCastDuration: number;
+  /** Monotonic id for the current/last fishing cast; completion is ignored unless payload.castId matches (idempotent). */
+  fishingCastId: number;
   miningXP: number;
   currentMiningArea: CurrentMiningArea | null;
   miningCastStartTime: number | null;
   miningCastDuration: number;
+  /** Monotonic id for the current/last mining cast; completion is ignored unless payload.castId matches (idempotent). */
+  miningCastId: number;
   gatheringXP: number;
   currentGatheringArea: CurrentGatheringArea | null;
   gatheringCastStartTime: number | null;
   gatheringCastDuration: number;
+  /** Monotonic id for the current/last gathering cast; completion is ignored unless payload.castId matches (idempotent). */
+  gatheringCastId: number;
   /** XP for alchemy; backloaded curve, level from total XP; affects pill craft success chance */
   alchemyXP: number;
   /** XP for forging; backloaded curve, level from total XP */
@@ -145,14 +156,17 @@ const initialState: CharacterState = {
   currentFishingArea: null,
   fishingCastStartTime: null,
   fishingCastDuration: 0,
+  fishingCastId: 0,
   miningXP: 0,
   currentMiningArea: null,
   miningCastStartTime: null,
   miningCastDuration: 0,
+  miningCastId: 0,
   gatheringXP: 0,
   currentGatheringArea: null,
   gatheringCastStartTime: null,
   gatheringCastDuration: 0,
+  gatheringCastId: 0,
   alchemyXP: 0,
   forgingXP: 0,
   cookingXP: 0,
@@ -335,14 +349,17 @@ export const characterSlice = createSlice({
     },
     setFishingCast: (
       state,
-      action: PayloadAction<{ startTime: number; duration: number }>
+      action: PayloadAction<{ startTime: number; duration: number; castId: number }>
     ) => {
       state.fishingCastStartTime = action.payload.startTime;
       state.fishingCastDuration = action.payload.duration;
+      state.fishingCastId = action.payload.castId;
     },
+    /** Completion is idempotent: ignored if payload.castId !== state.fishingCastId (e.g. duplicate/late timeout). */
     completeFishingCast: (
       state,
       action: PayloadAction<{
+        castId: number;
         fishingXP: number;
         fishingLootIds: number[];
         rareDropChancePercent?: number;
@@ -355,6 +372,7 @@ export const characterSlice = createSlice({
     ) => {
       state.fishingCastStartTime = null;
       state.fishingCastDuration = 0;
+      if (action.payload.castId !== state.fishingCastId) return;
       if (state.currentActivity !== "fish" || !state.currentFishingArea) return;
       const { fishingXP, fishingLootIds, rareDropItem } = action.payload;
       state.fishingXP += fishingXP;
@@ -408,17 +426,20 @@ export const characterSlice = createSlice({
     },
     setMiningCast: (
       state,
-      action: PayloadAction<{ startTime: number; duration: number }>
+      action: PayloadAction<{ startTime: number; duration: number; castId: number }>
     ) => {
       state.miningCastStartTime = action.payload.startTime;
       state.miningCastDuration = action.payload.duration;
+      state.miningCastId = action.payload.castId;
     },
+    /** Completion is idempotent: ignored if payload.castId !== state.miningCastId (e.g. duplicate/late timeout). */
     completeMiningCast: (
       state,
-      action: PayloadAction<{ miningXP: number; miningLootId: number; geodeDropped?: boolean; skillingSetDropItem?: Item | null }>
+      action: PayloadAction<{ castId: number; miningXP: number; miningLootId: number; geodeDropped?: boolean; skillingSetDropItem?: Item | null }>
     ) => {
       state.miningCastStartTime = null;
       state.miningCastDuration = 0;
+      if (action.payload.castId !== state.miningCastId) return;
       if (state.currentActivity !== "mine" || !state.currentMiningArea) return;
       const { miningXP, miningLootId, geodeDropped } = action.payload;
       state.miningXP += miningXP;
@@ -454,14 +475,17 @@ export const characterSlice = createSlice({
     },
     setGatheringCast: (
       state,
-      action: PayloadAction<{ startTime: number; duration: number }>
+      action: PayloadAction<{ startTime: number; duration: number; castId: number }>
     ) => {
       state.gatheringCastStartTime = action.payload.startTime;
       state.gatheringCastDuration = action.payload.duration;
+      state.gatheringCastId = action.payload.castId;
     },
+    /** Completion is idempotent: ignored if payload.castId !== state.gatheringCastId (e.g. duplicate/late timeout). */
     completeGatheringCast: (
       state,
       action: PayloadAction<{
+        castId: number;
         gatheringXP: number;
         gatheringLootIds: number[];
         rareDropChancePercent?: number;
@@ -474,6 +498,7 @@ export const characterSlice = createSlice({
     ) => {
       state.gatheringCastStartTime = null;
       state.gatheringCastDuration = 0;
+      if (action.payload.castId !== state.gatheringCastId) return;
       if (state.currentActivity !== "gather" || !state.currentGatheringArea) return;
       const { gatheringXP, gatheringLootIds, rareDropItem } = action.payload;
       state.gatheringXP += gatheringXP;
@@ -604,17 +629,17 @@ export const characterSlice = createSlice({
         | { endTime: number; missionId: number; entityType: "avatar"; avatarId: number }
       >
     ) => {
-      const { endTime, missionId, entityType } = action.payload;
-      if (entityType === "main") {
-        state.expeditionEndTime = endTime;
-        state.expeditionMissionId = missionId;
+      const payload = action.payload;
+      if (payload.entityType === "main") {
+        state.expeditionEndTime = payload.endTime;
+        state.expeditionMissionId = payload.missionId;
         state.currentActivity = "expedition";
       } else {
-        const avatar = state.avatars.find((a) => a.id === action.payload.avatarId);
+        const avatar = state.avatars.find((a) => a.id === payload.avatarId);
         if (avatar) {
           avatar.isBusy = true;
-          avatar.expeditionEndTime = endTime;
-          avatar.expeditionMissionId = missionId;
+          avatar.expeditionEndTime = payload.endTime;
+          avatar.expeditionMissionId = payload.missionId;
         }
       }
     },
@@ -622,12 +647,13 @@ export const characterSlice = createSlice({
       state,
       action: PayloadAction<{ entityType: "main" } | { entityType: "avatar"; avatarId: number }>
     ) => {
-      if (action.payload.entityType === "main") {
+      const payload = action.payload;
+      if (payload.entityType === "main") {
         state.expeditionEndTime = null;
         state.expeditionMissionId = null;
         if (state.currentActivity === "expedition") state.currentActivity = "none";
       } else {
-        const avatar = state.avatars.find((a) => a.id === action.payload.avatarId);
+        const avatar = state.avatars.find((a) => a.id === payload.avatarId);
         if (avatar) {
           avatar.isBusy = false;
           avatar.expeditionEndTime = null;
