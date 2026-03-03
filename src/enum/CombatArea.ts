@@ -31,4 +31,12 @@ export enum CombatArea {
 
   // Immortal
   PALACE = "Jade Immortal Court",
+
+  // Sect raid areas (not shown in Martial Training; used for cross-path sect battles)
+  JADE_MOUNTAIN_RAID = "Jade Mountain Sect Raid",
+  VERDANT_VALLEY_RAID = "Verdant Valley Sect Raid",
+  AZURE_SKY_RAID = "Azure Sky Pavilion Raid",
+  CRIMSON_DEMON_RAID = "Crimson Demon Sect Raid",
+  SHADOW_SERPENT_RAID = "Shadow Serpent Hall Raid",
+  BONE_ABYSS_RAID = "Bone Abyss Sect Raid",
 }

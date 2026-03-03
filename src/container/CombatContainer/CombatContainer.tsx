@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { enemies } from "../../constants/data";
+import { enemies, getSectRaidLootForRank, sectsData } from "../../constants/data";
 import { getCharacterImage, UI_ASSETS } from "../../constants/ui";
 import EnemyI from "../../interfaces/EnemyI";
 import EnemyLootPopover from "../../components/EnemyLootPopover/EnemyLootPopover";
@@ -12,6 +12,7 @@ import Item from "../../interfaces/ItemI";
 import { changeContent } from "../../state/reducers/contentSlice";
 import { ContentArea } from "../../enum/ContentArea";
 import { AREA_REALM_REQUIREMENTS, canEnterArea } from "../../constants/areaRealmRequirements";
+import { CombatArea } from "../../enum/CombatArea";
 
 const ENEMY_ATTACK_INTERVAL_MS = 3000;
 
@@ -163,8 +164,47 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
    * Adds 1 item from the enemy drop table to the item bag. Techniques (qi/combat) are only added once per character; duplicates are skipped.
    */
   const addLootToItemBag = (enemy: EnemyI) => {
-    const items = enemy.loot?.items;
-    const weightRef = enemy.loot?.weight;
+    let items = enemy.loot?.items;
+    let weightRef = enemy.loot?.weight;
+
+    // For sect raid areas, build loot dynamically based on which sect is being raided and the raider's sect rank.
+    if (
+      area === CombatArea.JADE_MOUNTAIN_RAID ||
+      area === CombatArea.VERDANT_VALLEY_RAID ||
+      area === CombatArea.AZURE_SKY_RAID ||
+      area === CombatArea.CRIMSON_DEMON_RAID ||
+      area === CombatArea.SHADOW_SERPENT_RAID ||
+      area === CombatArea.BONE_ABYSS_RAID
+    ) {
+      const sectByArea: Record<string, number> = {
+        [CombatArea.JADE_MOUNTAIN_RAID]: 1,
+        [CombatArea.VERDANT_VALLEY_RAID]: 2,
+        [CombatArea.AZURE_SKY_RAID]: 3,
+        [CombatArea.CRIMSON_DEMON_RAID]: 4,
+        [CombatArea.SHADOW_SERPENT_RAID]: 5,
+        [CombatArea.BONE_ABYSS_RAID]: 6,
+      };
+      const sectId = sectByArea[area ?? ""];
+      const currentSect = character.currentSectId != null
+        ? sectsData.find((s) => s.id === character.currentSectId)
+        : null;
+
+      // Only allow cross-path raids: your own sect path vs opposing sect path.
+      if (
+        sectId != null &&
+        currentSect != null &&
+        currentSect.path === character.path
+      ) {
+        const targetSect = sectsData.find((s) => s.id === sectId);
+        if (targetSect && targetSect.path !== currentSect.path && character.sectRankIndex > 0) {
+          const loot = getSectRaidLootForRank(sectId, character.sectRankIndex);
+          if (loot) {
+            items = loot.items;
+            weightRef = loot.weight;
+          }
+        }
+      }
+    }
 
     if (!items) return;
     if (!weightRef) return;
@@ -268,8 +308,45 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   }, [fightingInterval]);
 
   const enemyLootEntries = useMemo(() => {
-    const items = currentEnemy?.loot?.items;
-    const weights = currentEnemy?.loot?.weight;
+    let items = currentEnemy?.loot?.items;
+    let weights = currentEnemy?.loot?.weight;
+
+    // Mirror dynamic loot logic for the popover so chances match actual drops.
+    if (
+      area === CombatArea.JADE_MOUNTAIN_RAID ||
+      area === CombatArea.VERDANT_VALLEY_RAID ||
+      area === CombatArea.AZURE_SKY_RAID ||
+      area === CombatArea.CRIMSON_DEMON_RAID ||
+      area === CombatArea.SHADOW_SERPENT_RAID ||
+      area === CombatArea.BONE_ABYSS_RAID
+    ) {
+      const sectByArea: Record<string, number> = {
+        [CombatArea.JADE_MOUNTAIN_RAID]: 1,
+        [CombatArea.VERDANT_VALLEY_RAID]: 2,
+        [CombatArea.AZURE_SKY_RAID]: 3,
+        [CombatArea.CRIMSON_DEMON_RAID]: 4,
+        [CombatArea.SHADOW_SERPENT_RAID]: 5,
+        [CombatArea.BONE_ABYSS_RAID]: 6,
+      };
+      const sectId = sectByArea[area ?? ""];
+      const currentSect = character.currentSectId != null
+        ? sectsData.find((s) => s.id === character.currentSectId)
+        : null;
+      if (
+        sectId != null &&
+        currentSect != null &&
+        currentSect.path === character.path
+      ) {
+        const targetSect = sectsData.find((s) => s.id === sectId);
+        if (targetSect && targetSect.path !== currentSect.path && character.sectRankIndex > 0) {
+          const loot = getSectRaidLootForRank(sectId, character.sectRankIndex);
+          if (loot) {
+            items = loot.items;
+            weights = loot.weight;
+          }
+        }
+      }
+    }
     if (!currentEnemy || !items?.length || !weights?.length || items.length !== weights.length)
       return [];
     const total = weights.reduce((a, b) => a + b, 0);
