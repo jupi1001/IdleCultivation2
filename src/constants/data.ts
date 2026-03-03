@@ -151,6 +151,20 @@ export const sectStoreData: Record<number, SectStoreEntryI[]> = {
   ],
 };
 
+/** Rank-aware sect raid loot helpers. For a given sect id and raider sect rank, return items and weights. */
+export function getSectRaidLootForRank(
+  sectId: number,
+  sectRankIndex: number
+): { items: Item[]; weight: number[] } | null {
+  const entries = sectStoreData[sectId];
+  if (!entries || sectRankIndex <= 0) return null;
+  const eligible = entries.filter((e) => e.requiredRankIndex <= sectRankIndex);
+  if (eligible.length === 0) return null;
+  const items = eligible.map((e) => e.item);
+  const weight = eligible.map(() => 1);
+  return { items, weight };
+}
+
 /** Sects on the world map. 3 Righteous, 3 Demonic. positionX/Y are percentage (0–100) for map pin. */
 export const sectsData: SectI[] = [
   { id: 1, name: "Jade Mountain Sect", description: "A righteous sect known for sword arts and strict discipline.", path: "Righteous", positionX: 23, positionY: 36 },
@@ -309,6 +323,33 @@ export const enemies: EnemyI[] = [
   { id: 53, name: "Golden Seal Arbiter", attack: 56, defense: 45, health: 285, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Golden Seal Arbiter")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9]], weight: [1] } },
   { id: 54, name: "Azure Hall Guardian", attack: 55, defense: 44, health: 280, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Azure Hall Guardian")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9]], weight: [1] } },
   { id: 55, name: "Celestial Punisher", attack: 58, defense: 47, health: 300, location: CombatArea.PALACE, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Celestial Punisher")}.webp`, loot: { items: [COMBAT_LOOT_QI_PILLS[9], QI_TECHNIQUES[14]], weight: [8, 1] } },
+
+  // Sect raid enemies – cross-path sect battles (loot handled dynamically based on raider rank and sect)
+  // Righteous sects (raided by Demonic-path players)
+  { id: 101, name: "Jade Mountain Outer Disciple", attack: 18, defense: 14, health: 85, location: CombatArea.JADE_MOUNTAIN_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Jade Mountain Outer Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 102, name: "Jade Mountain Inner Disciple", attack: 24, defense: 18, health: 115, location: CombatArea.JADE_MOUNTAIN_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Jade Mountain Inner Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 103, name: "Jade Mountain Core Disciple", attack: 30, defense: 22, health: 145, location: CombatArea.JADE_MOUNTAIN_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Jade Mountain Core Disciple")}.webp`, loot: { items: [], weight: [] } },
+
+  { id: 104, name: "Verdant Valley Outer Disciple", attack: 18, defense: 13, health: 80, location: CombatArea.VERDANT_VALLEY_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Verdant Valley Outer Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 105, name: "Verdant Valley Inner Disciple", attack: 23, defense: 17, health: 110, location: CombatArea.VERDANT_VALLEY_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Verdant Valley Inner Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 106, name: "Verdant Valley Core Disciple", attack: 29, defense: 21, health: 140, location: CombatArea.VERDANT_VALLEY_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Verdant Valley Core Disciple")}.webp`, loot: { items: [], weight: [] } },
+
+  { id: 107, name: "Azure Sky Outer Disciple", attack: 19, defense: 14, health: 88, location: CombatArea.AZURE_SKY_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Azure Sky Outer Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 108, name: "Azure Sky Inner Disciple", attack: 25, defense: 18, health: 118, location: CombatArea.AZURE_SKY_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Azure Sky Inner Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 109, name: "Azure Sky Core Disciple", attack: 31, defense: 22, health: 148, location: CombatArea.AZURE_SKY_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Azure Sky Core Disciple")}.webp`, loot: { items: [], weight: [] } },
+
+  // Demonic sects (raided by Righteous-path players)
+  { id: 110, name: "Crimson Demon Outer Disciple", attack: 20, defense: 13, health: 90, location: CombatArea.CRIMSON_DEMON_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Crimson Demon Outer Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 111, name: "Crimson Demon Inner Disciple", attack: 26, defense: 17, health: 120, location: CombatArea.CRIMSON_DEMON_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Crimson Demon Inner Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 112, name: "Crimson Demon Core Disciple", attack: 32, defense: 21, health: 150, location: CombatArea.CRIMSON_DEMON_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Crimson Demon Core Disciple")}.webp`, loot: { items: [], weight: [] } },
+
+  { id: 113, name: "Shadow Serpent Outer Disciple", attack: 21, defense: 12, health: 88, location: CombatArea.SHADOW_SERPENT_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Shadow Serpent Outer Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 114, name: "Shadow Serpent Inner Disciple", attack: 27, defense: 16, health: 118, location: CombatArea.SHADOW_SERPENT_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Shadow Serpent Inner Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 115, name: "Shadow Serpent Core Disciple", attack: 33, defense: 20, health: 148, location: CombatArea.SHADOW_SERPENT_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Shadow Serpent Core Disciple")}.webp`, loot: { items: [], weight: [] } },
+
+  { id: 116, name: "Bone Abyss Outer Disciple", attack: 22, defense: 14, health: 95, location: CombatArea.BONE_ABYSS_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bone Abyss Outer Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 117, name: "Bone Abyss Inner Disciple", attack: 28, defense: 18, health: 125, location: CombatArea.BONE_ABYSS_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bone Abyss Inner Disciple")}.webp`, loot: { items: [], weight: [] } },
+  { id: 118, name: "Bone Abyss Core Disciple", attack: 34, defense: 22, health: 155, location: CombatArea.BONE_ABYSS_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bone Abyss Core Disciple")}.webp`, loot: { items: [], weight: [] } },
 ];
 
 /** Base path for fishing area images. Add images under public/assets/fishing/ */

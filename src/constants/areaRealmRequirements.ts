@@ -20,6 +20,14 @@ export const AREA_REALM_REQUIREMENTS: Record<string, RealmRequirement> = {
   [CombatArea.SEA]: { realmId: "Mahayana", realmLevel: 1 },
   [CombatArea.STORM]: { realmId: "Tribulation Transcendent", realmLevel: 1 },
   [CombatArea.PALACE]: { realmId: "Immortal", realmLevel: 1 },
+
+  // Sect raid areas – accessible from early sect progression (Outer Disciple / Qi Condensation)
+  [CombatArea.JADE_MOUNTAIN_RAID]: { realmId: "Qi Condensation", realmLevel: 1 },
+  [CombatArea.VERDANT_VALLEY_RAID]: { realmId: "Qi Condensation", realmLevel: 1 },
+  [CombatArea.AZURE_SKY_RAID]: { realmId: "Qi Condensation", realmLevel: 1 },
+  [CombatArea.CRIMSON_DEMON_RAID]: { realmId: "Qi Condensation", realmLevel: 1 },
+  [CombatArea.SHADOW_SERPENT_RAID]: { realmId: "Qi Condensation", realmLevel: 1 },
+  [CombatArea.BONE_ABYSS_RAID]: { realmId: "Qi Condensation", realmLevel: 1 },
 };
 
 export function canEnterArea(

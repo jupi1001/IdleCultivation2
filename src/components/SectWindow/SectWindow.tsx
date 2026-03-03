@@ -4,6 +4,9 @@ import { setSect } from "../../state/reducers/characterSlice";
 import { RootState } from "../../state/store";
 import { sectsData } from "../../constants/data";
 import SectI from "../../interfaces/SectI";
+import { changeContent } from "../../state/reducers/contentSlice";
+import { ContentArea } from "../../enum/ContentArea";
+import { CombatArea } from "../../enum/CombatArea";
 import "./SectWindow.css";
 
 interface SectWindowProps {
@@ -15,11 +18,35 @@ export const SectWindow: React.FC<SectWindowProps> = ({ sect, onClose }) => {
   const dispatch = useDispatch();
   const path = useSelector((state: RootState) => state.character.path);
   const currentSectId = useSelector((state: RootState) => state.character.currentSectId);
+  const sectRankIndex = useSelector((state: RootState) => state.character.sectRankIndex);
   const isMember = currentSectId === sect.id;
   const pathMatches = path != null && sect.path === path;
   const inAnotherSect = currentSectId != null && currentSectId !== sect.id;
   const currentSect = currentSectId != null ? sectsData.find((s) => s.id === currentSectId) : null;
   const canJoin = pathMatches && !inAnotherSect;
+
+  const isOpposingSect = path != null && sect.path !== path;
+  const isOnOwnPathSect = currentSect != null && currentSect.path === path;
+  const isEligibleRaider = isOnOwnPathSect && isOpposingSect && sectRankIndex > 0;
+
+  const getRaidAreaForSect = (s: SectI): CombatArea | null => {
+    switch (s.id) {
+      case 1:
+        return CombatArea.JADE_MOUNTAIN_RAID;
+      case 2:
+        return CombatArea.VERDANT_VALLEY_RAID;
+      case 3:
+        return CombatArea.AZURE_SKY_RAID;
+      case 4:
+        return CombatArea.CRIMSON_DEMON_RAID;
+      case 5:
+        return CombatArea.SHADOW_SERPENT_RAID;
+      case 6:
+        return CombatArea.BONE_ABYSS_RAID;
+      default:
+        return null;
+    }
+  };
 
   const handleJoin = () => {
     if (canJoin) dispatch(setSect(sect.id));
@@ -27,6 +54,14 @@ export const SectWindow: React.FC<SectWindowProps> = ({ sect, onClose }) => {
 
   const handleLeave = () => {
     dispatch(setSect(null));
+  };
+
+  const handleBattle = () => {
+    if (!isEligibleRaider) return;
+    const raidArea = getRaidAreaForSect(sect);
+    if (!raidArea) return;
+    dispatch(changeContent(`${ContentArea.COMBAT}:${raidArea}`));
+    onClose();
   };
 
   const joinDisabledTitle = !pathMatches
@@ -47,6 +82,11 @@ export const SectWindow: React.FC<SectWindowProps> = ({ sect, onClose }) => {
         <h2 id="sect-window-title" className="sectWindow__title">{sect.name}</h2>
         <p className="sectWindow__path">{sect.path} sect</p>
         <p className="sectWindow__description">{sect.description}</p>
+        {isOpposingSect && (
+          <p className="sectWindow__pathOnly sectWindow__pathOnly--info">
+            You follow the <strong>{path}</strong> path; this is an opposing sect. At higher ranks, you can battle its disciples for their techniques and treasures.
+          </p>
+        )}
         {!pathMatches && !isMember && path != null && (
           <p className="sectWindow__pathOnly">Only cultivators on the {sect.path} path may join this sect.</p>
         )}
@@ -69,6 +109,21 @@ export const SectWindow: React.FC<SectWindowProps> = ({ sect, onClose }) => {
               title={joinDisabledTitle}
             >
               Join sect
+            </button>
+          )}
+          {isOpposingSect && (
+            <button
+              type="button"
+              className="sectWindow__btn sectWindow__btn--join"
+              onClick={handleBattle}
+              disabled={!isEligibleRaider}
+              title={
+                isEligibleRaider
+                  ? "Battle this sect's disciples for loot matching your sect rank."
+                  : "Requires you to be at least an Outer Disciple in a sect on your own path before you can battle this opposing sect."
+              }
+            >
+              Battle this sect
             </button>
           )}
           <button type="button" className="sectWindow__btn sectWindow__btn--close" onClick={onClose}>
