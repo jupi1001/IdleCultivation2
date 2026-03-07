@@ -28,6 +28,7 @@ import { CookingContainer } from "../CookingContainer/CookingContainer";
 import { MeditationContainer } from "../MeditationContainer/MeditationContainer";
 import { CultivationTreeContainer } from "../CultivationTreeContainer/CultivationTreeContainer";
 import { ImmortalsIslandContainer } from "../ImmortalsIslandContainer/ImmortalsIslandContainer";
+import { ReincarnationContainer } from "../ReincarnationContainer/ReincarnationContainer";
 import { useActivityTicks } from "../../hooks/useActivityTicks";
 import { useVitalityRegen } from "../../hooks/useVitalityRegen";
 
@@ -110,6 +111,7 @@ export const Main = () => {
         {content === ContentArea.FORGING && <ForgingContainer />}
         {content === ContentArea.COOKING && <CookingContainer />}
         {content === ContentArea.IMMORTALS_ISLAND && <ImmortalsIslandContainer />}
+        {content === ContentArea.REINCARNATION && <ReincarnationContainer />}
       </div>
 
       <div className="app__main-right">

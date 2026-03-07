@@ -15,6 +15,12 @@ import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
 import type { ActivityType } from "../../constants/activities";
 import {
+  type KarmaBonusId,
+  KARMA_BONUSES_BY_ID,
+  calculateKarmaEarned,
+  REINCARNATION_MIN_STEP,
+} from "../../constants/reincarnation";
+import {
   AVATAR_CREATE_ORE_AMOUNT,
   AVATAR_CREATE_ORE_ID,
   AVATAR_CREATE_SPIRIT_STONES,
@@ -143,6 +149,14 @@ interface CharacterState {
   lastActiveTimestamp: number;
   /** After applying offline progress, summary to show in Welcome Back modal; null after dismiss. */
   lastOfflineSummary: OfflineProgressSummary | null;
+  /** Number of times the player has reincarnated. */
+  reincarnationCount: number;
+  /** Unspent Karma Points (currency for prestige bonuses). */
+  karmaPoints: number;
+  /** Total Karma Points ever earned (for display). */
+  totalKarmaEarned: number;
+  /** Purchased levels for each karma bonus. */
+  karmaBonusLevels: Partial<Record<KarmaBonusId, number>>;
 }
 
 /** Display-only summary for the Welcome Back modal (no item lists). */
@@ -210,6 +224,10 @@ const initialState: CharacterState = {
   currentHealth: initialCombatStats.health,
   lastActiveTimestamp: 0,
   lastOfflineSummary: null,
+  reincarnationCount: 0,
+  karmaPoints: 0,
+  totalKarmaEarned: 0,
+  karmaBonusLevels: {},
 };
 
 export const characterSlice = createSlice({
@@ -734,6 +752,104 @@ export const characterSlice = createSlice({
     clearOfflineSummary: (state) => {
       state.lastOfflineSummary = null;
     },
+    /**
+     * Reincarnate: reset most progress, earn Karma Points based on realm + skill levels.
+     * Preserves: path, gender, reincarnation stats, karma bonuses, and unique items
+     * (techniques, skilling set pieces, rings, amulets).
+     */
+    reincarnate: (state, action: PayloadAction<{ karmaEarned: number }>) => {
+      const step = getStepIndex(state.realm, state.realmLevel);
+      if (step < REINCARNATION_MIN_STEP) return;
+
+      const startingMoneyLevel = state.karmaBonusLevels.startingMoney ?? 0;
+      const startingMoneyBonus = startingMoneyLevel * (KARMA_BONUSES_BY_ID.startingMoney?.valuePerLevel ?? 0);
+
+      const isUniqueItem = (item: Item): boolean =>
+        item.equipmentSlot === "qiTechnique" ||
+        item.equipmentSlot === "combatTechnique" ||
+        item.equipmentSlot === "ring" ||
+        item.equipmentSlot === "amulet" ||
+        item.skillSet != null;
+
+      const preservedItems: Item[] = [];
+      const seenIds = new Set<number>();
+      for (const item of state.items) {
+        if (isUniqueItem(item) && !seenIds.has(item.id)) {
+          preservedItems.push({ ...item, quantity: 1 });
+          seenIds.add(item.id);
+        }
+      }
+      for (const slot of ALL_EQUIPMENT_SLOTS) {
+        const eq = state.equipment[slot];
+        if (eq && isUniqueItem(eq) && !seenIds.has(eq.id)) {
+          preservedItems.push({ ...eq, quantity: 1 });
+          seenIds.add(eq.id);
+        }
+      }
+
+      state.reincarnationCount += 1;
+      state.karmaPoints += action.payload.karmaEarned;
+      state.totalKarmaEarned += action.payload.karmaEarned;
+
+      const stats = getCombatStatsFromRealm("Mortal", 0);
+      state.name = "Mortal";
+      state.realm = "Mortal";
+      state.realmLevel = 0;
+      state.attack = stats.attack;
+      state.defense = stats.defense;
+      state.health = stats.health;
+      state.currentHealth = stats.health;
+      state.qi = 0;
+      state.money = 500 + startingMoneyBonus;
+      state.miner = 0;
+      state.items = preservedItems;
+      state.equipment = ALL_EQUIPMENT_SLOTS.reduce(
+        (acc, slot) => ({ ...acc, [slot]: null }),
+        {} as Record<EquipmentSlot, Item | null>
+      );
+      state.fishingXP = 0;
+      state.miningXP = 0;
+      state.gatheringXP = 0;
+      state.alchemyXP = 0;
+      state.forgingXP = 0;
+      state.cookingXP = 0;
+      state.bonusAttack = 0;
+      state.bonusDefense = 0;
+      state.bonusHealth = 0;
+      state.talentLevels = {};
+      state.currentSectId = null;
+      state.sectRankIndex = 0;
+      state.promotionEndTime = null;
+      state.promotionToRankIndex = null;
+      state.avatars = [];
+      state.nextAvatarId = 1;
+      state.expeditionEndTime = null;
+      state.expeditionMissionId = null;
+      state.currentActivity = "none";
+      state.currentFishingArea = null;
+      state.fishingCastStartTime = null;
+      state.fishingCastDuration = 0;
+      state.fishingCastId = 0;
+      state.currentMiningArea = null;
+      state.miningCastStartTime = null;
+      state.miningCastDuration = 0;
+      state.miningCastId = 0;
+      state.currentGatheringArea = null;
+      state.gatheringCastStartTime = null;
+      state.gatheringCastDuration = 0;
+      state.gatheringCastId = 0;
+      state.lastActiveTimestamp = Date.now();
+      state.lastOfflineSummary = null;
+    },
+    purchaseKarmaBonus: (state, action: PayloadAction<KarmaBonusId>) => {
+      const bonus = KARMA_BONUSES_BY_ID[action.payload];
+      if (!bonus) return;
+      const currentLevel = state.karmaBonusLevels[action.payload] ?? 0;
+      if (currentLevel >= bonus.maxLevel) return;
+      if (state.karmaPoints < bonus.costPerLevel) return;
+      state.karmaPoints -= bonus.costPerLevel;
+      state.karmaBonusLevels[action.payload] = currentLevel + 1;
+    },
   },
 });
 
@@ -789,6 +905,8 @@ export const {
   setLastActiveTimestamp,
   applyOfflineProgress,
   clearOfflineSummary,
+  reincarnate,
+  purchaseKarmaBonus,
 } = characterSlice.actions;
 
 export default characterSlice.reducer;

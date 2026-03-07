@@ -15,7 +15,15 @@ import {
   getSkillingSetItemById,
   SKILLING_SET_DROP_CHANCE_PERCENT,
 } from "../constants/skillingSets";
-import { getSkillSpeedBonusFishing, getSkillSpeedBonusMining, getSkillSpeedBonusGathering, getOwnedSkillingSetPieceIds } from "../state/selectors/characterSelectors";
+import {
+  getSkillSpeedBonusFishing,
+  getSkillSpeedBonusMining,
+  getSkillSpeedBonusGathering,
+  getOwnedSkillingSetPieceIds,
+  getKarmaQiMultiplier,
+  getKarmaSkillXpMultiplier,
+  getKarmaSpiritStoneMultiplier,
+} from "../state/selectors/characterSelectors";
 import { rollOneTimeDrop } from "./oneTimeDrops";
 import type Item from "../interfaces/ItemI";
 import type { CurrentFishingArea, CurrentGatheringArea, CurrentMiningArea } from "../state/reducers/characterSlice";
@@ -92,9 +100,12 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
   };
 
   const activity = char.currentActivity;
+  const karmaSsMult = getKarmaSpiritStoneMultiplier(state);
+  const karmaQiMult = getKarmaQiMultiplier(state);
+  const karmaXpMult = getKarmaSkillXpMultiplier(state);
 
   // Labour: miners always generate spirit stones (1 per second per miner)
-  result.offlineSpiritStones = char.miner * (offlineMs / 1000);
+  result.offlineSpiritStones = char.miner * (offlineMs / 1000) * karmaSsMult;
 
   // Meditation: only when activity was meditate (not when on expedition, etc.)
   if (activity === "meditate") {
@@ -102,7 +113,7 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
       BASE_QI_PER_SECOND +
       (char.equipment.qiTechnique?.qiGainBonus ?? 0) +
       (char.equipment.amulet?.qiGainBonus ?? 0);
-    result.offlineQi = qiPerSecond * (offlineMs / 1000);
+    result.offlineQi = qiPerSecond * (offlineMs / 1000) * karmaQiMult;
   }
 
   // Fishing
@@ -116,7 +127,7 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
       let xp = 0;
       const ownedSetIds = new Set(getOwnedSkillingSetPieceIds(state));
       for (let i = 0; i < casts; i++) {
-        xp += area.fishingXP;
+        xp += Math.round(area.fishingXP * karmaXpMult);
         const randomId = area.fishingLootIds[Math.floor(Math.random() * area.fishingLootIds.length)];
         const fish = fishTypes.find((f) => f.id === randomId);
         if (fish) items.push(fish);
@@ -149,7 +160,7 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
       let xp = 0;
       const ownedSetIds = new Set(getOwnedSkillingSetPieceIds(state));
       for (let i = 0; i < casts; i++) {
-        xp += area.miningXP;
+        xp += Math.round(area.miningXP * karmaXpMult);
         const ore = oreTypes.find((o) => o.id === area.miningLootId);
         if (ore) items.push(ore);
         if (Math.random() * 100 < 3) items.push(GEODE_ITEM);
@@ -180,7 +191,7 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
       let xp = 0;
       const ownedSetIds = new Set(getOwnedSkillingSetPieceIds(state));
       for (let i = 0; i < casts; i++) {
-        xp += area.gatheringXP;
+        xp += Math.round(area.gatheringXP * karmaXpMult);
         const randomId = area.gatheringLootIds[Math.floor(Math.random() * area.gatheringLootIds.length)];
         const loot = gatheringLootTypes.find((l) => l.id === randomId);
         if (loot) items.push(loot);
