@@ -156,3 +156,33 @@
   background: var(--accent);
   transition: width 0.1s linear;
 }
+
+.toast-item__achievement {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toast-item__achievement-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.toast-item__achievement-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.toast-item__achievement-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #d4af37;
+  font-weight: 600;
+}
+
+.toast-item__achievement-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
