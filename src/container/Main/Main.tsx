@@ -1,5 +1,5 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useRef } from "react";
+import { useDispatch, useSelector, useStore } from "react-redux";
 import { LeftMain } from "../LeftMain/LeftMain";
 import { RightMain } from "../RightMain/RightMain";
 import { Shop } from "../Shop/Shop";
@@ -8,6 +8,10 @@ import { SectContainer } from "../SectContainer/SectContainer";
 import { BlackMarket } from "../BlackMarket/BlackMarket";
 import { TrainingContainer } from "../TrainingContainer/TrainingContainer";
 import { RootState } from "../../state/store";
+import { setLastActiveTimestamp, applyOfflineProgress } from "../../state/reducers/characterSlice";
+import { computeOfflineProgress } from "../../utils/offlineProgress";
+import { LAST_ACTIVE_STORAGE_KEY } from "../../constants/offlineProgress";
+import { OfflineProgressModal } from "../../components/OfflineProgressModal/OfflineProgressModal";
 import "./Main.css";
 import { Inventory } from "../Inventory/Inventory";
 import MoneyContainer from "../MoneyContainer/MoneyContainer";
@@ -28,12 +32,51 @@ import { useActivityTicks } from "../../hooks/useActivityTicks";
 import { useVitalityRegen } from "../../hooks/useVitalityRegen";
 
 export const Main = () => {
+  const reduxStore = useStore<RootState>();
+  const dispatch = useDispatch();
+
   useActivityTicks();
   useVitalityRegen();
 
   const content = useSelector((state: RootState) => state.content.page);
   const path = useSelector((state: RootState) => state.character.path);
   const gender = useSelector((state: RootState) => state.character.gender);
+  const hasRunOfflineRef = useRef(false);
+
+  useEffect(() => {
+    if (path == null || gender == null) return;
+    if (hasRunOfflineRef.current) return;
+    hasRunOfflineRef.current = true;
+
+    const state = reduxStore.getState();
+    const now = Date.now();
+    if (!state.character.lastActiveTimestamp || state.character.lastActiveTimestamp <= 0) {
+      dispatch(setLastActiveTimestamp(now));
+      return;
+    }
+    const result = computeOfflineProgress(state, now);
+    if (result == null) {
+      dispatch(setLastActiveTimestamp(now));
+      return;
+    }
+    dispatch(applyOfflineProgress(result));
+    try { localStorage.removeItem(LAST_ACTIVE_STORAGE_KEY); } catch (_) { /* ignore */ }
+  }, [path, gender, reduxStore, dispatch]);
+
+  useEffect(() => {
+    const saveTimestamp = () => {
+      try { localStorage.setItem(LAST_ACTIVE_STORAGE_KEY, String(Date.now())); } catch (_) { /* ignore */ }
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") saveTimestamp();
+    };
+    window.addEventListener("beforeunload", saveTimestamp);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("beforeunload", saveTimestamp);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
 
   if (path === null || gender === null) {
     return (
@@ -45,6 +88,7 @@ export const Main = () => {
 
   return (
     <div className="app__main">
+      <OfflineProgressModal />
       <div className="app__main-left">
         <LeftMain />
       </div>

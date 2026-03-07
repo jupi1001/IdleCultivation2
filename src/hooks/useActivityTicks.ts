@@ -18,6 +18,7 @@ import {
   setFishingCast,
   setGatheringCast,
   setMiningCast,
+  setLastActiveTimestamp,
 } from "../state/reducers/characterSlice";
 import { addToast } from "../state/reducers/toastSlice";
 import { getRingAmuletItemById } from "../constants/ringsAmulets";
@@ -103,6 +104,15 @@ export function useActivityTicks() {
     const id = setInterval(() => {
       dispatch(addMoney(minerRef.current));
     }, 1000);
+    return () => clearInterval(id);
+  }, [dispatch]);
+
+  // Periodically persist last-active into Redux (beforeunload + localStorage is the primary source;
+  // this is a fallback for cases where beforeunload doesn't fire, e.g. mobile browsers or crashes).
+  useEffect(() => {
+    const id = setInterval(() => {
+      dispatch(setLastActiveTimestamp(Date.now()));
+    }, 30_000);
     return () => clearInterval(id);
   }, [dispatch]);
 

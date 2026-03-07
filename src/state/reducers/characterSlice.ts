@@ -24,6 +24,16 @@ import {
   AVATAR_TRAIN_SPIRIT_STONES,
 } from "../../constants/avatars";
 
+/** Payload for applyOfflineProgress (matches OfflineProgressResult from utils/offlineProgress). */
+export interface ApplyOfflineProgressPayload {
+  offlineMs: number;
+  offlineQi: number;
+  offlineSpiritStones: number;
+  fishing?: { xp: number; casts: number; items: Item[] };
+  mining?: { xp: number; casts: number; items: Item[] };
+  gathering?: { xp: number; casts: number; items: Item[] };
+}
+
 /** Common optional rare-drop fields shared by skill areas that support rare drops. */
 export interface RareDropFields {
   rareDropChancePercent?: number;
@@ -129,6 +139,20 @@ interface CharacterState {
   bonusHealth: number;
   /** Current vitality (HP); persists between combats. Capped by effective max (realm + equipment + bonus). */
   currentHealth: number;
+  /** Last time the game was active (ms). 0 = never set. Used for offline progress. */
+  lastActiveTimestamp: number;
+  /** After applying offline progress, summary to show in Welcome Back modal; null after dismiss. */
+  lastOfflineSummary: OfflineProgressSummary | null;
+}
+
+/** Display-only summary for the Welcome Back modal (no item lists). */
+export interface OfflineProgressSummary {
+  offlineMs: number;
+  offlineQi: number;
+  offlineSpiritStones: number;
+  fishing?: { xp: number; casts: number; itemCount: number };
+  mining?: { xp: number; casts: number; itemCount: number };
+  gathering?: { xp: number; casts: number; itemCount: number };
 }
 
 const initialEquipment = ALL_EQUIPMENT_SLOTS.reduce(
@@ -184,6 +208,8 @@ const initialState: CharacterState = {
   bonusDefense: 0,
   bonusHealth: 0,
   currentHealth: initialCombatStats.health,
+  lastActiveTimestamp: 0,
+  lastOfflineSummary: null,
 };
 
 export const characterSlice = createSlice({
@@ -652,6 +678,62 @@ export const characterSlice = createSlice({
       state.qi = Math.round((state.qi - node.costQi) * 100) / 100;
       state.talentLevels[node.id] = currentLevel + 1;
     },
+    setLastActiveTimestamp: (state, action: PayloadAction<number>) => {
+      state.lastActiveTimestamp = action.payload;
+    },
+    applyOfflineProgress: (state, action: PayloadAction<ApplyOfflineProgressPayload>) => {
+      const p = action.payload;
+      state.qi = Math.round((state.qi + p.offlineQi) * 100) / 100;
+      state.money += Math.floor(p.offlineSpiritStones);
+      if (p.fishing) {
+        state.fishingXP += p.fishing.xp;
+        p.fishing.items.forEach((item) => upsertItem(state.items, item, item.quantity ?? 1));
+        state.fishingCastStartTime = null;
+        state.fishingCastDuration = 0;
+      }
+      if (p.mining) {
+        state.miningXP += p.mining.xp;
+        p.mining.items.forEach((item) => upsertItem(state.items, item, item.quantity ?? 1));
+        state.miningCastStartTime = null;
+        state.miningCastDuration = 0;
+      }
+      if (p.gathering) {
+        state.gatheringXP += p.gathering.xp;
+        p.gathering.items.forEach((item) => upsertItem(state.items, item, item.quantity ?? 1));
+        state.gatheringCastStartTime = null;
+        state.gatheringCastDuration = 0;
+      }
+      state.lastActiveTimestamp = Date.now();
+      state.lastOfflineSummary = {
+        offlineMs: p.offlineMs,
+        offlineQi: p.offlineQi,
+        offlineSpiritStones: p.offlineSpiritStones,
+        ...(p.fishing && {
+          fishing: {
+            xp: p.fishing.xp,
+            casts: p.fishing.casts,
+            itemCount: p.fishing.items.length,
+          },
+        }),
+        ...(p.mining && {
+          mining: {
+            xp: p.mining.xp,
+            casts: p.mining.casts,
+            itemCount: p.mining.items.length,
+          },
+        }),
+        ...(p.gathering && {
+          gathering: {
+            xp: p.gathering.xp,
+            casts: p.gathering.casts,
+            itemCount: p.gathering.items.length,
+          },
+        }),
+      };
+    },
+    clearOfflineSummary: (state) => {
+      state.lastOfflineSummary = null;
+    },
   },
 });
 
@@ -704,6 +786,9 @@ export const {
   createAvatar,
   trainAvatar,
   purchaseTalentLevel,
+  setLastActiveTimestamp,
+  applyOfflineProgress,
+  clearOfflineSummary,
 } = characterSlice.actions;
 
 export default characterSlice.reducer;
