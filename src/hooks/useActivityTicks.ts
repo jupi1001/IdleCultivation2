@@ -36,6 +36,9 @@ import {
   getSkillSpeedBonusMining,
   getSkillSpeedBonusGathering,
   getOwnedSkillingSetPieceIds,
+  getKarmaQiMultiplier,
+  getKarmaSkillXpMultiplier,
+  getKarmaSpiritStoneMultiplier,
 } from "../state/selectors/characterSelectors";
 import { rollOneTimeDrop } from "../utils/oneTimeDrops";
 import { RootState } from "../state/store";
@@ -89,6 +92,15 @@ export function useActivityTicks() {
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const ownedSkillingSetRef = useRef<Set<number>>(new Set());
   ownedSkillingSetRef.current = ownedSkillingSetPieceIds;
+  const karmaQiMult = useSelector(getKarmaQiMultiplier);
+  const karmaXpMult = useSelector(getKarmaSkillXpMultiplier);
+  const karmaSsMult = useSelector(getKarmaSpiritStoneMultiplier);
+  const karmaQiMultRef = useRef(karmaQiMult);
+  const karmaXpMultRef = useRef(karmaXpMult);
+  const karmaSsMultRef = useRef(karmaSsMult);
+  karmaQiMultRef.current = karmaQiMult;
+  karmaXpMultRef.current = karmaXpMult;
+  karmaSsMultRef.current = karmaSsMult;
 
   const nextFishingCastIdRef = useRef(0);
   const nextMiningCastIdRef = useRef(0);
@@ -102,7 +114,8 @@ export function useActivityTicks() {
   // Labour: miners generate spirit stones every second (always on, not tied to activity)
   useEffect(() => {
     const id = setInterval(() => {
-      dispatch(addMoney(minerRef.current));
+      const income = Math.floor(minerRef.current * karmaSsMultRef.current);
+      if (income > 0) dispatch(addMoney(income));
     }, 1000);
     return () => clearInterval(id);
   }, [dispatch]);
@@ -117,8 +130,9 @@ export function useActivityTicks() {
   }, [dispatch]);
 
   // Meditation: +Qi per second while currentActivity === "meditate"
-  const qiPerSecond =
+  const baseQiPerSecond =
     Math.round((BASE_QI_PER_SECOND + (equipment.qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0)) * 10) / 10;
+  const qiPerSecond = Math.round(baseQiPerSecond * karmaQiMult * 100) / 100;
   useEffect(() => {
     if (currentActivity !== "meditate") return;
     const id = setInterval(() => dispatch(addQi(qiPerSecond)), 1000);
@@ -144,7 +158,7 @@ export function useActivityTicks() {
         dispatch(
           completeFishingCast({
             castId,
-            fishingXP: area.fishingXP,
+            fishingXP: Math.round(area.fishingXP * karmaXpMultRef.current),
             fishingLootIds: area.fishingLootIds,
             rareDropItem: rareDropItem ?? undefined,
             skillingSetDropItem: skillingSetDropItem ?? undefined,
@@ -180,7 +194,7 @@ export function useActivityTicks() {
         dispatch(
           completeMiningCast({
             castId,
-            miningXP: area.miningXP,
+            miningXP: Math.round(area.miningXP * karmaXpMultRef.current),
             miningLootId: area.miningLootId,
             geodeDropped,
             skillingSetDropItem: skillingSetDropItem ?? undefined,
@@ -216,7 +230,7 @@ export function useActivityTicks() {
         dispatch(
           completeGatheringCast({
             castId,
-            gatheringXP: area.gatheringXP,
+            gatheringXP: Math.round(area.gatheringXP * karmaXpMultRef.current),
             gatheringLootIds: area.gatheringLootIds,
             rareDropItem: rareDropItem ?? undefined,
             skillingSetDropItem: skillingSetDropItem ?? undefined,

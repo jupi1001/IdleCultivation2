@@ -1,0 +1,228 @@
+.reincarnation {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  max-width: 740px;
+  margin: 0 auto;
+  gap: 1.25rem;
+}
+
+.reincarnation__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.reincarnation__subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ── Stats row ── */
+.reincarnation__stats {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.reincarnation__stat {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  min-width: 130px;
+  flex: 1;
+}
+
+.reincarnation__stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.reincarnation__stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.reincarnation__stat-value--gold {
+  color: #d4af37;
+}
+
+/* ── Reincarnate button area ── */
+.reincarnation__action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.reincarnation__action-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+.reincarnation__action-preview {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #d4af37;
+}
+
+.reincarnation__btn {
+  padding: 0.65rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid #d4af37;
+  border-radius: 8px;
+  background: transparent;
+  color: #d4af37;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+
+.reincarnation__btn:hover:not(:disabled) {
+  background: #d4af37;
+  color: var(--surface);
+  transform: translateY(-1px);
+}
+
+.reincarnation__btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.reincarnation__btn--confirm {
+  border-color: #c0392b;
+  color: #c0392b;
+  animation: reincarnation-pulse 1.5s ease-in-out infinite;
+}
+
+.reincarnation__btn--confirm:hover:not(:disabled) {
+  background: #c0392b;
+  color: #fff;
+}
+
+.reincarnation__btn--cancel {
+  border-color: var(--border);
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.reincarnation__btn--cancel:hover:not(:disabled) {
+  background: var(--border);
+  color: var(--text);
+}
+
+@keyframes reincarnation-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+  50% { box-shadow: 0 0 12px 2px rgba(192, 57, 43, 0.35); }
+}
+
+.reincarnation__confirm-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.reincarnation__locked {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Karma shop ── */
+.reincarnation__shop-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.reincarnation__shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 0.75rem;
+}
+
+.reincarnation__bonus-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.2s;
+}
+
+.reincarnation__bonus-card:hover {
+  border-color: #d4af37;
+}
+
+.reincarnation__bonus-card--maxed {
+  opacity: 0.55;
+}
+
+.reincarnation__bonus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.reincarnation__bonus-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.reincarnation__bonus-level {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.reincarnation__bonus-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.reincarnation__bonus-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.reincarnation__bonus-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #d4af37;
+}
+
+.reincarnation__bonus-buy {
+  padding: 0.3rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid #d4af37;
+  border-radius: 6px;
+  background: transparent;
+  color: #d4af37;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.reincarnation__bonus-buy:hover:not(:disabled) {
+  background: #d4af37;
+  color: var(--surface);
+}
+
+.reincarnation__bonus-buy:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

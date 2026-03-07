@@ -25,6 +25,7 @@ const PATH_ACCENT_COLORS: Record<string, string> = {
   "Alchemy": "#4a9b8e",
   "Forging": "#b85c38",
   "Cooking": "#c17f59",
+  "Reincarnation": "#d4af37",
 };
 
 interface SkillItemProps {

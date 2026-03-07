@@ -6,14 +6,17 @@ import { formatRealm, getBreakthroughQiRequired, getNextRealm } from "../../cons
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import { getCharacterImage } from "../../constants/ui";
+import { getKarmaQiMultiplier } from "../../state/selectors/characterSelectors";
 import "./MeditationContainer.css";
 
 export const MeditationContainer = () => {
   const dispatch = useDispatch();
   const character = useSelector((state: RootState) => state.character);
+  const karmaQiMult = useSelector(getKarmaQiMultiplier);
   const { realm, realmLevel, qi, currentActivity, equipment } = character;
   const qiTechnique = equipment.qiTechnique;
-  const qiPerSecond = Math.round((BASE_QI_PER_SECOND + (qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0)) * 10) / 10;
+  const baseQiPerSecond = BASE_QI_PER_SECOND + (qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0);
+  const qiPerSecond = Math.round(baseQiPerSecond * karmaQiMult * 100) / 100;
   const requiredQi = getBreakthroughQiRequired(realm, realmLevel);
   const nextRealm = getNextRealm(realm, realmLevel);
   const canBreakthrough = nextRealm !== null && qi >= requiredQi;
