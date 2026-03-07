@@ -391,7 +391,7 @@ export const characterSlice = createSlice({
       state.fishingCastDuration = action.payload.duration;
       state.fishingCastId = action.payload.castId;
     },
-    /** Completion is idempotent: ignored if payload.castId !== state.fishingCastId (e.g. duplicate/late timeout). */
+    /** Completion is idempotent: ignored entirely if payload.castId !== state.fishingCastId (stale/duplicate timeout). */
     completeFishingCast: (
       state,
       action: PayloadAction<{
@@ -402,9 +402,9 @@ export const characterSlice = createSlice({
         skillingSetDropItem?: Item | null;
       }>
     ) => {
+      if (action.payload.castId !== state.fishingCastId) return;
       state.fishingCastStartTime = null;
       state.fishingCastDuration = 0;
-      if (action.payload.castId !== state.fishingCastId) return;
       if (state.currentActivity !== "fish" || !state.currentFishingArea) return;
       const { fishingXP, fishingLootIds, rareDropItem } = action.payload;
       state.fishingXP += fishingXP;
@@ -436,14 +436,14 @@ export const characterSlice = createSlice({
       state.miningCastDuration = action.payload.duration;
       state.miningCastId = action.payload.castId;
     },
-    /** Completion is idempotent: ignored if payload.castId !== state.miningCastId (e.g. duplicate/late timeout). */
+    /** Completion is idempotent: ignored entirely if payload.castId !== state.miningCastId (stale/duplicate timeout). */
     completeMiningCast: (
       state,
       action: PayloadAction<{ castId: number; miningXP: number; miningLootId: number; geodeDropped?: boolean; skillingSetDropItem?: Item | null }>
     ) => {
+      if (action.payload.castId !== state.miningCastId) return;
       state.miningCastStartTime = null;
       state.miningCastDuration = 0;
-      if (action.payload.castId !== state.miningCastId) return;
       if (state.currentActivity !== "mine" || !state.currentMiningArea) return;
       const { miningXP, miningLootId, geodeDropped } = action.payload;
       state.miningXP += miningXP;
@@ -474,7 +474,7 @@ export const characterSlice = createSlice({
       state.gatheringCastDuration = action.payload.duration;
       state.gatheringCastId = action.payload.castId;
     },
-    /** Completion is idempotent: ignored if payload.castId !== state.gatheringCastId (e.g. duplicate/late timeout). */
+    /** Completion is idempotent: ignored entirely if payload.castId !== state.gatheringCastId (stale/duplicate timeout). */
     completeGatheringCast: (
       state,
       action: PayloadAction<{
@@ -485,9 +485,9 @@ export const characterSlice = createSlice({
         skillingSetDropItem?: Item | null;
       }>
     ) => {
+      if (action.payload.castId !== state.gatheringCastId) return;
       state.gatheringCastStartTime = null;
       state.gatheringCastDuration = 0;
-      if (action.payload.castId !== state.gatheringCastId) return;
       if (state.currentActivity !== "gather" || !state.currentGatheringArea) return;
       const { gatheringXP, gatheringLootIds, rareDropItem } = action.payload;
       state.gatheringXP += gatheringXP;

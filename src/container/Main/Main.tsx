@@ -29,6 +29,7 @@ import { MeditationContainer } from "../MeditationContainer/MeditationContainer"
 import { CultivationTreeContainer } from "../CultivationTreeContainer/CultivationTreeContainer";
 import { ImmortalsIslandContainer } from "../ImmortalsIslandContainer/ImmortalsIslandContainer";
 import { ReincarnationContainer } from "../ReincarnationContainer/ReincarnationContainer";
+import { SettingsContainer } from "../SettingsContainer/SettingsContainer";
 import { useActivityTicks } from "../../hooks/useActivityTicks";
 import { useVitalityRegen } from "../../hooks/useVitalityRegen";
 
@@ -112,6 +113,7 @@ export const Main = () => {
         {content === ContentArea.COOKING && <CookingContainer />}
         {content === ContentArea.IMMORTALS_ISLAND && <ImmortalsIslandContainer />}
         {content === ContentArea.REINCARNATION && <ReincarnationContainer />}
+        {content === ContentArea.SETTINGS && <SettingsContainer />}
       </div>
 
       <div className="app__main-right">
