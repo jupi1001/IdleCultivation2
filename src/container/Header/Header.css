@@ -51,6 +51,19 @@
   color: var(--accent);
 }
 
+.app__header-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.app__header-settings {
+  padding: 0.35em 0.5em !important;
+  font-size: 1.1em;
+  border-radius: 6px;
+}
+
 .app__header-theme-toggle {
   flex-shrink: 0;
   padding: 0.35em 0.5em !important;

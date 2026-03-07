@@ -1,0 +1,156 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  max-width: 640px;
+  margin: 0 auto;
+  gap: 1.5rem;
+}
+
+.settings__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.settings__subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ── Section card ── */
+.settings__section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.settings__section-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.settings__section-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ── Buttons ── */
+.settings__btn-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.settings__btn {
+  padding: 0.55rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+
+.settings__btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--surface);
+  transform: translateY(-1px);
+}
+
+.settings__btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.settings__btn--danger {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+.settings__btn--danger:hover:not(:disabled) {
+  background: #c0392b;
+  color: #fff;
+}
+
+.settings__btn--cancel {
+  border-color: var(--border);
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.settings__btn--cancel:hover:not(:disabled) {
+  background: var(--border);
+  color: var(--text);
+}
+
+.settings__btn--success {
+  border-color: #27ae60;
+  color: #27ae60;
+}
+
+.settings__btn--success:hover:not(:disabled) {
+  background: #27ae60;
+  color: #fff;
+}
+
+/* ── Import textarea ── */
+.settings__textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.6rem 0.75rem;
+  font-family: monospace;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg, #1a1a1a);
+  color: var(--text);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.settings__textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* ── Feedback messages ── */
+.settings__msg {
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.settings__msg--success {
+  color: #27ae60;
+}
+
+.settings__msg--error {
+  color: #c0392b;
+}
+
+/* ── Confirm row ── */
+.settings__confirm-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* ── File download link (hidden helper) ── */
+.settings__download-link {
+  display: none;
+}
+
+/* ── Save info ── */
+.settings__info {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}

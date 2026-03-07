@@ -4,8 +4,12 @@
  * activities (mining, gathering, etc.) keep ticking regardless of which
  * view is open. Only expedition is handled elsewhere (it locks the view).
  *
- * One activity at a time; cast completion is idempotent by castId so duplicate
- * or late timeouts do not double-apply XP/loot.
+ * One activity at a time; cast completion is idempotent by castId:
+ * complete*Cast ignores the payload entirely if payload.castId !== state.*CastId,
+ * making stale/duplicate timeouts harmless.
+ *
+ * Timeout management uses per-skill refs instead of cleanup functions so
+ * React Strict Mode double-firing does not create duplicate timers.
  */
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -105,7 +109,10 @@ export function useActivityTicks() {
   const nextFishingCastIdRef = useRef(0);
   const nextMiningCastIdRef = useRef(0);
   const nextGatheringCastIdRef = useRef(0);
-  const skipCastTimeoutClearRef = useRef(false);
+
+  const fishingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const miningTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const gatheringTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     minerRef.current = miner;
@@ -139,126 +146,108 @@ export function useActivityTicks() {
     return () => clearInterval(id);
   }, [currentActivity, dispatch, qiPerSecond]);
 
-  // Fishing, mining, gathering: one cast per duration each; only one activity active at a time. Completion is idempotent by castId.
+  // ── Fishing ──
   useEffect(() => {
-    if (currentActivity === "fish" && currentFishingArea != null && fishingCastStartTime == null) {
-      const area = currentFishingArea;
-      const effectiveDuration = Math.max(100, area.fishingDelay * (1 - skillSpeedBonusFishing / 100));
-      const castId = ++nextFishingCastIdRef.current;
-      dispatch(setFishingCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
-      const id = setTimeout(() => {
-        const rareDropItem = rollRareDropRingAmulet(area.rareDropChancePercent, area.rareDropItemIds);
-        const skillingSetDropItem = rollSkillingSetForArea(
-          "fishing",
-          area.areaId,
-          fishingAreaData,
-          getTierForFishingAreaIndex,
-          ownedSkillingSetRef
-        );
-        dispatch(
-          completeFishingCast({
-            castId,
-            fishingXP: Math.round(area.fishingXP * karmaXpMultRef.current),
-            fishingLootIds: area.fishingLootIds,
-            rareDropItem: rareDropItem ?? undefined,
-            skillingSetDropItem: skillingSetDropItem ?? undefined,
-          })
-        );
-        if (rareDropItem) dispatch(addToast({ type: "rareDrop", itemName: rareDropItem.name }));
-        if (skillingSetDropItem) dispatch(addToast({ type: "rareDrop", itemName: skillingSetDropItem.name }));
-      }, effectiveDuration);
-      skipCastTimeoutClearRef.current = true;
-      return () => {
-        if (skipCastTimeoutClearRef.current) {
-          skipCastTimeoutClearRef.current = false;
-          return;
-        }
-        clearTimeout(id);
-      };
+    if (currentActivity !== "fish" || currentFishingArea == null || fishingCastStartTime != null) return;
+
+    if (fishingTimeoutRef.current != null) {
+      clearTimeout(fishingTimeoutRef.current);
+      fishingTimeoutRef.current = null;
     }
 
-    if (currentActivity === "mine" && currentMiningArea != null && miningCastStartTime == null) {
-      const area = currentMiningArea;
-      const effectiveDuration = Math.max(100, area.miningDelay * (1 - skillSpeedBonusMining / 100));
-      const castId = ++nextMiningCastIdRef.current;
-      dispatch(setMiningCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
-      const id = setTimeout(() => {
-        const geodeDropped = Math.random() * 100 < 3;
-        const skillingSetDropItem = rollSkillingSetForArea(
-          "mining",
-          area.areaId,
-          miningAreaData,
-          getTierForMiningAreaIndex,
-          ownedSkillingSetRef
-        );
-        dispatch(
-          completeMiningCast({
-            castId,
-            miningXP: Math.round(area.miningXP * karmaXpMultRef.current),
-            miningLootId: area.miningLootId,
-            geodeDropped,
-            skillingSetDropItem: skillingSetDropItem ?? undefined,
-          })
-        );
-        if (geodeDropped) dispatch(addToast({ type: "rareDrop", itemName: "Geode" }));
-        if (skillingSetDropItem) dispatch(addToast({ type: "rareDrop", itemName: skillingSetDropItem.name }));
-      }, effectiveDuration);
-      skipCastTimeoutClearRef.current = true;
-      return () => {
-        if (skipCastTimeoutClearRef.current) {
-          skipCastTimeoutClearRef.current = false;
-          return;
-        }
-        clearTimeout(id);
-      };
+    const area = currentFishingArea;
+    const effectiveDuration = Math.max(100, area.fishingDelay * (1 - skillSpeedBonusFishing / 100));
+    const castId = ++nextFishingCastIdRef.current;
+    dispatch(setFishingCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
+
+    fishingTimeoutRef.current = setTimeout(() => {
+      fishingTimeoutRef.current = null;
+      const rareDropItem = rollRareDropRingAmulet(area.rareDropChancePercent, area.rareDropItemIds);
+      const skillingSetDropItem = rollSkillingSetForArea(
+        "fishing", area.areaId, fishingAreaData, getTierForFishingAreaIndex, ownedSkillingSetRef
+      );
+      dispatch(completeFishingCast({
+        castId,
+        fishingXP: Math.round(area.fishingXP * karmaXpMultRef.current),
+        fishingLootIds: area.fishingLootIds,
+        rareDropItem: rareDropItem ?? undefined,
+        skillingSetDropItem: skillingSetDropItem ?? undefined,
+      }));
+      if (rareDropItem) dispatch(addToast({ type: "rareDrop", itemName: rareDropItem.name }));
+      if (skillingSetDropItem) dispatch(addToast({ type: "rareDrop", itemName: skillingSetDropItem.name }));
+    }, effectiveDuration);
+  }, [currentActivity, currentFishingArea, fishingCastStartTime, dispatch, skillSpeedBonusFishing]);
+
+  // ── Mining ──
+  useEffect(() => {
+    if (currentActivity !== "mine" || currentMiningArea == null || miningCastStartTime != null) return;
+
+    if (miningTimeoutRef.current != null) {
+      clearTimeout(miningTimeoutRef.current);
+      miningTimeoutRef.current = null;
     }
 
-    if (currentActivity === "gather" && currentGatheringArea != null && gatheringCastStartTime == null) {
-      const area = currentGatheringArea;
-      const effectiveDuration = Math.max(100, area.gatheringDelay * (1 - skillSpeedBonusGathering / 100));
-      const castId = ++nextGatheringCastIdRef.current;
-      dispatch(setGatheringCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
-      const id = setTimeout(() => {
-        const rareDropItem = rollRareDropRingAmulet(area.rareDropChancePercent, area.rareDropItemIds);
-        const skillingSetDropItem = rollSkillingSetForArea(
-          "gathering",
-          area.areaId,
-          gatheringAreaData,
-          getTierForGatheringAreaIndex,
-          ownedSkillingSetRef
-        );
-        dispatch(
-          completeGatheringCast({
-            castId,
-            gatheringXP: Math.round(area.gatheringXP * karmaXpMultRef.current),
-            gatheringLootIds: area.gatheringLootIds,
-            rareDropItem: rareDropItem ?? undefined,
-            skillingSetDropItem: skillingSetDropItem ?? undefined,
-          })
-        );
-        if (rareDropItem) dispatch(addToast({ type: "rareDrop", itemName: rareDropItem.name }));
-        if (skillingSetDropItem) dispatch(addToast({ type: "rareDrop", itemName: skillingSetDropItem.name }));
-      }, effectiveDuration);
-      skipCastTimeoutClearRef.current = true;
-      return () => {
-        if (skipCastTimeoutClearRef.current) {
-          skipCastTimeoutClearRef.current = false;
-          return;
-        }
-        clearTimeout(id);
-      };
+    const area = currentMiningArea;
+    const effectiveDuration = Math.max(100, area.miningDelay * (1 - skillSpeedBonusMining / 100));
+    const castId = ++nextMiningCastIdRef.current;
+    dispatch(setMiningCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
+
+    miningTimeoutRef.current = setTimeout(() => {
+      miningTimeoutRef.current = null;
+      const geodeDropped = Math.random() * 100 < 3;
+      const skillingSetDropItem = rollSkillingSetForArea(
+        "mining", area.areaId, miningAreaData, getTierForMiningAreaIndex, ownedSkillingSetRef
+      );
+      dispatch(completeMiningCast({
+        castId,
+        miningXP: Math.round(area.miningXP * karmaXpMultRef.current),
+        miningLootId: area.miningLootId,
+        geodeDropped,
+        skillingSetDropItem: skillingSetDropItem ?? undefined,
+      }));
+      if (geodeDropped) dispatch(addToast({ type: "rareDrop", itemName: "Geode" }));
+      if (skillingSetDropItem) dispatch(addToast({ type: "rareDrop", itemName: skillingSetDropItem.name }));
+    }, effectiveDuration);
+  }, [currentActivity, currentMiningArea, miningCastStartTime, dispatch, skillSpeedBonusMining]);
+
+  // ── Gathering ──
+  useEffect(() => {
+    if (currentActivity !== "gather" || currentGatheringArea == null || gatheringCastStartTime != null) return;
+
+    if (gatheringTimeoutRef.current != null) {
+      clearTimeout(gatheringTimeoutRef.current);
+      gatheringTimeoutRef.current = null;
     }
-  }, [
-    currentActivity,
-    currentFishingArea,
-    fishingCastStartTime,
-    currentMiningArea,
-    miningCastStartTime,
-    currentGatheringArea,
-    gatheringCastStartTime,
-    dispatch,
-    skillSpeedBonusFishing,
-    skillSpeedBonusMining,
-    skillSpeedBonusGathering,
-  ]);
+
+    const area = currentGatheringArea;
+    const effectiveDuration = Math.max(100, area.gatheringDelay * (1 - skillSpeedBonusGathering / 100));
+    const castId = ++nextGatheringCastIdRef.current;
+    dispatch(setGatheringCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
+
+    gatheringTimeoutRef.current = setTimeout(() => {
+      gatheringTimeoutRef.current = null;
+      const rareDropItem = rollRareDropRingAmulet(area.rareDropChancePercent, area.rareDropItemIds);
+      const skillingSetDropItem = rollSkillingSetForArea(
+        "gathering", area.areaId, gatheringAreaData, getTierForGatheringAreaIndex, ownedSkillingSetRef
+      );
+      dispatch(completeGatheringCast({
+        castId,
+        gatheringXP: Math.round(area.gatheringXP * karmaXpMultRef.current),
+        gatheringLootIds: area.gatheringLootIds,
+        rareDropItem: rareDropItem ?? undefined,
+        skillingSetDropItem: skillingSetDropItem ?? undefined,
+      }));
+      if (rareDropItem) dispatch(addToast({ type: "rareDrop", itemName: rareDropItem.name }));
+      if (skillingSetDropItem) dispatch(addToast({ type: "rareDrop", itemName: skillingSetDropItem.name }));
+    }, effectiveDuration);
+  }, [currentActivity, currentGatheringArea, gatheringCastStartTime, dispatch, skillSpeedBonusGathering]);
+
+  // Cleanup all timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (fishingTimeoutRef.current != null) clearTimeout(fishingTimeoutRef.current);
+      if (miningTimeoutRef.current != null) clearTimeout(miningTimeoutRef.current);
+      if (gatheringTimeoutRef.current != null) clearTimeout(gatheringTimeoutRef.current);
+    };
+  }, []);
 }
