@@ -20,5 +20,6 @@ export enum ContentArea {
   COOKING = "Cooking",
   IMMORTALS_ISLAND = "Immortals Island",
   REINCARNATION = "Reincarnation",
+  ACHIEVEMENTS = "Achievements",
   SETTINGS = "Settings",
 }

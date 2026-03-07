@@ -18,6 +18,7 @@ interface SaveEnvelope {
   state: {
     character: RootState["character"];
     content: RootState["content"];
+    achievements?: RootState["achievements"];
   };
 }
 
@@ -33,6 +34,7 @@ export function exportSave(): string {
     state: {
       character: rootState.character,
       content: rootState.content,
+      achievements: rootState.achievements,
     },
   };
   const json = JSON.stringify(envelope);
@@ -78,6 +80,7 @@ export function importSave(encoded: string): string | null {
     const persistPayload: Record<string, string> = {
       character: JSON.stringify(envelope.state.character),
       content: JSON.stringify(envelope.state.content ?? { page: "Map" }),
+      achievements: JSON.stringify(envelope.state.achievements ?? { unlocked: {} }),
       _persist: JSON.stringify({ version: 1, rehydrated: true }),
     };
     localStorage.setItem(PERSIST_KEY, JSON.stringify(persistPayload));

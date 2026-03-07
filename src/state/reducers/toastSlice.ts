@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export type ToastType = "rareDrop" | "levelUp" | "expedition";
+export type ToastType = "rareDrop" | "levelUp" | "expedition" | "achievement";
 
 export interface ToastI {
   id: string;
@@ -17,6 +17,8 @@ export interface ToastI {
   spiritStones?: number;
   /** For expedition: rare item name if any. */
   rareItemName?: string | null;
+  /** For achievement: display name of the achievement. */
+  achievementName?: string;
   /** When the toast was created (ms); used for 10s auto-dismiss and progress bar. */
   createdAt: number;
 }

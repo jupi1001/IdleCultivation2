@@ -81,6 +81,17 @@ function ToastItem({ toast }: { toast: ToastI }) {
         </div>
       );
     }
+    if (toast.type === "achievement") {
+      return (
+        <div className="toast-item__achievement">
+          <span className="toast-item__achievement-icon">🏆</span>
+          <div className="toast-item__achievement-text">
+            <span className="toast-item__achievement-label">Achievement Unlocked</span>
+            <span className="toast-item__achievement-name">{toast.achievementName ?? "Achievement"}</span>
+          </div>
+        </div>
+      );
+    }
     // rareDrop (title = item name: Geode or ring/amulet name)
     const title = toast.itemName ?? "Rare find";
     return <p className="toast-item__title">{title}</p>;

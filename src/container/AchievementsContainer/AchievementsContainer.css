@@ -1,0 +1,153 @@
+.achievements {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  max-width: 820px;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+.achievements__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.achievements__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.achievements__summary {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ── Category tabs ── */
+.achievements__tabs {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.achievements__tab {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.achievements__tab:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.achievements__tab--active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.achievements__tab--active:hover {
+  color: #fff;
+}
+
+/* ── Grid ── */
+.achievements__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.65rem;
+}
+
+/* ── Individual card ── */
+.achievements__card {
+  display: flex;
+  gap: 0.65rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+  transition: border-color 0.2s, opacity 0.2s;
+}
+
+.achievements__card--locked {
+  opacity: 0.45;
+}
+
+.achievements__card--unlocked {
+  border-color: #d4af37;
+}
+
+.achievements__card-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  width: 2rem;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.achievements__card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.achievements__card-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.achievements__card-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.achievements__card-reward {
+  font-size: 0.75rem;
+  color: #d4af37;
+  font-weight: 500;
+  margin-top: 0.15rem;
+}
+
+.achievements__card-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.1rem;
+}
+
+/* ── Progress bar at bottom ── */
+.achievements__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.achievements__progress-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.achievements__progress-bar-wrap {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.achievements__progress-bar {
+  height: 100%;
+  background: #d4af37;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}

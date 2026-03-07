@@ -4,19 +4,22 @@ import storage from "redux-persist/lib/storage";
 import characterReducer from "./reducers/characterSlice";
 import contentReducer from "./reducers/contentSlice";
 import toastReducer from "./reducers/toastSlice";
+import achievementReducer from "./reducers/achievementSlice";
 import { toastLevelUpMiddleware } from "./middleware/toastLevelUpMiddleware";
+import { achievementMiddleware } from "./middleware/achievementMiddleware";
 
 const persistConfig = {
   key: "idle-cultivation",
   version: 1,
   storage,
-  whitelist: ["character", "content"],
+  whitelist: ["character", "content", "achievements"],
 };
 
 const rootReducer = combineReducers({
   character: characterReducer,
   content: contentReducer,
   toast: toastReducer,
+  achievements: achievementReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -28,7 +31,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(toastLevelUpMiddleware),
+    }).concat(toastLevelUpMiddleware, achievementMiddleware),
 });
 
 export const persistor = persistStore(store);

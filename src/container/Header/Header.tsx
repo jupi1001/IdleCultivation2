@@ -43,6 +43,9 @@ export const Header = ({ theme, setTheme }: HeaderProps) => {
         <li>
           <button onClick={() => openContent(ContentArea.CULTIVATION_TREE)}>Cultivation Tree</button>
         </li>
+        <li>
+          <button onClick={() => openContent(ContentArea.ACHIEVEMENTS)}>Achievements</button>
+        </li>
       </ul>
       <div className="app__header-actions">
         <button type="button" className="app__header-theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
