@@ -7,6 +7,7 @@ import "./CombatContainer.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { addItems, addMoney, consumeItems, setCurrentHealth } from "../../state/reducers/characterSlice";
+import { addLogEntry } from "../../state/reducers/logSlice";
 import { getEffectiveCombatStats, getOwnedTechniqueIds } from "../../state/selectors/characterSelectors";
 import Item from "../../interfaces/ItemI";
 import { changeContent } from "../../state/reducers/contentSlice";
@@ -162,8 +163,9 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
 
   /**
    * Adds 1 item from the enemy drop table to the item bag. Techniques (qi/combat) are only added once per character; duplicates are skipped.
+   * Calls onItemDropped with the item when one is actually added (for activity log).
    */
-  const addLootToItemBag = (enemy: EnemyI) => {
+  const addLootToItemBag = (enemy: EnemyI, onItemDropped?: (item: Item) => void) => {
     let items = enemy.loot?.items;
     let weightRef = enemy.loot?.weight;
 
@@ -226,6 +228,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     const isTechnique = dropped.equipmentSlot === "qiTechnique" || dropped.equipmentSlot === "combatTechnique";
     if (isTechnique && ownedTechniqueIdsRef.current.has(dropped.id)) return;
 
+    onItemDropped?.(dropped);
     setItemBag((prevItems) => [...prevItems, dropped]);
   };
 
@@ -242,15 +245,19 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
 
     if (doesHit) {
       const damage = charState.attack > 0 ? Math.floor(Math.random() * charState.attack) + 1 : 0;
+      dispatch(addLogEntry({ type: "combat_hit", enemyName: enemy.name, damage }));
       setLastDamageToEnemy(damage);
       const newHealth = enemy.health - damage;
       setCurrentEnemy({ ...enemy, health: newHealth });
       if (newHealth <= 0) {
+        dispatch(addLogEntry({ type: "enemy_killed", enemyName: enemy.name }));
         setLastDamageToEnemy(null);
-        addLootToItemBag(enemy);
+        addLootToItemBag(enemy, (item) => dispatch(addLogEntry({ type: "item_obtained", itemName: item.name })));
         setLootSpiritStones((prev) => prev + getSpiritStonesFromEnemy(enemy));
         setCurrentEnemy(getRandomEnemy());
       }
+    } else {
+      dispatch(addLogEntry({ type: "combat_miss", enemyName: enemy.name }));
     }
     lastCharAttackRef.current = Date.now();
   };

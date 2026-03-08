@@ -22,4 +22,5 @@ export enum ContentArea {
   REINCARNATION = "Reincarnation",
   ACHIEVEMENTS = "Achievements",
   SETTINGS = "Settings",
+  ACTIVITY_LOG = "Activity Log",
 }
