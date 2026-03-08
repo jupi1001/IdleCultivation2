@@ -12,6 +12,7 @@ import {
 } from "./characterBlockUtils";
 import { Tooltip } from "../Tooltip/Tooltip";
 import { getBreakthroughStatGainText } from "../../constants/realmProgression";
+import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/characterSlice";
 import "./CharacterBlock.css";
 
 export const CharacterBlock = () => {
@@ -31,6 +32,11 @@ export const CharacterBlock = () => {
       </h2>
       {character.path != null && (
         <p className="app__characterBlock-path">Path: {character.path}</p>
+      )}
+      {character.isWeakened && character.deathPenaltyMode === "normal" && (
+        <p className="app__characterBlock-weakened" role="status">
+          Weakened: Meditate {Math.max(0, WEAKENED_MEDITATION_SECONDS - (character.weakenedMeditationSecondsDone ?? 0))}s to recover
+        </p>
       )}
       <div className="app__characterBlock-items">
         <ul className="app__characterBlock-ul">

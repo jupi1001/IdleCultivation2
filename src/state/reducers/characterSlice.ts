@@ -30,6 +30,12 @@ import {
   AVATAR_TRAIN_SPIRIT_STONES,
 } from "../../constants/avatars";
 
+/** Seconds of meditation required to clear weakened state after death (normal mode). */
+export const WEAKENED_MEDITATION_SECONDS = 30;
+
+/** Stat multiplier when weakened (e.g. 0.5 = 50% attack/defense/health). */
+export const WEAKENED_STAT_MULTIPLIER = 0.5;
+
 /** Payload for applyOfflineProgress (matches OfflineProgressResult from utils/offlineProgress). */
 export interface ApplyOfflineProgressPayload {
   offlineMs: number;
@@ -161,6 +167,12 @@ interface CharacterState {
   autoLootUnlocked: boolean;
   /** When true, combat loot and spirit stones go straight to inventory on kill (persists through reincarnation). */
   autoLoot: boolean;
+  /** Death penalty mode: "normal" = weakened state after death until meditation; "casual" = no weakened. */
+  deathPenaltyMode: "normal" | "casual";
+  /** After death (normal mode): true until player meditates for required seconds. */
+  isWeakened: boolean;
+  /** Seconds meditated while weakened; when >= WEAKENED_MEDITATION_SECONDS, weakened clears. */
+  weakenedMeditationSecondsDone: number;
 }
 
 /** Display-only summary for the Welcome Back modal (no item lists). */
@@ -234,6 +246,9 @@ const initialState: CharacterState = {
   karmaBonusLevels: {},
   autoLootUnlocked: false,
   autoLoot: false,
+  deathPenaltyMode: "normal",
+  isWeakened: false,
+  weakenedMeditationSecondsDone: 0,
 };
 
 export const characterSlice = createSlice({
@@ -847,6 +862,8 @@ export const characterSlice = createSlice({
       state.gatheringCastId = 0;
       state.lastActiveTimestamp = Date.now();
       state.lastOfflineSummary = null;
+      state.isWeakened = false;
+      state.weakenedMeditationSecondsDone = 0;
     },
     purchaseKarmaBonus: (state, action: PayloadAction<KarmaBonusId>) => {
       const bonus = KARMA_BONUSES_BY_ID[action.payload];
@@ -869,6 +886,28 @@ export const characterSlice = createSlice({
     setAutoLoot: (state, action: PayloadAction<boolean>) => {
       if (!state.autoLootUnlocked) return;
       state.autoLoot = action.payload;
+    },
+    /** Death penalty: "normal" = weakened after death; "casual" = no weakened. */
+    setDeathPenaltyMode: (state, action: PayloadAction<"normal" | "casual">) => {
+      state.deathPenaltyMode = action.payload;
+      if (action.payload === "casual") {
+        state.isWeakened = false;
+        state.weakenedMeditationSecondsDone = 0;
+      }
+    },
+    /** Set weakened state (e.g. on death in normal mode). */
+    setWeakened: (state, action: PayloadAction<boolean>) => {
+      state.isWeakened = action.payload;
+      if (!action.payload) state.weakenedMeditationSecondsDone = 0;
+    },
+    /** While meditating and weakened, call every second; clears weakened when done. */
+    tickWeakenedRecovery: (state, action: PayloadAction<number>) => {
+      if (!state.isWeakened || state.deathPenaltyMode !== "normal") return;
+      state.weakenedMeditationSecondsDone += action.payload;
+      if (state.weakenedMeditationSecondsDone >= WEAKENED_MEDITATION_SECONDS) {
+        state.isWeakened = false;
+        state.weakenedMeditationSecondsDone = 0;
+      }
     },
   },
 });
@@ -929,6 +968,9 @@ export const {
   purchaseKarmaBonus,
   purchaseAutoLootUnlock,
   setAutoLoot,
+  setDeathPenaltyMode,
+  setWeakened,
+  tickWeakenedRecovery,
 } = characterSlice.actions;
 
 export default characterSlice.reducer;

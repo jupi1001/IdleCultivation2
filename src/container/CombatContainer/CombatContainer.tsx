@@ -6,7 +6,7 @@ import EnemyLootPopover from "../../components/EnemyLootPopover/EnemyLootPopover
 import "./CombatContainer.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { addItems, addMoney, consumeItems, setCurrentHealth } from "../../state/reducers/characterSlice";
+import { addItems, addMoney, consumeItems, setCurrentHealth, setWeakened } from "../../state/reducers/characterSlice";
 import { addLogEntry } from "../../state/reducers/logSlice";
 import { getEffectiveCombatStats, getOwnedTechniqueIds, getTalentSpiritStoneMultiplier } from "../../state/selectors/characterSelectors";
 import Item from "../../interfaces/ItemI";
@@ -155,13 +155,16 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
 
   /**
    * Escaping combat. Persists current HP to Redux, puts loot (items + spirit stones) in inventory (if any), then goes to Meditation.
-   * If the character died, currentHealth is set to 0, loot bag is cleared.
+   * If the character died, currentHealth is set to 0, loot bag is cleared. In normal death penalty mode, weakened state is applied.
    */
   const handleEscapeButton = (died: boolean) => {
     dispatch(setCurrentHealth(died ? 0 : characterState.health));
     if (died) {
       setItemBag([]);
       setLootSpiritStones(0);
+      if (character.deathPenaltyMode === "normal") {
+        dispatch(setWeakened(true));
+      }
     } else if (itemBag.length > 0 || lootSpiritStones > 0) {
       handleLootButton();
     }

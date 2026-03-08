@@ -8,6 +8,7 @@ import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import { getCharacterImage } from "../../constants/ui";
 import { getKarmaQiMultiplier, getTalentQiGainBonus } from "../../state/selectors/characterSelectors";
 import { Tooltip } from "../../components/Tooltip/Tooltip";
+import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/characterSlice";
 import "./MeditationContainer.css";
 
 export const MeditationContainer = () => {
@@ -16,6 +17,8 @@ export const MeditationContainer = () => {
   const karmaQiMult = useSelector(getKarmaQiMultiplier);
   const talentQiGain = useSelector(getTalentQiGainBonus);
   const { realm, realmLevel, qi, currentActivity, equipment } = character;
+  const isWeakened = character.isWeakened && character.deathPenaltyMode === "normal";
+  const weakenedRemaining = Math.max(0, WEAKENED_MEDITATION_SECONDS - (character.weakenedMeditationSecondsDone ?? 0));
   const qiTechnique = equipment.qiTechnique;
   const baseQiPerSecond = BASE_QI_PER_SECOND + (qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0) + talentQiGain;
   const qiPerSecond = Math.round(baseQiPerSecond * karmaQiMult * 100) / 100;
@@ -61,6 +64,11 @@ export const MeditationContainer = () => {
           <span>{formatRealm(realm, realmLevel)}</span>
         </Tooltip>
       </p>
+      {isWeakened && (
+        <p className="meditation-container__weakened" role="status">
+          Weakened: Meditate {weakenedRemaining}s to recover (50% combat stats until then).
+        </p>
+      )}
       <div className="meditation-container__character">
         <img
           src={getCharacterImage(character.gender ?? "Male", "lotus")}

@@ -23,6 +23,7 @@ import {
   setGatheringCast,
   setMiningCast,
   setLastActiveTimestamp,
+  tickWeakenedRecovery,
 } from "../state/reducers/characterSlice";
 import { addToast } from "../state/reducers/toastSlice";
 import { getRingAmuletItemById } from "../constants/ringsAmulets";
@@ -104,6 +105,7 @@ export function useActivityTicks() {
   const talentSsMult = useSelector(getTalentSpiritStoneMultiplier);
   const talentQiGain = useSelector(getTalentQiGainBonus);
   const karmaQiMultRef = useRef(karmaQiMult);
+  const isWeakened = useSelector((state: RootState) => state.character.isWeakened);
   const karmaXpMultRef = useRef(karmaXpMult);
   const karmaSsMultRef = useRef(karmaSsMult * talentSsMult);
   karmaQiMultRef.current = karmaQiMult;
@@ -144,15 +146,18 @@ export function useActivityTicks() {
     return () => clearInterval(id);
   }, [dispatch]);
 
-  // Meditation: +Qi per second while currentActivity === "meditate"
+  // Meditation: +Qi per second while currentActivity === "meditate"; when weakened, tick recovery.
   const baseQiPerSecond =
     Math.round((BASE_QI_PER_SECOND + (equipment.qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0) + talentQiGain) * 10) / 10;
   const qiPerSecond = Math.round(baseQiPerSecond * karmaQiMult * 100) / 100;
   useEffect(() => {
     if (currentActivity !== "meditate") return;
-    const id = setInterval(() => dispatch(addQi(qiPerSecond)), 1000);
+    const id = setInterval(() => {
+      dispatch(addQi(qiPerSecond));
+      if (isWeakened) dispatch(tickWeakenedRecovery(1));
+    }, 1000);
     return () => clearInterval(id);
-  }, [currentActivity, dispatch, qiPerSecond]);
+  }, [currentActivity, dispatch, qiPerSecond, isWeakened]);
 
   // ── Fishing ──
   useEffect(() => {

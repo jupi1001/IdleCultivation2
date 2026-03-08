@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { formatRealm } from "../../constants/realmProgression";
-import { setAutoLoot } from "../../state/reducers/characterSlice";
+import { setAutoLoot, setDeathPenaltyMode } from "../../state/reducers/characterSlice";
 import { exportSave, importSave, hardReset, formatSaveDate } from "../../utils/saveManager";
 import "./SettingsContainer.css";
 
@@ -98,23 +98,40 @@ export const SettingsContainer = () => {
       </div>
 
       {/* Gameplay */}
-      {character.autoLootUnlocked && (
-        <div className="settings__section">
-          <h3 className="settings__section-title">Gameplay</h3>
-          <label className="settings__toggle-row">
-            <span className="settings__toggle-label">Auto-Loot (combat)</span>
-            <input
-              type="checkbox"
-              checked={!!character.autoLoot}
-              onChange={(e) => dispatch(setAutoLoot(e.target.checked))}
-              className="settings__checkbox"
-            />
-          </label>
-          <p className="settings__section-desc">
-            When on, loot and spirit stones from defeated enemies go straight to your inventory. Kept after reincarnation.
-          </p>
+      <div className="settings__section">
+        <h3 className="settings__section-title">Gameplay</h3>
+        <div className="settings__death-penalty">
+          <span className="settings__toggle-label">Death penalty</span>
+          <select
+            className="settings__select"
+            value={character.deathPenaltyMode ?? "normal"}
+            onChange={(e) => dispatch(setDeathPenaltyMode(e.target.value as "normal" | "casual"))}
+            aria-label="Death penalty mode"
+          >
+            <option value="normal">Normal (weakened until you meditate)</option>
+            <option value="casual">Casual (no weakened state)</option>
+          </select>
         </div>
-      )}
+        <p className="settings__section-desc">
+          Normal: on death you lose loot and HP, then stay Weakened (50% combat stats) until you meditate for 30 seconds. Casual: no weakened state.
+        </p>
+        {character.autoLootUnlocked && (
+          <>
+            <label className="settings__toggle-row">
+              <span className="settings__toggle-label">Auto-Loot (combat)</span>
+              <input
+                type="checkbox"
+                checked={!!character.autoLoot}
+                onChange={(e) => dispatch(setAutoLoot(e.target.checked))}
+                className="settings__checkbox"
+              />
+            </label>
+            <p className="settings__section-desc">
+              When on, loot and spirit stones from defeated enemies go straight to your inventory. Kept after reincarnation.
+            </p>
+          </>
+        )}
+      </div>
 
       {/* Export */}
       <div className="settings__section">
