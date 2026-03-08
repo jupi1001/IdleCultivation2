@@ -2,12 +2,30 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { changeContent } from "../../state/reducers/contentSlice";
-import { setSect, startPromotion, completePromotion } from "../../state/reducers/characterSlice";
+import {
+  setSect,
+  startPromotion,
+  completePromotion,
+  acceptSectQuest,
+  claimSectQuestReward,
+  giftNpc,
+  useRealmDialogue,
+  setCultivationPartner,
+} from "../../state/reducers/characterSlice";
 import { ContentArea } from "../../enum/ContentArea";
 import { getStepIndex } from "../../constants/realmProgression";
 import { sectsData, SECT_POSITIONS, sectStoreData } from "../../constants/data";
+import {
+  SECT_NPCS_BY_SECT,
+  SECT_QUEST_KILLS_REQUIRED,
+  REALM_DIALOGUE_REALMS,
+  DUAL_CULTIVATION_MIN_FAVOR,
+  GIFT_SPIRIT_STONE_COST,
+} from "../../constants/sectRelationships";
 import { SectStoreItem } from "../../components/SectStoreItem/SectStoreItem";
 import "./SectContainer.css";
+
+type SectTab = "store" | "bulletin" | "relationships";
 
 const PROMOTION_DURATION_MS = 5000;
 
@@ -20,6 +38,15 @@ export const SectContainer = () => {
   const realmLevel = useSelector((state: RootState) => state.character.realmLevel);
   const promotionEndTime = useSelector((state: RootState) => state.character.promotionEndTime);
   const promotionToRankIndex = useSelector((state: RootState) => state.character.promotionToRankIndex);
+  const sectQuestProgress = useSelector((state: RootState) => state.character.sectQuestProgress);
+  const sectQuestKillCount = useSelector((state: RootState) => state.character.sectQuestKillCount);
+  const obtainedSectTreasureIds = useSelector((state: RootState) => state.character.obtainedSectTreasureIds);
+  const npcFavor = useSelector((state: RootState) => state.character.npcFavor);
+  const realmDialogueUsed = useSelector((state: RootState) => state.character.realmDialogueUsed);
+  const cultivationPartner = useSelector((state: RootState) => state.character.cultivationPartner);
+  const money = useSelector((state: RootState) => state.character.money);
+
+  const [activeTab, setActiveTab] = useState<SectTab>("store");
 
   const currentSect = currentSectId != null ? sectsData.find((s) => s.id === currentSectId) : null;
   /** All sects on the same path (your sect + allied sects); you can buy from any of them based on your rank. */
@@ -141,6 +168,38 @@ export const SectContainer = () => {
         )}
       </div>
 
+      <div className="sectContainer__tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "store"}
+          className={`sectContainer__tab ${activeTab === "store" ? "sectContainer__tab--active" : ""}`}
+          onClick={() => setActiveTab("store")}
+        >
+          Store
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "bulletin"}
+          className={`sectContainer__tab ${activeTab === "bulletin" ? "sectContainer__tab--active" : ""}`}
+          onClick={() => setActiveTab("bulletin")}
+        >
+          Bulletin Board
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "relationships"}
+          className={`sectContainer__tab ${activeTab === "relationships" ? "sectContainer__tab--active" : ""}`}
+          onClick={() => setActiveTab("relationships")}
+        >
+          Relationships
+        </button>
+      </div>
+
+      {activeTab === "store" && (
+        <>
       <h3 className="sectContainer__storeTitle">Sect store</h3>
       <p className="sectContainer__hint">
         Your rank in your sect applies to all sects on your path. You can buy recipes and techniques from other {currentSect.path} sects without leaving your sect.
@@ -185,6 +244,131 @@ export const SectContainer = () => {
           </div>
         );
       })}
+
+      <p className="sectContainer__hint">
+        To join another sect, open the Map and select a sect. You must leave your current sect first.
+      </p>
+      <button type="button" className="sectContainer__btn sectContainer__btn--secondary" onClick={openMap}>
+        Open Map
+      </button>
+      <button type="button" className="sectContainer__btn sectContainer__btn--leave" onClick={handleLeave}>
+        Leave sect
+      </button>
+        </>
+      )}
+
+      {activeTab === "bulletin" && currentSectId != null && (
+        <div className="sectContainer__card">
+          <h3 className="sectContainer__storeTitle">Bulletin Board</h3>
+          {(() => {
+            const step = sectQuestProgress[currentSectId] ?? 0;
+            const kills = sectQuestKillCount[currentSectId] ?? 0;
+            if (step === 0) {
+              return (
+                <>
+                  <p className="sectContainer__hint">
+                    The board lists a task: prove your worth to the sect by defeating enemies in combat.
+                  </p>
+                  <button
+                    type="button"
+                    className="sectContainer__btn sectContainer__btn--primary"
+                    onClick={() => dispatch(acceptSectQuest(currentSectId))}
+                  >
+                    Accept quest
+                  </button>
+                </>
+              );
+            }
+            if (step === 1) {
+              return (
+                <p className="sectContainer__hint">
+                  Defeat {SECT_QUEST_KILLS_REQUIRED} enemies in combat. Progress: {kills} / {SECT_QUEST_KILLS_REQUIRED}
+                </p>
+              );
+            }
+            if (step === 2) {
+              return (
+                <>
+                  <p className="sectContainer__hint">You have proven yourself. Claim the sect&apos;s treasure.</p>
+                  <button
+                    type="button"
+                    className="sectContainer__btn sectContainer__btn--primary"
+                    onClick={() => dispatch(claimSectQuestReward(currentSectId))}
+                  >
+                    Claim reward
+                  </button>
+                </>
+              );
+            }
+            return (
+              <p className="sectContainer__hint">Quest complete. You have received this sect&apos;s defining treasure.</p>
+            );
+          })()}
+        </div>
+      )}
+
+      {activeTab === "relationships" && currentSectId != null && (
+        <div className="sectContainer__relationships">
+          <h3 className="sectContainer__storeTitle">Sect disciples</h3>
+          <p className="sectContainer__hint">
+            Gift spirit stones or talk (once per major realm) to increase favor. At {DUAL_CULTIVATION_MIN_FAVOR}+ favor you can choose them as dual cultivation partner in Meditation.
+          </p>
+          <div className="sectContainer__npcGrid">
+            {(SECT_NPCS_BY_SECT[currentSectId] ?? []).map((npc) => {
+              const key = `${npc.sectId}-${npc.id}`;
+              const favor = npcFavor[key] ?? 0;
+              const usedForRealm = realmDialogueUsed[key]?.[realm] === true;
+              const canTalk = realm !== "Mortal" && !usedForRealm && REALM_DIALOGUE_REALMS.includes(realm);
+              const isPartner = cultivationPartner?.sectId === npc.sectId && cultivationPartner?.npcId === npc.id;
+              const canBePartner = favor >= DUAL_CULTIVATION_MIN_FAVOR;
+              return (
+                <div key={npc.id} className="sectContainer__npcCard">
+                  <img src={npc.portraitImage} alt="" className="sectContainer__npcPortrait" />
+                  <div className="sectContainer__npcInfo">
+                    <strong>{npc.name}</strong> ({npc.gender})
+                    <p className="sectContainer__npcFavor">Favor: {favor}/100</p>
+                    <div className="sectContainer__npcActions">
+                      <button
+                        type="button"
+                        className="sectContainer__btn sectContainer__btn--small"
+                        onClick={() => dispatch(giftNpc({ sectId: npc.sectId, npcId: npc.id }))}
+                        disabled={money < GIFT_SPIRIT_STONE_COST || favor >= 100}
+                        title={`${GIFT_SPIRIT_STONE_COST} Spirit Stones → +1 Favor`}
+                      >
+                        Gift ({GIFT_SPIRIT_STONE_COST} SS)
+                      </button>
+                      {canTalk && (
+                        <button
+                          type="button"
+                          className="sectContainer__btn sectContainer__btn--small"
+                          onClick={() => dispatch(useRealmDialogue({ sectId: npc.sectId, npcId: npc.id, realmId: realm }))}
+                        >
+                          Talk ({realm})
+                        </button>
+                      )}
+                      {canBePartner && (
+                        <button
+                          type="button"
+                          className="sectContainer__btn sectContainer__btn--small sectContainer__btn--accent"
+                          onClick={() =>
+                            dispatch(
+                              setCultivationPartner(
+                                isPartner ? null : { sectId: npc.sectId, npcId: npc.id }
+                              )
+                            )
+                          }
+                        >
+                          {isPartner ? "Unset partner" : "Set as partner"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <p className="sectContainer__hint">
         To join another sect, open the Map and select a sect. You must leave your current sect first.

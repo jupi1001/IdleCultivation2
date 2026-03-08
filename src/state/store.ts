@@ -33,6 +33,12 @@ function migratePersistedState(state: unknown, _version: number): Promise<unknow
     if (c.autoEatUnlocked == null) c.autoEatUnlocked = false;
     if (c.autoEat == null) c.autoEat = false;
     if (c.autoEatHpPercent == null) c.autoEatHpPercent = 30;
+    if (c.sectQuestProgress == null) c.sectQuestProgress = {};
+    if (c.sectQuestKillCount == null) c.sectQuestKillCount = {};
+    if (c.obtainedSectTreasureIds == null) c.obtainedSectTreasureIds = [];
+    if (c.npcFavor == null) c.npcFavor = {};
+    if (c.realmDialogueUsed == null) c.realmDialogueUsed = {};
+    if (c.cultivationPartner == null) c.cultivationPartner = null;
   }
   return Promise.resolve(state);
 }
