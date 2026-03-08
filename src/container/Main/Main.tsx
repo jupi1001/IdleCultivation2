@@ -31,6 +31,7 @@ import { ImmortalsIslandContainer } from "../ImmortalsIslandContainer/ImmortalsI
 import { ReincarnationContainer } from "../ReincarnationContainer/ReincarnationContainer";
 import { AchievementsContainer } from "../AchievementsContainer/AchievementsContainer";
 import { SettingsContainer } from "../SettingsContainer/SettingsContainer";
+import { LogContainer } from "../LogContainer/LogContainer";
 import { useActivityTicks } from "../../hooks/useActivityTicks";
 import { useVitalityRegen } from "../../hooks/useVitalityRegen";
 
@@ -96,28 +97,31 @@ export const Main = () => {
         <LeftMain />
       </div>
       <div className="app__main-content">
-        {content === ContentArea.MAP && <Map />}
-        {content === ContentArea.SECT && <SectContainer />}
-        {content === ContentArea.TRAINING && <TrainingContainer />}
-        {content === ContentArea.SHOP && <Shop />}
-        {content === ContentArea.BLACK_MARKET && <BlackMarket />}
-        {content === ContentArea.INVENTORY && <Inventory />}
-        {content.split(":").shift() === ContentArea.COMBAT && <CombatContainer area={content.split(":").pop()} />}
-        {content === ContentArea.LABOUR && <MoneyContainer />}
-        {content === ContentArea.MEDITATION && <MeditationContainer />}
-        {content === ContentArea.FISHING && <FishingContainer />}
-        {content === ContentArea.MINING && <MiningContainer />}
-        {content === ContentArea.GATHERING && <GatheringContainer />}
-        {content === ContentArea.CULTIVATION_TREE && <CultivationTreeContainer />}
-        {content === ContentArea.ALCHEMY && <AlchemyContainer />}
-        {content === ContentArea.FORGING && <ForgingContainer />}
-        {content === ContentArea.COOKING && <CookingContainer />}
-        {content === ContentArea.IMMORTALS_ISLAND && <ImmortalsIslandContainer />}
-        {content === ContentArea.REINCARNATION && <ReincarnationContainer />}
-        {content === ContentArea.ACHIEVEMENTS && <AchievementsContainer />}
-        {content === ContentArea.SETTINGS && <SettingsContainer />}
+        <div className="app__main-content-scroll">
+          {content === ContentArea.MAP && <Map />}
+          {content === ContentArea.SECT && <SectContainer />}
+          {content === ContentArea.TRAINING && <TrainingContainer />}
+          {content === ContentArea.SHOP && <Shop />}
+          {content === ContentArea.BLACK_MARKET && <BlackMarket />}
+          {content === ContentArea.INVENTORY && <Inventory />}
+          {content.split(":").shift() === ContentArea.COMBAT && <CombatContainer area={content.split(":").pop()} />}
+          {content === ContentArea.LABOUR && <MoneyContainer />}
+          {content === ContentArea.MEDITATION && <MeditationContainer />}
+          {content === ContentArea.FISHING && <FishingContainer />}
+          {content === ContentArea.MINING && <MiningContainer />}
+          {content === ContentArea.GATHERING && <GatheringContainer />}
+          {content === ContentArea.CULTIVATION_TREE && <CultivationTreeContainer />}
+          {content === ContentArea.ALCHEMY && <AlchemyContainer />}
+          {content === ContentArea.FORGING && <ForgingContainer />}
+          {content === ContentArea.COOKING && <CookingContainer />}
+          {content === ContentArea.IMMORTALS_ISLAND && <ImmortalsIslandContainer />}
+          {content === ContentArea.REINCARNATION && <ReincarnationContainer />}
+          {content === ContentArea.ACHIEVEMENTS && <AchievementsContainer />}
+          {content === ContentArea.SETTINGS && <SettingsContainer />}
+          {content === ContentArea.ACTIVITY_LOG && <LogContainer />}
+        </div>
+        {content !== ContentArea.ACTIVITY_LOG && <LogContainer asPanel />}
       </div>
-
       <div className="app__main-right">
         <RightMain />
       </div>

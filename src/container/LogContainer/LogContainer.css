@@ -1,0 +1,201 @@
+.activity-log {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ── Full page mode ── */
+.activity-log--page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1rem;
+  gap: 0.75rem;
+}
+
+.activity-log__page-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.activity-log__page-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ── Panel mode (collapsible at bottom) ── */
+.activity-log--panel {
+  flex-shrink: 0;
+  margin-top: auto;
+  border-radius: 8px 8px 0 0;
+  border-bottom: none;
+}
+
+.activity-log--panel.activity-log--collapsed .activity-log__panel-body {
+  display: none;
+}
+
+.activity-log__panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+  background: var(--surface);
+  border: none;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.activity-log__panel-header:hover {
+  background: var(--bg);
+}
+
+.activity-log__panel-title {
+  flex: 1;
+}
+
+.activity-log__panel-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.activity-log__panel-toggle {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.activity-log__panel-body {
+  padding: 0.5rem 0.75rem;
+  max-height: 200px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Toolbar (filters + clear) ── */
+.activity-log__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.activity-log__filters {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.activity-log__filter-btn {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.activity-log__filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.activity-log__filter-btn--active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.activity-log__clear {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.activity-log__clear:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+/* ── List ── */
+.activity-log__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.activity-log__empty {
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.activity-log__entry {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.82rem;
+  border-radius: 4px;
+  background: var(--bg);
+}
+
+.activity-log__entry--combat {
+  border-left: 3px solid #c44;
+}
+
+.activity-log__entry--loot {
+  border-left: 3px solid #6b8e23;
+}
+
+.activity-log__entry--skills {
+  border-left: 3px solid #4a6fa5;
+}
+
+.activity-log__entry--system {
+  border-left: 3px solid #9a7b4a;
+}
+
+.activity-log__entry-icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.activity-log__entry-time {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  width: 4.5rem;
+}
+
+.activity-log__entry-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

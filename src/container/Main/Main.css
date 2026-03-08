@@ -21,18 +21,24 @@
   flex: 1;
   min-width: 0;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden;
   padding: 1rem;
   background: var(--bg);
   display: flex;
   flex-direction: column;
 }
 
-.app__main-content > * {
+.app__main-content-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.app__main-content-scroll > * {
   flex: 0 0 auto;
 }
 
-.app__main-content > .map__wrap {
+.app__main-content-scroll > .map__wrap {
   flex: 1 1 0;
   min-height: 0;
 }

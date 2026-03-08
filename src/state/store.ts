@@ -5,8 +5,10 @@ import characterReducer from "./reducers/characterSlice";
 import contentReducer from "./reducers/contentSlice";
 import toastReducer from "./reducers/toastSlice";
 import achievementReducer from "./reducers/achievementSlice";
+import logReducer from "./reducers/logSlice";
 import { toastLevelUpMiddleware } from "./middleware/toastLevelUpMiddleware";
 import { achievementMiddleware } from "./middleware/achievementMiddleware";
+import { logMiddleware } from "./middleware/logMiddleware";
 
 const persistConfig = {
   key: "idle-cultivation",
@@ -20,6 +22,7 @@ const rootReducer = combineReducers({
   content: contentReducer,
   toast: toastReducer,
   achievements: achievementReducer,
+  log: logReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -31,7 +34,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(toastLevelUpMiddleware, achievementMiddleware),
+    }).concat(toastLevelUpMiddleware, achievementMiddleware, logMiddleware),
 });
 
 export const persistor = persistStore(store);
