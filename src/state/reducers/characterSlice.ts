@@ -365,6 +365,15 @@ export const characterSlice = createSlice({
     addItems: (state, action: PayloadAction<Item[]>) => {
       action.payload.forEach((item) => addQuantityById(state.itemsById, item.id, item.quantity ?? 1));
     },
+    /** Prefer over addItem when only identity and count matter; resolve definition from ITEMS_BY_ID at read time. */
+    addItemById: (state, action: PayloadAction<{ itemId: number; amount?: number }>) => {
+      const { itemId, amount = 1 } = action.payload;
+      addQuantityById(state.itemsById, itemId, amount);
+    },
+    /** Prefer over addItems when only identity and count matter; resolve definitions from ITEMS_BY_ID at read time. */
+    addItemsById: (state, action: PayloadAction<{ itemId: number; amount: number }[]>) => {
+      action.payload.forEach(({ itemId, amount }) => addQuantityById(state.itemsById, itemId, amount));
+    },
     removeItem: (state, action: PayloadAction<Item>) => {
       const { id } = action.payload;
       const qty = getQuantity(state.itemsById, id);
@@ -1030,6 +1039,8 @@ export const {
   addMiner,
   addItem,
   addItems,
+  addItemById,
+  addItemsById,
   removeItem,
   consumeItems,
   addAlchemyXP,

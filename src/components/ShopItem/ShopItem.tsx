@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Item from "../../interfaces/ItemI";
-import { addAttack, addDefense, addItem, reduceMoney } from "../../state/reducers/characterSlice";
+import { addAttack, addDefense, addItemById, reduceMoney } from "../../state/reducers/characterSlice";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
 import { selectMoney } from "../../state/selectors/characterSelectors";
 import "./ShopItem.css";
@@ -31,7 +31,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
     dispatch(reduceMoney(effectivePrice));
 
     if (item.equipmentSlot) {
-      dispatch(addItem({ ...item, quantity: 1 }));
+      dispatch(addItemById({ itemId: item.id, amount: 1 }));
       return;
     }
 
@@ -45,7 +45,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
         setStock((s) => s - 1);
         break;
       default:
-        dispatch(addItem(item));
+        dispatch(addItemById({ itemId: item.id, amount: item.quantity ?? 1 }));
         break;
     }
   }, [dispatch, money, item, effectivePrice]);

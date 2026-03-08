@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { SectStoreEntryI } from "../../constants/data";
-import { addItem, reduceMoney } from "../../state/reducers/characterSlice";
+import { addItemById, reduceMoney } from "../../state/reducers/characterSlice";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent, selectMoney } from "../../state/selectors/characterSelectors";
 import { formatItemStats } from "../../utils/itemTooltipUtils";
 import { Tooltip } from "../Tooltip/Tooltip";
@@ -33,7 +33,7 @@ export const SectStoreItem: React.FC<SectStoreItemProps> = React.memo(({ entry, 
       return;
     }
     dispatch(reduceMoney(effectivePrice));
-    dispatch(addItem({ ...item, quantity: 1 }));
+    dispatch(addItemById({ itemId: item.id, amount: 1 }));
     setShowPoor(false);
   };
 

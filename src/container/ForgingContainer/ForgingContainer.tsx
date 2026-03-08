@@ -21,7 +21,7 @@ import {
 } from "../../constants/forging";
 import { GEM_ITEMS } from "../../constants/gems";
 import { RING_AMULET_RECIPES, type RingAmuletRecipeI } from "../../constants/ringsAmulets";
-import { addItem, consumeItems, addForgingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
+import { addItemById, consumeItems, addForgingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
 import { addToast } from "../../state/reducers/toastSlice";
 import {
   getOwnedCraftingSetPieceIds,
@@ -98,7 +98,7 @@ export const ForgingContainer = () => {
       const amount = recipe.ore.amount;
       const consumeAmount = Math.max(1, amount - Math.floor((amount * forgingSavings) / 100));
       dispatch(consumeItems([{ itemId: recipe.ore.itemId, amount: consumeAmount }]));
-      dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
+      dispatch(addItemById({ itemId: recipe.output.id, amount: recipe.outputAmount }));
       const tierIndex = getForgingTierIndex(recipe.tier);
       const xpMult = 1 + setXpBonus / 100;
       dispatch(addForgingXP(Math.max(1, Math.floor(getForgingXPRefine(tierIndex) * xpMult))));
@@ -112,7 +112,7 @@ export const ForgingContainer = () => {
         getCraftingSetItemById
       );
       if (drop) {
-        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addItemById({ itemId: drop.id, amount: 1 }));
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },
@@ -127,7 +127,7 @@ export const ForgingContainer = () => {
         amount: Math.max(1, amount - Math.floor((amount * forgingSavings) / 100)),
       }));
       dispatch(consumeItems(toConsume));
-      dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
+      dispatch(addItemById({ itemId: recipe.output.id, amount: recipe.outputAmount }));
       const tierIndex = getForgingTierIndex(recipe.tier);
       const xpMult = 1 + setXpBonus / 100;
       dispatch(addForgingXP(Math.max(1, Math.floor(getForgingXPCraft(tierIndex) * xpMult))));
@@ -141,7 +141,7 @@ export const ForgingContainer = () => {
         getCraftingSetItemById
       );
       if (drop) {
-        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addItemById({ itemId: drop.id, amount: 1 }));
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },
@@ -160,7 +160,7 @@ export const ForgingContainer = () => {
         amount: Math.max(1, amount - Math.floor((amount * forgingSavings) / 100)),
       }));
       dispatch(consumeItems([...barConsume, ...gemConsume]));
-      dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
+      dispatch(addItemById({ itemId: recipe.output.id, amount: recipe.outputAmount }));
       const tierIndex = getForgingTierIndex(recipe.tier);
       const xpMult = 1 + setXpBonus / 100;
       dispatch(addForgingXP(Math.max(1, Math.floor(getForgingXPCraft(tierIndex) * xpMult))));
@@ -174,7 +174,7 @@ export const ForgingContainer = () => {
         getCraftingSetItemById
       );
       if (drop) {
-        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addItemById({ itemId: drop.id, amount: 1 }));
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },

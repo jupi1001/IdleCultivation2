@@ -19,7 +19,7 @@ import {
 import type { MissionI } from "../../interfaces/MissionI";
 import {
   addMoney,
-  addItem,
+  addItemById,
   startExpedition,
   clearExpedition,
   createAvatar,
@@ -136,7 +136,7 @@ export const ImmortalsIslandContainer = () => {
           const rareItem = rollOneTimeDropFromTable(ownedIds, mission.rareDrops, getExpeditionItem);
           let rareItemName: string | null = null;
           if (rareItem) {
-            dispatch(addItem({ ...rareItem, quantity: 1 }));
+            dispatch(addItemById({ itemId: rareItem.id, amount: 1 }));
             rareItemName = rareItem.name;
           }
           dispatch(clearExpedition({ entityType: "main" }));
@@ -159,7 +159,7 @@ export const ImmortalsIslandContainer = () => {
           const rareItem = rollOneTimeDropFromTable(ownedIds, mission.rareDrops, getExpeditionItem);
           let rareItemName: string | null = null;
           if (rareItem) {
-            dispatch(addItem({ ...rareItem, quantity: 1 }));
+            dispatch(addItemById({ itemId: rareItem.id, amount: 1 }));
             rareItemName = rareItem.name;
           }
           dispatch(clearExpedition({ entityType: "avatar", avatarId: avatar.id }));

@@ -15,7 +15,7 @@ import {
   CRAFTING_SET_DROP_CHANCE_PERCENT,
 } from "../../constants/craftingSets";
 import { ITEMS_BY_ID } from "../../constants/data";
-import { addItem, consumeItems, addAlchemyXP, recordItemCrafted } from "../../state/reducers/characterSlice";
+import { addItemById, consumeItems, addAlchemyXP, recordItemCrafted } from "../../state/reducers/characterSlice";
 import { addToast } from "../../state/reducers/toastSlice";
 import {
   getTalentAlchemySuccessPercent,
@@ -70,10 +70,7 @@ export const AlchemyContainer = () => {
       const xpMult = 1 + setXpBonus / 100;
       if (success) {
         dispatch(
-          addItem({
-            ...recipe.output,
-            quantity: recipe.outputAmount,
-          })
+          addItemById({ itemId: recipe.output.id, amount: recipe.outputAmount })
         );
         dispatch(addAlchemyXP(Math.max(1, Math.floor(getAlchemyXPSuccess(recipe.recipeLevel) * xpMult))));
         dispatch(recordItemCrafted("alchemy"));
@@ -90,7 +87,7 @@ export const AlchemyContainer = () => {
         getCraftingSetItemById
       );
       if (drop) {
-        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addItemById({ itemId: drop.id, amount: 1 }));
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },

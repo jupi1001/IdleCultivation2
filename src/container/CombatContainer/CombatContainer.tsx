@@ -8,7 +8,7 @@ import EnemyI from "../../interfaces/EnemyI";
 import "./CombatContainer.css";
 import { useDispatch, useSelector } from "react-redux";
 import Item from "../../interfaces/ItemI";
-import { addItems, addMoney, consumeItems, setCurrentHealth, setWeakened, recordEnemyKill, recordDeath, incrementSectQuestKillCount } from "../../state/reducers/characterSlice";
+import { addItemById, addItemsById, addMoney, consumeItems, setCurrentHealth, setWeakened, recordEnemyKill, recordDeath, incrementSectQuestKillCount } from "../../state/reducers/characterSlice";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import { addLogEntry } from "../../state/reducers/logSlice";
 import { getEffectiveCombatStats, getOwnedTechniqueIds, getTalentSpiritStoneMultiplier } from "../../state/selectors/characterSelectors";
@@ -213,7 +213,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       setLootSpiritStones(0);
     }
     if (itemBag.length > 0) {
-      dispatch(addItems(itemBag));
+      dispatch(addItemsById(itemBag.map((i) => ({ itemId: i.id, amount: i.quantity ?? 1 }))));
       setItemBag([]);
     }
   };
@@ -293,7 +293,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
           dispatch(addMoney(spiritStones));
           const droppedItem = rollOneLootDrop(enemy);
           if (droppedItem) {
-            dispatch(addItems([droppedItem]));
+            dispatch(addItemById({ itemId: droppedItem.id, amount: droppedItem.quantity ?? 1 }));
             dispatch(addLogEntry({ type: "item_obtained", itemName: droppedItem.name }));
           }
         } else {

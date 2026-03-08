@@ -13,7 +13,7 @@ import {
   CRAFTING_SET_DROP_CHANCE_PERCENT,
 } from "../../constants/craftingSets";
 import { ITEMS_BY_ID } from "../../constants/data";
-import { addItem, consumeItems, addCookingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
+import { addItemById, consumeItems, addCookingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
 import { addToast } from "../../state/reducers/toastSlice";
 import {
   getOwnedCraftingSetPieceIds,
@@ -55,7 +55,7 @@ export const CookingContainer = () => {
       dispatch(consumeItems(toConsume));
       const doubleOutput = doubleChance > 0 && Math.random() * 100 < doubleChance;
       const outputQty = doubleOutput ? recipe.outputAmount * 2 : recipe.outputAmount;
-      dispatch(addItem({ ...recipe.output, quantity: outputQty }));
+      dispatch(addItemById({ itemId: recipe.output.id, amount: outputQty }));
       const xpMult = 1 + setXpBonus / 100;
       dispatch(addCookingXP(Math.max(1, Math.floor(getCookingXP(recipe.recipeLevel) * xpMult))));
       dispatch(recordItemCrafted("cooking"));
@@ -68,7 +68,7 @@ export const CookingContainer = () => {
         getCraftingSetItemById
       );
       if (drop) {
-        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addItemById({ itemId: drop.id, amount: 1 }));
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },
