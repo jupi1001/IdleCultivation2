@@ -3,11 +3,14 @@ import type { RootState } from "../store";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { WEAKENED_STAT_MULTIPLIER } from "../reducers/characterSlice";
 import {
-  FULL_SET_BONUS_PERCENT,
-  SKILLING_SET_IDS,
+  SET_IDS,
+  FULL_SET_SPEED_BONUS_PERCENT,
+  FULL_SET_ALCHEMY_SUCCESS_PERCENT,
+  FULL_SET_FORGING_SAVINGS_PERCENT,
+  FULL_SET_COOKING_DOUBLE_PERCENT,
   type SkillSetName,
   type SkillSetTier,
-} from "../../constants/skillingSets";
+} from "../../constants/skillSets";
 import { KARMA_BONUSES_BY_ID, type KarmaBonusId } from "../../constants/reincarnation";
 import { getTalentBonuses } from "../../constants/talents";
 
@@ -63,8 +66,8 @@ export const getOwnedRingAmuletIds = createSelector(
   }
 );
 
-/** Item ids the character owns that are skilling set pieces (for "Possible loot" checkmark). */
-export const getOwnedSkillingSetPieceIds = createSelector(
+/** Item ids the character owns that are any skill set pieces (all 6 skills; for "Possible loot" and drop roll). */
+export const getOwnedSetPieceIds = createSelector(
   [(state: RootState) => state.character.items, (state: RootState) => state.character.equipment],
   (items, equipment) => {
     const ids = new Set<number>();
@@ -80,8 +83,14 @@ export const getOwnedSkillingSetPieceIds = createSelector(
   }
 );
 
-/** Compute skill speed bonus (0–100) for a given skill from equipped set pieces + full-set bonuses. */
-function computeSkillSpeedBonus(equipment: RootState["character"]["equipment"], skill: SkillSetName): number {
+/** @deprecated Use getOwnedSetPieceIds. Same set for gathering (fishing/mining/gathering). */
+export const getOwnedSkillingSetPieceIds = getOwnedSetPieceIds;
+
+/** Compute skill speed bonus (0–100) for a given gathering skill from equipped set pieces + full-set bonuses. */
+function computeSkillSpeedBonus(
+  equipment: RootState["character"]["equipment"],
+  skill: "fishing" | "mining" | "gathering"
+): number {
   let total = 0;
   const slots: ("helmet" | "body" | "legs" | "shoes")[] = ["helmet", "body", "legs", "shoes"];
   for (const slot of slots) {
@@ -92,10 +101,10 @@ function computeSkillSpeedBonus(equipment: RootState["character"]["equipment"], 
   }
   const tiers: SkillSetTier[] = ["lesser", "greater", "perfected"];
   for (const tier of tiers) {
-    const ids = SKILLING_SET_IDS[skill][tier];
+    const ids = SET_IDS[skill][tier];
     const required = [ids.helmet, ids.body, ids.legs, ids.shoes];
     const allEquipped = slots.every((slot, i) => equipment[slot]?.id === required[i]);
-    if (allEquipped) total += FULL_SET_BONUS_PERCENT[tier];
+    if (allEquipped) total += FULL_SET_SPEED_BONUS_PERCENT[tier];
   }
   return total;
 }
@@ -221,6 +230,93 @@ export const getTalentSpiritStoneMultiplier = createSelector(
 export const getTalentShopDiscountPercent = createSelector(
   [getTalentBonusesSelector],
   (talentBonuses) => talentBonuses.shopDiscountPercent
+);
+
+/** Item ids the character owns that are crafting set pieces (alchemy/forging/cooking). Same as getOwnedSetPieceIds. */
+export const getOwnedCraftingSetPieceIds = getOwnedSetPieceIds;
+
+/** Compute crafting set bonuses from equipped pieces: XP per skill + full-set bonuses. */
+function computeCraftingSetBonuses(equipment: RootState["character"]["equipment"]) {
+  const slots: ("helmet" | "body" | "legs" | "shoes")[] = ["helmet", "body", "legs", "shoes"];
+  let alchemyXpPercent = 0;
+  let forgingXpPercent = 0;
+  let cookingXpPercent = 0;
+  let alchemySuccessPercent = 0;
+  let forgingSavingsPercent = 0;
+  let cookingDoubleChancePercent = 0;
+
+  for (const skill of ["alchemy", "forging", "cooking"] as SkillSetName[]) {
+    for (const slot of slots) {
+      const item = equipment[slot];
+      if (item?.skillSet === skill && item.skillXpBonus != null) {
+        if (skill === "alchemy") alchemyXpPercent += item.skillXpBonus;
+        else if (skill === "forging") forgingXpPercent += item.skillXpBonus;
+        else cookingXpPercent += item.skillXpBonus;
+      }
+    }
+    const tiers: SkillSetTier[] = ["lesser", "greater", "perfected"];
+    for (const tier of tiers) {
+      const ids = SET_IDS[skill][tier];
+      const required = [ids.helmet, ids.body, ids.legs, ids.shoes];
+      const allEquipped = slots.every((s, i) => equipment[s]?.id === required[i]);
+      if (allEquipped) {
+        if (skill === "alchemy") alchemySuccessPercent += FULL_SET_ALCHEMY_SUCCESS_PERCENT[tier];
+        else if (skill === "forging") forgingSavingsPercent += FULL_SET_FORGING_SAVINGS_PERCENT[tier];
+        else cookingDoubleChancePercent += FULL_SET_COOKING_DOUBLE_PERCENT[tier];
+      }
+    }
+  }
+
+  return {
+    alchemyXpPercent,
+    forgingXpPercent,
+    cookingXpPercent,
+    alchemySuccessPercent,
+    forgingSavingsPercent,
+    cookingDoubleChancePercent,
+  };
+}
+
+/** Crafting set bonuses (for alchemy/forging/cooking). */
+export const getCraftingSetBonuses = createSelector(
+  [(state: RootState) => state.character.equipment],
+  (equipment) => computeCraftingSetBonuses(equipment)
+);
+
+/** Alchemy success chance bonus from crafting set (percent). */
+export const getCraftingSetAlchemySuccessPercent = createSelector(
+  [getCraftingSetBonuses],
+  (b) => b.alchemySuccessPercent
+);
+
+/** Forging material savings from crafting set (percent; e.g. 10 = consume 10% less). */
+export const getCraftingSetForgingSavingsPercent = createSelector(
+  [getCraftingSetBonuses],
+  (b) => b.forgingSavingsPercent
+);
+
+/** Cooking double output chance from crafting set (percent). */
+export const getCraftingSetCookingDoubleChancePercent = createSelector(
+  [getCraftingSetBonuses],
+  (b) => b.cookingDoubleChancePercent
+);
+
+/** Alchemy XP bonus from crafting set (percent). */
+export const getCraftingSetAlchemyXpPercent = createSelector(
+  [getCraftingSetBonuses],
+  (b) => b.alchemyXpPercent
+);
+
+/** Forging XP bonus from crafting set (percent). */
+export const getCraftingSetForgingXpPercent = createSelector(
+  [getCraftingSetBonuses],
+  (b) => b.forgingXpPercent
+);
+
+/** Cooking XP bonus from crafting set (percent). */
+export const getCraftingSetCookingXpPercent = createSelector(
+  [getCraftingSetBonuses],
+  (b) => b.cookingXpPercent
 );
 
 /** Talent alchemy success bonus (percent added to success chance). */

@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { addItem, consumeItems, addForgingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
+import { addToast } from "../../state/reducers/toastSlice";
 import {
   REFINE_RECIPES,
   CRAFT_RECIPES,
@@ -18,6 +19,18 @@ import { RING_AMULET_RECIPES, type RingAmuletRecipeI } from "../../constants/rin
 import { GEM_ITEMS } from "../../constants/gems";
 import { oreTypes } from "../../constants/data";
 import { countItem } from "../../utils/inventory";
+import {
+  getOwnedCraftingSetPieceIds,
+  getCraftingSetForgingSavingsPercent,
+  getCraftingSetForgingXpPercent,
+} from "../../state/selectors/characterSelectors";
+import {
+  getCraftingSetItemById,
+  getCraftingSetPieceIds,
+  getTierForForgingTierIndex,
+  CRAFTING_SET_DROP_CHANCE_PERCENT,
+} from "../../constants/craftingSets";
+import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./ForgingContainer.css";
 
 function getItemName(
@@ -64,6 +77,11 @@ export const ForgingContainer = () => {
   const dispatch = useDispatch();
   const items = useSelector((state: RootState) => state.character.items);
   const forgingXP = useSelector((state: RootState) => state.character.forgingXP);
+  const forgingSavings = useSelector(getCraftingSetForgingSavingsPercent);
+  const setXpBonus = useSelector(getCraftingSetForgingXpPercent);
+  const ownedCraftingSetIds = useSelector(getOwnedCraftingSetPieceIds);
+  const ownedCraftingSetRef = useRef<Set<number>>(new Set());
+  ownedCraftingSetRef.current = ownedCraftingSetIds;
   const { level: forgingLevel, xpInLevel, xpRequiredForNext: xpForNext } = getForgingLevelInfo(forgingXP);
 
   /** Which tier sections are expanded. Default: all true. */
@@ -90,42 +108,90 @@ export const ForgingContainer = () => {
   const doRefine = useCallback(
     (recipe: RefineRecipeI) => {
       if (!canRefine(items, recipe)) return;
-      dispatch(consumeItems([{ itemId: recipe.ore.itemId, amount: recipe.ore.amount }]));
+      const amount = recipe.ore.amount;
+      const consumeAmount = Math.max(1, amount - Math.floor((amount * forgingSavings) / 100));
+      dispatch(consumeItems([{ itemId: recipe.ore.itemId, amount: consumeAmount }]));
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
       const tierIndex = getForgingTierIndex(recipe.tier);
-      dispatch(addForgingXP(getForgingXPRefine(tierIndex)));
+      const xpMult = 1 + setXpBonus / 100;
+      dispatch(addForgingXP(Math.max(1, Math.floor(getForgingXPRefine(tierIndex) * xpMult))));
       dispatch(recordItemCrafted("forging"));
+
+      const setTier = getTierForForgingTierIndex(tierIndex);
+      const drop = rollOneTimeDrop(
+        ownedCraftingSetRef.current,
+        getCraftingSetPieceIds("forging", setTier),
+        CRAFTING_SET_DROP_CHANCE_PERCENT,
+        getCraftingSetItemById
+      );
+      if (drop) {
+        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
+      }
     },
-    [dispatch, items]
+    [dispatch, items, forgingSavings, setXpBonus]
   );
 
   const doCraft = useCallback(
     (recipe: CraftRecipeI) => {
       if (!canCraft(items, recipe)) return;
-      const toConsume = recipe.bars.map(({ itemId, amount }) => ({ itemId, amount }));
+      const toConsume = recipe.bars.map(({ itemId, amount }) => ({
+        itemId,
+        amount: Math.max(1, amount - Math.floor((amount * forgingSavings) / 100)),
+      }));
       dispatch(consumeItems(toConsume));
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
       const tierIndex = getForgingTierIndex(recipe.tier);
-      dispatch(addForgingXP(getForgingXPCraft(tierIndex)));
+      const xpMult = 1 + setXpBonus / 100;
+      dispatch(addForgingXP(Math.max(1, Math.floor(getForgingXPCraft(tierIndex) * xpMult))));
       dispatch(recordItemCrafted("forging"));
+
+      const setTier = getTierForForgingTierIndex(tierIndex);
+      const drop = rollOneTimeDrop(
+        ownedCraftingSetRef.current,
+        getCraftingSetPieceIds("forging", setTier),
+        CRAFTING_SET_DROP_CHANCE_PERCENT,
+        getCraftingSetItemById
+      );
+      if (drop) {
+        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
+      }
     },
-    [dispatch, items]
+    [dispatch, items, forgingSavings, setXpBonus]
   );
 
   const doCraftRingAmulet = useCallback(
     (recipe: RingAmuletRecipeI) => {
       if (!canCraftRingAmulet(items, recipe)) return;
-      const toConsume = [
-        ...recipe.bars.map(({ itemId, amount }) => ({ itemId, amount })),
-        ...(recipe.gems ?? []).map(({ itemId, amount }) => ({ itemId, amount })),
-      ];
-      dispatch(consumeItems(toConsume));
+      const barConsume = recipe.bars.map(({ itemId, amount }) => ({
+        itemId,
+        amount: Math.max(1, amount - Math.floor((amount * forgingSavings) / 100)),
+      }));
+      const gemConsume = (recipe.gems ?? []).map(({ itemId, amount }) => ({
+        itemId,
+        amount: Math.max(1, amount - Math.floor((amount * forgingSavings) / 100)),
+      }));
+      dispatch(consumeItems([...barConsume, ...gemConsume]));
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
       const tierIndex = getForgingTierIndex(recipe.tier);
-      dispatch(addForgingXP(getForgingXPCraft(tierIndex)));
+      const xpMult = 1 + setXpBonus / 100;
+      dispatch(addForgingXP(Math.max(1, Math.floor(getForgingXPCraft(tierIndex) * xpMult))));
       dispatch(recordItemCrafted("forging"));
+
+      const setTier = getTierForForgingTierIndex(tierIndex);
+      const drop = rollOneTimeDrop(
+        ownedCraftingSetRef.current,
+        getCraftingSetPieceIds("forging", setTier),
+        CRAFTING_SET_DROP_CHANCE_PERCENT,
+        getCraftingSetItemById
+      );
+      if (drop) {
+        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
+      }
     },
-    [dispatch, items]
+    [dispatch, items, forgingSavings, setXpBonus]
   );
 
   return (

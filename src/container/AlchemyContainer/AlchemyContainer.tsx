@@ -1,7 +1,8 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { addItem, consumeItems, addAlchemyXP, recordItemCrafted } from "../../state/reducers/characterSlice";
+import { addToast } from "../../state/reducers/toastSlice";
 import {
   ALCHEMY_RECIPES,
   getAlchemyLevelInfo,
@@ -12,7 +13,19 @@ import {
 } from "../../constants/alchemy";
 import { gatheringLootTypes } from "../../constants/data";
 import { countItem } from "../../utils/inventory";
-import { getTalentAlchemySuccessPercent } from "../../state/selectors/characterSelectors";
+import {
+  getTalentAlchemySuccessPercent,
+  getCraftingSetAlchemySuccessPercent,
+  getCraftingSetAlchemyXpPercent,
+  getOwnedCraftingSetPieceIds,
+} from "../../state/selectors/characterSelectors";
+import {
+  getCraftingSetItemById,
+  getCraftingSetPieceIds,
+  getTierForAlchemyRecipeLevel,
+  CRAFTING_SET_DROP_CHANCE_PERCENT,
+} from "../../constants/craftingSets";
+import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./AlchemyContainer.css";
 
 function getItemName(itemId: number): string {
@@ -33,13 +46,18 @@ export const AlchemyContainer = () => {
   const items = useSelector((state: RootState) => state.character.items);
   const alchemyXP = useSelector((state: RootState) => state.character.alchemyXP);
   const talentAlchemyBonus = useSelector(getTalentAlchemySuccessPercent);
+  const setSuccessBonus = useSelector(getCraftingSetAlchemySuccessPercent);
+  const setXpBonus = useSelector(getCraftingSetAlchemyXpPercent);
+  const ownedCraftingSetIds = useSelector(getOwnedCraftingSetPieceIds);
+  const ownedCraftingSetRef = useRef<Set<number>>(new Set());
+  ownedCraftingSetRef.current = ownedCraftingSetIds;
   const { level: alchemyLevel, xpInLevel, xpRequiredForNext: xpForNext } = getAlchemyLevelInfo(alchemyXP);
 
   const attemptCraft = useCallback(
     (recipe: AlchemyRecipeI) => {
       if (!canCraft(items, recipe)) return;
       const baseChance = getAlchemySuccessChance(alchemyLevel, recipe.recipeLevel);
-      const chance = Math.min(100, baseChance + (talentAlchemyBonus ?? 0));
+      const chance = Math.min(100, baseChance + (talentAlchemyBonus ?? 0) + setSuccessBonus);
       const success = Math.random() * 100 < chance;
 
       const toConsume = [
@@ -48,6 +66,7 @@ export const AlchemyContainer = () => {
       ];
       dispatch(consumeItems(toConsume));
 
+      const xpMult = 1 + setXpBonus / 100;
       if (success) {
         dispatch(
           addItem({
@@ -55,13 +74,26 @@ export const AlchemyContainer = () => {
             quantity: recipe.outputAmount,
           })
         );
-        dispatch(addAlchemyXP(getAlchemyXPSuccess(recipe.recipeLevel)));
+        dispatch(addAlchemyXP(Math.max(1, Math.floor(getAlchemyXPSuccess(recipe.recipeLevel) * xpMult))));
         dispatch(recordItemCrafted("alchemy"));
       } else {
-        dispatch(addAlchemyXP(getAlchemyXPFail(recipe.recipeLevel)));
+        dispatch(addAlchemyXP(Math.max(0, Math.floor(getAlchemyXPFail(recipe.recipeLevel) * xpMult))));
+      }
+
+      const tier = getTierForAlchemyRecipeLevel(recipe.recipeLevel);
+      const pieceIds = getCraftingSetPieceIds("alchemy", tier);
+      const drop = rollOneTimeDrop(
+        ownedCraftingSetRef.current,
+        pieceIds,
+        CRAFTING_SET_DROP_CHANCE_PERCENT,
+        getCraftingSetItemById
+      );
+      if (drop) {
+        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },
-    [dispatch, items, alchemyLevel, talentAlchemyBonus]
+    [dispatch, items, alchemyLevel, talentAlchemyBonus, setSuccessBonus, setXpBonus]
   );
 
   return (
@@ -85,7 +117,7 @@ export const AlchemyContainer = () => {
         {ALCHEMY_RECIPES.map((recipe) => {
           const canDo = canCraft(items, recipe);
           const baseChance = getAlchemySuccessChance(alchemyLevel, recipe.recipeLevel);
-          const successChance = Math.min(100, baseChance + (talentAlchemyBonus ?? 0));
+          const successChance = Math.min(100, baseChance + (talentAlchemyBonus ?? 0) + setSuccessBonus);
           return (
             <div key={recipe.id} className="alchemy__recipe">
               <h4 className="alchemy__recipeName">{recipe.name}</h4>
