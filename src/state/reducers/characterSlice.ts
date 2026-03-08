@@ -21,6 +21,13 @@ import {
   REINCARNATION_MIN_STEP,
 } from "../../constants/reincarnation";
 import {
+  SECT_TREASURE_ITEMS,
+  SECT_TREASURE_ITEM_ID_BY_SECT,
+  SECT_QUEST_KILLS_REQUIRED,
+  REALM_DIALOGUE_FAVOR,
+  GIFT_SPIRIT_STONE_COST,
+} from "../../constants/sectRelationships";
+import {
   AVATAR_CREATE_ORE_AMOUNT,
   AVATAR_CREATE_ORE_ID,
   AVATAR_CREATE_SPIRIT_STONES,
@@ -193,6 +200,18 @@ interface CharacterState {
   autoEat: boolean;
   /** HP percentage (1–99) below which auto-eat triggers. */
   autoEatHpPercent: number;
+  /** Sect quest: step 0=not started, 1=in progress, 2=ready to claim, 3=claimed. Not reset on reincarnation. */
+  sectQuestProgress: Record<number, number>;
+  /** Kills in current quest step (for step 1). Key = sectId. Not reset on reincarnation. */
+  sectQuestKillCount: Record<number, number>;
+  /** Sect treasure item ids already obtained (one-time per sect). Not reset on reincarnation. */
+  obtainedSectTreasureIds: number[];
+  /** NPC favor 0–100. Key = "sectId-npcId". Not reset on reincarnation. */
+  npcFavor: Record<string, number>;
+  /** Realm dialogue used per NPC. Key = "sectId-npcId", value = set of realm ids. Not reset on reincarnation. */
+  realmDialogueUsed: Record<string, Record<string, boolean>>;
+  /** Current dual cultivation partner (sect + npc). Not reset on reincarnation. */
+  cultivationPartner: { sectId: number; npcId: number } | null;
   /** Death penalty mode: "normal" = weakened state after death until meditation; "casual" = no weakened. */
   deathPenaltyMode: "normal" | "casual";
   /** After death (normal mode): true until player meditates for required seconds. */
@@ -307,6 +326,12 @@ const initialState: CharacterState = {
   autoEatUnlocked: false,
   autoEat: false,
   autoEatHpPercent: 30,
+  sectQuestProgress: {},
+  sectQuestKillCount: {},
+  obtainedSectTreasureIds: [],
+  npcFavor: {},
+  realmDialogueUsed: {},
+  cultivationPartner: null,
   deathPenaltyMode: "normal",
   isWeakened: false,
   weakenedMeditationSecondsDone: 0,
@@ -893,7 +918,8 @@ export const characterSlice = createSlice({
         item.equipmentSlot === "combatTechnique" ||
         item.equipmentSlot === "ring" ||
         item.equipmentSlot === "amulet" ||
-        item.skillSet != null;
+        item.skillSet != null ||
+        (item.id >= 981 && item.id <= 986);
 
       const preservedItems: Item[] = [];
       const seenIds = new Set<number>();
@@ -1006,6 +1032,69 @@ export const characterSlice = createSlice({
     setAutoEatHpPercent: (state, action: PayloadAction<number>) => {
       state.autoEatHpPercent = Math.min(99, Math.max(1, Math.round(action.payload)));
     },
+    /** Accept sect quest (step 0 → 1). Only when in sect and step is 0. */
+    acceptSectQuest: (state, action: PayloadAction<number>) => {
+      const sectId = action.payload;
+      if (state.currentSectId !== sectId) return;
+      const step = state.sectQuestProgress[sectId] ?? 0;
+      if (step !== 0) return;
+      state.sectQuestProgress[sectId] = 1;
+      state.sectQuestKillCount[sectId] = 0;
+    },
+    /** Increment sect quest kill count when player kills an enemy while in that sect and on step 1. */
+    incrementSectQuestKillCount: (state, action: PayloadAction<number>) => {
+      const sectId = action.payload;
+      if (state.currentSectId !== sectId) return;
+      const step = state.sectQuestProgress[sectId] ?? 0;
+      if (step !== 1) return;
+      const count = (state.sectQuestKillCount[sectId] ?? 0) + 1;
+      state.sectQuestKillCount[sectId] = count;
+      if (count >= SECT_QUEST_KILLS_REQUIRED) state.sectQuestProgress[sectId] = 2;
+    },
+    /** Claim sect quest reward (step 2 → 3). Gives sect treasure if not already obtained. */
+    claimSectQuestReward: (state, action: PayloadAction<number>) => {
+      const sectId = action.payload;
+      const step = state.sectQuestProgress[sectId] ?? 0;
+      if (step !== 2) return;
+      const itemId = SECT_TREASURE_ITEM_ID_BY_SECT[sectId];
+      if (itemId == null || state.obtainedSectTreasureIds.includes(itemId)) return;
+      const item = SECT_TREASURE_ITEMS.find((i) => i.id === itemId);
+      if (!item) return;
+      state.sectQuestProgress[sectId] = 3;
+      state.obtainedSectTreasureIds.push(itemId);
+      upsertItem(state.items, { ...item, quantity: 1 }, 1);
+    },
+    /** Add favor for an NPC (internal / from gift or dialogue). */
+    addNpcFavor: (state, action: PayloadAction<{ sectId: number; npcId: number; amount: number }>) => {
+      const { sectId, npcId, amount } = action.payload;
+      const key = `${sectId}-${npcId}`;
+      const current = state.npcFavor[key] ?? 0;
+      state.npcFavor[key] = Math.min(100, Math.max(0, current + amount));
+    },
+    /** Use one-time realm dialogue with NPC (increases favor, marks realm as used). */
+    useRealmDialogue: (state, action: PayloadAction<{ sectId: number; npcId: number; realmId: string }>) => {
+      const { sectId, npcId, realmId } = action.payload;
+      const key = `${sectId}-${npcId}`;
+      if (!state.realmDialogueUsed[key]) state.realmDialogueUsed[key] = {};
+      if (state.realmDialogueUsed[key][realmId]) return;
+      state.realmDialogueUsed[key][realmId] = true;
+      const current = state.npcFavor[key] ?? 0;
+      state.npcFavor[key] = Math.min(100, current + REALM_DIALOGUE_FAVOR);
+    },
+    /** Set or clear dual cultivation partner (only if favor >= 50 when setting). */
+    setCultivationPartner: (state, action: PayloadAction<{ sectId: number; npcId: number } | null>) => {
+      state.cultivationPartner = action.payload;
+    },
+    /** Gift spirit stones to NPC to increase favor. Cost GIFT_SPIRIT_STONE_COST per gift, +1 favor. */
+    giftNpc: (state, action: PayloadAction<{ sectId: number; npcId: number }>) => {
+      const { sectId, npcId } = action.payload;
+      if (state.currentSectId !== sectId) return;
+      if (state.money < GIFT_SPIRIT_STONE_COST) return;
+      state.money -= GIFT_SPIRIT_STONE_COST;
+      const key = `${sectId}-${npcId}`;
+      const current = state.npcFavor[key] ?? 0;
+      state.npcFavor[key] = Math.min(100, current + 1);
+    },
     /** Death penalty: "normal" = weakened after death; "casual" = no weakened. */
     setDeathPenaltyMode: (state, action: PayloadAction<"normal" | "casual">) => {
       state.deathPenaltyMode = action.payload;
@@ -1114,6 +1203,13 @@ export const {
   purchaseAutoEatUnlock,
   setAutoEat,
   setAutoEatHpPercent,
+  acceptSectQuest,
+  incrementSectQuestKillCount,
+  claimSectQuestReward,
+  addNpcFavor,
+  useRealmDialogue,
+  setCultivationPartner,
+  giftNpc,
   setDeathPenaltyMode,
   setWeakened,
   tickWeakenedRecovery,

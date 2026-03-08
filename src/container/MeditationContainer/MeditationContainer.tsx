@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { breakthrough, setCurrentActivity } from "../../state/reducers/characterSlice";
+import { breakthrough, setCurrentActivity, setCultivationPartner } from "../../state/reducers/characterSlice";
 import { formatRealm, getBreakthroughQiRequired, getNextRealm, getBreakthroughStatGainText } from "../../constants/realmProgression";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import { getCharacterImage } from "../../constants/ui";
-import { getKarmaQiMultiplier, getTalentQiGainBonus } from "../../state/selectors/characterSelectors";
+import { getKarmaQiMultiplier, getTalentQiGainBonus, getCultivationPartnerInfo } from "../../state/selectors/characterSelectors";
+import { SECT_NPCS_BY_SECT, DUAL_CULTIVATION_MIN_FAVOR } from "../../constants/sectRelationships";
 import { Tooltip } from "../../components/Tooltip/Tooltip";
 import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/characterSlice";
 import "./MeditationContainer.css";
@@ -16,11 +17,15 @@ export const MeditationContainer = () => {
   const character = useSelector((state: RootState) => state.character);
   const karmaQiMult = useSelector(getKarmaQiMultiplier);
   const talentQiGain = useSelector(getTalentQiGainBonus);
+  const partnerInfo = useSelector(getCultivationPartnerInfo);
+  const currentSectId = useSelector((state: RootState) => state.character.currentSectId);
+  const npcFavor = useSelector((state: RootState) => state.character.npcFavor);
   const { realm, realmLevel, qi, currentActivity, equipment } = character;
   const isWeakened = character.isWeakened && character.deathPenaltyMode === "normal";
   const weakenedRemaining = Math.max(0, WEAKENED_MEDITATION_SECONDS - (character.weakenedMeditationSecondsDone ?? 0));
   const qiTechnique = equipment.qiTechnique;
-  const baseQiPerSecond = BASE_QI_PER_SECOND + (qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0) + talentQiGain;
+  const partnerBonusMult = 1 + (partnerInfo.bonusPercent ?? 0) / 100;
+  const baseQiPerSecond = (BASE_QI_PER_SECOND + (qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0) + talentQiGain) * partnerBonusMult;
   const qiPerSecond = Math.round(baseQiPerSecond * karmaQiMult * 100) / 100;
   const requiredQi = getBreakthroughQiRequired(realm, realmLevel);
   const nextRealm = getNextRealm(realm, realmLevel);
@@ -70,11 +75,20 @@ export const MeditationContainer = () => {
         </p>
       )}
       <div className="meditation-container__character">
-        <img
-          src={getCharacterImage(character.gender ?? "Male", "lotus")}
-          alt="Meditating"
-          className="meditation-container__character-img"
-        />
+        {partnerInfo.npc ? (
+          <img
+            src={partnerInfo.npc.lotusImage}
+            alt={`Cultivation partner: ${partnerInfo.npc.name}`}
+            className="meditation-container__character-img"
+            title={`Dual cultivation with ${partnerInfo.npc.name} (+${partnerInfo.bonusPercent}% Qi/s)`}
+          />
+        ) : (
+          <img
+            src={getCharacterImage(character.gender ?? "Male", "lotus")}
+            alt="Meditating"
+            className="meditation-container__character-img"
+          />
+        )}
         {canBreakthrough && (
           <button
             type="button"
@@ -110,8 +124,45 @@ export const MeditationContainer = () => {
         )}
         <p className={`meditation-container__qi-rate ${isMeditating ? "meditation-container__qi-rate--active" : ""}`}>
           {isMeditating ? `+${displayRate} Qi/s` : `${displayRate} Qi/s (when meditating)`}
+          {partnerInfo.bonusPercent > 0 && (
+            <span className="meditation-container__partner-bonus" title={`Dual cultivation: +${partnerInfo.bonusPercent}%`}>
+              {" "}(+{partnerInfo.bonusPercent}% partner)
+            </span>
+          )}
         </p>
       </div>
+      {currentSectId != null && (SECT_NPCS_BY_SECT[currentSectId] ?? []).filter(
+        (npc) => (npcFavor[`${currentSectId}-${npc.id}`] ?? 0) >= DUAL_CULTIVATION_MIN_FAVOR
+      ).length > 0 && (
+        <div className="meditation-container__partner-wrap">
+          <label htmlFor="meditation-partner-select" className="meditation-container__partner-label">
+            Cultivation partner
+          </label>
+          <select
+            id="meditation-partner-select"
+            className="meditation-container__partner-select"
+            value={partnerInfo.npc ? `${partnerInfo.npc.sectId}-${partnerInfo.npc.id}` : ""}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (!v) {
+                dispatch(setCultivationPartner(null));
+                return;
+              }
+              const [sectId, npcId] = v.split("-").map(Number);
+              if (sectId && npcId) dispatch(setCultivationPartner({ sectId, npcId }));
+            }}
+          >
+            <option value="">None</option>
+            {(SECT_NPCS_BY_SECT[currentSectId] ?? [])
+              .filter((npc) => (npcFavor[`${currentSectId}-${npc.id}`] ?? 0) >= DUAL_CULTIVATION_MIN_FAVOR)
+              .map((npc) => (
+                <option key={npc.id} value={`${npc.sectId}-${npc.id}`}>
+                  {npc.name} ({(npcFavor[`${npc.sectId}-${npc.id}`] ?? 0)} favor)
+                </option>
+              ))}
+          </select>
+        </div>
+      )}
       {!isMeditating ? (
         <>
           <button

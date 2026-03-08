@@ -1,14 +1,6 @@
 # TODO
 
-
-
 ## Next Version
-- Add more combat loot
-
-- Sect phase 3. Relationships
-- All skill expansion with content to level 120
-
-
 - **Polish** – Sound and VFX (hits, blocks, kill), tooltips (e.g. how block/damage work).
 
 ---
@@ -28,6 +20,36 @@ Rare combat-only drops (weapons, armor, rings, amulets). Place under `public/ass
 - `cloudsea-lotus-pendant.webp` (SEA)
 - `thunderbrand.webp` (STORM)
 - `jade-court-sigil.webp` (PALACE)
+
+---
+
+## Sect Phase 3 – Relationships (images needed)
+
+Sect quest rewards and romanceable NPCs. Paths are under `public/`.
+
+### Sect treasures (quest rewards)
+
+Place under `public/assets/sect-treasures/`:
+
+- `jade-mountain-heartstone.webp` (Jade Mountain Sect – ring)
+- `verdant-valley-heirloom.webp` (Verdant Valley Sect – amulet)
+- `azure-sky-sigil.webp` (Azure Sky Pavilion – amulet)
+- `crimson-demon-brand.webp` (Crimson Demon Sect – ring)
+- `shadow-serpent-fang.webp` (Shadow Serpent Hall – ring)
+- `bone-abyss-relic.webp` (Bone Abyss Sect – amulet)
+
+### Romanceable NPCs (2 images per character: portrait + lotus)
+
+Place under `public/assets/sect-npcs/{sectId}/` where `sectId` is 1–6 (Jade Mountain=1, Verdant Valley=2, Azure Sky=3, Crimson Demon=4, Shadow Serpent=5, Bone Abyss=6).
+
+**Sect 1 – Jade Mountain:** `101-portrait.webp`, `101-lotus.webp`, `102-portrait.webp`, `102-lotus.webp`, `103-portrait.webp`, `103-lotus.webp`, `104-portrait.webp`, `104-lotus.webp`  
+**Sect 2 – Verdant Valley:** `105-portrait.webp`, `105-lotus.webp`, … through `108-lotus.webp`  
+**Sect 3 – Azure Sky:** `109-portrait.webp` through `112-lotus.webp`  
+**Sect 4 – Crimson Demon:** `113-portrait.webp` through `116-lotus.webp`  
+**Sect 5 – Shadow Serpent:** `117-portrait.webp` through `120-lotus.webp`  
+**Sect 6 – Bone Abyss:** `121-portrait.webp` through `124-lotus.webp`
+
+(24 NPCs × 2 = 48 images total. Portrait = dialogue/casual; lotus = shown in meditation when chosen as cultivation partner.)
 
 ---
 

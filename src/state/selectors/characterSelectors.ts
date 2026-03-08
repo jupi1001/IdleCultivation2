@@ -13,6 +13,7 @@ import {
 } from "../../constants/skillSets";
 import { KARMA_BONUSES_BY_ID, type KarmaBonusId } from "../../constants/reincarnation";
 import { getTalentBonuses } from "../../constants/talents";
+import { getSectNpcById, getDualCultivationBonusPercent, type SectNpcI } from "../../constants/sectRelationships";
 
 /** Sum equipment bonuses for combat stats. Sword & ring → attack; helmet, body & amulet → defense and vitality; combatTechnique & ring → attack speed; amulet → qiGainBonus. */
 function getEquipmentCombatBonuses(equipment: RootState["character"]["equipment"]) {
@@ -323,4 +324,20 @@ export const getCraftingSetCookingXpPercent = createSelector(
 export const getTalentAlchemySuccessPercent = createSelector(
   [getTalentBonusesSelector],
   (talentBonuses) => talentBonuses.alchemySuccessPercent
+);
+
+/** Cultivation partner info for meditation (dual cultivation qi bonus). */
+export const getCultivationPartnerInfo = createSelector(
+  [
+    (state: RootState) => state.character.cultivationPartner,
+    (state: RootState) => state.character.npcFavor,
+  ],
+  (partner, npcFavor) => {
+    if (!partner) return { npc: undefined as SectNpcI | undefined, favor: 0, bonusPercent: 0 };
+    const npc = getSectNpcById(partner.npcId);
+    const key = `${partner.sectId}-${partner.npcId}`;
+    const favor = npcFavor[key] ?? 0;
+    const bonusPercent = getDualCultivationBonusPercent(favor);
+    return { npc, favor, bonusPercent };
+  }
 );
