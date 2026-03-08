@@ -108,7 +108,10 @@ export const getOwnedSetPieceIds = createSelector(
 /** @deprecated Use getOwnedSetPieceIds. Same set for gathering (fishing/mining/gathering). */
 export const getOwnedSkillingSetPieceIds = getOwnedSetPieceIds;
 
-/** Compute skill speed bonus (0–100) for a given gathering skill from equipped set pieces + full-set bonuses. */
+/** Compute skill speed bonus (0–100) for a given gathering skill from equipped set pieces + full-set bonuses.
+ *  Only speed-type talent effects belong here (e.g. fishingSpeedPercent, gatheringSpeedPercent).
+ *  Yield-type effects (e.g. miningYieldPercent = "more ore per swing") must NOT be added to speed;
+ *  use getMiningYieldBonusPercent and apply where ore quantity is calculated. */
 function computeSkillSpeedBonus(
   equipment: RootState["character"]["equipment"],
   skill: "fishing" | "mining" | "gathering"
@@ -144,14 +147,16 @@ export const getSkillSpeedBonusFishing = createSelector(
 );
 export const getSkillSpeedBonusMining = createSelector(
   [(state: RootState) => state.character.equipment, getTalentBonusesSelector],
-  (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "mining")
+  (equipment, talentBonuses) =>
+    // Intentionally exclude talentBonuses.miningYieldPercent: Miner's Strength affects yield (ore per swing), not cast speed.
+    computeSkillSpeedBonus(equipment, "mining")
 );
 export const getSkillSpeedBonusGathering = createSelector(
   [(state: RootState) => state.character.equipment, getTalentBonusesSelector],
   (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "gathering") + talentBonuses.gatheringSpeedPercent
 );
 
-/** Mining yield bonus from talents (Miner's Strength: "more ore per swing"). Use when computing ore quantity per cast. */
+/** Mining yield bonus from talents (Miner's Strength: "more ore per swing"). Use when computing ore quantity per cast; do not add to getSkillSpeedBonusMining. */
 export const getMiningYieldBonusPercent = createSelector(
   [getTalentBonusesSelector],
   (talentBonuses) => talentBonuses.miningYieldPercent

@@ -1,6 +1,17 @@
 import type { TalentNode, TalentTreeTier } from "../interfaces/TalentI";
 import type { CultivationPath } from "./cultivationPath";
 
+/**
+ * Talent effect types — where they are applied (audit for Task 10 / mining yield vs speed):
+ * - Speed (cast/completion time): fishingSpeedPercent → getSkillSpeedBonusFishing; gatheringSpeedPercent → getSkillSpeedBonusGathering;
+ *   forgingSpeedPercent, cookingSpeedPercent → not yet wired to forging/cooking UI (future).
+ * - Yield (quantity per action): miningYieldPercent → getMiningYieldBonusPercent only (never in getSkillSpeedBonusMining).
+ * - Combat: attack, defense, vitality, critChancePercent, lifestealPercent, damageReflectPercent, aoeChancePercent → combat/character stats.
+ * - Economy: spiritStoneIncomePercent, shopDiscountPercent → rewards/shop.
+ * - Alchemy: alchemySuccessPercent → pill/elixir success.
+ * - Cultivation: qiGain → meditation.
+ */
+
 /** All talent nodes by id (for lookup) */
 export const TALENT_NODES_BY_ID: Record<number, TalentNode> = {};
 
