@@ -32,6 +32,7 @@ import { ReincarnationContainer } from "../ReincarnationContainer/ReincarnationC
 import { AchievementsContainer } from "../AchievementsContainer/AchievementsContainer";
 import { SettingsContainer } from "../SettingsContainer/SettingsContainer";
 import { LogContainer } from "../LogContainer/LogContainer";
+import { StatsContainer } from "../StatsContainer/StatsContainer";
 import { useActivityTicks } from "../../hooks/useActivityTicks";
 import { useVitalityRegen } from "../../hooks/useVitalityRegen";
 
@@ -119,6 +120,7 @@ export const Main = () => {
           {content === ContentArea.ACHIEVEMENTS && <AchievementsContainer />}
           {content === ContentArea.SETTINGS && <SettingsContainer />}
           {content === ContentArea.ACTIVITY_LOG && <LogContainer />}
+          {content === ContentArea.STATS && <StatsContainer />}
         </div>
         {content !== ContentArea.ACTIVITY_LOG && <LogContainer asPanel />}
       </div>

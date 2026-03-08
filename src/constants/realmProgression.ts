@@ -71,6 +71,14 @@ export function formatRealm(realmId: RealmId, realmLevel: number): string {
   return `${realmId} ${realmLevel}`;
 }
 
+/** Get realm label from step index (e.g. 0 → "Mortal", 15 → "Foundation Establishment 5"). */
+export function getRealmLabelFromStep(step: number): string {
+  if (step <= 0) return "Mortal";
+  const realmIndex = Math.min(1 + Math.floor((step - 1) / 10), REALM_ORDER.length - 1);
+  const level = ((step - 1) % 10) + 1;
+  return formatRealm(REALM_ORDER[realmIndex], level);
+}
+
 /** Combat stats from cultivation realm. Step 0 (Mortal) = 10/1/10; scales with step. Items can add on top later. */
 export function getCombatStatsFromRealm(
   realmId: RealmId,

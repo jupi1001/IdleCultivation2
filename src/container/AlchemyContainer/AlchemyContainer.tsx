@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { addItem, consumeItems, addAlchemyXP } from "../../state/reducers/characterSlice";
+import { addItem, consumeItems, addAlchemyXP, recordItemCrafted } from "../../state/reducers/characterSlice";
 import {
   ALCHEMY_RECIPES,
   getAlchemyLevelInfo,
@@ -56,6 +56,7 @@ export const AlchemyContainer = () => {
           })
         );
         dispatch(addAlchemyXP(getAlchemyXPSuccess(recipe.recipeLevel)));
+        dispatch(recordItemCrafted("alchemy"));
       } else {
         dispatch(addAlchemyXP(getAlchemyXPFail(recipe.recipeLevel)));
       }

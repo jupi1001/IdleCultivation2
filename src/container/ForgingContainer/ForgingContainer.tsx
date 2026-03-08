@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { addItem, consumeItems, addForgingXP } from "../../state/reducers/characterSlice";
+import { addItem, consumeItems, addForgingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
 import {
   REFINE_RECIPES,
   CRAFT_RECIPES,
@@ -94,6 +94,7 @@ export const ForgingContainer = () => {
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
       const tierIndex = getForgingTierIndex(recipe.tier);
       dispatch(addForgingXP(getForgingXPRefine(tierIndex)));
+      dispatch(recordItemCrafted("forging"));
     },
     [dispatch, items]
   );
@@ -106,6 +107,7 @@ export const ForgingContainer = () => {
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
       const tierIndex = getForgingTierIndex(recipe.tier);
       dispatch(addForgingXP(getForgingXPCraft(tierIndex)));
+      dispatch(recordItemCrafted("forging"));
     },
     [dispatch, items]
   );
@@ -121,6 +123,7 @@ export const ForgingContainer = () => {
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
       const tierIndex = getForgingTierIndex(recipe.tier);
       dispatch(addForgingXP(getForgingXPCraft(tierIndex)));
+      dispatch(recordItemCrafted("forging"));
     },
     [dispatch, items]
   );
