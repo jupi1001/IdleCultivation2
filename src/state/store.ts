@@ -2,6 +2,8 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import characterReducer from "./reducers/characterSlice";
+import settingsReducer from "./reducers/settingsSlice";
+import reincarnationReducer from "./reducers/reincarnationSlice";
 import contentReducer from "./reducers/contentSlice";
 import toastReducer from "./reducers/toastSlice";
 import achievementReducer from "./reducers/achievementSlice";
@@ -22,7 +24,7 @@ const DEFAULT_NOTIFICATION_PREFS = {
 
 const DEFAULT_SOUND_VOLUME = { music: 100, sfx: 100 };
 
-/** Ensure old saves get defaults for new character fields. */
+/** Ensure old saves get defaults for new character fields and migrate settings/reincarnation out of character. */
 function migratePersistedState(state: unknown, _version: number): Promise<unknown> {
   if (!state || typeof state !== "object") return Promise.resolve(state);
   const s = state as Record<string, unknown>;
@@ -41,6 +43,40 @@ function migratePersistedState(state: unknown, _version: number): Promise<unknow
     if (c.realmDialogueUsed == null) c.realmDialogueUsed = {};
     if (c.cultivationPartner == null) c.cultivationPartner = null;
   }
+  if (!s.settings && char && typeof char === "object" && !Array.isArray(char)) {
+    const c = char as Record<string, unknown>;
+    s.settings = {
+      notificationPrefs: c.notificationPrefs ?? { ...DEFAULT_NOTIFICATION_PREFS },
+      soundVolume: c.soundVolume ?? { ...DEFAULT_SOUND_VOLUME },
+      deathPenaltyMode: c.deathPenaltyMode ?? "normal",
+      autoLootUnlocked: c.autoLootUnlocked ?? false,
+      autoLoot: c.autoLoot ?? false,
+      autoEatUnlocked: c.autoEatUnlocked ?? false,
+      autoEat: c.autoEat ?? false,
+      autoEatHpPercent: c.autoEatHpPercent ?? 30,
+    };
+    delete c.notificationPrefs;
+    delete c.soundVolume;
+    delete c.deathPenaltyMode;
+    delete c.autoLootUnlocked;
+    delete c.autoLoot;
+    delete c.autoEatUnlocked;
+    delete c.autoEat;
+    delete c.autoEatHpPercent;
+  }
+  if (!s.reincarnation && char && typeof char === "object" && !Array.isArray(char)) {
+    const c = char as Record<string, unknown>;
+    s.reincarnation = {
+      reincarnationCount: c.reincarnationCount ?? 0,
+      karmaPoints: c.karmaPoints ?? 0,
+      totalKarmaEarned: c.totalKarmaEarned ?? 0,
+      karmaBonusLevels: c.karmaBonusLevels ?? {},
+    };
+    delete c.reincarnationCount;
+    delete c.karmaPoints;
+    delete c.totalKarmaEarned;
+    delete c.karmaBonusLevels;
+  }
   const content = s.content;
   if (content && typeof content === "object" && !Array.isArray(content)) {
     const c = content as Record<string, unknown>;
@@ -53,14 +89,16 @@ function migratePersistedState(state: unknown, _version: number): Promise<unknow
 
 const persistConfig = {
   key: "idle-cultivation",
-  version: 1,
+  version: 2,
   storage,
-  whitelist: ["character", "content", "achievements"],
+  whitelist: ["character", "settings", "reincarnation", "content", "achievements"],
   migrate: migratePersistedState as never,
 };
 
 const rootReducer = combineReducers({
   character: characterReducer,
+  settings: settingsReducer,
+  reincarnation: reincarnationReducer,
   content: contentReducer,
   toast: toastReducer,
   achievements: achievementReducer,

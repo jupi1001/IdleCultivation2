@@ -33,6 +33,7 @@ import {
 } from "../../constants/avatars";
 import {
   EXPEDITION_MISSIONS,
+  EXPEDITION_MISSIONS_BY_ID,
   getExpeditionItem,
 } from "../../constants/expeditions";
 import { rollOneTimeDropFromTable } from "../../utils/oneTimeDrops";
@@ -95,7 +96,7 @@ export const ImmortalsIslandContainer = () => {
 
   const isMainOnExpedition = currentActivity === "expedition" && expeditionEndTime != null;
   const currentMission = expeditionMissionId != null
-    ? EXPEDITION_MISSIONS.find((m) => m.id === expeditionMissionId)
+    ? EXPEDITION_MISSIONS_BY_ID[expeditionMissionId]
     : null;
   const mainSecondsLeft =
     isMainOnExpedition && expeditionEndTime != null
@@ -125,7 +126,7 @@ export const ImmortalsIslandContainer = () => {
       const now = Date.now();
 
       if (current.expeditionEndTime != null && now >= current.expeditionEndTime) {
-        const mission = EXPEDITION_MISSIONS.find((m) => m.id === current.expeditionMissionId);
+        const mission = current.expeditionMissionId != null ? EXPEDITION_MISSIONS_BY_ID[current.expeditionMissionId] : undefined;
         if (mission) {
           const spiritStones =
             mission.spiritStonesMin +
@@ -147,7 +148,7 @@ export const ImmortalsIslandContainer = () => {
 
       for (const avatar of current.avatars ?? []) {
         if (avatar.expeditionEndTime == null || now < avatar.expeditionEndTime) continue;
-        const mission = EXPEDITION_MISSIONS.find((m) => m.id === avatar.expeditionMissionId);
+        const mission = avatar.expeditionMissionId != null ? EXPEDITION_MISSIONS_BY_ID[avatar.expeditionMissionId] : undefined;
         if (mission) {
           const spiritStones =
             mission.spiritStonesMin +
@@ -220,7 +221,7 @@ export const ImmortalsIslandContainer = () => {
         <>
           {avatars.filter((a) => a.isBusy).map((avatar) => {
             const mission = avatar.expeditionMissionId != null
-              ? EXPEDITION_MISSIONS.find((m) => m.id === avatar.expeditionMissionId)
+              ? EXPEDITION_MISSIONS_BY_ID[avatar.expeditionMissionId]
               : null;
             const secLeft = avatar.expeditionEndTime != null
               ? Math.max(0, Math.ceil((avatar.expeditionEndTime - Date.now()) / 1000))

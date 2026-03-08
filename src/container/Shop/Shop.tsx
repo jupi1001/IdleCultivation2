@@ -1,6 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { purchaseAutoLootUnlock, purchaseAutoEatUnlock } from "../../state/reducers/characterSlice";
+import { purchaseAutoLootUnlock, purchaseAutoEatUnlock } from "../../state/reducers/settingsSlice";
+import { reduceMoney } from "../../state/reducers/characterSlice";
 import { selectMoney, selectAutoLootUnlocked, selectAutoEatUnlocked } from "../../state/selectors/characterSelectors";
 import { existingShopItemUpgrades, existingShopItems, existingShopQiTechniques, existingShopCombatTechniques } from "../../constants/data";
 import "./Shop.css";
@@ -24,6 +25,7 @@ export const Shop = () => {
       return;
     }
     setShowPoorLoot(false);
+    dispatch(reduceMoney(AUTO_LOOT_PRICE));
     dispatch(purchaseAutoLootUnlock());
   };
 
@@ -34,6 +36,7 @@ export const Shop = () => {
       return;
     }
     setShowPoorEat(false);
+    dispatch(reduceMoney(AUTO_EAT_PRICE));
     dispatch(purchaseAutoEatUnlock());
   };
 

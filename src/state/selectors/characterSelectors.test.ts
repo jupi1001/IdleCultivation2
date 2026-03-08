@@ -66,22 +66,12 @@ function createMockState(character: Partial<RootState["character"]>): RootState 
     currentHealth: realmStats.health,
     lastActiveTimestamp: 0,
     lastOfflineSummary: null,
-    reincarnationCount: 0,
-    karmaPoints: 0,
-    totalKarmaEarned: 0,
-    karmaBonusLevels: {},
-    autoLootUnlocked: false,
-    autoLoot: false,
-    autoEatUnlocked: false,
-    autoEat: false,
-    autoEatHpPercent: 30,
     sectQuestProgress: {},
     sectQuestKillCount: {},
     obtainedSectTreasureIds: [],
     npcFavor: {},
     realmDialogueUsed: {},
     cultivationPartner: null,
-    deathPenaltyMode: "normal",
     isWeakened: false,
     weakenedMeditationSecondsDone: 0,
     stats: {
@@ -99,6 +89,8 @@ function createMockState(character: Partial<RootState["character"]>): RootState 
       itemsCraftedCooking: 0,
       deaths: 0,
     },
+  };
+  const defaultSettings = {
     notificationPrefs: {
       toastsEnabled: true,
       levelUp: true,
@@ -107,9 +99,23 @@ function createMockState(character: Partial<RootState["character"]>): RootState 
       expedition: true,
     },
     soundVolume: { music: 100, sfx: 100 },
+    deathPenaltyMode: "normal" as const,
+    autoLootUnlocked: false,
+    autoLoot: false,
+    autoEatUnlocked: false,
+    autoEat: false,
+    autoEatHpPercent: 30,
+  };
+  const defaultReincarnation = {
+    reincarnationCount: 0,
+    karmaPoints: 0,
+    totalKarmaEarned: 0,
+    karmaBonusLevels: {} as Partial<Record<string, number>>,
   };
   const state = {
     character: { ...baseCharacter, ...character },
+    settings: defaultSettings,
+    reincarnation: defaultReincarnation,
     content: { route: { type: "map" as const } },
     toast: { toasts: [], toastHistory: [] },
     achievements: { unlocked: {} },
@@ -132,7 +138,6 @@ describe("characterSelectors", () => {
     it("applies weakened multiplier when isWeakened and deathPenaltyMode normal", () => {
       const state = createMockState({
         isWeakened: true,
-        deathPenaltyMode: "normal",
         attack: 20,
         defense: 10,
         health: 30,

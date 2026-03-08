@@ -3,11 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrentActivity, setCurrentFishingArea } from "../../state/reducers/characterSlice";
 import "./FishingContainer.css";
 import FishingArea from "../../components/FishingArea/FishingArea";
-import { fishTypes, fishingAreaData } from "../../constants/data";
-import { getRingAmuletItemById } from "../../constants/ringsAmulets";
-import { getSkillingSetItemById, getSetPieceIds, getTierForFishingAreaIndex } from "../../constants/skillingSets";
+import { fishingAreaData, ITEMS_BY_ID } from "../../constants/data";
+import { getTierForFishingAreaIndex } from "../../constants/skillingSets";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
+import { isSkillAreaUnlocked } from "../../utils/contentRules";
+import { getFishingAreaLootEntries } from "../../utils/skillingLoot";
 import { getOwnedRingAmuletIds, getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
 import {
   selectCurrentActivity,
@@ -19,7 +20,6 @@ import {
 } from "../../state/selectors/characterSelectors";
 import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
 import { useCastProgress } from "../../hooks/useCastProgress";
-import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
 
 const FishingContainer = () => {
   const dispatch = useDispatch();
@@ -90,10 +90,9 @@ const FishingContainer = () => {
       />
       <div className="fishingContainer__areas">
       {areasVisible.map((area, areaIndex) => {
-        const reincarnationOk = !area.requiresReincarnation || reincarnationCount >= 1;
-        const unlocked = fishingXP >= area.fishingXPUnlock && reincarnationOk;
+        const unlocked = isSkillAreaUnlocked(area, fishingXP, reincarnationCount, "fishingXPUnlock");
         const tier = getTierForFishingAreaIndex(fishingAreaData.indexOf(area));
-        const setPieceIds = getSetPieceIds("fishing", tier);
+        const lootEntries = getFishingAreaLootEntries(area, tier);
         return (
           <FishingArea
             key={area.id}
@@ -104,28 +103,9 @@ const FishingContainer = () => {
             fishingDelay={area.fishingDelay}
             requiredLevel={getFishingLevelInfo(area.fishingXPUnlock).level}
             possibleLoot={area.fishingLootIds
-              .map((id) => fishTypes.find((f) => f.id === id))
+              .map((id) => ITEMS_BY_ID[id])
               .filter((f): f is NonNullable<typeof f> => f != null)}
-            lootEntries={(() => {
-              const n = area.fishingLootIds.length;
-              const fishChancePercent = n > 0 ? Math.round(100 / n) : 0;
-              const fishEntries: LootTableEntry[] = area.fishingLootIds
-                .map((id) => fishTypes.find((f) => f.id === id))
-                .filter((f): f is NonNullable<typeof f> => f != null)
-                .map((item) => ({ item, chancePercent: fishChancePercent }));
-              if (area.rareDropChancePercent != null && area.rareDropItemIds?.length) {
-                for (const id of area.rareDropItemIds) {
-                  const rare = getRingAmuletItemById(id);
-                  if (rare) fishEntries.push({ item: rare, chancePercent: area.rareDropChancePercent });
-                }
-              }
-              const setChancePercent = 1 / 4; // 1% total for one random piece → 0.25% per piece
-              for (const pieceId of setPieceIds) {
-                const piece = getSkillingSetItemById(pieceId);
-                if (piece) fishEntries.push({ item: piece, chancePercent: setChancePercent });
-              }
-              return fishEntries.length > 0 ? fishEntries : undefined;
-            })()}
+            lootEntries={lootEntries.length > 0 ? lootEntries : undefined}
             ownedRingAmuletIds={ownedLootIds}
             unlocked={unlocked}
             onClick={() => {

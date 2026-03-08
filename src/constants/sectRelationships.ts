@@ -77,6 +77,10 @@ export function getSectNpcs(): SectNpcI[] {
 
 export const SECT_NPCS = getSectNpcs();
 
+export const SECT_NPCS_BY_ID: Record<number, SectNpcI> = Object.fromEntries(
+  SECT_NPCS.map((n) => [n.id, n])
+) as Record<number, SectNpcI>;
+
 export const SECT_NPCS_BY_SECT: Record<number, SectNpcI[]> = SECT_NPCS.reduce(
   (acc, npc) => {
     if (!acc[npc.sectId]) acc[npc.sectId] = [];
@@ -87,7 +91,7 @@ export const SECT_NPCS_BY_SECT: Record<number, SectNpcI[]> = SECT_NPCS.reduce(
 );
 
 export function getSectNpcById(npcId: number): SectNpcI | undefined {
-  return SECT_NPCS.find((n) => n.id === npcId);
+  return SECT_NPCS_BY_ID[npcId];
 }
 
 /** Quest step: 0 = not started, 1 = in progress (kill 15 enemies), 2 = ready to claim, 3 = claimed */
@@ -183,8 +187,12 @@ export const SECT_TREASURE_ITEMS: (Item & { equipmentSlot: EquipmentSlot })[] = 
   },
 ];
 
+export const SECT_TREASURE_ITEMS_BY_ID: Record<number, Item & { equipmentSlot: EquipmentSlot }> = Object.fromEntries(
+  SECT_TREASURE_ITEMS.map((i) => [i.id, i])
+) as Record<number, Item & { equipmentSlot: EquipmentSlot }>;
+
 export function getSectTreasureItemById(id: number): Item | undefined {
-  return SECT_TREASURE_ITEMS.find((i) => i.id === id);
+  return SECT_TREASURE_ITEMS_BY_ID[id];
 }
 
 /** Major realms that unlock one-time dialogue with NPCs (favor boost). */

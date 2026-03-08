@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { formatRealm } from "../../constants/realmProgression";
-import { setAutoLoot, setAutoEat, setAutoEatHpPercent, setDeathPenaltyMode, setNotificationPrefs } from "../../state/reducers/characterSlice";
+import { setAutoLoot, setAutoEat, setAutoEatHpPercent, setDeathPenaltyMode, setNotificationPrefs } from "../../state/reducers/settingsSlice";
 import { exportSave, importSave, hardReset, formatSaveDate } from "../../utils/saveManager";
 import {
   selectLastActiveTimestamp,

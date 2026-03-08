@@ -1666,6 +1666,17 @@ export const GATHERING_AREAS_BY_ID: Record<number, GatheringAreaI> = Object.from
   gatheringAreaData.map((a) => [a.id, a])
 ) as Record<number, GatheringAreaI>;
 
+/** Area id -> index in ordered array (for tier/position lookups). */
+export const FISHING_AREA_INDEX_BY_ID: Record<number, number> = Object.fromEntries(
+  fishingAreaData.map((a, i) => [a.id, i])
+) as Record<number, number>;
+export const MINING_AREA_INDEX_BY_ID: Record<number, number> = Object.fromEntries(
+  miningAreaData.map((a, i) => [a.id, i])
+) as Record<number, number>;
+export const GATHERING_AREA_INDEX_BY_ID: Record<number, number> = Object.fromEntries(
+  gatheringAreaData.map((a, i) => [a.id, i])
+) as Record<number, number>;
+
 /** All item definitions flattened for by-id lookup. Includes techniques, fish, ore, wood, herbs, shop/combat drops, sect store items. */
 const SECT_STORE_ITEMS: Item[] = Object.values(sectStoreData).flatMap((entries) =>
   entries.map((e) => e.item)

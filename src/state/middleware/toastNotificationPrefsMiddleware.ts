@@ -4,7 +4,7 @@ import type { ToastType } from "../reducers/toastSlice";
 import type { RootState } from "../store";
 
 function shouldShowToast(state: RootState, type: ToastType): boolean {
-  const prefs = state.character?.notificationPrefs;
+  const prefs = state.settings?.notificationPrefs;
   if (!prefs) return true;
   if (!prefs.toastsEnabled) return false;
   switch (type) {

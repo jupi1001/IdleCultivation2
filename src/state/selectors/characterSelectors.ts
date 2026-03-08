@@ -2,6 +2,7 @@ import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { WEAKENED_STAT_MULTIPLIER } from "../reducers/characterSlice";
+import { canEnterCombatArea as canEnterCombatAreaRule } from "../../utils/contentRules";
 import {
   SET_IDS,
   FULL_SET_SPEED_BONUS_PERCENT,
@@ -146,8 +147,8 @@ export const getEffectiveCombatStats = createSelector(
     (state: RootState) => state.character.bonusDefense,
     (state: RootState) => state.character.bonusHealth,
     (state: RootState) => state.character.equipment,
-    (state: RootState) => state.character.karmaBonusLevels,
-    (state: RootState) => state.character.deathPenaltyMode,
+    (state: RootState) => state.reincarnation.karmaBonusLevels,
+    (state: RootState) => state.settings.deathPenaltyMode,
     (state: RootState) => state.character.isWeakened,
     getTalentBonusesSelector,
   ],
@@ -187,37 +188,37 @@ function karmaBonusValue(levels: Partial<Record<KarmaBonusId, number>>, id: Karm
 
 /** Karma multiplier for Qi gain from meditation (1 + bonus%). */
 export const getKarmaQiMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "qiGainPercent") / 100
 );
 
 /** Karma multiplier for skill XP (1 + bonus%). */
 export const getKarmaSkillXpMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "skillXpPercent") / 100
 );
 
 /** Karma multiplier for base attack (1 + bonus%). */
 export const getKarmaAttackMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "attackPercent") / 100
 );
 
 /** Karma multiplier for base defense (1 + bonus%). */
 export const getKarmaDefenseMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "defensePercent") / 100
 );
 
 /** Karma multiplier for base health (1 + bonus%). */
 export const getKarmaHealthMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "healthPercent") / 100
 );
 
 /** Karma multiplier for spirit stone labour income (1 + bonus%). */
 export const getKarmaSpiritStoneMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "spiritStonePercent") / 100
 );
 
@@ -357,7 +358,7 @@ export const selectCurrentHealth = (state: RootState) => state.character.current
 export const selectMoney = (state: RootState) => state.character.money;
 export const selectCurrentActivity = (state: RootState) => state.character.currentActivity;
 export const selectIsWeakened = (state: RootState) => state.character.isWeakened;
-export const selectDeathPenaltyMode = (state: RootState) => state.character.deathPenaltyMode;
+export const selectDeathPenaltyMode = (state: RootState) => state.settings.deathPenaltyMode;
 export const selectWeakenedMeditationSecondsDone = (state: RootState) => state.character.weakenedMeditationSecondsDone;
 export const selectEquipment = (state: RootState) => state.character.equipment;
 export const selectItems = (state: RootState) => state.character.items;
@@ -367,12 +368,12 @@ export const selectCurrentMiningArea = (state: RootState) => state.character.cur
 export const selectMiningXP = (state: RootState) => state.character.miningXP;
 export const selectCurrentGatheringArea = (state: RootState) => state.character.currentGatheringArea;
 export const selectGatheringXP = (state: RootState) => state.character.gatheringXP;
-export const selectAutoLoot = (state: RootState) => state.character.autoLoot;
-export const selectAutoEatUnlocked = (state: RootState) => state.character.autoEatUnlocked;
-export const selectAutoEat = (state: RootState) => state.character.autoEat;
-export const selectAutoEatHpPercent = (state: RootState) => state.character.autoEatHpPercent;
+export const selectAutoLoot = (state: RootState) => state.settings.autoLoot;
+export const selectAutoEatUnlocked = (state: RootState) => state.settings.autoEatUnlocked;
+export const selectAutoEat = (state: RootState) => state.settings.autoEat;
+export const selectAutoEatHpPercent = (state: RootState) => state.settings.autoEatHpPercent;
 export const selectGender = (state: RootState) => state.character.gender;
-export const selectReincarnationCount = (state: RootState) => state.character.reincarnationCount;
+export const selectReincarnationCount = (state: RootState) => state.reincarnation.reincarnationCount;
 export const selectStats = (state: RootState) => state.character.stats;
 export const selectCurrentSectId = (state: RootState) => state.character.currentSectId;
 export const selectSectRankIndex = (state: RootState) => state.character.sectRankIndex;
@@ -385,7 +386,7 @@ export const selectNpcFavor = (state: RootState) => state.character.npcFavor;
 export const selectRealmDialogueUsed = (state: RootState) => state.character.realmDialogueUsed;
 export const selectCultivationPartner = (state: RootState) => state.character.cultivationPartner;
 export const selectLastOfflineSummary = (state: RootState) => state.character.lastOfflineSummary;
-export const selectAutoLootUnlocked = (state: RootState) => state.character.autoLootUnlocked;
+export const selectAutoLootUnlocked = (state: RootState) => state.settings.autoLootUnlocked;
 export const selectFishingCastStartTime = (state: RootState) => state.character.fishingCastStartTime;
 export const selectMiningCastStartTime = (state: RootState) => state.character.miningCastStartTime;
 export const selectGatheringCastStartTime = (state: RootState) => state.character.gatheringCastStartTime;
@@ -397,11 +398,20 @@ export const selectAlchemyXP = (state: RootState) => state.character.alchemyXP;
 export const selectForgingXP = (state: RootState) => state.character.forgingXP;
 export const selectCookingXP = (state: RootState) => state.character.cookingXP;
 export const selectLastActiveTimestamp = (state: RootState) => state.character.lastActiveTimestamp;
-export const selectNotificationPrefs = (state: RootState) => state.character.notificationPrefs;
-export const selectKarmaPoints = (state: RootState) => state.character.karmaPoints;
-export const selectTotalKarmaEarned = (state: RootState) => state.character.totalKarmaEarned;
-export const selectKarmaBonusLevels = (state: RootState) => state.character.karmaBonusLevels;
+export const selectNotificationPrefs = (state: RootState) => state.settings.notificationPrefs;
+export const selectKarmaPoints = (state: RootState) => state.reincarnation.karmaPoints;
+export const selectTotalKarmaEarned = (state: RootState) => state.reincarnation.totalKarmaEarned;
+export const selectKarmaBonusLevels = (state: RootState) => state.reincarnation.karmaBonusLevels;
 export const selectTalentLevels = (state: RootState) => state.character.talentLevels;
 export const selectExpeditionEndTime = (state: RootState) => state.character.expeditionEndTime;
 export const selectExpeditionMissionId = (state: RootState) => state.character.expeditionMissionId;
 export const selectAvatars = (state: RootState) => state.character.avatars;
+
+/** Whether the character can enter the given combat area (realm/level check). Uses centralized content rules. */
+export function selectCanEnterCombatArea(state: RootState, areaKey: string): boolean {
+  return canEnterCombatAreaRule(
+    state.character.realm,
+    state.character.realmLevel,
+    areaKey
+  );
+}

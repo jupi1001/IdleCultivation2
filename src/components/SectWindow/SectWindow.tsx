@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSect } from "../../state/reducers/characterSlice";
 import { selectPath, selectCurrentSectId, selectSectRankIndex } from "../../state/selectors/characterSelectors";
-import { sectsData } from "../../constants/data";
+import { SECTS_BY_ID } from "../../constants/data";
 import SectI from "../../interfaces/SectI";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import { ContentArea } from "../../enum/ContentArea";
@@ -22,7 +22,7 @@ export const SectWindow: React.FC<SectWindowProps> = ({ sect, onClose }) => {
   const isMember = currentSectId === sect.id;
   const pathMatches = path != null && sect.path === path;
   const inAnotherSect = currentSectId != null && currentSectId !== sect.id;
-  const currentSect = currentSectId != null ? sectsData.find((s) => s.id === currentSectId) : null;
+  const currentSect = currentSectId != null ? SECTS_BY_ID[currentSectId] : null;
   const canJoin = pathMatches && !inAnotherSect;
 
   const isOpposingSect = path != null && sect.path !== path;

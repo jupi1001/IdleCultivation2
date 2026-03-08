@@ -8,7 +8,7 @@ import {
   getCookingXP,
   type CookingRecipeI,
 } from "../../constants/cooking";
-import { fishTypes } from "../../constants/data";
+import { ITEMS_BY_ID } from "../../constants/data";
 import { countItem } from "../../utils/inventory";
 import {
   getOwnedCraftingSetPieceIds,
@@ -26,8 +26,8 @@ import {
 import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./CookingContainer.css";
 
-function getItemName(itemId: number, allItems: { id: number; name: string }[]): string {
-  return allItems.find((i) => i.id === itemId)?.name ?? `Item ${itemId}`;
+function getItemName(itemId: number): string {
+  return ITEMS_BY_ID[itemId]?.name ?? `Item ${itemId}`;
 }
 
 function canCook(items: { id: number; quantity?: number }[], recipe: CookingRecipeI): boolean {
@@ -47,11 +47,6 @@ export const CookingContainer = () => {
   const ownedCraftingSetRef = useRef<Set<number>>(new Set());
   ownedCraftingSetRef.current = ownedCraftingSetIds;
   const { level: cookingLevel, xpInLevel, xpRequiredForNext: xpForNext } = getCookingLevelInfo(cookingXP);
-
-  const allItemNames = useMemo(
-    () => fishTypes.map((i) => ({ id: i.id, name: i.name })),
-    []
-  );
 
   const doCook = useCallback(
     (recipe: CookingRecipeI) => {
@@ -107,7 +102,7 @@ export const CookingContainer = () => {
               <div className="cooking__mats">
                 {recipe.ingredients.map(({ itemId, amount }) => (
                   <span key={itemId}>
-                    {getItemName(itemId, allItemNames)} × {amount}
+                    {getItemName(itemId)} × {amount}
                     {countItem(items, itemId) < amount && (
                       <span className="cooking__short"> (have {countItem(items, itemId)})</span>
                     )}

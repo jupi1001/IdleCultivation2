@@ -183,6 +183,10 @@ export function getCombatDropForArea(area: CombatArea): CombatDropItem | undefin
   return AREA_TO_DROP[area];
 }
 
+export const COMBAT_DROP_ITEMS_BY_ID: Record<number, CombatDropItem> = Object.fromEntries(
+  COMBAT_DROP_ITEMS.map((i) => [i.id, i])
+) as Record<number, CombatDropItem>;
+
 export function getCombatDropItemById(id: number): CombatDropItem | undefined {
-  return COMBAT_DROP_ITEMS.find((i) => i.id === id);
+  return COMBAT_DROP_ITEMS_BY_ID[id];
 }

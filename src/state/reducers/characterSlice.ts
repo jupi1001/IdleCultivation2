@@ -5,7 +5,7 @@
  */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { CultivationPath } from "../../constants/cultivationPath";
-import { fishTypes, gatheringLootTypes, oreTypes, SECT_POSITIONS } from "../../constants/data";
+import { ITEMS_BY_ID, SECT_POSITIONS } from "../../constants/data";
 import { GEODE_ITEM_ID, GEODE_ITEM, rollGemFromGeode } from "../../constants/gems";
 import { getBreakthroughQiRequired, getNextRealm, getStepIndex, getCombatStatsFromRealm, type RealmId } from "../../constants/realmProgression";
 import { TALENT_NODES_BY_ID } from "../../constants/talents";
@@ -14,14 +14,9 @@ import Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
 import type { ActivityType } from "../../constants/activities";
+import { REINCARNATION_MIN_STEP } from "../../constants/reincarnation";
 import {
-  type KarmaBonusId,
-  KARMA_BONUSES_BY_ID,
-  calculateKarmaEarned,
-  REINCARNATION_MIN_STEP,
-} from "../../constants/reincarnation";
-import {
-  SECT_TREASURE_ITEMS,
+  SECT_TREASURE_ITEMS_BY_ID,
   SECT_TREASURE_ITEM_ID_BY_SECT,
   SECT_QUEST_KILLS_REQUIRED,
   REALM_DIALOGUE_FAVOR,
@@ -36,6 +31,8 @@ import {
   AVATAR_TRAIN_QI_PILL_AMOUNT,
   AVATAR_TRAIN_SPIRIT_STONES,
 } from "../../constants/avatars";
+import { reincarnationSlice } from "./reincarnationSlice";
+import { settingsSlice } from "./settingsSlice";
 
 /** Seconds of meditation required to clear weakened state after death (normal mode). */
 export const WEAKENED_MEDITATION_SECONDS = 30;
@@ -182,24 +179,7 @@ interface CharacterState {
   lastActiveTimestamp: number;
   /** After applying offline progress, summary to show in Welcome Back modal; null after dismiss. */
   lastOfflineSummary: OfflineProgressSummary | null;
-  /** Number of times the player has reincarnated. */
-  reincarnationCount: number;
-  /** Unspent Karma Points (currency for prestige bonuses). */
-  karmaPoints: number;
-  /** Total Karma Points ever earned (for display). */
-  totalKarmaEarned: number;
-  /** Purchased levels for each karma bonus. */
-  karmaBonusLevels: Partial<Record<KarmaBonusId, number>>;
-  /** Whether the player has purchased the Auto-Loot upgrade (persists through reincarnation). */
-  autoLootUnlocked: boolean;
-  /** When true, combat loot and spirit stones go straight to inventory on kill (persists through reincarnation). */
-  autoLoot: boolean;
-  /** Whether the player has purchased the Auto-Eat upgrade (persists through reincarnation). */
-  autoEatUnlocked: boolean;
-  /** When true, automatically consume vitality food in combat when HP drops to or below autoEatHpPercent (persists through reincarnation). */
-  autoEat: boolean;
-  /** HP percentage (1–99) below which auto-eat triggers. */
-  autoEatHpPercent: number;
+  /** Reincarnation stats live in reincarnation slice. */
   /** Sect quest: step 0=not started, 1=in progress, 2=ready to claim, 3=claimed. Not reset on reincarnation. */
   sectQuestProgress: Record<number, number>;
   /** Kills in current quest step (for step 1). Key = sectId. Not reset on reincarnation. */
@@ -212,26 +192,13 @@ interface CharacterState {
   realmDialogueUsed: Record<string, Record<string, boolean>>;
   /** Current dual cultivation partner (sect + npc). Not reset on reincarnation. */
   cultivationPartner: { sectId: number; npcId: number } | null;
-  /** Death penalty mode: "normal" = weakened state after death until meditation; "casual" = no weakened. */
-  deathPenaltyMode: "normal" | "casual";
+  /** Death penalty mode lives in settings slice. */
   /** After death (normal mode): true until player meditates for required seconds. */
   isWeakened: boolean;
   /** Seconds meditated while weakened; when >= WEAKENED_MEDITATION_SECONDS, weakened clears. */
   weakenedMeditationSecondsDone: number;
   /** Lifetime statistics (persisted). */
   stats: CharacterStats;
-  /** Toast notifications: master switch and per-type. */
-  notificationPrefs: NotificationPrefs;
-  /** Volume 0–100 for music and SFX (persisted; actual audio not yet wired). */
-  soundVolume: { music: number; sfx: number };
-}
-
-export interface NotificationPrefs {
-  toastsEnabled: boolean;
-  levelUp: boolean;
-  rareDrop: boolean;
-  achievement: boolean;
-  expedition: boolean;
 }
 
 export interface CharacterStats {
@@ -317,22 +284,12 @@ const initialState: CharacterState = {
   currentHealth: initialCombatStats.health,
   lastActiveTimestamp: 0,
   lastOfflineSummary: null,
-  reincarnationCount: 0,
-  karmaPoints: 0,
-  totalKarmaEarned: 0,
-  karmaBonusLevels: {},
-  autoLootUnlocked: false,
-  autoLoot: false,
-  autoEatUnlocked: false,
-  autoEat: false,
-  autoEatHpPercent: 30,
   sectQuestProgress: {},
   sectQuestKillCount: {},
   obtainedSectTreasureIds: [],
   npcFavor: {},
   realmDialogueUsed: {},
   cultivationPartner: null,
-  deathPenaltyMode: "normal",
   isWeakened: false,
   weakenedMeditationSecondsDone: 0,
   stats: {
@@ -350,14 +307,6 @@ const initialState: CharacterState = {
     itemsCraftedCooking: 0,
     deaths: 0,
   },
-  notificationPrefs: {
-    toastsEnabled: true,
-    levelUp: true,
-    rareDrop: true,
-    achievement: true,
-    expedition: true,
-  },
-  soundVolume: { music: 100, sfx: 100 },
 };
 
 export const characterSlice = createSlice({
@@ -547,7 +496,7 @@ export const characterSlice = createSlice({
       const { fishingXP, fishingLootIds, rareDropItem } = action.payload;
       state.fishingXP += fishingXP;
       const randomId = fishingLootIds[Math.floor(Math.random() * fishingLootIds.length)];
-      const fish = fishTypes.find((f) => f.id === randomId);
+      const fish = ITEMS_BY_ID[randomId];
       if (fish) upsertItem(state.items, fish);
       if (rareDropItem) upsertItem(state.items, rareDropItem);
       if (action.payload.skillingSetDropItem) {
@@ -588,7 +537,7 @@ export const characterSlice = createSlice({
       const { miningXP, miningLootId, geodeDropped } = action.payload;
       const lootQty = Math.max(1, action.payload.lootQuantity ?? 1);
       state.miningXP += miningXP;
-      const ore = oreTypes.find((o) => o.id === miningLootId);
+      const ore = ITEMS_BY_ID[miningLootId];
       if (ore) upsertItem(state.items, ore, lootQty);
       if (geodeDropped) upsertItem(state.items, GEODE_ITEM);
       if (action.payload.skillingSetDropItem) {
@@ -635,7 +584,7 @@ export const characterSlice = createSlice({
       const { gatheringXP, gatheringLootIds, rareDropItem } = action.payload;
       state.gatheringXP += gatheringXP;
       const randomId = gatheringLootIds[Math.floor(Math.random() * gatheringLootIds.length)];
-      const loot = gatheringLootTypes.find((l) => l.id === randomId);
+      const loot = ITEMS_BY_ID[randomId];
       if (loot) upsertItem(state.items, loot);
       if (rareDropItem) upsertItem(state.items, rareDropItem);
       if (action.payload.skillingSetDropItem) {
@@ -902,17 +851,104 @@ export const characterSlice = createSlice({
     clearOfflineSummary: (state) => {
       state.lastOfflineSummary = null;
     },
-    /**
-     * Reincarnate: reset most progress, earn Karma Points based on realm + skill levels.
-     * Preserves: path, gender, reincarnation stats, karma bonuses, and unique items
-     * (techniques, skilling set pieces, rings, amulets).
-     */
-    reincarnate: (state, action: PayloadAction<{ karmaEarned: number }>) => {
+    /** Accept sect quest (step 0 → 1). Only when in sect and step is 0. */
+    acceptSectQuest: (state, action: PayloadAction<number>) => {
+      const sectId = action.payload;
+      if (state.currentSectId !== sectId) return;
+      const step = state.sectQuestProgress[sectId] ?? 0;
+      if (step !== 0) return;
+      state.sectQuestProgress[sectId] = 1;
+      state.sectQuestKillCount[sectId] = 0;
+    },
+    /** Increment sect quest kill count when player kills an enemy while in that sect and on step 1. */
+    incrementSectQuestKillCount: (state, action: PayloadAction<number>) => {
+      const sectId = action.payload;
+      if (state.currentSectId !== sectId) return;
+      const step = state.sectQuestProgress[sectId] ?? 0;
+      if (step !== 1) return;
+      const count = (state.sectQuestKillCount[sectId] ?? 0) + 1;
+      state.sectQuestKillCount[sectId] = count;
+      if (count >= SECT_QUEST_KILLS_REQUIRED) state.sectQuestProgress[sectId] = 2;
+    },
+    /** Claim sect quest reward (step 2 → 3). Gives sect treasure if not already obtained. */
+    claimSectQuestReward: (state, action: PayloadAction<number>) => {
+      const sectId = action.payload;
+      const step = state.sectQuestProgress[sectId] ?? 0;
+      if (step !== 2) return;
+      const itemId = SECT_TREASURE_ITEM_ID_BY_SECT[sectId];
+      if (itemId == null || state.obtainedSectTreasureIds.includes(itemId)) return;
+      const item = SECT_TREASURE_ITEMS_BY_ID[itemId];
+      if (!item) return;
+      state.sectQuestProgress[sectId] = 3;
+      state.obtainedSectTreasureIds.push(itemId);
+      upsertItem(state.items, { ...item, quantity: 1 }, 1);
+    },
+    /** Add favor for an NPC (internal / from gift or dialogue). */
+    addNpcFavor: (state, action: PayloadAction<{ sectId: number; npcId: number; amount: number }>) => {
+      const { sectId, npcId, amount } = action.payload;
+      const key = `${sectId}-${npcId}`;
+      const current = state.npcFavor[key] ?? 0;
+      state.npcFavor[key] = Math.min(100, Math.max(0, current + amount));
+    },
+    /** Use one-time realm dialogue with NPC (increases favor, marks realm as used). */
+    useRealmDialogue: (state, action: PayloadAction<{ sectId: number; npcId: number; realmId: string }>) => {
+      const { sectId, npcId, realmId } = action.payload;
+      const key = `${sectId}-${npcId}`;
+      if (!state.realmDialogueUsed[key]) state.realmDialogueUsed[key] = {};
+      if (state.realmDialogueUsed[key][realmId]) return;
+      state.realmDialogueUsed[key][realmId] = true;
+      const current = state.npcFavor[key] ?? 0;
+      state.npcFavor[key] = Math.min(100, current + REALM_DIALOGUE_FAVOR);
+    },
+    /** Set or clear dual cultivation partner (only if favor >= 50 when setting). */
+    setCultivationPartner: (state, action: PayloadAction<{ sectId: number; npcId: number } | null>) => {
+      state.cultivationPartner = action.payload;
+    },
+    /** Gift spirit stones to NPC to increase favor. Cost GIFT_SPIRIT_STONE_COST per gift, +1 favor. */
+    giftNpc: (state, action: PayloadAction<{ sectId: number; npcId: number }>) => {
+      const { sectId, npcId } = action.payload;
+      if (state.currentSectId !== sectId) return;
+      if (state.money < GIFT_SPIRIT_STONE_COST) return;
+      state.money -= GIFT_SPIRIT_STONE_COST;
+      const key = `${sectId}-${npcId}`;
+      const current = state.npcFavor[key] ?? 0;
+      state.npcFavor[key] = Math.min(100, current + 1);
+    },
+    /** Set weakened state (e.g. on death in normal mode). */
+    setWeakened: (state, action: PayloadAction<boolean>) => {
+      state.isWeakened = action.payload;
+      if (!action.payload) state.weakenedMeditationSecondsDone = 0;
+    },
+    /** While meditating and weakened, call every second; clears weakened when done. Caller passes deathPenaltyMode from settings. */
+    tickWeakenedRecovery: (state, action: PayloadAction<{ seconds: number; deathPenaltyMode: "normal" | "casual" }>) => {
+      if (!state.isWeakened || action.payload.deathPenaltyMode !== "normal") return;
+      state.weakenedMeditationSecondsDone += action.payload.seconds;
+      if (state.weakenedMeditationSecondsDone >= WEAKENED_MEDITATION_SECONDS) {
+        state.isWeakened = false;
+        state.weakenedMeditationSecondsDone = 0;
+      }
+    },
+    recordEnemyKill: (state, action: PayloadAction<string>) => {
+      ensureStats(state);
+      const area = action.payload;
+      state.stats!.enemiesKilledByArea[area] = (state.stats!.enemiesKilledByArea[area] ?? 0) + 1;
+    },
+    recordDeath: (state) => {
+      ensureStats(state);
+      state.stats!.deaths += 1;
+    },
+    recordItemCrafted: (state, action: PayloadAction<"alchemy" | "forging" | "cooking">) => {
+      ensureStats(state);
+      if (action.payload === "alchemy") state.stats!.itemsCraftedAlchemy += 1;
+      else if (action.payload === "forging") state.stats!.itemsCraftedForging += 1;
+      else state.stats!.itemsCraftedCooking += 1;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(reincarnationSlice.actions.reincarnate, (state, action) => {
       const step = getStepIndex(state.realm, state.realmLevel);
       if (step < REINCARNATION_MIN_STEP) return;
-
-      const startingMoneyLevel = state.karmaBonusLevels.startingMoney ?? 0;
-      const startingMoneyBonus = startingMoneyLevel * (KARMA_BONUSES_BY_ID.startingMoney?.valuePerLevel ?? 0);
+      const startingMoneyBonus = action.payload.startingMoneyBonus ?? 0;
 
       const isUniqueItem = (item: Item): boolean =>
         item.equipmentSlot === "qiTechnique" ||
@@ -937,10 +973,6 @@ export const characterSlice = createSlice({
           seenIds.add(eq.id);
         }
       }
-
-      state.reincarnationCount += 1;
-      state.karmaPoints += action.payload.karmaEarned;
-      state.totalKarmaEarned += action.payload.karmaEarned;
 
       const stats = getCombatStatsFromRealm("Mortal", 0);
       state.name = "Mortal";
@@ -993,155 +1025,13 @@ export const characterSlice = createSlice({
       state.lastOfflineSummary = null;
       state.isWeakened = false;
       state.weakenedMeditationSecondsDone = 0;
-    },
-    purchaseKarmaBonus: (state, action: PayloadAction<KarmaBonusId>) => {
-      const bonus = KARMA_BONUSES_BY_ID[action.payload];
-      if (!bonus) return;
-      const currentLevel = state.karmaBonusLevels[action.payload] ?? 0;
-      if (currentLevel >= bonus.maxLevel) return;
-      if (state.karmaPoints < bonus.costPerLevel) return;
-      state.karmaPoints -= bonus.costPerLevel;
-      state.karmaBonusLevels[action.payload] = currentLevel + 1;
-    },
-    /** One-time purchase: unlock Auto-Loot for 500 spirit stones. Persists through reincarnation. */
-    purchaseAutoLootUnlock: (state) => {
-      if (state.autoLootUnlocked) return;
-      if (state.money < 500) return;
-      state.money -= 500;
-      state.autoLootUnlocked = true;
-      state.autoLoot = true;
-    },
-    /** Toggle Auto-Loot on/off (only when unlocked). Persists through reincarnation. */
-    setAutoLoot: (state, action: PayloadAction<boolean>) => {
-      if (!state.autoLootUnlocked) return;
-      state.autoLoot = action.payload;
-    },
-    /** One-time purchase: unlock Auto-Eat for 50,000 spirit stones. Persists through reincarnation. */
-    purchaseAutoEatUnlock: (state) => {
-      if (state.autoEatUnlocked) return;
-      if (state.money < 50000) return;
-      state.money -= 50000;
-      state.autoEatUnlocked = true;
-      state.autoEat = true;
-    },
-    /** Toggle Auto-Eat on/off (only when unlocked). Persists through reincarnation. */
-    setAutoEat: (state, action: PayloadAction<boolean>) => {
-      if (!state.autoEatUnlocked) return;
-      state.autoEat = action.payload;
-    },
-    /** Set HP percent (1–99) below which auto-eat consumes food in combat. */
-    setAutoEatHpPercent: (state, action: PayloadAction<number>) => {
-      state.autoEatHpPercent = Math.min(99, Math.max(1, Math.round(action.payload)));
-    },
-    /** Accept sect quest (step 0 → 1). Only when in sect and step is 0. */
-    acceptSectQuest: (state, action: PayloadAction<number>) => {
-      const sectId = action.payload;
-      if (state.currentSectId !== sectId) return;
-      const step = state.sectQuestProgress[sectId] ?? 0;
-      if (step !== 0) return;
-      state.sectQuestProgress[sectId] = 1;
-      state.sectQuestKillCount[sectId] = 0;
-    },
-    /** Increment sect quest kill count when player kills an enemy while in that sect and on step 1. */
-    incrementSectQuestKillCount: (state, action: PayloadAction<number>) => {
-      const sectId = action.payload;
-      if (state.currentSectId !== sectId) return;
-      const step = state.sectQuestProgress[sectId] ?? 0;
-      if (step !== 1) return;
-      const count = (state.sectQuestKillCount[sectId] ?? 0) + 1;
-      state.sectQuestKillCount[sectId] = count;
-      if (count >= SECT_QUEST_KILLS_REQUIRED) state.sectQuestProgress[sectId] = 2;
-    },
-    /** Claim sect quest reward (step 2 → 3). Gives sect treasure if not already obtained. */
-    claimSectQuestReward: (state, action: PayloadAction<number>) => {
-      const sectId = action.payload;
-      const step = state.sectQuestProgress[sectId] ?? 0;
-      if (step !== 2) return;
-      const itemId = SECT_TREASURE_ITEM_ID_BY_SECT[sectId];
-      if (itemId == null || state.obtainedSectTreasureIds.includes(itemId)) return;
-      const item = SECT_TREASURE_ITEMS.find((i) => i.id === itemId);
-      if (!item) return;
-      state.sectQuestProgress[sectId] = 3;
-      state.obtainedSectTreasureIds.push(itemId);
-      upsertItem(state.items, { ...item, quantity: 1 }, 1);
-    },
-    /** Add favor for an NPC (internal / from gift or dialogue). */
-    addNpcFavor: (state, action: PayloadAction<{ sectId: number; npcId: number; amount: number }>) => {
-      const { sectId, npcId, amount } = action.payload;
-      const key = `${sectId}-${npcId}`;
-      const current = state.npcFavor[key] ?? 0;
-      state.npcFavor[key] = Math.min(100, Math.max(0, current + amount));
-    },
-    /** Use one-time realm dialogue with NPC (increases favor, marks realm as used). */
-    useRealmDialogue: (state, action: PayloadAction<{ sectId: number; npcId: number; realmId: string }>) => {
-      const { sectId, npcId, realmId } = action.payload;
-      const key = `${sectId}-${npcId}`;
-      if (!state.realmDialogueUsed[key]) state.realmDialogueUsed[key] = {};
-      if (state.realmDialogueUsed[key][realmId]) return;
-      state.realmDialogueUsed[key][realmId] = true;
-      const current = state.npcFavor[key] ?? 0;
-      state.npcFavor[key] = Math.min(100, current + REALM_DIALOGUE_FAVOR);
-    },
-    /** Set or clear dual cultivation partner (only if favor >= 50 when setting). */
-    setCultivationPartner: (state, action: PayloadAction<{ sectId: number; npcId: number } | null>) => {
-      state.cultivationPartner = action.payload;
-    },
-    /** Gift spirit stones to NPC to increase favor. Cost GIFT_SPIRIT_STONE_COST per gift, +1 favor. */
-    giftNpc: (state, action: PayloadAction<{ sectId: number; npcId: number }>) => {
-      const { sectId, npcId } = action.payload;
-      if (state.currentSectId !== sectId) return;
-      if (state.money < GIFT_SPIRIT_STONE_COST) return;
-      state.money -= GIFT_SPIRIT_STONE_COST;
-      const key = `${sectId}-${npcId}`;
-      const current = state.npcFavor[key] ?? 0;
-      state.npcFavor[key] = Math.min(100, current + 1);
-    },
-    /** Death penalty: "normal" = weakened after death; "casual" = no weakened. */
-    setDeathPenaltyMode: (state, action: PayloadAction<"normal" | "casual">) => {
-      state.deathPenaltyMode = action.payload;
+    });
+    builder.addCase(settingsSlice.actions.setDeathPenaltyMode, (state, action) => {
       if (action.payload === "casual") {
         state.isWeakened = false;
         state.weakenedMeditationSecondsDone = 0;
       }
-    },
-    /** Set weakened state (e.g. on death in normal mode). */
-    setWeakened: (state, action: PayloadAction<boolean>) => {
-      state.isWeakened = action.payload;
-      if (!action.payload) state.weakenedMeditationSecondsDone = 0;
-    },
-    /** While meditating and weakened, call every second; clears weakened when done. */
-    tickWeakenedRecovery: (state, action: PayloadAction<number>) => {
-      if (!state.isWeakened || state.deathPenaltyMode !== "normal") return;
-      state.weakenedMeditationSecondsDone += action.payload;
-      if (state.weakenedMeditationSecondsDone >= WEAKENED_MEDITATION_SECONDS) {
-        state.isWeakened = false;
-        state.weakenedMeditationSecondsDone = 0;
-      }
-    },
-    recordEnemyKill: (state, action: PayloadAction<string>) => {
-      ensureStats(state);
-      const area = action.payload;
-      state.stats!.enemiesKilledByArea[area] = (state.stats!.enemiesKilledByArea[area] ?? 0) + 1;
-    },
-    recordDeath: (state) => {
-      ensureStats(state);
-      state.stats!.deaths += 1;
-    },
-    recordItemCrafted: (state, action: PayloadAction<"alchemy" | "forging" | "cooking">) => {
-      ensureStats(state);
-      if (action.payload === "alchemy") state.stats!.itemsCraftedAlchemy += 1;
-      else if (action.payload === "forging") state.stats!.itemsCraftedForging += 1;
-      else state.stats!.itemsCraftedCooking += 1;
-    },
-    setNotificationPrefs: (state, action: PayloadAction<Partial<NotificationPrefs>>) => {
-      if (!state.notificationPrefs) state.notificationPrefs = { toastsEnabled: true, levelUp: true, rareDrop: true, achievement: true, expedition: true };
-      Object.assign(state.notificationPrefs, action.payload);
-    },
-    setSoundVolume: (state, action: PayloadAction<{ music?: number; sfx?: number }>) => {
-      if (!state.soundVolume) state.soundVolume = { music: 100, sfx: 100 };
-      if (action.payload.music != null) state.soundVolume.music = Math.max(0, Math.min(100, action.payload.music));
-      if (action.payload.sfx != null) state.soundVolume.sfx = Math.max(0, Math.min(100, action.payload.sfx));
-    },
+    });
   },
 });
 
@@ -1197,13 +1087,6 @@ export const {
   setLastActiveTimestamp,
   applyOfflineProgress,
   clearOfflineSummary,
-  reincarnate,
-  purchaseKarmaBonus,
-  purchaseAutoLootUnlock,
-  setAutoLoot,
-  purchaseAutoEatUnlock,
-  setAutoEat,
-  setAutoEatHpPercent,
   acceptSectQuest,
   incrementSectQuestKillCount,
   claimSectQuestReward,
@@ -1211,14 +1094,14 @@ export const {
   useRealmDialogue,
   setCultivationPartner,
   giftNpc,
-  setDeathPenaltyMode,
   setWeakened,
   tickWeakenedRecovery,
   recordEnemyKill,
   recordDeath,
   recordItemCrafted,
-  setNotificationPrefs,
-  setSoundVolume,
 } = characterSlice.actions;
+
+/** Re-export for backward compatibility (state lives in settingsSlice). */
+export type { NotificationPrefs } from "./settingsSlice";
 
 export default characterSlice.reducer;

@@ -99,8 +99,12 @@ export const RING_AMULET_ITEMS: (Item & { equipmentSlot: EquipmentSlot })[] = [
   { id: AMULET_IDS.transcendentDao, name: "Transcendent Dao Amulet", description: "Rare drop from Primordial Spirit Sea. All-round moderate bonuses.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/transcendent-dao-amulet.webp`, equipmentSlot: "amulet", defenseBonus: 5, vitalityBonus: 5, qiGainBonus: 15 },
 ];
 
+export const RING_AMULET_ITEMS_BY_ID: Record<number, Item & { equipmentSlot: EquipmentSlot }> = Object.fromEntries(
+  RING_AMULET_ITEMS.map((i) => [i.id, i])
+) as Record<number, Item & { equipmentSlot: EquipmentSlot }>;
+
 export function getRingAmuletItemById(id: number): (Item & { equipmentSlot: EquipmentSlot }) | undefined {
-  return RING_AMULET_ITEMS.find((i) => i.id === id);
+  return RING_AMULET_ITEMS_BY_ID[id];
 }
 
 /** Forged ring/amulet recipes (bars + gems). Rare items are drop-only. */

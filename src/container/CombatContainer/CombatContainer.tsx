@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { enemies, getSectRaidLootForRank, sectsData } from "../../constants/data";
+import { ENEMIES_BY_ID, SECTS_BY_ID } from "../../constants/data";
 import { getCharacterImage, UI_ASSETS } from "../../constants/ui";
 import EnemyI from "../../interfaces/EnemyI";
 import EnemyLootPopover from "../../components/EnemyLootPopover/EnemyLootPopover";
@@ -25,9 +25,11 @@ import {
 } from "../../state/selectors/characterSelectors";
 import Item from "../../interfaces/ItemI";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
+import { isConsumableItem } from "../../types/itemGuards";
 import { ContentArea } from "../../enum/ContentArea";
-import { AREA_REALM_REQUIREMENTS, canEnterArea } from "../../constants/areaRealmRequirements";
+import { canEnterCombatArea } from "../../utils/contentRules";
 import { CombatArea } from "../../enum/CombatArea";
+import { getResolvedLootTable, rollOneDrop } from "../../utils/combatLoot";
 
 const ENEMY_ATTACK_INTERVAL_MS = 3000;
 
@@ -98,7 +100,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const [enemyProgress, setEnemyProgress] = useState(0);
 
   //Fetch currentEnemies for that area
-  const currentEnemies = enemies.filter((enemy) => enemy.location.toString() === area);
+  const currentEnemies = Object.values(ENEMIES_BY_ID).filter((enemy) => enemy.location.toString() === area);
 
   /**
    * Method to get a random new enemy from the current area
@@ -113,7 +115,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const [currentEnemy, setCurrentEnemy] = useState<EnemyI | undefined>(() => getRandomEnemy());
 
   const enemyMaxHealth = currentEnemy
-    ? (enemies.find((e) => e.id === currentEnemy.id)?.health ?? currentEnemy.health)
+    ? (ENEMIES_BY_ID[currentEnemy.id]?.health ?? currentEnemy.health)
     : 1;
 
   const characterStateRef = useRef(characterState);
@@ -158,15 +160,15 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       dispatch(changeContent(routeFromArea(ContentArea.MAP)));
       return;
     }
-    const required = AREA_REALM_REQUIREMENTS[area];
-    if (required && !canEnterArea(realm, realmLevel, required)) {
+    if (!canEnterCombatArea(realm, realmLevel, area)) {
       dispatch(changeContent(routeFromArea(ContentArea.MAP)));
     }
   }, [area, currentEnemies.length, realm, realmLevel, dispatch]);
 
   /** Food that restores vitality – use during combat to heal */
   const vitalityFood = items.filter(
-    (i) => i.effect === "vitality" && i.value != null && (i.quantity ?? 1) > 0
+    (i): i is Item & { effect: string; value: number } =>
+      isConsumableItem(i) && i.effect === "vitality" && i.value != null && (i.quantity ?? 1) > 0
   );
 
   const useVitalityFood = (item: Item) => {
@@ -198,7 +200,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
 
   /** Spirit stones awarded per kill (scaled by enemy max HP for stronger rewards). */
   const getSpiritStonesFromEnemy = (enemy: EnemyI) => {
-    const maxHp = enemies.find((e) => e.id === enemy.id)?.health ?? enemy.health;
+    const maxHp = ENEMIES_BY_ID[enemy.id]?.health ?? enemy.health;
     return Math.max(1, 5 + Math.floor(maxHp / 5));
   };
 
@@ -237,63 +239,12 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
 
   /**
    * Rolls once on the enemy loot table; returns the dropped item or null (e.g. technique already owned).
-   * Uses same logic as addLootToItemBag for sect raids vs normal.
+   * Uses combatLoot for normal vs sect raid resolution.
    */
   const rollOneLootDrop = (enemy: EnemyI): Item | null => {
-    let items = enemy.loot?.items;
-    let weightRef = enemy.loot?.weight;
-
-    if (
-      area === CombatArea.JADE_MOUNTAIN_RAID ||
-      area === CombatArea.VERDANT_VALLEY_RAID ||
-      area === CombatArea.AZURE_SKY_RAID ||
-      area === CombatArea.CRIMSON_DEMON_RAID ||
-      area === CombatArea.SHADOW_SERPENT_RAID ||
-      area === CombatArea.BONE_ABYSS_RAID
-    ) {
-      const sectByArea: Record<string, number> = {
-        [CombatArea.JADE_MOUNTAIN_RAID]: 1,
-        [CombatArea.VERDANT_VALLEY_RAID]: 2,
-        [CombatArea.AZURE_SKY_RAID]: 3,
-        [CombatArea.CRIMSON_DEMON_RAID]: 4,
-        [CombatArea.SHADOW_SERPENT_RAID]: 5,
-        [CombatArea.BONE_ABYSS_RAID]: 6,
-      };
-      const sectId = sectByArea[area ?? ""];
-      const currentSect = currentSectId != null
-        ? sectsData.find((s) => s.id === currentSectId)
-        : null;
-      if (
-        sectId != null &&
-        currentSect != null &&
-        currentSect.path === path
-      ) {
-        const targetSect = sectsData.find((s) => s.id === sectId);
-        if (targetSect && targetSect.path !== currentSect.path && sectRankIndex > 0) {
-          const loot = getSectRaidLootForRank(sectId, sectRankIndex);
-          if (loot) {
-            items = loot.items;
-            weightRef = loot.weight;
-          }
-        }
-      }
-    }
-
-    if (!items?.length || !weightRef?.length || items.length !== weightRef.length) return null;
-
-    const weights = weightRef.slice();
-    for (let i = 0; i < weights.length; i++) {
-      weights[i] += weights[i - 1] || 0;
-    }
-    const random = Math.random() * weights[weights.length - 1];
-    let i = 0;
-    for (; i < weights.length; i++) {
-      if (weights[i] > random) break;
-    }
-    const dropped = items[i];
-    const isTechnique = dropped.equipmentSlot === "qiTechnique" || dropped.equipmentSlot === "combatTechnique";
-    if (isTechnique && ownedTechniqueIdsRef.current.has(dropped.id)) return null;
-    return dropped;
+    const context = { area, currentSectId, path, sectRankIndex };
+    const table = getResolvedLootTable(enemy, context);
+    return rollOneDrop(table, ownedTechniqueIdsRef.current);
   };
 
   /**
@@ -454,52 +405,15 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   }, [fightingInterval]);
 
   const enemyLootEntries = useMemo(() => {
-    let items = currentEnemy?.loot?.items;
-    let weights = currentEnemy?.loot?.weight;
-
-    // Mirror dynamic loot logic for the popover so chances match actual drops.
-    if (
-      area === CombatArea.JADE_MOUNTAIN_RAID ||
-      area === CombatArea.VERDANT_VALLEY_RAID ||
-      area === CombatArea.AZURE_SKY_RAID ||
-      area === CombatArea.CRIMSON_DEMON_RAID ||
-      area === CombatArea.SHADOW_SERPENT_RAID ||
-      area === CombatArea.BONE_ABYSS_RAID
-    ) {
-      const sectByArea: Record<string, number> = {
-        [CombatArea.JADE_MOUNTAIN_RAID]: 1,
-        [CombatArea.VERDANT_VALLEY_RAID]: 2,
-        [CombatArea.AZURE_SKY_RAID]: 3,
-        [CombatArea.CRIMSON_DEMON_RAID]: 4,
-        [CombatArea.SHADOW_SERPENT_RAID]: 5,
-        [CombatArea.BONE_ABYSS_RAID]: 6,
-      };
-      const sectId = sectByArea[area ?? ""];
-      const currentSect = currentSectId != null
-        ? sectsData.find((s) => s.id === currentSectId)
-        : null;
-      if (
-        sectId != null &&
-        currentSect != null &&
-        currentSect.path === path
-      ) {
-        const targetSect = sectsData.find((s) => s.id === sectId);
-        if (targetSect && targetSect.path !== currentSect.path && sectRankIndex > 0) {
-          const loot = getSectRaidLootForRank(sectId, sectRankIndex);
-          if (loot) {
-            items = loot.items;
-            weights = loot.weight;
-          }
-        }
-      }
-    }
-    if (!currentEnemy || !items?.length || !weights?.length || items.length !== weights.length)
-      return [];
-    const total = weights.reduce((a, b) => a + b, 0);
+    if (!currentEnemy) return [];
+    const context = { area, currentSectId, path, sectRankIndex };
+    const table = getResolvedLootTable(currentEnemy, context);
+    if (!table || !table.items.length) return [];
+    const total = table.weight.reduce((a, b) => a + b, 0);
     if (total <= 0) return [];
-    return items.map((item, i) => ({
+    return table.items.map((item, i) => ({
       item,
-      chancePercent: (weights[i] / total) * 100,
+      chancePercent: (table.weight[i] / total) * 100,
       amount: item.quantity ?? 1,
     }));
   }, [currentEnemy, area, currentSectId, path, sectRankIndex]);

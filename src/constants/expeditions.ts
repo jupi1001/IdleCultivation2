@@ -87,6 +87,10 @@ export const EXPEDITION_MISSIONS: MissionI[] = [
   },
 ];
 
+export const EXPEDITION_MISSIONS_BY_ID: Record<number, MissionI> = Object.fromEntries(
+  EXPEDITION_MISSIONS.map((m) => [m.id, m])
+) as Record<number, MissionI>;
+
 export function getExpeditionItem(itemId: number): Item | undefined {
   return EXPEDITION_ITEMS_BY_ID[itemId];
 }

@@ -28,7 +28,7 @@ import {
 } from "../../state/selectors/characterSelectors";
 import { ContentArea } from "../../enum/ContentArea";
 import { getStepIndex } from "../../constants/realmProgression";
-import { sectsData, SECT_POSITIONS, sectStoreData } from "../../constants/data";
+import { SECTS_BY_ID, SECT_POSITIONS, sectStoreData } from "../../constants/data";
 import {
   SECT_NPCS_BY_SECT,
   SECT_QUEST_KILLS_REQUIRED,
@@ -62,11 +62,11 @@ export const SectContainer = () => {
 
   const [activeTab, setActiveTab] = useState<SectTab>("store");
 
-  const currentSect = currentSectId != null ? sectsData.find((s) => s.id === currentSectId) : null;
+  const currentSect = currentSectId != null ? SECTS_BY_ID[currentSectId] : null;
   /** All sects on the same path (your sect + allied sects); you can buy from any of them based on your rank. */
   const sectsOnPath =
     currentSectId != null && currentSect != null
-      ? sectsData
+      ? Object.values(SECTS_BY_ID)
           .filter((s) => s.path === currentSect.path)
           .map((sect) => ({
             sect,

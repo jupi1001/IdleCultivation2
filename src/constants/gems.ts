@@ -43,12 +43,16 @@ const GEM_ITEMS_LIST: Item[] = [
   { id: GEM_IDS.spiritCrystal, name: "Spirit Crystal", description: "A crystal infused with Qi. Used in forging.", price: 100, quantity: 1, picture: `${GEMS_ASSETS}/spirit-crystal.webp` },
 ];
 
+export const GEM_ITEMS_BY_ID: Record<number, Item> = Object.fromEntries(
+  GEM_ITEMS_LIST.map((g) => [g.id, g])
+) as Record<number, Item>;
+
 /** All gem items for lookup. */
 export const GEM_ITEMS: Item[] = GEM_ITEMS_LIST;
 
 /** Get gem item by id. */
 export function getGemItemById(id: number): Item | undefined {
-  return GEM_ITEMS_LIST.find((g) => g.id === id);
+  return GEM_ITEMS_BY_ID[id];
 }
 
 /**

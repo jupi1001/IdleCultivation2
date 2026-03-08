@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { reincarnate, purchaseKarmaBonus } from "../../state/reducers/characterSlice";
+import { reincarnate, purchaseKarmaBonus } from "../../state/reducers/reincarnationSlice";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import { ContentArea } from "../../enum/ContentArea";
 import { getStepIndex, formatRealm } from "../../constants/realmProgression";
@@ -9,6 +9,7 @@ import {
   REINCARNATION_MIN_REALM_LABEL,
   calculateKarmaEarned,
   KARMA_BONUSES,
+  KARMA_BONUSES_BY_ID,
   type KarmaBonusId,
 } from "../../constants/reincarnation";
 import { getFishingLevelInfo } from "../../constants/fishingLevel";
@@ -85,7 +86,9 @@ export const ReincarnationContainer = () => {
   const handleReincarnate = () => {
     if (!canReincarnate) return;
     const earned = calculateKarmaEarned(realm, realmLevel, totalSkillLevels);
-    dispatch(reincarnate({ karmaEarned: earned }));
+    const startingMoneyLevel = karmaBonusLevels?.startingMoney ?? 0;
+    const startingMoneyBonus = startingMoneyLevel * (KARMA_BONUSES_BY_ID.startingMoney?.valuePerLevel ?? 0);
+    dispatch(reincarnate({ karmaEarned: earned, startingMoneyBonus }));
     setConfirming(false);
     dispatch(changeContent(routeFromArea(ContentArea.MEDITATION)));
   };

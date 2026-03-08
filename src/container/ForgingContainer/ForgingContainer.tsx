@@ -16,7 +16,7 @@ import {
 } from "../../constants/forging";
 import { RING_AMULET_RECIPES, type RingAmuletRecipeI } from "../../constants/ringsAmulets";
 import { GEM_ITEMS } from "../../constants/gems";
-import { oreTypes } from "../../constants/data";
+import { ITEMS_BY_ID } from "../../constants/data";
 import { countItem } from "../../utils/inventory";
 import {
   getOwnedCraftingSetPieceIds,
@@ -34,11 +34,8 @@ import {
 import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./ForgingContainer.css";
 
-function getItemName(
-  itemId: number,
-  allItems: { id: number; name: string }[]
-): string {
-  return allItems.find((i) => i.id === itemId)?.name ?? `Item ${itemId}`;
+function getItemName(itemId: number): string {
+  return ITEMS_BY_ID[itemId]?.name ?? `Item ${itemId}`;
 }
 
 function canRefine(items: { id: number; quantity?: number }[], recipe: RefineRecipeI): boolean {
@@ -92,17 +89,6 @@ export const ForgingContainer = () => {
   const toggleTier = useCallback((tier: string) => {
     setTiersOpen((prev) => ({ ...prev, [tier]: !prev[tier] }));
   }, []);
-
-  const allItemNames = useMemo(
-    () => [
-      ...oreTypes.map((i) => ({ id: i.id, name: i.name })),
-      ...FORGE_BAR_ITEMS.map((i) => ({ id: i.id, name: i.name })),
-      ...CRAFT_RECIPES.map((r) => ({ id: r.output.id, name: r.output.name })),
-      ...GEM_ITEMS.map((i) => ({ id: i.id, name: i.name })),
-      ...RING_AMULET_RECIPES.map((r) => ({ id: r.output.id, name: r.output.name })),
-    ],
-    []
-  );
 
   const craftByTier = useMemo(() => groupByTier(CRAFT_RECIPES), []);
 
@@ -222,7 +208,7 @@ export const ForgingContainer = () => {
               <p className="forging__recipeDesc">{recipe.description}</p>
               <div className="forging__mats">
                 <span>
-                  {getItemName(recipe.ore.itemId, allItemNames)} × {recipe.ore.amount}
+                  {getItemName(recipe.ore.itemId)} × {recipe.ore.amount}
                   {countItem(items, recipe.ore.itemId) < recipe.ore.amount && (
                     <span className="forging__short"> (have {countItem(items, recipe.ore.itemId)})</span>
                   )}
@@ -270,7 +256,7 @@ export const ForgingContainer = () => {
                       <div className="forging__mats">
                         {recipe.bars.map(({ itemId, amount }) => (
                           <span key={itemId}>
-                            {getItemName(itemId, allItemNames)} × {amount}
+                            {getItemName(itemId)} × {amount}
                             {countItem(items, itemId) < amount && (
                               <span className="forging__short"> (have {countItem(items, itemId)})</span>
                             )}
@@ -308,7 +294,7 @@ export const ForgingContainer = () => {
               <div className="forging__mats">
                 {recipe.bars.map(({ itemId, amount }) => (
                   <span key={`b-${itemId}`}>
-                    {getItemName(itemId, allItemNames)} × {amount}
+                    {getItemName(itemId)} × {amount}
                     {countItem(items, itemId) < amount && (
                       <span className="forging__short"> (have {countItem(items, itemId)})</span>
                     )}
@@ -316,7 +302,7 @@ export const ForgingContainer = () => {
                 ))}
                 {recipe.gems?.map(({ itemId, amount }) => (
                   <span key={`g-${itemId}`}>
-                    {getItemName(itemId, allItemNames)} × {amount}
+                    {getItemName(itemId)} × {amount}
                     {countItem(items, itemId) < amount && (
                       <span className="forging__short"> (have {countItem(items, itemId)})</span>
                     )}

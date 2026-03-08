@@ -6,3 +6,4 @@ export * from "./items";
 export * from "./enemies";
 export * from "./areas";
 export * from "./sects";
+export * from "./combat";

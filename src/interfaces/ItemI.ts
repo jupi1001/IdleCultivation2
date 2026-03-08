@@ -1,5 +1,14 @@
 import type { EquipmentSlot } from "../types/EquipmentSlot";
 
+/** Discriminant for gradual migration to discriminated union (see types/itemGuards). */
+export type ItemKind =
+  | "consumable"
+  | "equipment"
+  | "technique"
+  | "material"
+  | "quest"
+  | "setPiece";
+
 interface Item {
   id: number;
   name: string;
@@ -7,6 +16,8 @@ interface Item {
   quantity: number;
   price: number;
   picture?: string;
+  /** When set, enables type guards (isConsumableItem, isEquipmentItem, etc.). */
+  kind?: ItemKind;
   value?: number;
   effect?: string;
   /** Equipment slot this item can be equipped in */

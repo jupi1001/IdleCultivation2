@@ -10,7 +10,7 @@ import {
   getAlchemyXPFail,
   type AlchemyRecipeI,
 } from "../../constants/alchemy";
-import { gatheringLootTypes } from "../../constants/data";
+import { ITEMS_BY_ID } from "../../constants/data";
 import { countItem } from "../../utils/inventory";
 import {
   getTalentAlchemySuccessPercent,
@@ -30,7 +30,7 @@ import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./AlchemyContainer.css";
 
 function getItemName(itemId: number): string {
-  return gatheringLootTypes.find((i) => i.id === itemId)?.name ?? `Item ${itemId}`;
+  return ITEMS_BY_ID[itemId]?.name ?? `Item ${itemId}`;
 }
 
 function canCraft(items: { id: number; quantity?: number }[], recipe: AlchemyRecipeI): boolean {

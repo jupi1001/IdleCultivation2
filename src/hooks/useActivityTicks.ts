@@ -35,7 +35,11 @@ import {
   getTierForMiningAreaIndex,
   SKILLING_SET_DROP_CHANCE_PERCENT,
 } from "../constants/skillingSets";
-import { fishingAreaData, gatheringAreaData, miningAreaData } from "../constants/data";
+import {
+  FISHING_AREA_INDEX_BY_ID,
+  GATHERING_AREA_INDEX_BY_ID,
+  MINING_AREA_INDEX_BY_ID,
+} from "../constants/data";
 import {
   getSkillSpeedBonusFishing,
   getSkillSpeedBonusMining,
@@ -59,6 +63,7 @@ import {
   selectEquipment,
   selectMiner,
   selectIsWeakened,
+  selectDeathPenaltyMode,
 } from "../state/selectors/characterSelectors";
 import { rollOneTimeDrop } from "../utils/oneTimeDrops";
 import { BASE_QI_PER_SECOND } from "../constants/meditation";
@@ -82,12 +87,12 @@ function rollRareDropRingAmulet(
 function rollSkillingSetForArea(
   skill: "fishing" | "mining" | "gathering",
   areaId: number,
-  areaData: { id: number }[],
+  areaIndexById: Record<number, number>,
   getTier: (areaIndex: number) => "lesser" | "greater" | "perfected",
   ownedRef: React.MutableRefObject<Set<number>>
 ): Item | null {
-  const areaIndex = areaData.findIndex((a) => a.id === areaId);
-  if (areaIndex < 0) return null;
+  const areaIndex = areaIndexById[areaId];
+  if (areaIndex == null) return null;
   const tier = getTier(areaIndex);
   const pieceIds = getSetPieceIds(skill, tier);
   return rollOneTimeDrop(ownedRef.current, pieceIds, SKILLING_SET_DROP_CHANCE_PERCENT, getSkillingSetItemById);
@@ -119,6 +124,7 @@ export function useActivityTicks() {
   const talentQiGain = useSelector(getTalentQiGainBonus);
   const karmaQiMultRef = useRef(karmaQiMult);
   const isWeakened = useSelector(selectIsWeakened);
+  const deathPenaltyMode = useSelector(selectDeathPenaltyMode);
   const karmaXpMultRef = useRef(karmaXpMult);
   const karmaSsMultRef = useRef(karmaSsMult * talentSsMult);
   karmaQiMultRef.current = karmaQiMult;
@@ -167,10 +173,10 @@ export function useActivityTicks() {
     if (currentActivity !== "meditate") return;
     const id = setInterval(() => {
       dispatch(addQi(qiPerSecond));
-      if (isWeakened) dispatch(tickWeakenedRecovery(1));
+      if (isWeakened) dispatch(tickWeakenedRecovery({ seconds: 1, deathPenaltyMode }));
     }, 1000);
     return () => clearInterval(id);
-  }, [currentActivity, dispatch, qiPerSecond, isWeakened]);
+  }, [currentActivity, dispatch, qiPerSecond, isWeakened, deathPenaltyMode]);
 
   // ── Fishing ──
   useEffect(() => {
@@ -190,7 +196,7 @@ export function useActivityTicks() {
       fishingTimeoutRef.current = null;
       const rareDropItem = rollRareDropRingAmulet(area.rareDropChancePercent, area.rareDropItemIds);
       const skillingSetDropItem = rollSkillingSetForArea(
-        "fishing", area.areaId, fishingAreaData, getTierForFishingAreaIndex, ownedSkillingSetRef
+        "fishing", area.areaId, FISHING_AREA_INDEX_BY_ID, getTierForFishingAreaIndex, ownedSkillingSetRef
       );
       dispatch(completeFishingCast({
         castId,
@@ -222,7 +228,7 @@ export function useActivityTicks() {
       miningTimeoutRef.current = null;
       const geodeDropped = Math.random() * 100 < 3;
       const skillingSetDropItem = rollSkillingSetForArea(
-        "mining", area.areaId, miningAreaData, getTierForMiningAreaIndex, ownedSkillingSetRef
+        "mining", area.areaId, MINING_AREA_INDEX_BY_ID, getTierForMiningAreaIndex, ownedSkillingSetRef
       );
       const lootQuantity = miningYieldPercent > 0 && Math.random() * 100 < miningYieldPercent ? 2 : 1;
       dispatch(completeMiningCast({
@@ -256,7 +262,7 @@ export function useActivityTicks() {
       gatheringTimeoutRef.current = null;
       const rareDropItem = rollRareDropRingAmulet(area.rareDropChancePercent, area.rareDropItemIds);
       const skillingSetDropItem = rollSkillingSetForArea(
-        "gathering", area.areaId, gatheringAreaData, getTierForGatheringAreaIndex, ownedSkillingSetRef
+        "gathering", area.areaId, GATHERING_AREA_INDEX_BY_ID, getTierForGatheringAreaIndex, ownedSkillingSetRef
       );
       dispatch(completeGatheringCast({
         castId,

@@ -5,7 +5,12 @@
 import type { RootState } from "../state/store";
 import { BASE_QI_PER_SECOND } from "../constants/meditation";
 import { OFFLINE_PROGRESS_CAP_MS, OFFLINE_PROGRESS_MIN_MS, LAST_ACTIVE_STORAGE_KEY } from "../constants/offlineProgress";
-import { fishingAreaData, fishTypes, gatheringAreaData, gatheringLootTypes, miningAreaData, oreTypes } from "../constants/data";
+import {
+  FISHING_AREA_INDEX_BY_ID,
+  GATHERING_AREA_INDEX_BY_ID,
+  MINING_AREA_INDEX_BY_ID,
+  ITEMS_BY_ID,
+} from "../constants/data";
 import { getRingAmuletItemById } from "../constants/ringsAmulets";
 import {
   getSetPieceIds,
@@ -65,12 +70,12 @@ function rollRareDropRingAmulet(
 function rollSkillingSetForArea(
   skill: "fishing" | "mining" | "gathering",
   areaId: number,
-  areaData: { id: number }[],
+  areaIndexById: Record<number, number>,
   getTier: (areaIndex: number) => "lesser" | "greater" | "perfected",
   ownedIds: Set<number>
 ): Item | null {
-  const areaIndex = areaData.findIndex((a) => a.id === areaId);
-  if (areaIndex < 0) return null;
+  const areaIndex = areaIndexById[areaId];
+  if (areaIndex == null) return null;
   const tier = getTier(areaIndex);
   const pieceIds = getSetPieceIds(skill, tier);
   return rollOneTimeDrop(ownedIds, pieceIds, SKILLING_SET_DROP_CHANCE_PERCENT, getSkillingSetItemById);
@@ -135,14 +140,14 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
       for (let i = 0; i < casts; i++) {
         xp += Math.round(area.fishingXP * karmaXpMult);
         const randomId = area.fishingLootIds[Math.floor(Math.random() * area.fishingLootIds.length)];
-        const fish = fishTypes.find((f) => f.id === randomId);
+        const fish = ITEMS_BY_ID[randomId];
         if (fish) items.push(fish);
         const rare = rollRareDropRingAmulet(area.rareDropChancePercent, area.rareDropItemIds);
         if (rare) items.push(rare);
         const setPiece = rollSkillingSetForArea(
           "fishing",
           area.areaId,
-          fishingAreaData,
+          FISHING_AREA_INDEX_BY_ID,
           getTierForFishingAreaIndex,
           ownedSetIds
         );
@@ -168,7 +173,7 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
       const ownedSetIds = new Set(getOwnedSkillingSetPieceIds(state));
       for (let i = 0; i < casts; i++) {
         xp += Math.round(area.miningXP * karmaXpMult);
-        const ore = oreTypes.find((o) => o.id === area.miningLootId);
+        const ore = ITEMS_BY_ID[area.miningLootId];
         if (ore) {
           items.push(ore);
           if (miningYieldPercent > 0 && Math.random() * 100 < miningYieldPercent) items.push(ore);
@@ -177,7 +182,7 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
         const setPiece = rollSkillingSetForArea(
           "mining",
           area.areaId,
-          miningAreaData,
+          MINING_AREA_INDEX_BY_ID,
           getTierForMiningAreaIndex,
           ownedSetIds
         );
@@ -203,14 +208,14 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
       for (let i = 0; i < casts; i++) {
         xp += Math.round(area.gatheringXP * karmaXpMult);
         const randomId = area.gatheringLootIds[Math.floor(Math.random() * area.gatheringLootIds.length)];
-        const loot = gatheringLootTypes.find((l) => l.id === randomId);
+        const loot = ITEMS_BY_ID[randomId];
         if (loot) items.push(loot);
         const rare = rollRareDropRingAmulet(area.rareDropChancePercent, area.rareDropItemIds);
         if (rare) items.push(rare);
         const setPiece = rollSkillingSetForArea(
           "gathering",
           area.areaId,
-          gatheringAreaData,
+          GATHERING_AREA_INDEX_BY_ID,
           getTierForGatheringAreaIndex,
           ownedSetIds
         );

@@ -1,10 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, Suspense, lazy } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 import { LeftMain } from "../LeftMain/LeftMain";
 import { RightMain } from "../RightMain/RightMain";
 import { Shop } from "../Shop/Shop";
 import { Map } from "../Map/Map";
-import { SectContainer } from "../SectContainer/SectContainer";
 import { BlackMarket } from "../BlackMarket/BlackMarket";
 import { TrainingContainer } from "../TrainingContainer/TrainingContainer";
 import { RootState } from "../../state/store";
@@ -15,7 +14,6 @@ import { OfflineProgressModal } from "../../components/OfflineProgressModal/Offl
 import "./Main.css";
 import { Inventory } from "../Inventory/Inventory";
 import MoneyContainer from "../MoneyContainer/MoneyContainer";
-import CombatContainer from "../CombatContainer/CombatContainer";
 import { ContentArea } from "../../enum/ContentArea";
 import { selectRoute } from "../../state/reducers/contentSlice";
 import { selectPath, selectGender } from "../../state/selectors/characterSelectors";
@@ -23,21 +21,26 @@ import FishingContainer from "../FishingContainer/FishingContainer";
 import GatheringContainer from "../GatheringContainer/GatheringContainer";
 import MiningContainer from "../MiningContainer/MiningContainer";
 import { PathChoiceScreen } from "../../components/PathChoiceScreen/PathChoiceScreen";
-import { PlaceholderPanel } from "../../components/PlaceholderPanel/PlaceholderPanel";
 import { AlchemyContainer } from "../AlchemyContainer/AlchemyContainer";
 import { ForgingContainer } from "../ForgingContainer/ForgingContainer";
 import { CookingContainer } from "../CookingContainer/CookingContainer";
 import { MeditationContainer } from "../MeditationContainer/MeditationContainer";
-import { CultivationTreeContainer } from "../CultivationTreeContainer/CultivationTreeContainer";
-import { ImmortalsIslandContainer } from "../ImmortalsIslandContainer/ImmortalsIslandContainer";
-import { ReincarnationContainer } from "../ReincarnationContainer/ReincarnationContainer";
-import { AchievementsContainer } from "../AchievementsContainer/AchievementsContainer";
-import { SettingsContainer } from "../SettingsContainer/SettingsContainer";
-import { LogContainer } from "../LogContainer/LogContainer";
-import { StatsContainer } from "../StatsContainer/StatsContainer";
 import { useActivityTicks } from "../../hooks/useActivityTicks";
 import { useVitalityRegen } from "../../hooks/useVitalityRegen";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
+
+// Lazy-loaded heavy panels (code splitting)
+const CombatContainer = lazy(() => import("../CombatContainer/CombatContainer").then((m) => ({ default: m.default })));
+const SectContainer = lazy(() => import("../SectContainer/SectContainer").then((m) => ({ default: m.SectContainer })));
+const CultivationTreeContainer = lazy(() => import("../CultivationTreeContainer/CultivationTreeContainer").then((m) => ({ default: m.CultivationTreeContainer })));
+const ImmortalsIslandContainer = lazy(() => import("../ImmortalsIslandContainer/ImmortalsIslandContainer").then((m) => ({ default: m.ImmortalsIslandContainer })));
+const AchievementsContainer = lazy(() => import("../AchievementsContainer/AchievementsContainer").then((m) => ({ default: m.AchievementsContainer })));
+const SettingsContainer = lazy(() => import("../SettingsContainer/SettingsContainer").then((m) => ({ default: m.SettingsContainer })));
+const StatsContainer = lazy(() => import("../StatsContainer/StatsContainer").then((m) => ({ default: m.StatsContainer })));
+const ReincarnationContainer = lazy(() => import("../ReincarnationContainer/ReincarnationContainer").then((m) => ({ default: m.ReincarnationContainer })));
+const LogContainer = lazy(() => import("../LogContainer/LogContainer").then((m) => ({ default: m.LogContainer })));
+
+const PANEL_LOADING_FALLBACK = <div className="app__panel-loading" aria-busy="true">Loading…</div>;
 
 type Theme = "dark" | "light";
 
@@ -110,30 +113,36 @@ export const Main = ({ theme = "dark", setTheme }: MainProps) => {
       </div>
       <div className="app__main-content">
         <div className="app__main-content-scroll">
-          {route.type === "map" && <Map />}
-          {route.type === "sect" && <SectContainer />}
-          {route.type === "training" && <TrainingContainer />}
-          {route.type === "shop" && <Shop />}
-          {route.type === "black_market" && <BlackMarket />}
-          {route.type === "inventory" && <Inventory />}
-          {route.type === "combat" && <CombatContainer area={route.areaId} />}
-          {route.type === "labour" && <MoneyContainer />}
-          {route.type === "meditation" && <MeditationContainer />}
-          {route.type === "fishing" && <FishingContainer />}
-          {route.type === "mining" && <MiningContainer />}
-          {route.type === "gathering" && <GatheringContainer />}
-          {route.type === "cultivation_tree" && <CultivationTreeContainer />}
-          {route.type === "alchemy" && <AlchemyContainer />}
-          {route.type === "forging" && <ForgingContainer />}
-          {route.type === "cooking" && <CookingContainer />}
-          {route.type === "immortals_island" && <ImmortalsIslandContainer />}
-          {route.type === "reincarnation" && <ReincarnationContainer />}
-          {route.type === "achievements" && <AchievementsContainer />}
-          {route.type === "settings" && <SettingsContainer theme={theme} setTheme={setTheme} />}
-          {route.type === "activity_log" && <LogContainer />}
-          {route.type === "stats" && <StatsContainer />}
+          <Suspense fallback={PANEL_LOADING_FALLBACK}>
+            {route.type === "map" && <Map />}
+            {route.type === "sect" && <SectContainer />}
+            {route.type === "training" && <TrainingContainer />}
+            {route.type === "shop" && <Shop />}
+            {route.type === "black_market" && <BlackMarket />}
+            {route.type === "inventory" && <Inventory />}
+            {route.type === "combat" && <CombatContainer area={route.areaId} />}
+            {route.type === "labour" && <MoneyContainer />}
+            {route.type === "meditation" && <MeditationContainer />}
+            {route.type === "fishing" && <FishingContainer />}
+            {route.type === "mining" && <MiningContainer />}
+            {route.type === "gathering" && <GatheringContainer />}
+            {route.type === "cultivation_tree" && <CultivationTreeContainer />}
+            {route.type === "alchemy" && <AlchemyContainer />}
+            {route.type === "forging" && <ForgingContainer />}
+            {route.type === "cooking" && <CookingContainer />}
+            {route.type === "immortals_island" && <ImmortalsIslandContainer />}
+            {route.type === "reincarnation" && <ReincarnationContainer />}
+            {route.type === "achievements" && <AchievementsContainer />}
+            {route.type === "settings" && <SettingsContainer theme={theme} setTheme={setTheme} />}
+            {route.type === "activity_log" && <LogContainer />}
+            {route.type === "stats" && <StatsContainer />}
+          </Suspense>
         </div>
-        {route.type !== "activity_log" && <LogContainer asPanel />}
+        {route.type !== "activity_log" && (
+          <Suspense fallback={null}>
+            <LogContainer asPanel />
+          </Suspense>
+        )}
       </div>
       <div className="app__main-right">
         <RightMain />
