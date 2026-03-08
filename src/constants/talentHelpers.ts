@@ -1,4 +1,5 @@
 import type { RealmId } from "./realmProgression";
+import type { CultivationPath } from "./cultivationPath";
 import { getStepIndex } from "./realmProgression";
 import { TALENT_NODES_BY_ID } from "./talents";
 import type { TalentNode } from "../interfaces/TalentI";
@@ -10,8 +11,10 @@ export function getTalentNodeState(
   qi: number,
   realm: RealmId,
   realmLevel: number,
-  talentLevels: Record<number, number>
+  talentLevels: Record<number, number>,
+  path: CultivationPath | null
 ): TalentNodeState {
+  if (node.path != null && path !== node.path) return "locked";
   const currentLevel = talentLevels[node.id] ?? 0;
   if (currentLevel >= node.maxLevel) return "completed";
   if (currentLevel > 0) {
@@ -38,8 +41,10 @@ export function canPurchaseTalentLevel(
   qi: number,
   realm: RealmId,
   realmLevel: number,
-  talentLevels: Record<number, number>
+  talentLevels: Record<number, number>,
+  path: CultivationPath | null
 ): boolean {
-  return getTalentNodeState(node, qi, realm, realmLevel, talentLevels) === "available" ||
-    getTalentNodeState(node, qi, realm, realmLevel, talentLevels) === "partial";
+  if (node.path != null && path !== node.path) return false;
+  return getTalentNodeState(node, qi, realm, realmLevel, talentLevels, path) === "available" ||
+    getTalentNodeState(node, qi, realm, realmLevel, talentLevels, path) === "partial";
 }

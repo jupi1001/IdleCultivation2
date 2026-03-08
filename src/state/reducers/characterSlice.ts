@@ -684,6 +684,7 @@ export const characterSlice = createSlice({
     purchaseTalentLevel: (state, action: PayloadAction<number>) => {
       const node = TALENT_NODES_BY_ID[action.payload];
       if (!node) return;
+      if (node.path != null && state.path !== node.path) return;
       const currentLevel = state.talentLevels[node.id] ?? 0;
       if (currentLevel >= node.maxLevel) return;
       if (state.qi < node.costQi) return;

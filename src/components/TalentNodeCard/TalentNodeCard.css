@@ -81,6 +81,38 @@
   color: var(--text-muted);
 }
 
+.talentNodeCard__path {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 0.1rem 0.25rem;
+  border-radius: 3px;
+}
+
+.talentNodeCard__path--righteous {
+  background: rgba(76, 175, 80, 0.25);
+  color: #81c784;
+}
+
+.talentNodeCard__path--demonic {
+  background: rgba(244, 67, 54, 0.25);
+  color: #e57373;
+}
+
+.talentNodeCard--pathLocked .talentNodeCard__button {
+  opacity: 0.5;
+}
+
+.talentNodeCard__tooltip-path {
+  font-size: 0.8em;
+  margin-bottom: 0.25rem !important;
+  color: var(--accent) !important;
+}
+
 .talentNodeCard__tooltip {
   position: absolute;
   z-index: 100;

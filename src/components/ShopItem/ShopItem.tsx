@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addAttack, addDefense, addItem, reduceMoney } from "../../state/reducers/characterSlice";
 import { RootState } from "../../state/store";
-import { getOwnedTechniqueIds } from "../../state/selectors/characterSelectors";
+import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
 import Item from "../../interfaces/ItemI";
 import "./ShopItem.css";
 
@@ -16,17 +16,19 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
   const [stock, setStock] = useState(item.quantity);
 
   const money = useSelector((state: RootState) => state.character.money);
+  const shopDiscountPercent = useSelector(getTalentShopDiscountPercent);
   const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
   const dispatch = useDispatch();
+  const effectivePrice = Math.max(1, Math.floor(item.price * (1 - (shopDiscountPercent ?? 0) / 100)));
   const alreadyOwned = isEquipment && ownedTechniqueIds.has(item.id);
 
   const buy = useCallback(() => {
-    if (money < item.price) {
+    if (money < effectivePrice) {
       setMoneyMessage(true);
       return;
     }
     setMoneyMessage(false);
-    dispatch(reduceMoney(item.price));
+    dispatch(reduceMoney(effectivePrice));
 
     if (item.equipmentSlot) {
       dispatch(addItem({ ...item, quantity: 1 }));
@@ -46,7 +48,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
         dispatch(addItem(item));
         break;
     }
-  }, [dispatch, money, item]);
+  }, [dispatch, money, item, effectivePrice]);
 
   const showItem = isEquipment || stock > 0;
   const canBuy = !alreadyOwned;
@@ -57,7 +59,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
         <div className="shopitem__main">
           <h3>{item.name}</h3>
           <p>{item.description}</p>
-          <p>Cost: {item.price} Spirit Stones</p>
+          <p>Cost: {effectivePrice === item.price ? item.price : `${effectivePrice} (was ${item.price})`} Spirit Stones</p>
           {canBuy && <button onClick={buy}>Buy</button>}
           {alreadyOwned && <p className="shopitem__already">Already bought</p>}
           {moneyMessage && <h4>Not enough Spirit Stones</h4>}
