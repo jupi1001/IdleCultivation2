@@ -1,9 +1,11 @@
 /** Max gathering level (display and cap). */
-export const GATHERING_MAX_LEVEL = 99;
+export const GATHERING_MAX_LEVEL = 120;
 
-/** Backloaded curve (same shape as fishing): XP for L→L+1 = floor(BASE × L^EXP). */
-const XP_CURVE_BASE = 10;
+/** Backloaded curve. BASE tuned so 1→99 ~50h with current areas. */
+const XP_CURVE_BASE = 25;
 const XP_CURVE_EXPONENT = 1.25;
+/** So 99→120 ~3× as long as 1→99 (~150h). */
+const POST_99_XP_MULTIPLIER = 13.15;
 
 export function totalXpForLevel(level: number): number {
   if (level <= 1) return 0;
@@ -16,7 +18,8 @@ export function totalXpForLevel(level: number): number {
 
 export function xpRequiredForNextLevel(level: number): number {
   if (level >= GATHERING_MAX_LEVEL) return 0;
-  return Math.floor(XP_CURVE_BASE * Math.pow(level, XP_CURVE_EXPONENT));
+  const base = Math.floor(XP_CURVE_BASE * Math.pow(level, XP_CURVE_EXPONENT));
+  return level >= 99 ? Math.floor(base * POST_99_XP_MULTIPLIER) : base;
 }
 
 export interface GatheringLevelInfo {

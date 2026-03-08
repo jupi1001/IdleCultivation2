@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentActivity, setCurrentMiningArea } from "../../state/reducers/characterSlice";
 import "./MiningContainer.css";
@@ -25,6 +25,14 @@ const MiningContainer = () => {
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const isMining = currentActivity === "mine" && currentMiningArea != null;
   const progress = useCastProgress(miningCastStartTime, miningCastDuration);
+  const reincarnationCount = character.reincarnationCount ?? 0;
+  const areasVisible = useMemo(
+    () =>
+      miningAreaData.filter(
+        (area) => !area.requiresReincarnation || reincarnationCount >= 1
+      ),
+    [reincarnationCount]
+  );
 
   const startMining = (areaId: number, miningXP: number, miningDelay: number, miningLootId: number) => {
     dispatch(
@@ -66,9 +74,10 @@ const MiningContainer = () => {
         style={{ width: `${progress}%` }}
       />
       <div className="miningContainer__areas">
-      {miningAreaData.map((area, areaIndex) => {
-        const unlocked = character.miningXP >= area.miningXPUnlock;
-        const tier = getTierForMiningAreaIndex(areaIndex);
+      {areasVisible.map((area, areaIndex) => {
+        const reincarnationOk = !area.requiresReincarnation || reincarnationCount >= 1;
+        const unlocked = character.miningXP >= area.miningXPUnlock && reincarnationOk;
+        const tier = getTierForMiningAreaIndex(miningAreaData.indexOf(area));
         const setPieceIds = getSetPieceIds("mining", tier);
         const ore = oreTypes.find((o) => o.id === area.miningLootId);
         const lootEntries: LootTableEntry[] = ore

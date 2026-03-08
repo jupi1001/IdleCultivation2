@@ -3,8 +3,8 @@ import type Item from "../interfaces/ItemI";
 /** Base path for alchemy/pill images. Place images under public/assets/alchemy/ */
 export const ALCHEMY_ASSETS = "/assets/alchemy";
 
-/** Max display level in left-panel card (e.g. Level 5/99) */
-export const ALCHEMY_MAX_LEVEL = 99;
+/** Max display level in left-panel card (e.g. Level 5/120) */
+export const ALCHEMY_MAX_LEVEL = 120;
 
 /** Backloaded curve (generous for consumable skills + failure rate): XP for L→L+1 = floor(BASE × L^EXP). */
 const XP_CURVE_BASE = 4;
@@ -101,7 +101,7 @@ export interface AlchemyRecipeI {
   outputAmount: number;
 }
 
-/** Wood 601–608, herbs 611–622 (from gathering). */
+/** Wood 601–608, 609–610 (new); herbs 611–622, 623–626 (new). */
 const W = {
   oak: 601,
   bamboo: 602,
@@ -111,6 +111,8 @@ const W = {
   voidWillow: 606,
   dragonAsh: 607,
   celestialBamboo: 608,
+  ascendant: 609,
+  karmic: 610,
 };
 const H = {
   common: 611,
@@ -125,6 +127,10 @@ const H = {
   voidBloom: 620,
   celestialLotus: 621,
   transcendentHerb: 622,
+  ascendantHerb: 623,
+  karmicLotus: 624,
+  immortalRoot: 625,
+  daoFlower: 626,
 };
 
 export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
@@ -412,6 +418,83 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
       picture: `${ALCHEMY_ASSETS}/transcendent-vitality-pill.webp`,
       value: 10,
       effect: "vitality",
+    },
+    outputAmount: 1,
+  },
+  // Post-99 Qi pills (require reincarnation; use new herbs 623–626)
+  {
+    id: "qi-pill-11",
+    name: "Ascendant Qi Pill",
+    description: "Pill using Ascendant Spirit Herb. Requires reincarnation.",
+    recipeLevel: 36,
+    ingredients: [{ itemId: H.transcendentHerb, amount: 2 }, { itemId: H.ascendantHerb, amount: 1 }, { itemId: H.celestialLotus, amount: 1 }],
+    woodForFire: { itemId: W.ascendant, amount: 2 },
+    output: {
+      id: 715,
+      name: "Ascendant Qi Pill",
+      description: "Restores an immense amount of Qi. Ascendant grade. Requires reincarnation.",
+      price: 0,
+      quantity: 1,
+      picture: `${ALCHEMY_ASSETS}/ascendant-qi-pill.webp`,
+      value: 36,
+      effect: "qi",
+    },
+    outputAmount: 1,
+  },
+  {
+    id: "qi-pill-12",
+    name: "Karmic Qi Pill",
+    description: "Pill using Karmic Lotus Petal. Requires reincarnation.",
+    recipeLevel: 38,
+    ingredients: [{ itemId: H.ascendantHerb, amount: 2 }, { itemId: H.karmicLotus, amount: 1 }, { itemId: H.primordialRoot, amount: 1 }],
+    woodForFire: { itemId: W.karmic, amount: 2 },
+    output: {
+      id: 716,
+      name: "Karmic Qi Pill",
+      description: "Restores a vast amount of Qi. Karmic grade. Requires reincarnation.",
+      price: 0,
+      quantity: 1,
+      picture: `${ALCHEMY_ASSETS}/karmic-qi-pill.webp`,
+      value: 42,
+      effect: "qi",
+    },
+    outputAmount: 1,
+  },
+  {
+    id: "qi-pill-13",
+    name: "Immortal Qi Pill",
+    description: "Pill using Immortal Root. Requires reincarnation.",
+    recipeLevel: 40,
+    ingredients: [{ itemId: H.karmicLotus, amount: 2 }, { itemId: H.immortalRoot, amount: 1 }, { itemId: H.voidBloom, amount: 1 }],
+    woodForFire: { itemId: W.celestialBamboo, amount: 3 },
+    output: {
+      id: 717,
+      name: "Immortal Qi Pill",
+      description: "Restores a tremendous amount of Qi. Immortal grade. Requires reincarnation.",
+      price: 0,
+      quantity: 1,
+      picture: `${ALCHEMY_ASSETS}/immortal-qi-pill.webp`,
+      value: 48,
+      effect: "qi",
+    },
+    outputAmount: 1,
+  },
+  {
+    id: "qi-pill-14",
+    name: "Dao Essence Pill",
+    description: "Peak pill using Dao Essence Flower. Requires reincarnation.",
+    recipeLevel: 42,
+    ingredients: [{ itemId: H.immortalRoot, amount: 2 }, { itemId: H.daoFlower, amount: 1 }, { itemId: H.transcendentHerb, amount: 1 }],
+    woodForFire: { itemId: W.celestialBamboo, amount: 4 },
+    output: {
+      id: 718,
+      name: "Dao Essence Pill",
+      description: "The pinnacle of Qi pills. Dao grade. Requires reincarnation.",
+      price: 0,
+      quantity: 1,
+      picture: `${ALCHEMY_ASSETS}/dao-essence-pill.webp`,
+      value: 55,
+      effect: "qi",
     },
     outputAmount: 1,
   },
