@@ -157,6 +157,10 @@ interface CharacterState {
   totalKarmaEarned: number;
   /** Purchased levels for each karma bonus. */
   karmaBonusLevels: Partial<Record<KarmaBonusId, number>>;
+  /** Whether the player has purchased the Auto-Loot upgrade (persists through reincarnation). */
+  autoLootUnlocked: boolean;
+  /** When true, combat loot and spirit stones go straight to inventory on kill (persists through reincarnation). */
+  autoLoot: boolean;
 }
 
 /** Display-only summary for the Welcome Back modal (no item lists). */
@@ -228,6 +232,8 @@ const initialState: CharacterState = {
   karmaPoints: 0,
   totalKarmaEarned: 0,
   karmaBonusLevels: {},
+  autoLootUnlocked: false,
+  autoLoot: false,
 };
 
 export const characterSlice = createSlice({
@@ -850,6 +856,19 @@ export const characterSlice = createSlice({
       state.karmaPoints -= bonus.costPerLevel;
       state.karmaBonusLevels[action.payload] = currentLevel + 1;
     },
+    /** One-time purchase: unlock Auto-Loot for 500 spirit stones. Persists through reincarnation. */
+    purchaseAutoLootUnlock: (state) => {
+      if (state.autoLootUnlocked) return;
+      if (state.money < 500) return;
+      state.money -= 500;
+      state.autoLootUnlocked = true;
+      state.autoLoot = true;
+    },
+    /** Toggle Auto-Loot on/off (only when unlocked). Persists through reincarnation. */
+    setAutoLoot: (state, action: PayloadAction<boolean>) => {
+      if (!state.autoLootUnlocked) return;
+      state.autoLoot = action.payload;
+    },
   },
 });
 
@@ -907,6 +926,8 @@ export const {
   clearOfflineSummary,
   reincarnate,
   purchaseKarmaBonus,
+  purchaseAutoLootUnlock,
+  setAutoLoot,
 } = characterSlice.actions;
 
 export default characterSlice.reducer;

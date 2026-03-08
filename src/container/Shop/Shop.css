@@ -33,3 +33,9 @@
   gap: 1rem;
   justify-content: flex-start;
 }
+
+.shop__poor {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
