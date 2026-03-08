@@ -71,6 +71,66 @@ export const TALENT_TREE_TIERS: TalentTreeTier[] = [
       { id: 30, name: "Heaven's Blessing", description: "Righteous Qi sustains you further.", costQi: 1020, maxLevel: 3, requiredRealm: { realmId: "Soul Formation", realmLevel: 1 }, requiredTalentIds: [16], path: "Righteous" as CultivationPath, effect: { type: "vitality", value: 8 } },
     ],
   },
+  // ─── Tier 7: Void Refinement 1 ───
+  {
+    realmGate: { realmId: "Void Refinement", realmLevel: 1 },
+    nodes: [
+      { id: 31, name: "Void Hardening", description: "Void refines your body; defenses deepen.", costQi: 1500, maxLevel: 4, requiredRealm: { realmId: "Void Refinement", realmLevel: 1 }, requiredTalentIds: [14, 25], effect: { type: "defense", value: 6 } },
+      { id: 32, name: "Void Edge", description: "Strikes carry the weight of the void.", costQi: 1480, maxLevel: 4, requiredRealm: { realmId: "Void Refinement", realmLevel: 1 }, requiredTalentIds: [15, 25], effect: { type: "attack", value: 8 } },
+      { id: 33, name: "Void Meditation", description: "Qi drawn from the void flows faster.", costQi: 1400, maxLevel: 3, requiredRealm: { realmId: "Void Refinement", realmLevel: 1 }, requiredTalentIds: [10, 25], effect: { type: "qiGain", value: 0.4 } },
+      { id: 34, name: "Sacred Ward", description: "Righteous void reflects more harm.", costQi: 1600, maxLevel: 2, requiredRealm: { realmId: "Void Refinement", realmLevel: 1 }, requiredTalentIds: [28], path: "Righteous" as CultivationPath, effect: { type: "damageReflectPercent", value: 10 } },
+      { id: 35, name: "Void Hunger", description: "Demonic void drains more life.", costQi: 1550, maxLevel: 3, requiredRealm: { realmId: "Void Refinement", realmLevel: 1 }, requiredTalentIds: [17, 29], path: "Demonic" as CultivationPath, effect: { type: "lifestealPercent", value: 6 } },
+      { id: 36, name: "Void Coins", description: "Spirit stones resonate with the void.", costQi: 1450, maxLevel: 3, requiredRealm: { realmId: "Void Refinement", realmLevel: 1 }, requiredTalentIds: [25], effect: { type: "spiritStoneIncomePercent", value: 10 } },
+    ],
+  },
+  // ─── Tier 8: Body Integration 1 ───
+  {
+    realmGate: { realmId: "Body Integration", realmLevel: 1 },
+    nodes: [
+      { id: 37, name: "Integrated Form", description: "Body and spirit unified; vitality soars.", costQi: 2500, maxLevel: 5, requiredRealm: { realmId: "Body Integration", realmLevel: 1 }, requiredTalentIds: [31, 32], effect: { type: "vitality", value: 12 } },
+      { id: 38, name: "Integrated Strike", description: "Every blow carries integrated might.", costQi: 2400, maxLevel: 4, requiredRealm: { realmId: "Body Integration", realmLevel: 1 }, requiredTalentIds: [32], effect: { type: "attack", value: 10 } },
+      { id: 39, name: "Integrated Guard", description: "Defense becomes second nature.", costQi: 2380, maxLevel: 4, requiredRealm: { realmId: "Body Integration", realmLevel: 1 }, requiredTalentIds: [31], effect: { type: "defense", value: 8 } },
+      { id: 40, name: "Dao Heart", description: "Righteous integration amplifies Qi.", costQi: 2300, maxLevel: 3, requiredRealm: { realmId: "Body Integration", realmLevel: 1 }, requiredTalentIds: [33, 30], path: "Righteous" as CultivationPath, effect: { type: "qiGain", value: 0.5 } },
+      { id: 41, name: "Ruthless Integration", description: "Critical strikes devastate.", costQi: 2350, maxLevel: 3, requiredRealm: { realmId: "Body Integration", realmLevel: 1 }, requiredTalentIds: [27, 29], path: "Demonic" as CultivationPath, effect: { type: "critChancePercent", value: 6 } },
+      { id: 42, name: "Merchant's Fortune", description: "Wealth flows to the integrated.", costQi: 2200, maxLevel: 3, requiredRealm: { realmId: "Body Integration", realmLevel: 1 }, requiredTalentIds: [36, 26], effect: { type: "shopDiscountPercent", value: 6 } },
+    ],
+  },
+  // ─── Tier 9: Mahayana 1 ───
+  {
+    realmGate: { realmId: "Mahayana", realmLevel: 1 },
+    nodes: [
+      { id: 43, name: "Mahayana Vigor", description: "The great vehicle strengthens all.", costQi: 4000, maxLevel: 4, requiredRealm: { realmId: "Mahayana", realmLevel: 1 }, requiredTalentIds: [37], effect: { type: "vitality", value: 15 } },
+      { id: 44, name: "Mahayana Blade", description: "Combat transcends the mundane.", costQi: 3900, maxLevel: 4, requiredRealm: { realmId: "Mahayana", realmLevel: 1 }, requiredTalentIds: [38], effect: { type: "attack", value: 12 } },
+      { id: 45, name: "Mahayana Breath", description: "Qi rises like the great vehicle.", costQi: 3800, maxLevel: 4, requiredRealm: { realmId: "Mahayana", realmLevel: 1 }, requiredTalentIds: [33], effect: { type: "qiGain", value: 0.6 } },
+      { id: 46, name: "Bodhisattva's Shield", description: "Righteous compassion reflects evil.", costQi: 4100, maxLevel: 2, requiredRealm: { realmId: "Mahayana", realmLevel: 1 }, requiredTalentIds: [34, 40], path: "Righteous" as CultivationPath, effect: { type: "damageReflectPercent", value: 12 } },
+      { id: 47, name: "Asura's Fury", description: "Demonic double strikes tear through.", costQi: 3950, maxLevel: 3, requiredRealm: { realmId: "Mahayana", realmLevel: 1 }, requiredTalentIds: [29, 41], path: "Demonic" as CultivationPath, effect: { type: "aoeChancePercent", value: 20 } },
+      { id: 48, name: "Mahayana Bounty", description: "Spirit stones multiply on the path.", costQi: 3700, maxLevel: 3, requiredRealm: { realmId: "Mahayana", realmLevel: 1 }, requiredTalentIds: [36], effect: { type: "spiritStoneIncomePercent", value: 12 } },
+    ],
+  },
+  // ─── Tier 10: Tribulation Transcendent 1 ───
+  {
+    realmGate: { realmId: "Tribulation Transcendent", realmLevel: 1 },
+    nodes: [
+      { id: 49, name: "Transcendent Body", description: "Beyond tribulation, the body is reborn.", costQi: 6000, maxLevel: 5, requiredRealm: { realmId: "Tribulation Transcendent", realmLevel: 1 }, requiredTalentIds: [43, 39], effect: { type: "vitality", value: 18 } },
+      { id: 50, name: "Transcendent Strike", description: "Strikes carry transcendent power.", costQi: 5900, maxLevel: 4, requiredRealm: { realmId: "Tribulation Transcendent", realmLevel: 1 }, requiredTalentIds: [44], effect: { type: "attack", value: 15 } },
+      { id: 51, name: "Transcendent Qi", description: "Qi approaches the immortal threshold.", costQi: 5700, maxLevel: 4, requiredRealm: { realmId: "Tribulation Transcendent", realmLevel: 1 }, requiredTalentIds: [45], effect: { type: "qiGain", value: 0.8 } },
+      { id: 52, name: "Heaven's Retribution", description: "Righteous wrath reflects all harm.", costQi: 6200, maxLevel: 2, requiredRealm: { realmId: "Tribulation Transcendent", realmLevel: 1 }, requiredTalentIds: [46], path: "Righteous" as CultivationPath, effect: { type: "damageReflectPercent", value: 15 } },
+      { id: 53, name: "Demon Sovereign's Edge", description: "Crit and lifesteal reign.", costQi: 6050, maxLevel: 3, requiredRealm: { realmId: "Tribulation Transcendent", realmLevel: 1 }, requiredTalentIds: [41, 35], path: "Demonic" as CultivationPath, effect: { type: "lifestealPercent", value: 8 } },
+      { id: 54, name: "Transcendent Trade", description: "Vendors bow to transcendent presence.", costQi: 5600, maxLevel: 3, requiredRealm: { realmId: "Tribulation Transcendent", realmLevel: 1 }, requiredTalentIds: [42, 48], effect: { type: "shopDiscountPercent", value: 8 } },
+    ],
+  },
+  // ─── Tier 11: Immortal 1 (capstone) ───
+  {
+    realmGate: { realmId: "Immortal", realmLevel: 1 },
+    nodes: [
+      { id: 55, name: "Immortal Frame", description: "The immortal body knows no limit.", costQi: 10000, maxLevel: 5, requiredRealm: { realmId: "Immortal", realmLevel: 1 }, requiredTalentIds: [49], effect: { type: "vitality", value: 25 } },
+      { id: 56, name: "Immortal Blade", description: "Immortal will shapes the strike.", costQi: 9800, maxLevel: 5, requiredRealm: { realmId: "Immortal", realmLevel: 1 }, requiredTalentIds: [50], effect: { type: "attack", value: 20 } },
+      { id: 57, name: "Immortal Aegis", description: "Defense transcends mortality.", costQi: 9600, maxLevel: 5, requiredRealm: { realmId: "Immortal", realmLevel: 1 }, requiredTalentIds: [49], effect: { type: "defense", value: 15 } },
+      { id: 58, name: "Immortal Breath", description: "Qi flows without end.", costQi: 9500, maxLevel: 5, requiredRealm: { realmId: "Immortal", realmLevel: 1 }, requiredTalentIds: [51], effect: { type: "qiGain", value: 1 } },
+      { id: 59, name: "Eternal Righteousness", description: "Righteous path culminates.", costQi: 10200, maxLevel: 3, requiredRealm: { realmId: "Immortal", realmLevel: 1 }, requiredTalentIds: [52, 40], path: "Righteous" as CultivationPath, effect: { type: "vitality", value: 20 } },
+      { id: 60, name: "Eternal Demonic", description: "Demonic path culminates.", costQi: 10100, maxLevel: 3, requiredRealm: { realmId: "Immortal", realmLevel: 1 }, requiredTalentIds: [53, 47], path: "Demonic" as CultivationPath, effect: { type: "attack", value: 18 } },
+    ],
+  },
 ];
 
 // Populate lookup
