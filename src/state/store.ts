@@ -42,6 +42,20 @@ function migratePersistedState(state: unknown, _version: number): Promise<unknow
     if (c.npcFavor == null) c.npcFavor = {};
     if (c.realmDialogueUsed == null) c.realmDialogueUsed = {};
     if (c.cultivationPartner == null) c.cultivationPartner = null;
+    // Normalize legacy inventory (Item[]) to itemsById (Record<itemId, quantity>)
+    if (Array.isArray(c.items) && !c.itemsById) {
+      const itemsById: Record<number, number> = {};
+      for (const entry of c.items as { id: number; quantity?: number }[]) {
+        const id = entry?.id;
+        if (id != null) {
+          const qty = entry.quantity ?? 1;
+          itemsById[id] = (itemsById[id] ?? 0) + qty;
+        }
+      }
+      c.itemsById = itemsById;
+      delete c.items;
+    }
+    if (c.itemsById == null) c.itemsById = {};
   }
   if (!s.settings && char && typeof char === "object" && !Array.isArray(char)) {
     const c = char as Record<string, unknown>;

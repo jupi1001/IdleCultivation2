@@ -77,7 +77,23 @@ export interface CurrentGatheringArea extends RareDropFields {
   gatheringLootIds: number[];
 }
 
-/** Add or increment an item in an inventory array (Immer-compatible). */
+/** Add or increment quantity by item id (Immer-compatible). Use for normalized inventory. */
+function addQuantityById(itemsById: Record<number, number>, itemId: number, qty: number): void {
+  const prev = itemsById[itemId] ?? 0;
+  const next = prev + qty;
+  if (next <= 0) {
+    delete itemsById[itemId];
+  } else {
+    itemsById[itemId] = next;
+  }
+}
+
+/** Get quantity for item id from normalized inventory. */
+function getQuantity(itemsById: Record<number, number>, itemId: number): number {
+  return itemsById[itemId] ?? 0;
+}
+
+/** Add or increment an item in an inventory array (Immer-compatible). @deprecated Use addQuantityById with itemsById. */
 function upsertItem(items: Item[], item: Item, qty = 1) {
   const existing = items.find((i) => i.id === item.id);
   if (existing) {
@@ -114,7 +130,8 @@ interface CharacterState {
   health: number;
   money: number;
   miner: number;
-  items: Item[];
+  /** Normalized inventory: itemId → quantity. Resolve definitions from ITEMS_BY_ID. */
+  itemsById: Record<number, number>;
   fishingXP: number;
   realm: RealmId;
   realmLevel: number;
@@ -243,7 +260,7 @@ const initialState: CharacterState = {
   health: initialCombatStats.health,
   money: 500,
   miner: 0,
-  items: [],
+  itemsById: {},
   fishingXP: 0,
   realm: "Mortal",
   realmLevel: 0,
@@ -343,34 +360,28 @@ export const characterSlice = createSlice({
       state.miner = state.miner + action.payload;
     },
     addItem: (state, action: PayloadAction<Item>) => {
-      upsertItem(state.items, action.payload, action.payload.quantity ?? 1);
+      addQuantityById(state.itemsById, action.payload.id, action.payload.quantity ?? 1);
     },
     addItems: (state, action: PayloadAction<Item[]>) => {
-      action.payload.forEach((item) => upsertItem(state.items, item, item.quantity ?? 1));
+      action.payload.forEach((item) => addQuantityById(state.itemsById, item.id, item.quantity ?? 1));
     },
     removeItem: (state, action: PayloadAction<Item>) => {
       const { id } = action.payload;
-      const idx = state.items.findIndex((i) => i.id === id);
-      if (idx < 0) return;
-      const entry = state.items[idx];
-      const qty = entry.quantity ?? 1;
+      const qty = getQuantity(state.itemsById, id);
       if (qty <= 1) {
-        state.items.splice(idx, 1);
+        delete state.itemsById[id];
       } else {
-        entry.quantity = qty - 1;
+        state.itemsById[id] = qty - 1;
       }
     },
     /** Consume multiple items by id and amount. Caller must ensure sufficient quantity. */
     consumeItems: (state, action: PayloadAction<{ itemId: number; amount: number }[]>) => {
       action.payload.forEach(({ itemId, amount }) => {
-        const idx = state.items.findIndex((i) => i.id === itemId);
-        if (idx < 0) return;
-        const entry = state.items[idx];
-        const qty = entry.quantity ?? 1;
+        const qty = getQuantity(state.itemsById, itemId);
         if (qty <= amount) {
-          state.items.splice(idx, 1);
+          delete state.itemsById[itemId];
         } else {
-          entry.quantity = qty - amount;
+          state.itemsById[itemId] = qty - amount;
         }
       });
     },
@@ -387,17 +398,13 @@ export const characterSlice = createSlice({
     openGeodes: (state, action: PayloadAction<number>) => {
       const amount = Math.max(0, Math.floor(action.payload));
       if (amount <= 0) return;
-      const geodeEntry = state.items.find((i) => i.id === GEODE_ITEM_ID);
-      const have = geodeEntry ? (geodeEntry.quantity ?? 1) : 0;
+      const have = getQuantity(state.itemsById, GEODE_ITEM_ID);
       const toOpen = Math.min(amount, have);
       if (toOpen <= 0) return;
-      if (geodeEntry) {
-        const qty = (geodeEntry.quantity ?? 1) - toOpen;
-        if (qty <= 0) state.items.splice(state.items.indexOf(geodeEntry), 1);
-        else geodeEntry.quantity = qty;
-      }
+      addQuantityById(state.itemsById, GEODE_ITEM_ID, -toOpen);
       for (let i = 0; i < toOpen; i++) {
-        upsertItem(state.items, rollGemFromGeode());
+        const gem = rollGemFromGeode();
+        addQuantityById(state.itemsById, gem.id, 1);
       }
     },
     addFishingXP: (state, action: PayloadAction<number>) => {
@@ -497,15 +504,15 @@ export const characterSlice = createSlice({
       state.fishingXP += fishingXP;
       const randomId = fishingLootIds[Math.floor(Math.random() * fishingLootIds.length)];
       const fish = ITEMS_BY_ID[randomId];
-      if (fish) upsertItem(state.items, fish);
-      if (rareDropItem) upsertItem(state.items, rareDropItem);
+      if (fish) addQuantityById(state.itemsById, fish.id, 1);
+      if (rareDropItem) addQuantityById(state.itemsById, rareDropItem.id, 1);
       if (action.payload.skillingSetDropItem) {
         const piece = action.payload.skillingSetDropItem;
-        const inItems = state.items.some((i) => i.id === piece.id);
+        const inItems = getQuantity(state.itemsById, piece.id) > 0;
         const inEquip = (["helmet", "body", "legs", "shoes"] as const).some(
           (s) => state.equipment[s]?.id === piece.id
         );
-        if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
+        if (!inItems && !inEquip) addQuantityById(state.itemsById, piece.id, 1);
       }
       ensureStats(state);
       state.stats!.itemsGatheredFishing += 1 + (action.payload.rareDropItem ? 1 : 0) + (action.payload.skillingSetDropItem ? 1 : 0);
@@ -538,15 +545,15 @@ export const characterSlice = createSlice({
       const lootQty = Math.max(1, action.payload.lootQuantity ?? 1);
       state.miningXP += miningXP;
       const ore = ITEMS_BY_ID[miningLootId];
-      if (ore) upsertItem(state.items, ore, lootQty);
-      if (geodeDropped) upsertItem(state.items, GEODE_ITEM);
+      if (ore) addQuantityById(state.itemsById, ore.id, lootQty);
+      if (geodeDropped) addQuantityById(state.itemsById, GEODE_ITEM.id, 1);
       if (action.payload.skillingSetDropItem) {
         const piece = action.payload.skillingSetDropItem;
-        const inItems = state.items.some((i) => i.id === piece.id);
+        const inItems = getQuantity(state.itemsById, piece.id) > 0;
         const inEquip = (["helmet", "body", "legs", "shoes"] as const).some(
           (s) => state.equipment[s]?.id === piece.id
         );
-        if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
+        if (!inItems && !inEquip) addQuantityById(state.itemsById, piece.id, 1);
       }
       ensureStats(state);
       state.stats!.itemsGatheredMining += lootQty + (action.payload.geodeDropped ? 1 : 0) + (action.payload.skillingSetDropItem ? 1 : 0);
@@ -585,15 +592,15 @@ export const characterSlice = createSlice({
       state.gatheringXP += gatheringXP;
       const randomId = gatheringLootIds[Math.floor(Math.random() * gatheringLootIds.length)];
       const loot = ITEMS_BY_ID[randomId];
-      if (loot) upsertItem(state.items, loot);
-      if (rareDropItem) upsertItem(state.items, rareDropItem);
+      if (loot) addQuantityById(state.itemsById, loot.id, 1);
+      if (rareDropItem) addQuantityById(state.itemsById, rareDropItem.id, 1);
       if (action.payload.skillingSetDropItem) {
         const piece = action.payload.skillingSetDropItem;
-        const inItems = state.items.some((i) => i.id === piece.id);
+        const inItems = getQuantity(state.itemsById, piece.id) > 0;
         const inEquip = (["helmet", "body", "legs", "shoes"] as const).some(
           (s) => state.equipment[s]?.id === piece.id
         );
-        if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
+        if (!inItems && !inEquip) addQuantityById(state.itemsById, piece.id, 1);
       }
       ensureStats(state);
       state.stats!.itemsGatheredGathering += 1 + (action.payload.rareDropItem ? 1 : 0) + (action.payload.skillingSetDropItem ? 1 : 0);
@@ -602,29 +609,20 @@ export const characterSlice = createSlice({
       const { slot, item } = action.payload;
       const existing = state.equipment[slot];
       if (existing) {
-        const existingInBag = state.items.find((i) => i.id === existing.id);
-        if (existingInBag) {
-          existingInBag.quantity = (existingInBag.quantity ?? 1) + 1;
-        } else {
-          state.items.push({ ...existing, quantity: 1 });
-        }
+        addQuantityById(state.itemsById, existing.id, 1);
       }
       state.equipment[slot] = item;
-      const idx = state.items.findIndex((i) => i.id === item.id);
-      if (idx >= 0) {
-        const entry = state.items[idx];
-        const qty = entry.quantity ?? 1;
-        if (qty <= 1) {
-          state.items.splice(idx, 1);
-        } else {
-          entry.quantity = qty - 1;
-        }
+      const qty = getQuantity(state.itemsById, item.id);
+      if (qty <= 1) {
+        delete state.itemsById[item.id];
+      } else {
+        state.itemsById[item.id] = qty - 1;
       }
     },
     unequipItem: (state, action: PayloadAction<EquipmentSlot>) => {
       const item = state.equipment[action.payload];
       if (item) {
-        upsertItem(state.items, item);
+        addQuantityById(state.itemsById, item.id, 1);
         state.equipment[action.payload] = null;
       }
     },
@@ -713,25 +711,13 @@ export const characterSlice = createSlice({
     },
     createAvatar: (state, action: PayloadAction<{ name: string }>) => {
       if (state.money < AVATAR_CREATE_SPIRIT_STONES) return;
-      const oreEntry = state.items.find((i) => i.id === AVATAR_CREATE_ORE_ID);
-      const oreQty = oreEntry?.quantity ?? 0;
+      const oreQty = getQuantity(state.itemsById, AVATAR_CREATE_ORE_ID);
       if (oreQty < AVATAR_CREATE_ORE_AMOUNT) return;
-      const woodEntry = state.items.find((i) => i.id === AVATAR_CREATE_WOOD_ID);
-      const woodQty = woodEntry?.quantity ?? 0;
+      const woodQty = getQuantity(state.itemsById, AVATAR_CREATE_WOOD_ID);
       if (woodQty < AVATAR_CREATE_WOOD_AMOUNT) return;
       state.money -= AVATAR_CREATE_SPIRIT_STONES;
-      if (oreEntry) {
-        oreEntry.quantity = oreEntry.quantity - AVATAR_CREATE_ORE_AMOUNT;
-        if (oreEntry.quantity <= 0) {
-          state.items = state.items.filter((i) => i.id !== AVATAR_CREATE_ORE_ID);
-        }
-      }
-      if (woodEntry) {
-        woodEntry.quantity = woodEntry.quantity - AVATAR_CREATE_WOOD_AMOUNT;
-        if (woodEntry.quantity <= 0) {
-          state.items = state.items.filter((i) => i.id !== AVATAR_CREATE_WOOD_ID);
-        }
-      }
+      addQuantityById(state.itemsById, AVATAR_CREATE_ORE_ID, -AVATAR_CREATE_ORE_AMOUNT);
+      addQuantityById(state.itemsById, AVATAR_CREATE_WOOD_ID, -AVATAR_CREATE_WOOD_AMOUNT);
       const id = state.nextAvatarId++;
       state.avatars.push({
         id,
@@ -757,15 +743,11 @@ export const characterSlice = createSlice({
         avatar.power += 1;
       } else {
         const { itemId } = action.payload;
-        const entry = state.items.find((i) => i.id === itemId);
-        if (!entry || entry.effect !== "qi") return;
-        const qty = entry.quantity ?? 1;
+        const item = ITEMS_BY_ID[itemId];
+        if (!item || item.effect !== "qi") return;
+        const qty = getQuantity(state.itemsById, itemId);
         if (qty < AVATAR_TRAIN_QI_PILL_AMOUNT) return;
-        if (qty <= AVATAR_TRAIN_QI_PILL_AMOUNT) {
-          state.items = state.items.filter((i) => i.id !== itemId);
-        } else {
-          entry.quantity = qty - AVATAR_TRAIN_QI_PILL_AMOUNT;
-        }
+        addQuantityById(state.itemsById, itemId, -AVATAR_TRAIN_QI_PILL_AMOUNT);
         avatar.power += 1;
       }
     },
@@ -804,19 +786,19 @@ export const characterSlice = createSlice({
       state.money += Math.floor(p.offlineSpiritStones);
       if (p.fishing) {
         state.fishingXP += p.fishing.xp;
-        p.fishing.items.forEach((item) => upsertItem(state.items, item, item.quantity ?? 1));
+        p.fishing.items.forEach((item) => addQuantityById(state.itemsById, item.id, item.quantity ?? 1));
         state.fishingCastStartTime = null;
         state.fishingCastDuration = 0;
       }
       if (p.mining) {
         state.miningXP += p.mining.xp;
-        p.mining.items.forEach((item) => upsertItem(state.items, item, item.quantity ?? 1));
+        p.mining.items.forEach((item) => addQuantityById(state.itemsById, item.id, item.quantity ?? 1));
         state.miningCastStartTime = null;
         state.miningCastDuration = 0;
       }
       if (p.gathering) {
         state.gatheringXP += p.gathering.xp;
-        p.gathering.items.forEach((item) => upsertItem(state.items, item, item.quantity ?? 1));
+        p.gathering.items.forEach((item) => addQuantityById(state.itemsById, item.id, item.quantity ?? 1));
         state.gatheringCastStartTime = null;
         state.gatheringCastDuration = 0;
       }
@@ -881,7 +863,7 @@ export const characterSlice = createSlice({
       if (!item) return;
       state.sectQuestProgress[sectId] = 3;
       state.obtainedSectTreasureIds.push(itemId);
-      upsertItem(state.items, { ...item, quantity: 1 }, 1);
+      addQuantityById(state.itemsById, itemId, 1);
     },
     /** Add favor for an NPC (internal / from gift or dialogue). */
     addNpcFavor: (state, action: PayloadAction<{ sectId: number; npcId: number; amount: number }>) => {
@@ -958,18 +940,19 @@ export const characterSlice = createSlice({
         item.skillSet != null ||
         (item.id >= 981 && item.id <= 986);
 
-      const preservedItems: Item[] = [];
+      const preservedItemsById: Record<number, number> = {};
       const seenIds = new Set<number>();
-      for (const item of state.items) {
-        if (isUniqueItem(item) && !seenIds.has(item.id)) {
-          preservedItems.push({ ...item, quantity: 1 });
-          seenIds.add(item.id);
+      for (const itemId of Object.keys(state.itemsById).map(Number)) {
+        const item = ITEMS_BY_ID[itemId];
+        if (item && isUniqueItem(item) && !seenIds.has(itemId)) {
+          preservedItemsById[itemId] = 1;
+          seenIds.add(itemId);
         }
       }
       for (const slot of ALL_EQUIPMENT_SLOTS) {
         const eq = state.equipment[slot];
         if (eq && isUniqueItem(eq) && !seenIds.has(eq.id)) {
-          preservedItems.push({ ...eq, quantity: 1 });
+          preservedItemsById[eq.id] = 1;
           seenIds.add(eq.id);
         }
       }
@@ -985,7 +968,7 @@ export const characterSlice = createSlice({
       state.qi = 0;
       state.money = 500 + startingMoneyBonus;
       state.miner = 0;
-      state.items = preservedItems;
+      state.itemsById = preservedItemsById;
       state.equipment = ALL_EQUIPMENT_SLOTS.reduce(
         (acc, slot) => ({ ...acc, [slot]: null }),
         {} as Record<EquipmentSlot, Item | null>

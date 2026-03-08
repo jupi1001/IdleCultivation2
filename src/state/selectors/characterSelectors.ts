@@ -3,6 +3,7 @@ import type { RootState } from "../store";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { WEAKENED_STAT_MULTIPLIER } from "../reducers/characterSlice";
 import { canEnterCombatArea as canEnterCombatAreaRule } from "../../utils/contentRules";
+import { ITEMS_BY_ID } from "../../constants/data";
 import {
   SET_IDS,
   FULL_SET_SPEED_BONUS_PERCENT,
@@ -15,6 +16,25 @@ import {
 import { KARMA_BONUSES_BY_ID, type KarmaBonusId } from "../../constants/reincarnation";
 import { getTalentBonuses } from "../../constants/talents";
 import { getSectNpcById, getDualCultivationBonusPercent, type SectNpcI } from "../../constants/sectRelationships";
+import type Item from "../../interfaces/ItemI";
+
+/** Raw normalized inventory (itemId → quantity). Prefer selectItems for UI. */
+export const selectItemsById = (state: RootState) => state.character.itemsById;
+
+/** Resolved inventory as Item[] from itemsById + ITEMS_BY_ID. Use for components that expect item list. */
+export const selectItems = createSelector(
+  [selectItemsById],
+  (itemsById) => {
+    const result: Item[] = [];
+    for (const idStr of Object.keys(itemsById)) {
+      const id = Number(idStr);
+      const def = ITEMS_BY_ID[id];
+      const qty = itemsById[id] ?? 1;
+      if (def) result.push({ ...def, quantity: qty });
+    }
+    return result;
+  }
+);
 
 /** Sum equipment bonuses for combat stats. Sword & ring → attack; helmet, body & amulet → defense and vitality; combatTechnique & ring → attack speed; amulet → qiGainBonus. */
 function getEquipmentCombatBonuses(equipment: RootState["character"]["equipment"]) {
@@ -42,7 +62,7 @@ function getEquipmentCombatBonuses(equipment: RootState["character"]["equipment"
 
 /** Item ids the character owns that are techniques (qi or combat). Used to show "Already bought/owned" and to avoid duplicate technique drops. */
 export const getOwnedTechniqueIds = createSelector(
-  [(state: RootState) => state.character.items, (state: RootState) => state.character.equipment],
+  [selectItems, (state: RootState) => state.character.equipment],
   (items, equipment) => {
     const ids = new Set<number>();
     for (const item of items) {
@@ -56,7 +76,7 @@ export const getOwnedTechniqueIds = createSelector(
 
 /** Item ids the character owns that are rings or amulets. Used for "Possible loot" checkmark in fishing/gathering. */
 export const getOwnedRingAmuletIds = createSelector(
-  [(state: RootState) => state.character.items, (state: RootState) => state.character.equipment],
+  [selectItems, (state: RootState) => state.character.equipment],
   (items, equipment) => {
     const ids = new Set<number>();
     for (const item of items) {
@@ -70,7 +90,7 @@ export const getOwnedRingAmuletIds = createSelector(
 
 /** Item ids the character owns that are any skill set pieces (all 6 skills; for "Possible loot" and drop roll). */
 export const getOwnedSetPieceIds = createSelector(
-  [(state: RootState) => state.character.items, (state: RootState) => state.character.equipment],
+  [selectItems, (state: RootState) => state.character.equipment],
   (items, equipment) => {
     const ids = new Set<number>();
     const slots: EquipmentSlot[] = ["helmet", "body", "legs", "shoes"];
@@ -361,7 +381,6 @@ export const selectIsWeakened = (state: RootState) => state.character.isWeakened
 export const selectDeathPenaltyMode = (state: RootState) => state.settings.deathPenaltyMode;
 export const selectWeakenedMeditationSecondsDone = (state: RootState) => state.character.weakenedMeditationSecondsDone;
 export const selectEquipment = (state: RootState) => state.character.equipment;
-export const selectItems = (state: RootState) => state.character.items;
 export const selectCurrentFishingArea = (state: RootState) => state.character.currentFishingArea;
 export const selectFishingXP = (state: RootState) => state.character.fishingXP;
 export const selectCurrentMiningArea = (state: RootState) => state.character.currentMiningArea;

@@ -4,6 +4,7 @@ import type { CharSnapshot } from "../../constants/achievements";
 import { unlockAchievements } from "../reducers/achievementSlice";
 import { addToast } from "../reducers/toastSlice";
 import { addMoney } from "../reducers/characterSlice";
+import { selectItems } from "../selectors/characterSelectors";
 
 /**
  * Middleware that checks for newly unlocked achievements after every action
@@ -19,7 +20,7 @@ function shouldCheck(actionType: string): boolean {
   return !IGNORED_PREFIXES.some((p) => actionType.startsWith(p));
 }
 
-function buildSnapshot(char: Record<string, unknown>): CharSnapshot {
+function buildSnapshot(char: Record<string, unknown>, resolvedItems: CharSnapshot["items"]): CharSnapshot {
   return {
     realm: char.realm as CharSnapshot["realm"],
     realmLevel: char.realmLevel as number,
@@ -31,7 +32,7 @@ function buildSnapshot(char: Record<string, unknown>): CharSnapshot {
     alchemyXP: char.alchemyXP as number,
     forgingXP: char.forgingXP as number,
     cookingXP: char.cookingXP as number,
-    items: char.items as CharSnapshot["items"],
+    items: resolvedItems,
     equipment: char.equipment as CharSnapshot["equipment"],
     currentSectId: char.currentSectId as number | null,
     sectRankIndex: char.sectRankIndex as number,
@@ -57,7 +58,7 @@ export const achievementMiddleware: Middleware = (store) => (next) => (action) =
   const char = state.character;
   if (!char) return result;
 
-  const snapshot = buildSnapshot(char);
+  const snapshot = buildSnapshot(char, selectItems(state));
 
   const newlyUnlocked: string[] = [];
   for (const ach of ALL_ACHIEVEMENTS) {

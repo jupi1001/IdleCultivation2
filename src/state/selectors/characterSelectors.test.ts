@@ -25,7 +25,7 @@ function createMockState(character: Partial<RootState["character"]>): RootState 
     health: realmStats.health,
     money: 0,
     miner: 0,
-    items: [],
+    itemsById: {},
     fishingXP: 0,
     realm: "Mortal",
     realmLevel: 0,
