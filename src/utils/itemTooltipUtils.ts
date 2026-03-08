@@ -30,5 +30,9 @@ export function formatItemStats(item: Item): string {
     const skill = item.skillSet.charAt(0).toUpperCase() + item.skillSet.slice(1);
     lines.push(`${skill} speed: ${item.skillSpeedBonus > 0 ? "+" : ""}${item.skillSpeedBonus}%`);
   }
+  if (item.skillSet != null && item.skillXpBonus != null && item.skillXpBonus !== 0) {
+    const skill = item.skillSet.charAt(0).toUpperCase() + item.skillSet.slice(1);
+    lines.push(`${skill} XP: ${item.skillXpBonus > 0 ? "+" : ""}${item.skillXpBonus}%`);
+  }
   return lines.length > 0 ? lines.join("\n") : (item.description || item.name);
 }

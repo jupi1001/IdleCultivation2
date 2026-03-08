@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { addItem, consumeItems, addCookingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
+import { addToast } from "../../state/reducers/toastSlice";
 import {
   COOKING_RECIPES,
   getCookingLevelInfo,
@@ -10,6 +11,18 @@ import {
 } from "../../constants/cooking";
 import { fishTypes } from "../../constants/data";
 import { countItem } from "../../utils/inventory";
+import {
+  getOwnedCraftingSetPieceIds,
+  getCraftingSetCookingDoubleChancePercent,
+  getCraftingSetCookingXpPercent,
+} from "../../state/selectors/characterSelectors";
+import {
+  getCraftingSetItemById,
+  getCraftingSetPieceIds,
+  getTierForCookingRecipeLevel,
+  CRAFTING_SET_DROP_CHANCE_PERCENT,
+} from "../../constants/craftingSets";
+import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./CookingContainer.css";
 
 function getItemName(itemId: number, allItems: { id: number; name: string }[]): string {
@@ -27,6 +40,11 @@ export const CookingContainer = () => {
   const dispatch = useDispatch();
   const items = useSelector((state: RootState) => state.character.items);
   const cookingXP = useSelector((state: RootState) => state.character.cookingXP);
+  const doubleChance = useSelector(getCraftingSetCookingDoubleChancePercent);
+  const setXpBonus = useSelector(getCraftingSetCookingXpPercent);
+  const ownedCraftingSetIds = useSelector(getOwnedCraftingSetPieceIds);
+  const ownedCraftingSetRef = useRef<Set<number>>(new Set());
+  ownedCraftingSetRef.current = ownedCraftingSetIds;
   const { level: cookingLevel, xpInLevel, xpRequiredForNext: xpForNext } = getCookingLevelInfo(cookingXP);
 
   const allItemNames = useMemo(
@@ -39,11 +57,26 @@ export const CookingContainer = () => {
       if (!canCook(items, recipe)) return;
       const toConsume = recipe.ingredients.map(({ itemId, amount }) => ({ itemId, amount }));
       dispatch(consumeItems(toConsume));
-      dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
-      dispatch(addCookingXP(getCookingXP(recipe.recipeLevel)));
+      const doubleOutput = doubleChance > 0 && Math.random() * 100 < doubleChance;
+      const outputQty = doubleOutput ? recipe.outputAmount * 2 : recipe.outputAmount;
+      dispatch(addItem({ ...recipe.output, quantity: outputQty }));
+      const xpMult = 1 + setXpBonus / 100;
+      dispatch(addCookingXP(Math.max(1, Math.floor(getCookingXP(recipe.recipeLevel) * xpMult))));
       dispatch(recordItemCrafted("cooking"));
+
+      const tier = getTierForCookingRecipeLevel(recipe.recipeLevel);
+      const drop = rollOneTimeDrop(
+        ownedCraftingSetRef.current,
+        getCraftingSetPieceIds("cooking", tier),
+        CRAFTING_SET_DROP_CHANCE_PERCENT,
+        getCraftingSetItemById
+      );
+      if (drop) {
+        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
+      }
     },
-    [dispatch, items]
+    [dispatch, items, doubleChance, setXpBonus]
   );
 
   return (
