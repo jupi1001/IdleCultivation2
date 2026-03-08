@@ -4,6 +4,8 @@ import { RootState } from "../../state/store";
 import { equipItem, unequipItem } from "../../state/reducers/characterSlice";
 import { ALL_EQUIPMENT_SLOTS, EQUIPMENT_SLOT_LABELS } from "../../types/EquipmentSlot";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import { Tooltip } from "../Tooltip/Tooltip";
+import { formatItemStats } from "../../utils/itemTooltipUtils";
 import "./EquipmentPanel.css";
 
 export const EquipmentPanel = () => {
@@ -25,7 +27,9 @@ export const EquipmentPanel = () => {
             <div className="equipment-panel__slot">
               {equipped ? (
                 <>
-                  <span className="equipment-panel__item-name">{equipped.name}</span>
+                  <Tooltip content={formatItemStats(equipped)} placement="top" maxWidth={280}>
+                    <span className="equipment-panel__item-name">{equipped.name}</span>
+                  </Tooltip>
                   <button
                     type="button"
                     className="equipment-panel__unequip"

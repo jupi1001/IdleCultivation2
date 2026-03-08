@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { breakthrough, setCurrentActivity } from "../../state/reducers/characterSlice";
-import { formatRealm, getBreakthroughQiRequired, getNextRealm } from "../../constants/realmProgression";
+import { formatRealm, getBreakthroughQiRequired, getNextRealm, getBreakthroughStatGainText } from "../../constants/realmProgression";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import { getCharacterImage } from "../../constants/ui";
 import { getKarmaQiMultiplier, getTalentQiGainBonus } from "../../state/selectors/characterSelectors";
+import { Tooltip } from "../../components/Tooltip/Tooltip";
 import "./MeditationContainer.css";
 
 export const MeditationContainer = () => {
@@ -55,7 +56,11 @@ export const MeditationContainer = () => {
           Breakthrough!
         </div>
       )}
-      <p className="meditation-container__realm">{formatRealm(realm, realmLevel)}</p>
+      <p className="meditation-container__realm">
+        <Tooltip content={getBreakthroughStatGainText(realm, realmLevel)} placement="bottom">
+          <span>{formatRealm(realm, realmLevel)}</span>
+        </Tooltip>
+      </p>
       <div className="meditation-container__character">
         <img
           src={getCharacterImage(character.gender ?? "Male", "lotus")}

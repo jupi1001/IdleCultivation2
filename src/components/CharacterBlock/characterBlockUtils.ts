@@ -2,6 +2,7 @@ import type { RootState } from "../../state/store";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { createSelector } from "@reduxjs/toolkit";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
+import { getTalentBonuses } from "../../constants/talents";
 
 const EQUIPMENT_SLOT_LABELS: Partial<Record<EquipmentSlot, string>> = {
   sword: "Sword",
@@ -57,14 +58,19 @@ export const getAttackBreakdown = createSelector(
     (state: RootState) => state.character.attack,
     (state: RootState) => state.character.bonusAttack,
     getEquipmentBreakdownMemo,
+    (state: RootState) => getTalentBonuses(state.character.talentLevels ?? {}),
   ],
-  (attack, bonusAttack, { attackSources, attackMultiplier }): StatBreakdown => {
+  (attack, bonusAttack, { attackSources, attackMultiplier }, talentBonuses): StatBreakdown => {
     const base = attack + (bonusAttack ?? 0);
-    const flatAttack = base + attackSources.reduce((s, x) => s + x.value, 0);
+    const equipmentTotal = attackSources.reduce((s, x) => s + x.value, 0);
+    const talentTotal = talentBonuses.attack ?? 0;
+    const flatAttack = base + equipmentTotal + talentTotal;
     const total = Math.floor(flatAttack * attackMultiplier);
+    const sources = [...attackSources];
+    if (talentTotal !== 0) sources.push({ label: "Talents", value: talentTotal });
     return {
       base,
-      sources: attackSources,
+      sources,
       multiplier: attackMultiplier !== 1 ? attackMultiplier : undefined,
       total,
     };
@@ -76,13 +82,18 @@ export const getDefenseBreakdown = createSelector(
     (state: RootState) => state.character.defense,
     (state: RootState) => state.character.bonusDefense,
     getEquipmentBreakdownMemo,
+    (state: RootState) => getTalentBonuses(state.character.talentLevels ?? {}),
   ],
-  (defense, bonusDefense, { defenseSources }): StatBreakdown => {
+  (defense, bonusDefense, { defenseSources }, talentBonuses): StatBreakdown => {
     const base = defense + (bonusDefense ?? 0);
-    const total = base + defenseSources.reduce((s, x) => s + x.value, 0);
+    const equipmentTotal = defenseSources.reduce((s, x) => s + x.value, 0);
+    const talentTotal = talentBonuses.defense ?? 0;
+    const total = base + equipmentTotal + talentTotal;
+    const sources = [...defenseSources];
+    if (talentTotal !== 0) sources.push({ label: "Talents", value: talentTotal });
     return {
       base,
-      sources: defenseSources,
+      sources,
       total,
     };
   }
@@ -93,13 +104,18 @@ export const getHealthBreakdown = createSelector(
     (state: RootState) => state.character.health,
     (state: RootState) => state.character.bonusHealth,
     getEquipmentBreakdownMemo,
+    (state: RootState) => getTalentBonuses(state.character.talentLevels ?? {}),
   ],
-  (health, bonusHealth, { vitalitySources }): StatBreakdown => {
+  (health, bonusHealth, { vitalitySources }, talentBonuses): StatBreakdown => {
     const base = health + (bonusHealth ?? 0);
-    const total = base + vitalitySources.reduce((s, x) => s + x.value, 0);
+    const equipmentTotal = vitalitySources.reduce((s, x) => s + x.value, 0);
+    const talentTotal = talentBonuses.vitality ?? 0;
+    const total = base + equipmentTotal + talentTotal;
+    const sources = [...vitalitySources];
+    if (talentTotal !== 0) sources.push({ label: "Talents", value: talentTotal });
     return {
       base,
-      sources: vitalitySources,
+      sources,
       total,
     };
   }
@@ -118,10 +134,11 @@ export function formatStatBreakdown(b: StatBreakdown, statName: string): string 
   return lines.join("\n");
 }
 
-/** Qi tooltip: current Qi and Qi/s when meditating (base + technique + amulet). */
+/** Qi tooltip: current Qi and Qi/s when meditating (base + technique + amulet + talents). */
 export function getQiBreakdown(state: RootState): string {
   const { character } = state;
   const eq = character.equipment;
+  const talentBonuses = getTalentBonuses(character.talentLevels ?? {});
   const currentQi = Math.round(character.qi * 100) / 100;
   const lines: string[] = [];
   lines.push(`Current Qi: ${currentQi}`);
@@ -134,6 +151,11 @@ export function getQiBreakdown(state: RootState): string {
   if (eq.amulet?.qiGainBonus != null && eq.amulet.qiGainBonus !== 0) {
     qiPerSec += eq.amulet.qiGainBonus;
     parts.push(`${eq.amulet.name}: +${eq.amulet.qiGainBonus}`);
+  }
+  const talentQi = talentBonuses.qiGain ?? 0;
+  if (talentQi !== 0) {
+    qiPerSec += talentQi;
+    parts.push(`Talents: +${talentQi}`);
   }
   const qiPerSecRounded = Math.round(qiPerSec * 10) / 10;
   lines.push(`Qi/s when meditating: ${qiPerSecRounded}`);

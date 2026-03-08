@@ -4,6 +4,8 @@ import { addItem, reduceMoney } from "../../state/reducers/characterSlice";
 import { RootState } from "../../state/store";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
 import type { SectStoreEntryI } from "../../constants/data";
+import { Tooltip } from "../Tooltip/Tooltip";
+import { formatItemStats } from "../../utils/itemTooltipUtils";
 import "./SectStoreItem.css";
 
 interface SectStoreItemProps {
@@ -38,7 +40,9 @@ export const SectStoreItem: React.FC<SectStoreItemProps> = ({ entry, locked, req
 
   return (
     <div className={`sectStoreItem ${locked ? "sectStoreItem--locked" : ""}`}>
-      <h4 className="sectStoreItem__name">{item.name}</h4>
+      <Tooltip content={formatItemStats(item)} placement="top" maxWidth={280}>
+        <h4 className="sectStoreItem__name">{item.name}</h4>
+      </Tooltip>
       {sectName != null && (
         <p className="sectStoreItem__from">From: {sectName}</p>
       )}

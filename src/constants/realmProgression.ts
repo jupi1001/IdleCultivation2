@@ -83,3 +83,23 @@ export function getCombatStatsFromRealm(
     health: 10 + step * 3,
   };
 }
+
+/** Text for realm tooltip: stat gains on next breakthrough (e.g. "Next: +2 Attack, +1 Defense, +3 Vitality"). */
+export function getBreakthroughStatGainText(
+  realmId: RealmId,
+  realmLevel: number
+): string {
+  const next = getNextRealm(realmId, realmLevel);
+  if (!next) return "Max realm reached.";
+  const current = getCombatStatsFromRealm(realmId, realmLevel);
+  const nextStats = getCombatStatsFromRealm(next.realmId, next.realmLevel);
+  const parts: string[] = [];
+  const dAttack = nextStats.attack - current.attack;
+  const dDefense = nextStats.defense - current.defense;
+  const dHealth = nextStats.health - current.health;
+  if (dAttack !== 0) parts.push(`${dAttack > 0 ? "+" : ""}${dAttack} Attack`);
+  if (dDefense !== 0) parts.push(`${dDefense > 0 ? "+" : ""}${dDefense} Defense`);
+  if (dHealth !== 0) parts.push(`${dHealth > 0 ? "+" : ""}${dHealth} Vitality`);
+  if (parts.length === 0) return formatRealm(next.realmId, next.realmLevel);
+  return `Next breakthrough (${formatRealm(next.realmId, next.realmLevel)}): ${parts.join(", ")}`;
+}

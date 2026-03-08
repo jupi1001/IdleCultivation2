@@ -10,6 +10,8 @@ import {
   getQiBreakdown,
   formatStatBreakdown,
 } from "./characterBlockUtils";
+import { Tooltip } from "../Tooltip/Tooltip";
+import { getBreakthroughStatGainText } from "../../constants/realmProgression";
 import "./CharacterBlock.css";
 
 export const CharacterBlock = () => {
@@ -22,7 +24,11 @@ export const CharacterBlock = () => {
 
   return (
     <div className="app__characterBlock">
-      <h2>Realm: {formatRealm(character.realm, character.realmLevel)}</h2>
+      <h2>
+        <Tooltip content={getBreakthroughStatGainText(character.realm, character.realmLevel)} placement="bottom">
+          <span>Realm: {formatRealm(character.realm, character.realmLevel)}</span>
+        </Tooltip>
+      </h2>
       {character.path != null && (
         <p className="app__characterBlock-path">Path: {character.path}</p>
       )}
