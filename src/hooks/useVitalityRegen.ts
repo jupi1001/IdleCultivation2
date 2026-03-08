@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { regenerateVitality } from "../state/reducers/characterSlice";
+import { regenerateVitality } from "../state/reducers/combatSlice";
 import { getEffectiveCombatStats, selectCurrentHealth } from "../state/selectors/characterSelectors";
 
 const REGEN_INTERVAL_MS = 10_000;

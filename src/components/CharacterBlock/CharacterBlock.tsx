@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { formatRealm } from "../../constants/realmProgression";
 import { getBreakthroughStatGainText } from "../../constants/realmProgression";
-import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/characterSlice";
+import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/combatSlice";
 import {
   getEffectiveCombatStats,
   selectRealm,

@@ -11,8 +11,8 @@ import { ContentArea } from "../../enum/ContentArea";
 import { getCombatStatsFromRealm } from "../../constants/realmProgression";
 import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
 
-/** Build minimal RootState for selector tests. Only character is fully shaped; other slices are minimal. */
-function createMockState(character: Partial<RootState["character"]>): RootState {
+/** Build minimal RootState for selector tests. Only character and combat are fully shaped; other slices are minimal. */
+function createMockState(character: Partial<RootState["character"]>, combat?: Partial<RootState["combat"]>): RootState {
   const realmStats = getCombatStatsFromRealm("Mortal", 0);
   const equipment = ALL_EQUIPMENT_SLOTS.reduce(
     (acc, slot) => ({ ...acc, [slot]: null }),
@@ -63,7 +63,6 @@ function createMockState(character: Partial<RootState["character"]>): RootState 
     bonusAttack: 0,
     bonusDefense: 0,
     bonusHealth: 0,
-    currentHealth: realmStats.health,
     lastActiveTimestamp: 0,
     lastOfflineSummary: null,
     sectQuestProgress: {},
@@ -72,8 +71,6 @@ function createMockState(character: Partial<RootState["character"]>): RootState 
     npcFavor: {},
     realmDialogueUsed: {},
     cultivationPartner: null,
-    isWeakened: false,
-    weakenedMeditationSecondsDone: 0,
     stats: {
       enemiesKilledByArea: {},
       itemsGatheredFishing: 0,
@@ -89,6 +86,11 @@ function createMockState(character: Partial<RootState["character"]>): RootState 
       itemsCraftedCooking: 0,
       deaths: 0,
     },
+  };
+  const defaultCombat: RootState["combat"] = {
+    currentHealth: realmStats.health,
+    isWeakened: false,
+    weakenedMeditationSecondsDone: 0,
   };
   const defaultSettings = {
     notificationPrefs: {
@@ -114,6 +116,7 @@ function createMockState(character: Partial<RootState["character"]>): RootState 
   };
   const state = {
     character: { ...baseCharacter, ...character },
+    combat: { ...defaultCombat, ...combat },
     settings: defaultSettings,
     reincarnation: defaultReincarnation,
     content: { route: { type: "map" as const } },
@@ -136,12 +139,10 @@ describe("characterSelectors", () => {
     });
 
     it("applies weakened multiplier when isWeakened and deathPenaltyMode normal", () => {
-      const state = createMockState({
-        isWeakened: true,
-        attack: 20,
-        defense: 10,
-        health: 30,
-      });
+      const state = createMockState(
+        { attack: 20, defense: 10, health: 30 },
+        { isWeakened: true }
+      );
       const stats = getEffectiveCombatStats(state);
       expect(stats.attack).toBe(10); // 0.5 * 20
       expect(stats.defense).toBe(5);

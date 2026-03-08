@@ -15,7 +15,7 @@ import { getTalentBonuses } from "../../constants/talents";
 import type Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { canEnterCombatArea as canEnterCombatAreaRule } from "../../utils/contentRules";
-import { WEAKENED_STAT_MULTIPLIER } from "../reducers/characterSlice";
+import { WEAKENED_STAT_MULTIPLIER } from "../reducers/combatSlice";
 import type { RootState } from "../store";
 
 /** Raw normalized inventory (itemId → quantity). Prefer selectItems for UI. */
@@ -174,7 +174,7 @@ export const getEffectiveCombatStats = createSelector(
     (state: RootState) => state.character.equipment,
     (state: RootState) => state.reincarnation.karmaBonusLevels,
     (state: RootState) => state.settings.deathPenaltyMode,
-    (state: RootState) => state.character.isWeakened,
+    (state: RootState) => state.combat.isWeakened,
     getTalentBonusesSelector,
   ],
   (attack, defense, health, bonusAttack, bonusDefense, bonusHealth, equipment, karmaBonusLevels, deathPenaltyMode, isWeakened, talentBonuses) => {
@@ -379,12 +379,12 @@ export const selectRealm = (state: RootState) => state.character.realm;
 export const selectRealmLevel = (state: RootState) => state.character.realmLevel;
 export const selectPath = (state: RootState) => state.character.path;
 export const selectQi = (state: RootState) => state.character.qi;
-export const selectCurrentHealth = (state: RootState) => state.character.currentHealth;
+export const selectCurrentHealth = (state: RootState) => state.combat.currentHealth;
 export const selectMoney = (state: RootState) => state.character.money;
 export const selectCurrentActivity = (state: RootState) => state.character.currentActivity;
-export const selectIsWeakened = (state: RootState) => state.character.isWeakened;
+export const selectIsWeakened = (state: RootState) => state.combat.isWeakened;
 export const selectDeathPenaltyMode = (state: RootState) => state.settings.deathPenaltyMode;
-export const selectWeakenedMeditationSecondsDone = (state: RootState) => state.character.weakenedMeditationSecondsDone;
+export const selectWeakenedMeditationSecondsDone = (state: RootState) => state.combat.weakenedMeditationSecondsDone;
 export const selectEquipment = (state: RootState) => state.character.equipment;
 export const selectCurrentFishingArea = (state: RootState) => state.character.currentFishingArea;
 export const selectFishingXP = (state: RootState) => state.character.fishingXP;

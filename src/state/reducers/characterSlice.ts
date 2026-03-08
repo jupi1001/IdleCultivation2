@@ -34,10 +34,10 @@ import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
 import { reincarnationSlice } from "./reincarnationSlice";
 import { settingsSlice } from "./settingsSlice";
 
-/** Seconds of meditation required to clear weakened state after death (normal mode). */
+/** Seconds of meditation required to clear weakened state after death (normal mode). Moved to combatSlice; re-exported here for backward compat. */
 export const WEAKENED_MEDITATION_SECONDS = 30;
 
-/** Stat multiplier when weakened (e.g. 0.5 = 50% attack/defense/health). */
+/** Stat multiplier when weakened (e.g. 0.5 = 50% attack/defense/health). Moved to combatSlice; re-exported here for backward compat. */
 export const WEAKENED_STAT_MULTIPLIER = 0.5;
 
 /** Payload for applyOfflineProgress (matches OfflineProgressResult from utils/offlineProgress). */
@@ -190,8 +190,7 @@ interface CharacterState {
   bonusDefense: number;
   /** Permanent bonus to max vitality/health from consumables/shop */
   bonusHealth: number;
-  /** Current vitality (HP); persists between combats. Capped by effective max (realm + equipment + bonus). */
-  currentHealth: number;
+  /** Current vitality (HP) lives in combat slice. */
   /** Last time the game was active (ms). 0 = never set. Used for offline progress. */
   lastActiveTimestamp: number;
   /** After applying offline progress, summary to show in Welcome Back modal; null after dismiss. */
@@ -210,10 +209,7 @@ interface CharacterState {
   /** Current dual cultivation partner (sect + npc). Not reset on reincarnation. */
   cultivationPartner: { sectId: number; npcId: number } | null;
   /** Death penalty mode lives in settings slice. */
-  /** After death (normal mode): true until player meditates for required seconds. */
-  isWeakened: boolean;
-  /** Seconds meditated while weakened; when >= WEAKENED_MEDITATION_SECONDS, weakened clears. */
-  weakenedMeditationSecondsDone: number;
+  /** Weakened state lives in combat slice. */
   /** Lifetime statistics (persisted). */
   stats: CharacterStats;
 }
@@ -298,7 +294,6 @@ const initialState: CharacterState = {
   bonusAttack: 0,
   bonusDefense: 0,
   bonusHealth: 0,
-  currentHealth: initialCombatStats.health,
   lastActiveTimestamp: 0,
   lastOfflineSummary: null,
   sectQuestProgress: {},
@@ -307,8 +302,6 @@ const initialState: CharacterState = {
   npcFavor: {},
   realmDialogueUsed: {},
   cultivationPartner: null,
-  isWeakened: false,
-  weakenedMeditationSecondsDone: 0,
   stats: {
     enemiesKilledByArea: {},
     itemsGatheredFishing: 0,
@@ -434,10 +427,11 @@ export const characterSlice = createSlice({
       state.attack = stats.attack;
       state.defense = stats.defense;
       state.health = stats.health;
-      state.currentHealth = stats.health;
     },
-    breakthrough: (state) => {
-      const next = getNextRealm(state.realm, state.realmLevel);
+    /** Payload is the new realm after breakthrough (so combat slice can sync currentHealth). */
+    breakthrough: (state, action: PayloadAction<{ nextRealmId: RealmId; nextRealmLevel: number } | undefined>) => {
+      const payload = action.payload;
+      const next = payload ? { realmId: payload.nextRealmId, realmLevel: payload.nextRealmLevel } : getNextRealm(state.realm, state.realmLevel);
       if (next) {
         ensureStats(state);
         const requiredQi = getBreakthroughQiRequired(state.realm, state.realmLevel);
@@ -448,18 +442,10 @@ export const characterSlice = createSlice({
         state.attack = stats.attack;
         state.defense = stats.defense;
         state.health = stats.health;
-        state.currentHealth = stats.health;
         state.stats!.totalBreakthroughs += 1;
         const step = getStepIndex(next.realmId, next.realmLevel);
         if (step > state.stats!.highestRealmStep) state.stats!.highestRealmStep = step;
       }
-    },
-    setCurrentHealth: (state, action: PayloadAction<number>) => {
-      state.currentHealth = Math.max(0, action.payload);
-    },
-    regenerateVitality: (state, action: PayloadAction<{ amount: number; maxHealth: number }>) => {
-      const { amount, maxHealth } = action.payload;
-      state.currentHealth = Math.min(maxHealth, state.currentHealth + amount);
     },
     setCurrentActivity: (state, action: PayloadAction<ActivityType>) => {
       state.currentActivity = action.payload;
@@ -905,20 +891,6 @@ export const characterSlice = createSlice({
       const current = state.npcFavor[key] ?? 0;
       state.npcFavor[key] = Math.min(100, current + 1);
     },
-    /** Set weakened state (e.g. on death in normal mode). */
-    setWeakened: (state, action: PayloadAction<boolean>) => {
-      state.isWeakened = action.payload;
-      if (!action.payload) state.weakenedMeditationSecondsDone = 0;
-    },
-    /** While meditating and weakened, call every second; clears weakened when done. Caller passes deathPenaltyMode from settings. */
-    tickWeakenedRecovery: (state, action: PayloadAction<{ seconds: number; deathPenaltyMode: "normal" | "casual" }>) => {
-      if (!state.isWeakened || action.payload.deathPenaltyMode !== "normal") return;
-      state.weakenedMeditationSecondsDone += action.payload.seconds;
-      if (state.weakenedMeditationSecondsDone >= WEAKENED_MEDITATION_SECONDS) {
-        state.isWeakened = false;
-        state.weakenedMeditationSecondsDone = 0;
-      }
-    },
     recordEnemyKill: (state, action: PayloadAction<string>) => {
       ensureStats(state);
       const area = action.payload;
@@ -973,7 +945,6 @@ export const characterSlice = createSlice({
       state.attack = stats.attack;
       state.defense = stats.defense;
       state.health = stats.health;
-      state.currentHealth = stats.health;
       state.qi = 0;
       state.money = 500 + startingMoneyBonus;
       state.miner = 0;
@@ -1015,14 +986,6 @@ export const characterSlice = createSlice({
       state.gatheringCastId = 0;
       state.lastActiveTimestamp = Date.now();
       state.lastOfflineSummary = null;
-      state.isWeakened = false;
-      state.weakenedMeditationSecondsDone = 0;
-    });
-    builder.addCase(settingsSlice.actions.setDeathPenaltyMode, (state, action) => {
-      if (action.payload === "casual") {
-        state.isWeakened = false;
-        state.weakenedMeditationSecondsDone = 0;
-      }
     });
   },
 });
@@ -1052,8 +1015,6 @@ export const {
   setQi,
   setRealm,
   breakthrough,
-  setCurrentHealth,
-  regenerateVitality,
   setCurrentActivity,
   setCurrentFishingArea,
   setFishingCast,
@@ -1088,8 +1049,6 @@ export const {
   useRealmDialogue,
   setCultivationPartner,
   giftNpc,
-  setWeakened,
-  tickWeakenedRecovery,
   recordEnemyKill,
   recordDeath,
   recordItemCrafted,

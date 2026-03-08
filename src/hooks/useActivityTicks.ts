@@ -39,8 +39,8 @@ import {
   setGatheringCast,
   setMiningCast,
   setLastActiveTimestamp,
-  tickWeakenedRecovery,
 } from "../state/reducers/characterSlice";
+import { tickWeakenedRecovery } from "../state/reducers/combatSlice";
 import { addToast } from "../state/reducers/toastSlice";
 import {
   getSkillSpeedBonusFishing,

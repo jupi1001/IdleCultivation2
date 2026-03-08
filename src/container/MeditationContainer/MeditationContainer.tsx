@@ -7,7 +7,7 @@ import { formatRealm, getBreakthroughQiRequired, getNextRealm, getBreakthroughSt
 import { SECT_NPCS_BY_SECT, DUAL_CULTIVATION_MIN_FAVOR } from "../../constants/sectRelationships";
 import { getCharacterImage } from "../../constants/ui";
 import { breakthrough, setCurrentActivity, setCultivationPartner } from "../../state/reducers/characterSlice";
-import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/characterSlice";
+import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/combatSlice";
 import { getKarmaQiMultiplier, getTalentQiGainBonus, getCultivationPartnerInfo } from "../../state/selectors/characterSelectors";
 import {
   selectRealm,
@@ -68,9 +68,9 @@ export const MeditationContainer = () => {
   };
 
   const handleBreakthrough = () => {
-    if (!canBreakthrough) return;
+    if (!canBreakthrough || !nextRealm) return;
     setCelebrating(true);
-    dispatch(breakthrough());
+    dispatch(breakthrough({ nextRealmId: nextRealm.realmId, nextRealmLevel: nextRealm.realmLevel }));
     setTimeout(() => setCelebrating(false), 2600);
   };
 

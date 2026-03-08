@@ -3,6 +3,7 @@
  * Runs after per-slice migrations. Use for one-time moves between slices (e.g. extract from character).
  */
 
+import { getCombatStatsFromRealm } from "../../constants/realmProgression";
 import { DEFAULT_NOTIFICATION_PREFS, DEFAULT_SOUND_VOLUME } from "./characterMigrations";
 
 export type GlobalMigrator = (rootState: Record<string, unknown>) => void;
@@ -51,7 +52,26 @@ const extractReincarnationFromCharacter: GlobalMigrator = (rootState) => {
   }
 };
 
+/** v3: Ensure combat slice exists (extracted from character in Task 1). Migrate currentHealth/isWeakened from character if present. */
+const ensureCombatSlice: GlobalMigrator = (rootState) => {
+  if (rootState.combat != null && typeof rootState.combat === "object") return;
+  const char = rootState.character;
+  const c = char && typeof char === "object" && !Array.isArray(char) ? (char as Record<string, unknown>) : null;
+  const initialHealth = getCombatStatsFromRealm("Mortal", 0).health;
+  rootState.combat = {
+    currentHealth: (c?.currentHealth as number) ?? initialHealth,
+    isWeakened: (c?.isWeakened as boolean) ?? false,
+    weakenedMeditationSecondsDone: (c?.weakenedMeditationSecondsDone as number) ?? 0,
+  };
+  if (c) {
+    delete c.currentHealth;
+    delete c.isWeakened;
+    delete c.weakenedMeditationSecondsDone;
+  }
+};
+
 export const globalMigrations: readonly GlobalMigrator[] = [
   extractSettingsFromCharacter,
   extractReincarnationFromCharacter,
+  ensureCombatSlice,
 ];

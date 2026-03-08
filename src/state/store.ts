@@ -8,6 +8,7 @@ import { toastNotificationPrefsMiddleware } from "./middleware/toastNotification
 import { runMigrations } from "./migrations";
 import achievementReducer from "./reducers/achievementSlice";
 import characterReducer from "./reducers/characterSlice";
+import combatReducer from "./reducers/combatSlice";
 import contentReducer from "./reducers/contentSlice";
 import logReducer from "./reducers/logSlice";
 import reincarnationReducer from "./reducers/reincarnationSlice";
@@ -23,12 +24,13 @@ const persistConfig = {
   key: "idle-cultivation",
   version: 3,
   storage,
-  whitelist: ["character", "settings", "reincarnation", "content", "achievements"],
+  whitelist: ["character", "combat", "settings", "reincarnation", "content", "achievements"],
   migrate: migratePersistedState as never,
 };
 
 const rootReducer = combineReducers({
   character: characterReducer,
+  combat: combatReducer,
   settings: settingsReducer,
   reincarnation: reincarnationReducer,
   content: contentReducer,
