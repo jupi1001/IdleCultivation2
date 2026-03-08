@@ -12,98 +12,16 @@ import { toastLevelUpMiddleware } from "./middleware/toastLevelUpMiddleware";
 import { toastNotificationPrefsMiddleware } from "./middleware/toastNotificationPrefsMiddleware";
 import { achievementMiddleware } from "./middleware/achievementMiddleware";
 import { logMiddleware } from "./middleware/logMiddleware";
-import { parseLegacyPage } from "./types/contentRoute";
+import { runMigrations } from "./migrations";
 
-const DEFAULT_NOTIFICATION_PREFS = {
-  toastsEnabled: true,
-  levelUp: true,
-  rareDrop: true,
-  achievement: true,
-  expedition: true,
-};
-
-const DEFAULT_SOUND_VOLUME = { music: 100, sfx: 100 };
-
-/** Ensure old saves get defaults for new character fields and migrate settings/reincarnation out of character. */
+/** redux-persist migrate callback: runs per-slice migrations then global migrations. */
 function migratePersistedState(state: unknown, _version: number): Promise<unknown> {
-  if (!state || typeof state !== "object") return Promise.resolve(state);
-  const s = state as Record<string, unknown>;
-  const char = s.character;
-  if (char && typeof char === "object" && !Array.isArray(char)) {
-    const c = char as Record<string, unknown>;
-    if (!c.notificationPrefs) c.notificationPrefs = { ...DEFAULT_NOTIFICATION_PREFS };
-    if (!c.soundVolume) c.soundVolume = { ...DEFAULT_SOUND_VOLUME };
-    if (c.autoEatUnlocked == null) c.autoEatUnlocked = false;
-    if (c.autoEat == null) c.autoEat = false;
-    if (c.autoEatHpPercent == null) c.autoEatHpPercent = 30;
-    if (c.sectQuestProgress == null) c.sectQuestProgress = {};
-    if (c.sectQuestKillCount == null) c.sectQuestKillCount = {};
-    if (c.obtainedSectTreasureIds == null) c.obtainedSectTreasureIds = [];
-    if (c.npcFavor == null) c.npcFavor = {};
-    if (c.realmDialogueUsed == null) c.realmDialogueUsed = {};
-    if (c.cultivationPartner == null) c.cultivationPartner = null;
-    // Normalize legacy inventory (Item[]) to itemsById (Record<itemId, quantity>)
-    if (Array.isArray(c.items) && !c.itemsById) {
-      const itemsById: Record<number, number> = {};
-      for (const entry of c.items as { id: number; quantity?: number }[]) {
-        const id = entry?.id;
-        if (id != null) {
-          const qty = entry.quantity ?? 1;
-          itemsById[id] = (itemsById[id] ?? 0) + qty;
-        }
-      }
-      c.itemsById = itemsById;
-      delete c.items;
-    }
-    if (c.itemsById == null) c.itemsById = {};
-  }
-  if (!s.settings && char && typeof char === "object" && !Array.isArray(char)) {
-    const c = char as Record<string, unknown>;
-    s.settings = {
-      notificationPrefs: c.notificationPrefs ?? { ...DEFAULT_NOTIFICATION_PREFS },
-      soundVolume: c.soundVolume ?? { ...DEFAULT_SOUND_VOLUME },
-      deathPenaltyMode: c.deathPenaltyMode ?? "normal",
-      autoLootUnlocked: c.autoLootUnlocked ?? false,
-      autoLoot: c.autoLoot ?? false,
-      autoEatUnlocked: c.autoEatUnlocked ?? false,
-      autoEat: c.autoEat ?? false,
-      autoEatHpPercent: c.autoEatHpPercent ?? 30,
-    };
-    delete c.notificationPrefs;
-    delete c.soundVolume;
-    delete c.deathPenaltyMode;
-    delete c.autoLootUnlocked;
-    delete c.autoLoot;
-    delete c.autoEatUnlocked;
-    delete c.autoEat;
-    delete c.autoEatHpPercent;
-  }
-  if (!s.reincarnation && char && typeof char === "object" && !Array.isArray(char)) {
-    const c = char as Record<string, unknown>;
-    s.reincarnation = {
-      reincarnationCount: c.reincarnationCount ?? 0,
-      karmaPoints: c.karmaPoints ?? 0,
-      totalKarmaEarned: c.totalKarmaEarned ?? 0,
-      karmaBonusLevels: c.karmaBonusLevels ?? {},
-    };
-    delete c.reincarnationCount;
-    delete c.karmaPoints;
-    delete c.totalKarmaEarned;
-    delete c.karmaBonusLevels;
-  }
-  const content = s.content;
-  if (content && typeof content === "object" && !Array.isArray(content)) {
-    const c = content as Record<string, unknown>;
-    if (c.route == null && c.page != null && typeof c.page === "string") {
-      c.route = parseLegacyPage(c.page);
-    }
-  }
-  return Promise.resolve(state);
+  return Promise.resolve(runMigrations(state));
 }
 
 const persistConfig = {
   key: "idle-cultivation",
-  version: 2,
+  version: 3,
   storage,
   whitelist: ["character", "settings", "reincarnation", "content", "achievements"],
   migrate: migratePersistedState as never,
