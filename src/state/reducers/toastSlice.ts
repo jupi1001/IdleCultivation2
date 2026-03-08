@@ -25,12 +25,17 @@ export interface ToastI {
 
 interface ToastState {
   toasts: ToastI[];
+  /** Last N toasts for notification history (e.g. in Activity Log). */
+  toastHistory: ToastI[];
 }
 
 const TOAST_AUTO_DISMISS_MS = 10_000;
+const TOAST_HISTORY_MAX = 50;
+const TOAST_VISIBLE_MAX = 3;
 
 const initialState: ToastState = {
   toasts: [],
+  toastHistory: [],
 };
 
 export const toastSlice = createSlice({
@@ -39,11 +44,21 @@ export const toastSlice = createSlice({
   reducers: {
     addToast: (state, action: PayloadAction<Omit<ToastI, "id" | "createdAt">>) => {
       const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      state.toasts.push({
-        ...action.payload,
-        id,
-        createdAt: Date.now(),
-      });
+      const toast: ToastI = { ...action.payload, id, createdAt: Date.now() };
+      state.toasts.push(toast);
+      state.toastHistory.push(toast);
+      if (state.toastHistory.length > TOAST_HISTORY_MAX) {
+        state.toastHistory = state.toastHistory.slice(-TOAST_HISTORY_MAX);
+      }
+    },
+    /** Add to history only (used when toast popup is disabled by settings). */
+    addToastToHistory: (state, action: PayloadAction<Omit<ToastI, "id" | "createdAt">>) => {
+      const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      const toast: ToastI = { ...action.payload, id, createdAt: Date.now() };
+      state.toastHistory.push(toast);
+      if (state.toastHistory.length > TOAST_HISTORY_MAX) {
+        state.toastHistory = state.toastHistory.slice(-TOAST_HISTORY_MAX);
+      }
     },
     dismissToast: (state, action: PayloadAction<string>) => {
       state.toasts = state.toasts.filter((t) => t.id !== action.payload);
@@ -51,6 +66,6 @@ export const toastSlice = createSlice({
   },
 });
 
-export const { addToast, dismissToast } = toastSlice.actions;
-export { TOAST_AUTO_DISMISS_MS };
+export const { addToast, addToastToHistory, dismissToast } = toastSlice.actions;
+export { TOAST_AUTO_DISMISS_MS, TOAST_HISTORY_MAX, TOAST_VISIBLE_MAX };
 export default toastSlice.reducer;

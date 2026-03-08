@@ -9,14 +9,16 @@ import {
   setLogPanelCollapsed,
   clearLog,
 } from "../../state/reducers/logSlice";
+import type { ToastI } from "../../state/reducers/toastSlice";
 import "./LogContainer.css";
 
-const FILTER_OPTIONS: { value: LogFilterCategory | "all"; label: string }[] = [
+const FILTER_OPTIONS: { value: LogFilterCategory | "all" | "notifications"; label: string }[] = [
   { value: "all", label: "All" },
   { value: "combat", label: "Combat" },
   { value: "loot", label: "Loot" },
   { value: "skills", label: "Skills" },
   { value: "system", label: "System" },
+  { value: "notifications", label: "Notifications" },
 ];
 
 function formatTime(ms: number): string {
@@ -86,13 +88,31 @@ export const LogContainer: React.FC<LogContainerProps> = ({ asPanel = false }) =
   const entries = useSelector((state: RootState) => state.log?.entries ?? []);
   const filter = useSelector((state: RootState) => state.log?.filter ?? "all");
   const panelCollapsed = useSelector((state: RootState) => state.log?.panelCollapsed ?? true);
+  const toastHistory = useSelector((state: RootState) => state.toast?.toastHistory ?? []);
 
   const filteredEntries = useMemo(() => {
     if (filter === "all") return entries;
+    if (filter === "notifications") return [];
     return entries.filter((e) => getLogEntryCategory(e.type) === filter);
   }, [entries, filter]);
 
   const visibleEntries = useMemo(() => [...filteredEntries].reverse(), [filteredEntries]);
+  const visibleNotifications = useMemo(() => [...toastHistory].reverse(), [toastHistory]);
+
+  function formatNotificationText(t: ToastI): string {
+    switch (t.type) {
+      case "levelUp":
+        return `${t.skill ?? "Skill"} level ${t.level ?? 0}`;
+      case "rareDrop":
+        return `Rare: ${t.itemName ?? "Item"}`;
+      case "achievement":
+        return `Achievement: ${t.achievementName ?? ""}`;
+      case "expedition":
+        return `${t.expeditionName ?? "Expedition"} — +${t.spiritStones ?? 0} SS${t.rareItemName ? `, ${t.rareItemName}` : ""}`;
+      default:
+        return String(t.type);
+    }
+  }
 
   const handleClear = () => {
     dispatch(clearLog());
@@ -122,7 +142,19 @@ export const LogContainer: React.FC<LogContainerProps> = ({ asPanel = false }) =
         </button>
       </div>
       <ul className="activity-log__list" aria-label="Activity log entries">
-        {visibleEntries.length === 0 ? (
+        {filter === "notifications" ? (
+          visibleNotifications.length === 0 ? (
+            <li className="activity-log__empty">No notifications yet. Level-ups, rare drops, and achievements will appear here.</li>
+          ) : (
+            visibleNotifications.map((t) => (
+              <li key={t.id} className="activity-log__entry activity-log__entry--system">
+                <span className="activity-log__entry-icon" aria-hidden>🔔</span>
+                <span className="activity-log__entry-time">{formatTime(t.createdAt)}</span>
+                <span className="activity-log__entry-text">{formatNotificationText(t)}</span>
+              </li>
+            ))
+          )
+        ) : visibleEntries.length === 0 ? (
           <li className="activity-log__empty">No entries yet. Combat, loot, level-ups, and breakthroughs will appear here.</li>
         ) : (
           visibleEntries.map((entry) => (

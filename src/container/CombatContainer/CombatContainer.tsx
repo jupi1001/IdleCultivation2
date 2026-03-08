@@ -133,6 +133,23 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     }));
   };
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.getAttribute("contenteditable") === "true") return;
+      if (e.key >= "1" && e.key <= "9") {
+        const idx = e.key.charCodeAt(0) - "1".charCodeAt(0);
+        const item = vitalityFood[idx];
+        if (item) {
+          e.preventDefault();
+          useVitalityFood(item);
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [vitalityFood, effectiveStats.health]);
+
   /** Spirit stones awarded per kill (scaled by enemy max HP for stronger rewards). */
   const getSpiritStonesFromEnemy = (enemy: EnemyI) => {
     const maxHp = enemies.find((e) => e.id === enemy.id)?.health ?? enemy.health;

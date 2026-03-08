@@ -35,13 +35,22 @@ import { LogContainer } from "../LogContainer/LogContainer";
 import { StatsContainer } from "../StatsContainer/StatsContainer";
 import { useActivityTicks } from "../../hooks/useActivityTicks";
 import { useVitalityRegen } from "../../hooks/useVitalityRegen";
+import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 
-export const Main = () => {
+type Theme = "dark" | "light";
+
+interface MainProps {
+  theme?: Theme;
+  setTheme?: (t: Theme) => void;
+}
+
+export const Main = ({ theme = "dark", setTheme }: MainProps) => {
   const reduxStore = useStore<RootState>();
   const dispatch = useDispatch();
 
   useActivityTicks();
   useVitalityRegen();
+  useKeyboardShortcuts();
 
   const content = useSelector((state: RootState) => state.content.page);
   const path = useSelector((state: RootState) => state.character.path);
@@ -118,7 +127,7 @@ export const Main = () => {
           {content === ContentArea.IMMORTALS_ISLAND && <ImmortalsIslandContainer />}
           {content === ContentArea.REINCARNATION && <ReincarnationContainer />}
           {content === ContentArea.ACHIEVEMENTS && <AchievementsContainer />}
-          {content === ContentArea.SETTINGS && <SettingsContainer />}
+          {content === ContentArea.SETTINGS && <SettingsContainer theme={theme} setTheme={setTheme} />}
           {content === ContentArea.ACTIVITY_LOG && <LogContainer />}
           {content === ContentArea.STATS && <StatsContainer />}
         </div>

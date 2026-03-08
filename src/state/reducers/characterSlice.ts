@@ -195,6 +195,18 @@ interface CharacterState {
   weakenedMeditationSecondsDone: number;
   /** Lifetime statistics (persisted). */
   stats: CharacterStats;
+  /** Toast notifications: master switch and per-type. */
+  notificationPrefs: NotificationPrefs;
+  /** Volume 0–100 for music and SFX (persisted; actual audio not yet wired). */
+  soundVolume: { music: number; sfx: number };
+}
+
+export interface NotificationPrefs {
+  toastsEnabled: boolean;
+  levelUp: boolean;
+  rareDrop: boolean;
+  achievement: boolean;
+  expedition: boolean;
 }
 
 export interface CharacterStats {
@@ -304,6 +316,14 @@ const initialState: CharacterState = {
     itemsCraftedCooking: 0,
     deaths: 0,
   },
+  notificationPrefs: {
+    toastsEnabled: true,
+    levelUp: true,
+    rareDrop: true,
+    achievement: true,
+    expedition: true,
+  },
+  soundVolume: { music: 100, sfx: 100 },
 };
 
 export const characterSlice = createSlice({
@@ -997,6 +1017,15 @@ export const characterSlice = createSlice({
       else if (action.payload === "forging") state.stats!.itemsCraftedForging += 1;
       else state.stats!.itemsCraftedCooking += 1;
     },
+    setNotificationPrefs: (state, action: PayloadAction<Partial<NotificationPrefs>>) => {
+      if (!state.notificationPrefs) state.notificationPrefs = { toastsEnabled: true, levelUp: true, rareDrop: true, achievement: true, expedition: true };
+      Object.assign(state.notificationPrefs, action.payload);
+    },
+    setSoundVolume: (state, action: PayloadAction<{ music?: number; sfx?: number }>) => {
+      if (!state.soundVolume) state.soundVolume = { music: 100, sfx: 100 };
+      if (action.payload.music != null) state.soundVolume.music = Math.max(0, Math.min(100, action.payload.music));
+      if (action.payload.sfx != null) state.soundVolume.sfx = Math.max(0, Math.min(100, action.payload.sfx));
+    },
   },
 });
 
@@ -1062,6 +1091,8 @@ export const {
   recordEnemyKill,
   recordDeath,
   recordItemCrafted,
+  setNotificationPrefs,
+  setSoundVolume,
 } = characterSlice.actions;
 
 export default characterSlice.reducer;

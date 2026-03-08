@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { dismissToast } from "../../state/reducers/toastSlice";
-import { TOAST_AUTO_DISMISS_MS } from "../../state/reducers/toastSlice";
+import { TOAST_AUTO_DISMISS_MS, TOAST_VISIBLE_MAX } from "../../state/reducers/toastSlice";
 import type { ToastI } from "../../state/reducers/toastSlice";
 import "./Toast.css";
 
@@ -131,11 +131,12 @@ function ToastItem({ toast }: { toast: ToastI }) {
 
 export function ToastContainer() {
   const toasts = useSelector((state: RootState) => state.toast.toasts);
-  if (toasts.length === 0) return null;
+  const visibleToasts = toasts.slice(0, TOAST_VISIBLE_MAX);
+  if (visibleToasts.length === 0) return null;
 
   return (
     <div className="toast-container" aria-label="Notifications">
-      {toasts.map((toast: ToastI) => (
+      {visibleToasts.map((toast: ToastI) => (
         <ToastItem key={toast.id} toast={toast} />
       ))}
     </div>
