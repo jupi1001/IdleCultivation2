@@ -1,3 +1,7 @@
+/**
+ * Content / navigation slice. Stores typed route (Task 4); no string page.
+ * Route is persisted as-is; serialization is stable (plain objects).
+ */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ContentArea } from "../../enum/ContentArea";
 import { RootState } from "../store";
@@ -44,4 +48,4 @@ export const selectRoute = (state: RootState) => state.content.route;
 export const selectLegacyPage = (state: RootState) =>
   routeToLegacyPage(state.content.route);
 
-export { routeFromArea } from "../types/contentRoute";
+export { routeFromArea, routeForSkillName } from "../types/contentRoute";

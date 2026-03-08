@@ -1,6 +1,7 @@
 /**
- * Typed route state for content navigation.
+ * Typed route state for content navigation (Task 4).
  * Replaces string-based page (e.g. "Combat:AreaName") with a discriminated union.
+ * Route is the source of truth; persisted as-is so serialization is stable.
  */
 import { ContentArea } from "../../enum/ContentArea";
 
@@ -89,4 +90,25 @@ export function routeFromArea(area: ContentArea, combatAreaId?: string): Content
     return { type: "combat", areaId: combatAreaId ?? "" };
   const t = CONTENT_AREA_TO_ROUTE_TYPE[area];
   return { type: t ?? "map" } as ContentRoute;
+}
+
+/** Map skill display name (left panel) to ContentRoute. Use instead of parseLegacyPage for navigation. */
+const SKILL_NAME_TO_CONTENT_AREA: Record<string, ContentArea> = {
+  "Martial Training": ContentArea.TRAINING,
+  "Meditation": ContentArea.MEDITATION,
+  "Immortals Island": ContentArea.IMMORTALS_ISLAND,
+  "Labour": ContentArea.LABOUR,
+  "Fishing": ContentArea.FISHING,
+  "Mining": ContentArea.MINING,
+  "Gathering": ContentArea.GATHERING,
+  "Alchemy": ContentArea.ALCHEMY,
+  "Forging": ContentArea.FORGING,
+  "Cooking": ContentArea.COOKING,
+  "Reincarnation": ContentArea.REINCARNATION,
+};
+
+/** Get ContentRoute for a skill panel name (e.g. "Fishing", "Martial Training"). No string parsing. */
+export function routeForSkillName(skillName: string): ContentRoute {
+  const area = SKILL_NAME_TO_CONTENT_AREA[skillName];
+  return area != null ? routeFromArea(area) : { type: "map" };
 }

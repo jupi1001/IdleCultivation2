@@ -7,10 +7,9 @@ import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingL
 import { FORGING_MAX_LEVEL, getForgingLevel } from "../../constants/forging";
 import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
-import { ContentArea } from "../../enum/ContentArea";
 import SkillI from "../../interfaces/SkillI";
 import "./SkillBlockItem.css";
-import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
+import { changeContent, routeForSkillName } from "../../state/reducers/contentSlice";
 import {
   selectCurrentActivity,
   selectFishingXP,
@@ -20,7 +19,6 @@ import {
   selectForgingXP,
   selectCookingXP,
 } from "../../state/selectors/characterSelectors";
-import { parseLegacyPage } from "../../state/types/contentRoute";
 
 const PATH_ACCENT_COLORS: Record<string, string> = {
   "Martial Training": "#a04040",
@@ -62,11 +60,7 @@ const SkillBlockItem: React.FC<SkillItemProps> = React.memo(({ skill }) => {
 
   const openSkill = (input: string) => {
     if (isBlocked) return;
-    if (input === "Martial Training") {
-      dispatch(changeContent(routeFromArea(ContentArea.TRAINING)));
-      return;
-    }
-    dispatch(changeContent(parseLegacyPage(input)));
+    dispatch(changeContent(routeForSkillName(input)));
   };
 
   return (
