@@ -153,6 +153,20 @@
   margin: 0 0 0.5rem;
   font-size: 1rem;
   color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.combatContainer__auto-loot-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
 }
 
 .combatContainer__loot-empty {

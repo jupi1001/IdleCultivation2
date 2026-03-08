@@ -94,10 +94,12 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const lastCharAttackRef = useRef(Date.now());
   const lastEnemyAttackRef = useRef(Date.now());
   const ownedTechniqueIdsRef = useRef(ownedTechniqueIds);
+  const characterRef = useRef(character);
 
   characterStateRef.current = characterState;
   currentEnemyRef.current = currentEnemy ?? null;
   ownedTechniqueIdsRef.current = ownedTechniqueIds;
+  characterRef.current = character;
 
   // Redirect if no valid area, no enemies, or realm too low for this area
   useEffect(() => {
@@ -162,14 +164,13 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   };
 
   /**
-   * Adds 1 item from the enemy drop table to the item bag. Techniques (qi/combat) are only added once per character; duplicates are skipped.
-   * Calls onItemDropped with the item when one is actually added (for activity log).
+   * Rolls once on the enemy loot table; returns the dropped item or null (e.g. technique already owned).
+   * Uses same logic as addLootToItemBag for sect raids vs normal.
    */
-  const addLootToItemBag = (enemy: EnemyI, onItemDropped?: (item: Item) => void) => {
+  const rollOneLootDrop = (enemy: EnemyI): Item | null => {
     let items = enemy.loot?.items;
     let weightRef = enemy.loot?.weight;
 
-    // For sect raid areas, build loot dynamically based on which sect is being raided and the raider's sect rank.
     if (
       area === CombatArea.JADE_MOUNTAIN_RAID ||
       area === CombatArea.VERDANT_VALLEY_RAID ||
@@ -190,8 +191,6 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       const currentSect = character.currentSectId != null
         ? sectsData.find((s) => s.id === character.currentSectId)
         : null;
-
-      // Only allow cross-path raids: your own sect path vs opposing sect path.
       if (
         sectId != null &&
         currentSect != null &&
@@ -208,26 +207,30 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       }
     }
 
-    if (!items) return;
-    if (!weightRef) return;
+    if (!items?.length || !weightRef?.length || items.length !== weightRef.length) return null;
 
     const weights = weightRef.slice();
-    let i: number;
-
-    for (i = 0; i < weights.length; i++) {
+    for (let i = 0; i < weights.length; i++) {
       weights[i] += weights[i - 1] || 0;
     }
-
     const random = Math.random() * weights[weights.length - 1];
-
-    for (i = 0; i < weights.length; i++) {
+    let i = 0;
+    for (; i < weights.length; i++) {
       if (weights[i] > random) break;
     }
-
     const dropped = items[i];
     const isTechnique = dropped.equipmentSlot === "qiTechnique" || dropped.equipmentSlot === "combatTechnique";
-    if (isTechnique && ownedTechniqueIdsRef.current.has(dropped.id)) return;
+    if (isTechnique && ownedTechniqueIdsRef.current.has(dropped.id)) return null;
+    return dropped;
+  };
 
+  /**
+   * Adds 1 item from the enemy drop table to the item bag. Techniques (qi/combat) are only added once per character; duplicates are skipped.
+   * Calls onItemDropped with the item when one is actually added (for activity log).
+   */
+  const addLootToItemBag = (enemy: EnemyI, onItemDropped?: (item: Item) => void) => {
+    const dropped = rollOneLootDrop(enemy);
+    if (!dropped) return;
     onItemDropped?.(dropped);
     setItemBag((prevItems) => [...prevItems, dropped]);
   };
@@ -252,8 +255,18 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       if (newHealth <= 0) {
         dispatch(addLogEntry({ type: "enemy_killed", enemyName: enemy.name }));
         setLastDamageToEnemy(null);
-        addLootToItemBag(enemy, (item) => dispatch(addLogEntry({ type: "item_obtained", itemName: item.name })));
-        setLootSpiritStones((prev) => prev + getSpiritStonesFromEnemy(enemy));
+        const spiritStones = getSpiritStonesFromEnemy(enemy);
+        if (characterRef.current.autoLoot) {
+          dispatch(addMoney(spiritStones));
+          const droppedItem = rollOneLootDrop(enemy);
+          if (droppedItem) {
+            dispatch(addItems([droppedItem]));
+            dispatch(addLogEntry({ type: "item_obtained", itemName: droppedItem.name }));
+          }
+        } else {
+          addLootToItemBag(enemy, (item) => dispatch(addLogEntry({ type: "item_obtained", itemName: item.name })));
+          setLootSpiritStones((prev) => prev + spiritStones);
+        }
         setCurrentEnemy(getRandomEnemy());
       }
     } else {
@@ -469,7 +482,10 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         </div>
       </div>
       <section className="combatContainer__loot">
-        <h4 className="combatContainer__loot-title">Loot bag</h4>
+        <h4 className="combatContainer__loot-title">
+          Loot bag
+          {character.autoLoot && <span className="combatContainer__auto-loot-badge">Auto-Loot: On</span>}
+        </h4>
         {itemBag.length === 0 && lootSpiritStones === 0 ? (
           <p className="combatContainer__loot-empty">No loot yet</p>
         ) : (
