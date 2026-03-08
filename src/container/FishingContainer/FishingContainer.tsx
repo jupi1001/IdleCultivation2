@@ -31,6 +31,14 @@ const FishingContainer = () => {
   );
   const isFishing = currentActivity === "fish" && currentFishingArea != null;
   const progress = useCastProgress(fishingCastStartTime, fishingCastDuration);
+  const reincarnationCount = character.reincarnationCount ?? 0;
+  const areasVisible = useMemo(
+    () =>
+      fishingAreaData.filter(
+        (area) => !area.requiresReincarnation || reincarnationCount >= 1
+      ),
+    [reincarnationCount]
+  );
 
   const startFishing = (areaId: number, fishingXP: number, fishingDelay: number, fishingLootIds: number[], rareDropChancePercent?: number, rareDropItemIds?: number[]) => {
     dispatch(
@@ -72,9 +80,10 @@ const FishingContainer = () => {
         style={{ width: `${progress}%` }}
       />
       <div className="fishingContainer__areas">
-      {fishingAreaData.map((area, areaIndex) => {
-        const unlocked = character.fishingXP >= area.fishingXPUnlock;
-        const tier = getTierForFishingAreaIndex(areaIndex);
+      {areasVisible.map((area, areaIndex) => {
+        const reincarnationOk = !area.requiresReincarnation || reincarnationCount >= 1;
+        const unlocked = character.fishingXP >= area.fishingXPUnlock && reincarnationOk;
+        const tier = getTierForFishingAreaIndex(fishingAreaData.indexOf(area));
         const setPieceIds = getSetPieceIds("fishing", tier);
         return (
           <FishingArea

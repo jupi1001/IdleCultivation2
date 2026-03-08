@@ -22,8 +22,8 @@ const DEFAULT_NOTIFICATION_PREFS = {
 const DEFAULT_SOUND_VOLUME = { music: 100, sfx: 100 };
 
 /** Ensure old saves get defaults for new character fields. */
-function migratePersistedState(state: unknown, _version: number): unknown {
-  if (!state || typeof state !== "object") return state;
+function migratePersistedState(state: unknown, _version: number): Promise<unknown> {
+  if (!state || typeof state !== "object") return Promise.resolve(state);
   const s = state as Record<string, unknown>;
   const char = s.character;
   if (char && typeof char === "object" && !Array.isArray(char)) {
@@ -31,7 +31,7 @@ function migratePersistedState(state: unknown, _version: number): unknown {
     if (!c.notificationPrefs) c.notificationPrefs = { ...DEFAULT_NOTIFICATION_PREFS };
     if (!c.soundVolume) c.soundVolume = { ...DEFAULT_SOUND_VOLUME };
   }
-  return state;
+  return Promise.resolve(state);
 }
 
 const persistConfig = {
@@ -39,7 +39,7 @@ const persistConfig = {
   version: 1,
   storage,
   whitelist: ["character", "content", "achievements"],
-  migrate: migratePersistedState,
+  migrate: migratePersistedState as never,
 };
 
 const rootReducer = combineReducers({

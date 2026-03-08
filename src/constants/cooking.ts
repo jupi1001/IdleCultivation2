@@ -3,7 +3,7 @@ import type Item from "../interfaces/ItemI";
 /** Base path for cooked food images. Place images under public/assets/cooking/ */
 const COOKING_ASSETS = "/assets/cooking";
 
-export const COOKING_MAX_LEVEL = 99;
+export const COOKING_MAX_LEVEL = 120;
 
 /** Backloaded curve (generous for consumable skills): XP for L→L+1 = floor(BASE × L^EXP). */
 const XP_CURVE_BASE = 4;
@@ -95,6 +95,10 @@ const FISH = {
   mirrorRay: 320,
   nineWhiskerCatfish: 321,
   pearlEel: 322,
+  sageCarp: 323,
+  karmicKoi: 324,
+  immortalBass: 325,
+  daoEssenceSalmon: 326,
 };
 
 export const COOKING_RECIPES: CookingRecipeI[] = [
@@ -491,6 +495,78 @@ export const COOKING_RECIPES: CookingRecipeI[] = [
       quantity: 1,
       picture: `${COOKING_ASSETS}/pearl-eel-fillet.webp`,
       value: 18,
+      effect: "qi",
+    },
+    outputAmount: 1,
+  },
+  {
+    id: "cook-sage-carp",
+    name: "Grilled Sage Carp",
+    description: "Carp from sage waters. Requires reincarnation to obtain.",
+    recipeLevel: 23,
+    ingredients: [{ itemId: FISH.sageCarp, amount: 1 }],
+    output: {
+      id: 772,
+      name: "Grilled Sage Carp",
+      description: "Restores 20 vitality when used.",
+      price: 0,
+      quantity: 1,
+      picture: `${COOKING_ASSETS}/sage-carp-grilled.webp`,
+      value: 20,
+      effect: "vitality",
+    },
+    outputAmount: 1,
+  },
+  {
+    id: "cook-karmic-koi",
+    name: "Karmic Koi Stew",
+    description: "Koi that reflects karma. Requires reincarnation to obtain.",
+    recipeLevel: 24,
+    ingredients: [{ itemId: FISH.karmicKoi, amount: 1 }],
+    output: {
+      id: 773,
+      name: "Karmic Koi Stew",
+      description: "Restores 22 Qi when used.",
+      price: 0,
+      quantity: 1,
+      picture: `${COOKING_ASSETS}/karmic-koi-stew.webp`,
+      value: 22,
+      effect: "qi",
+    },
+    outputAmount: 1,
+  },
+  {
+    id: "cook-immortal-bass",
+    name: "Immortal Bass Fillet",
+    description: "Bass rumored to never age. Requires reincarnation to obtain.",
+    recipeLevel: 25,
+    ingredients: [{ itemId: FISH.immortalBass, amount: 1 }],
+    output: {
+      id: 774,
+      name: "Immortal Bass Fillet",
+      description: "Restores 24 vitality when used.",
+      price: 0,
+      quantity: 1,
+      picture: `${COOKING_ASSETS}/immortal-bass-fillet.webp`,
+      value: 24,
+      effect: "vitality",
+    },
+    outputAmount: 1,
+  },
+  {
+    id: "cook-dao-essence-salmon",
+    name: "Dao Essence Salmon",
+    description: "Salmon touched by the Dao. Requires reincarnation to obtain.",
+    recipeLevel: 26,
+    ingredients: [{ itemId: FISH.daoEssenceSalmon, amount: 1 }],
+    output: {
+      id: 775,
+      name: "Dao Essence Salmon",
+      description: "Restores 26 Qi when used.",
+      price: 0,
+      quantity: 1,
+      picture: `${COOKING_ASSETS}/dao-essence-salmon.webp`,
+      value: 26,
       effect: "qi",
     },
     outputAmount: 1,

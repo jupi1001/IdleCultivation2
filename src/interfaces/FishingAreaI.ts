@@ -12,6 +12,8 @@ interface FishingAreaI {
   /** Optional rare drop chance (0–100) and item ids (e.g. ring/amulet). */
   rareDropChancePercent?: number;
   rareDropItemIds?: number[];
+  /** If true, area only unlocks after at least one reincarnation (level 100+ content). */
+  requiresReincarnation?: boolean;
 }
 
 export default FishingAreaI;

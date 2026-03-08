@@ -31,6 +31,14 @@ const GatheringContainer = () => {
   );
   const isGathering = currentActivity === "gather" && currentGatheringArea != null;
   const progress = useCastProgress(gatheringCastStartTime, gatheringCastDuration);
+  const reincarnationCount = character.reincarnationCount ?? 0;
+  const areasVisible = useMemo(
+    () =>
+      gatheringAreaData.filter(
+        (area) => !area.requiresReincarnation || reincarnationCount >= 1
+      ),
+    [reincarnationCount]
+  );
 
   const startGathering = (
     areaId: number,
@@ -79,9 +87,10 @@ const GatheringContainer = () => {
         style={{ width: `${progress}%` }}
       />
       <div className="gatheringContainer__areas">
-      {gatheringAreaData.map((area, areaIndex) => {
-        const unlocked = character.gatheringXP >= area.gatheringXPUnlock;
-        const tier = getTierForGatheringAreaIndex(areaIndex);
+      {areasVisible.map((area, areaIndex) => {
+        const reincarnationOk = !area.requiresReincarnation || reincarnationCount >= 1;
+        const unlocked = character.gatheringXP >= area.gatheringXPUnlock && reincarnationOk;
+        const tier = getTierForGatheringAreaIndex(gatheringAreaData.indexOf(area));
         const setPieceIds = getSetPieceIds("gathering", tier);
         return (
           <GatheringArea

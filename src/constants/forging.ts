@@ -5,7 +5,7 @@ import type { EquipmentSlot } from "../types/EquipmentSlot";
 const FORGING_ASSETS = "/assets/forging";
 
 /** Max display level in left-panel card */
-export const FORGING_MAX_LEVEL = 99;
+export const FORGING_MAX_LEVEL = 120;
 
 /** Backloaded curve (generous for consumable skills): XP for L→L+1 = floor(BASE × L^EXP). */
 const XP_CURVE_BASE = 4;
@@ -111,6 +111,10 @@ export const FORGING_TIER_ORDER: string[] = [
   "Voidstone",
   "Dragonbone",
   "Celestial",
+  "Ascendant",
+  "Karmic",
+  "Immortal",
+  "Dao",
 ];
 
 const ORE = {
@@ -127,6 +131,10 @@ const ORE = {
   voidstone: 511,
   dragonbone: 512,
   celestial: 513,
+  ascendant: 514,
+  karmic: 515,
+  immortal: 516,
+  dao: 517,
 };
 
 const BAR = {
@@ -143,6 +151,10 @@ const BAR = {
   voidstone: 811,
   dragonbone: 812,
   celestial: 813,
+  ascendant: 814,
+  karmic: 815,
+  immortal: 816,
+  dao: 817,
 };
 
 /** Bar items (refined from ore). Icons in /assets/forging/bar/ use -bar.webp. */
@@ -160,6 +172,10 @@ export const FORGE_BAR_ITEMS: Item[] = [
   { id: BAR.voidstone, name: "Voidstone Bar", description: "Condensed voidstone.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/voidstone-bar.webp`, value: 0 },
   { id: BAR.dragonbone, name: "Dragonbone Bar", description: "Reinforced dragonbone.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/dragonbone-bar.webp`, value: 0 },
   { id: BAR.celestial, name: "Celestial Bar", description: "Heavenly Qi condensed.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/celestial-bar.webp`, value: 0 },
+  { id: BAR.ascendant, name: "Ascendant Bar", description: "Refined ascendant ore. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/ascendant-bar.webp`, value: 0 },
+  { id: BAR.karmic, name: "Karmic Bar", description: "Refined karmic crystal. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/karmic-bar.webp`, value: 0 },
+  { id: BAR.immortal, name: "Immortal Bar", description: "Refined immortal stone. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/immortal-bar.webp`, value: 0 },
+  { id: BAR.dao, name: "Dao Bar", description: "Refined Dao fragment. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/dao-bar.webp`, value: 0 },
 ];
 
 export const REFINE_RECIPES: RefineRecipeI[] = [
@@ -176,6 +192,10 @@ export const REFINE_RECIPES: RefineRecipeI[] = [
   { id: "refine-voidstone", name: "Refine Voidstone Bar", description: "Condense voidstone into a bar.", tier: "Voidstone", ore: { itemId: ORE.voidstone, amount: 2 }, output: FORGE_BAR_ITEMS[10], outputAmount: 1 },
   { id: "refine-dragonbone", name: "Refine Dragonbone Bar", description: "Reinforce dragonbone ore into a bar.", tier: "Dragonbone", ore: { itemId: ORE.dragonbone, amount: 3 }, output: FORGE_BAR_ITEMS[11], outputAmount: 1 },
   { id: "refine-celestial", name: "Refine Celestial Bar", description: "Condense celestial crystals into a bar.", tier: "Celestial", ore: { itemId: ORE.celestial, amount: 3 }, output: FORGE_BAR_ITEMS[12], outputAmount: 1 },
+  { id: "refine-ascendant", name: "Refine Ascendant Bar", description: "Smelt ascendant ore into a bar. Requires reincarnation.", tier: "Ascendant", ore: { itemId: ORE.ascendant, amount: 3 }, output: FORGE_BAR_ITEMS[13], outputAmount: 1 },
+  { id: "refine-karmic", name: "Refine Karmic Bar", description: "Refine karmic crystal into a bar. Requires reincarnation.", tier: "Karmic", ore: { itemId: ORE.karmic, amount: 3 }, output: FORGE_BAR_ITEMS[14], outputAmount: 1 },
+  { id: "refine-immortal", name: "Refine Immortal Bar", description: "Forge immortal stone into a bar. Requires reincarnation.", tier: "Immortal", ore: { itemId: ORE.immortal, amount: 3 }, output: FORGE_BAR_ITEMS[15], outputAmount: 1 },
+  { id: "refine-dao", name: "Refine Dao Bar", description: "Condense Dao fragments into a bar. Requires reincarnation.", tier: "Dao", ore: { itemId: ORE.dao, amount: 3 }, output: FORGE_BAR_ITEMS[16], outputAmount: 1 },
 ];
 
 function mkWeapon(
@@ -269,6 +289,104 @@ function mkBody(
   };
 }
 
+/** Enhancement: 1 Celestial Bar + 1 enhancement bar → enhanced Celestial gear (same slot, higher stats). */
+function mkEnhanceWeapon(
+  id: number,
+  name: string,
+  desc: string,
+  enhancementBarId: number,
+  tier: string,
+  attackBonus: number
+): CraftRecipeI {
+  return {
+    id: `craft-${name.toLowerCase().replace(/\s+/g, "-")}`,
+    name,
+    description: desc,
+    tier,
+    bars: [
+      { itemId: BAR.celestial, amount: 1 },
+      { itemId: enhancementBarId, amount: 1 },
+    ],
+    output: {
+      id,
+      name,
+      description: desc,
+      price: 0,
+      quantity: 1,
+      picture: `${FORGING_ASSETS}/sword/${tier.toLowerCase().replace(/\s+/g, "-")}-enhanced-sword.webp`,
+      equipmentSlot: "sword" as EquipmentSlot,
+      attackBonus,
+    },
+    outputAmount: 1,
+  };
+}
+
+function mkEnhanceHelmet(
+  id: number,
+  name: string,
+  desc: string,
+  enhancementBarId: number,
+  tier: string,
+  defenseBonus: number,
+  vitalityBonus: number
+): CraftRecipeI {
+  return {
+    id: `craft-${name.toLowerCase().replace(/\s+/g, "-")}`,
+    name,
+    description: desc,
+    tier,
+    bars: [
+      { itemId: BAR.celestial, amount: 1 },
+      { itemId: enhancementBarId, amount: 1 },
+    ],
+    output: {
+      id,
+      name,
+      description: desc,
+      price: 0,
+      quantity: 1,
+      picture: `${FORGING_ASSETS}/helmet/${tier.toLowerCase().replace(/\s+/g, "-")}-enhanced-helmet.webp`,
+      equipmentSlot: "helmet" as EquipmentSlot,
+      defenseBonus,
+      vitalityBonus,
+    },
+    outputAmount: 1,
+  };
+}
+
+function mkEnhanceBody(
+  id: number,
+  name: string,
+  desc: string,
+  enhancementBarId: number,
+  tier: string,
+  defenseBonus: number,
+  vitalityBonus: number
+): CraftRecipeI {
+  return {
+    id: `craft-${name.toLowerCase().replace(/\s+/g, "-")}`,
+    name,
+    description: desc,
+    tier,
+    bars: [
+      { itemId: BAR.celestial, amount: 1 },
+      { itemId: enhancementBarId, amount: 1 },
+    ],
+    output: {
+      id,
+      name,
+      description: desc,
+      price: 0,
+      quantity: 1,
+      picture: `${FORGING_ASSETS}/body/${tier.toLowerCase().replace(/\s+/g, "-")}-enhanced-body.webp`,
+      equipmentSlot: "body" as EquipmentSlot,
+      defenseBonus,
+      vitalityBonus,
+    },
+    outputAmount: 1,
+  };
+}
+
 /** Craft recipes: bars → weapon or armour. Sword gives attack; helmet & body give defense and vitality. */
 export const CRAFT_RECIPES: CraftRecipeI[] = [
   // Copper
@@ -323,6 +441,22 @@ export const CRAFT_RECIPES: CraftRecipeI[] = [
   mkWeapon(946, "Celestial Sword", "Radiant heavenly blade.", BAR.celestial, 6, "Celestial", 6),
   mkHelmet(947, "Celestial Crown", "Celestial helmet.", BAR.celestial, 7, "Celestial", 7, 7),
   mkBody(948, "Celestial Plate", "Celestial body armour.", BAR.celestial, 8, "Celestial", 8, 8),
+  // Ascendant enhancement (L105)
+  mkEnhanceWeapon(949, "Ascendant Celestial Sword", "Celestial blade enhanced with ascendant ore.", BAR.ascendant, "Ascendant", 7),
+  mkEnhanceHelmet(950, "Ascendant Celestial Crown", "Celestial crown enhanced with ascendant ore.", BAR.ascendant, "Ascendant", 8, 8),
+  mkEnhanceBody(951, "Ascendant Celestial Plate", "Celestial plate enhanced with ascendant ore.", BAR.ascendant, "Ascendant", 9, 9),
+  // Karmic enhancement (L110)
+  mkEnhanceWeapon(952, "Karmic Celestial Sword", "Celestial blade enhanced with karmic crystal.", BAR.karmic, "Karmic", 8),
+  mkEnhanceHelmet(953, "Karmic Celestial Crown", "Celestial crown enhanced with karmic crystal.", BAR.karmic, "Karmic", 9, 9),
+  mkEnhanceBody(954, "Karmic Celestial Plate", "Celestial plate enhanced with karmic crystal.", BAR.karmic, "Karmic", 10, 10),
+  // Immortal enhancement (L115)
+  mkEnhanceWeapon(955, "Immortal Celestial Sword", "Celestial blade enhanced with immortal stone.", BAR.immortal, "Immortal", 9),
+  mkEnhanceHelmet(956, "Immortal Celestial Crown", "Celestial crown enhanced with immortal stone.", BAR.immortal, "Immortal", 10, 10),
+  mkEnhanceBody(957, "Immortal Celestial Plate", "Celestial plate enhanced with immortal stone.", BAR.immortal, "Immortal", 11, 11),
+  // Dao enhancement (L120)
+  mkEnhanceWeapon(958, "Dao Celestial Sword", "Celestial blade enhanced with Dao fragments.", BAR.dao, "Dao", 10),
+  mkEnhanceHelmet(959, "Dao Celestial Crown", "Celestial crown enhanced with Dao fragments.", BAR.dao, "Dao", 11, 11),
+  mkEnhanceBody(960, "Dao Celestial Plate", "Celestial plate enhanced with Dao fragments.", BAR.dao, "Dao", 12, 12),
 ];
 
 /** All items that can appear from forging (bars + crafted gear) for lookup */
