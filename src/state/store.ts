@@ -7,14 +7,39 @@ import toastReducer from "./reducers/toastSlice";
 import achievementReducer from "./reducers/achievementSlice";
 import logReducer from "./reducers/logSlice";
 import { toastLevelUpMiddleware } from "./middleware/toastLevelUpMiddleware";
+import { toastNotificationPrefsMiddleware } from "./middleware/toastNotificationPrefsMiddleware";
 import { achievementMiddleware } from "./middleware/achievementMiddleware";
 import { logMiddleware } from "./middleware/logMiddleware";
+
+const DEFAULT_NOTIFICATION_PREFS = {
+  toastsEnabled: true,
+  levelUp: true,
+  rareDrop: true,
+  achievement: true,
+  expedition: true,
+};
+
+const DEFAULT_SOUND_VOLUME = { music: 100, sfx: 100 };
+
+/** Ensure old saves get defaults for new character fields. */
+function migratePersistedState(state: unknown, _version: number): unknown {
+  if (!state || typeof state !== "object") return state;
+  const s = state as Record<string, unknown>;
+  const char = s.character;
+  if (char && typeof char === "object" && !Array.isArray(char)) {
+    const c = char as Record<string, unknown>;
+    if (!c.notificationPrefs) c.notificationPrefs = { ...DEFAULT_NOTIFICATION_PREFS };
+    if (!c.soundVolume) c.soundVolume = { ...DEFAULT_SOUND_VOLUME };
+  }
+  return state;
+}
 
 const persistConfig = {
   key: "idle-cultivation",
   version: 1,
   storage,
   whitelist: ["character", "content", "achievements"],
+  migrate: migratePersistedState,
 };
 
 const rootReducer = combineReducers({
@@ -34,7 +59,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(toastLevelUpMiddleware, achievementMiddleware, logMiddleware),
+    }).concat(toastNotificationPrefsMiddleware, toastLevelUpMiddleware, achievementMiddleware, logMiddleware),
 });
 
 export const persistor = persistStore(store);

@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { addItem, consumeItems, addAlchemyXP } from "../../state/reducers/characterSlice";
+import { addItem, consumeItems, addAlchemyXP, recordItemCrafted } from "../../state/reducers/characterSlice";
 import {
   ALCHEMY_RECIPES,
   getAlchemyLevelInfo,
@@ -12,6 +12,7 @@ import {
 } from "../../constants/alchemy";
 import { gatheringLootTypes } from "../../constants/data";
 import { countItem } from "../../utils/inventory";
+import { getTalentAlchemySuccessPercent } from "../../state/selectors/characterSelectors";
 import "./AlchemyContainer.css";
 
 function getItemName(itemId: number): string {
@@ -31,12 +32,14 @@ export const AlchemyContainer = () => {
   const dispatch = useDispatch();
   const items = useSelector((state: RootState) => state.character.items);
   const alchemyXP = useSelector((state: RootState) => state.character.alchemyXP);
+  const talentAlchemyBonus = useSelector(getTalentAlchemySuccessPercent);
   const { level: alchemyLevel, xpInLevel, xpRequiredForNext: xpForNext } = getAlchemyLevelInfo(alchemyXP);
 
   const attemptCraft = useCallback(
     (recipe: AlchemyRecipeI) => {
       if (!canCraft(items, recipe)) return;
-      const chance = getAlchemySuccessChance(alchemyLevel, recipe.recipeLevel);
+      const baseChance = getAlchemySuccessChance(alchemyLevel, recipe.recipeLevel);
+      const chance = Math.min(100, baseChance + (talentAlchemyBonus ?? 0));
       const success = Math.random() * 100 < chance;
 
       const toConsume = [
@@ -53,11 +56,12 @@ export const AlchemyContainer = () => {
           })
         );
         dispatch(addAlchemyXP(getAlchemyXPSuccess(recipe.recipeLevel)));
+        dispatch(recordItemCrafted("alchemy"));
       } else {
         dispatch(addAlchemyXP(getAlchemyXPFail(recipe.recipeLevel)));
       }
     },
-    [dispatch, items, alchemyLevel]
+    [dispatch, items, alchemyLevel, talentAlchemyBonus]
   );
 
   return (
@@ -80,7 +84,8 @@ export const AlchemyContainer = () => {
       <div className="alchemy__recipes">
         {ALCHEMY_RECIPES.map((recipe) => {
           const canDo = canCraft(items, recipe);
-          const successChance = getAlchemySuccessChance(alchemyLevel, recipe.recipeLevel);
+          const baseChance = getAlchemySuccessChance(alchemyLevel, recipe.recipeLevel);
+          const successChance = Math.min(100, baseChance + (talentAlchemyBonus ?? 0));
           return (
             <div key={recipe.id} className="alchemy__recipe">
               <h4 className="alchemy__recipeName">{recipe.name}</h4>

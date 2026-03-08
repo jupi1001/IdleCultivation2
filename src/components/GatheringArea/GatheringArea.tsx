@@ -1,6 +1,7 @@
 import React from "react";
 import Item from "../../interfaces/ItemI";
 import LootTablePopover, { type LootTableEntry } from "../LootTablePopover/LootTablePopover";
+import { Tooltip } from "../Tooltip/Tooltip";
 import "./GatheringArea.css";
 
 interface GatheringAreaProps {
@@ -24,6 +25,22 @@ function formatGatheringDuration(ms: number): string {
   const sec = Math.round(ms / 1000);
   if (sec < 60) return `${sec}s`;
   return `${Math.floor(sec / 60)}m ${sec % 60}s`;
+}
+
+function getSkillAreaTooltipContent(
+  xpLabel: string,
+  xp: number,
+  duration: string,
+  requiredLevel: number,
+  unlocked: boolean,
+  lootLabel: string
+): string {
+  const lines: string[] = [];
+  lines.push(`${xpLabel}: ${xp} per cast`);
+  lines.push(`Duration: ${duration}`);
+  lines.push(unlocked ? "Unlocked" : `Requires Level ${requiredLevel} to unlock`);
+  lines.push(`Loot: See "${lootLabel}" below`);
+  return lines.join("\n");
 }
 
 const GatheringArea: React.FC<GatheringAreaProps> = ({
@@ -52,15 +69,30 @@ const GatheringArea: React.FC<GatheringAreaProps> = ({
     >
       <div className="gatheringAreaContainer__overlay" aria-hidden="true" />
       <div className="gatheringAreaContainer__content">
-        <h2 className="gatheringAreaContainer__title">{title}</h2>
-        <p className="gatheringAreaContainer__meta">
-          Gathering XP: {gatheringXP} · Duration: {formatGatheringDuration(gatheringDelay)}
-        </p>
-        {!unlocked && (
-          <p className="gatheringAreaContainer__lock">
-            Requires Gathering Level {requiredLevel} to unlock
-          </p>
-        )}
+        <Tooltip
+          content={getSkillAreaTooltipContent(
+            "Gathering XP",
+            gatheringXP,
+            formatGatheringDuration(gatheringDelay),
+            requiredLevel,
+            unlocked,
+            "Possible finds"
+          )}
+          placement="top"
+          maxWidth={260}
+        >
+          <span className="gatheringAreaContainer__tooltip-trigger">
+            <h2 className="gatheringAreaContainer__title">{title}</h2>
+            <p className="gatheringAreaContainer__meta">
+              Gathering XP: {gatheringXP} · Duration: {formatGatheringDuration(gatheringDelay)}
+            </p>
+            {!unlocked && (
+              <p className="gatheringAreaContainer__lock">
+                Requires Gathering Level {requiredLevel} to unlock
+              </p>
+            )}
+          </span>
+        </Tooltip>
         <LootTablePopover
           entries={lootEntries}
           items={lootEntries == null ? possibleLoot : undefined}

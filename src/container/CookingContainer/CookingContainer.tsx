@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { addItem, consumeItems, addCookingXP } from "../../state/reducers/characterSlice";
+import { addItem, consumeItems, addCookingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
 import {
   COOKING_RECIPES,
   getCookingLevelInfo,
@@ -41,6 +41,7 @@ export const CookingContainer = () => {
       dispatch(consumeItems(toConsume));
       dispatch(addItem({ ...recipe.output, quantity: recipe.outputAmount }));
       dispatch(addCookingXP(getCookingXP(recipe.recipeLevel)));
+      dispatch(recordItemCrafted("cooking"));
     },
     [dispatch, items]
   );

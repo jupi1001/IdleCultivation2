@@ -23,7 +23,9 @@ import {
   getKarmaQiMultiplier,
   getKarmaSkillXpMultiplier,
   getKarmaSpiritStoneMultiplier,
+  getTalentSpiritStoneMultiplier,
 } from "../state/selectors/characterSelectors";
+import { getTalentBonuses } from "../constants/talents";
 import { rollOneTimeDrop } from "./oneTimeDrops";
 import type Item from "../interfaces/ItemI";
 import type { CurrentFishingArea, CurrentGatheringArea, CurrentMiningArea } from "../state/reducers/characterSlice";
@@ -101,18 +103,21 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
 
   const activity = char.currentActivity;
   const karmaSsMult = getKarmaSpiritStoneMultiplier(state);
+  const talentSsMult = getTalentSpiritStoneMultiplier(state);
   const karmaQiMult = getKarmaQiMultiplier(state);
   const karmaXpMult = getKarmaSkillXpMultiplier(state);
 
   // Labour: miners always generate spirit stones (1 per second per miner)
-  result.offlineSpiritStones = char.miner * (offlineMs / 1000) * karmaSsMult;
+  result.offlineSpiritStones = char.miner * (offlineMs / 1000) * karmaSsMult * talentSsMult;
 
   // Meditation: only when activity was meditate (not when on expedition, etc.)
   if (activity === "meditate") {
+    const talentQi = getTalentBonuses(char.talentLevels ?? {}).qiGain;
     const qiPerSecond =
       BASE_QI_PER_SECOND +
       (char.equipment.qiTechnique?.qiGainBonus ?? 0) +
-      (char.equipment.amulet?.qiGainBonus ?? 0);
+      (char.equipment.amulet?.qiGainBonus ?? 0) +
+      talentQi;
     result.offlineQi = qiPerSecond * (offlineMs / 1000) * karmaQiMult;
   }
 

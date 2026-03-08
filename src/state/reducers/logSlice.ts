@@ -45,8 +45,8 @@ function createEntryId(): string {
 
 interface LogState {
   entries: LogEntry[];
-  /** UI filter: which category to show; "all" = show all. */
-  filter: LogFilterCategory | "all";
+  /** UI filter: which category to show; "all" = show all; "notifications" = toast history. */
+  filter: LogFilterCategory | "all" | "notifications";
   /** Whether the bottom log panel is collapsed. */
   panelCollapsed: boolean;
 }

@@ -1,6 +1,7 @@
 import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import { WEAKENED_STAT_MULTIPLIER } from "../reducers/characterSlice";
 import {
   FULL_SET_BONUS_PERCENT,
   SKILLING_SET_IDS,
@@ -8,6 +9,7 @@ import {
   type SkillSetTier,
 } from "../../constants/skillingSets";
 import { KARMA_BONUSES_BY_ID, type KarmaBonusId } from "../../constants/reincarnation";
+import { getTalentBonuses } from "../../constants/talents";
 
 /** Sum equipment bonuses for combat stats. Sword & ring → attack; helmet, body & amulet → defense and vitality; combatTechnique & ring → attack speed; amulet → qiGainBonus. */
 function getEquipmentCombatBonuses(equipment: RootState["character"]["equipment"]) {
@@ -98,21 +100,27 @@ function computeSkillSpeedBonus(equipment: RootState["character"]["equipment"], 
   return total;
 }
 
-/** Pre-built memoized selectors — one per skill so they never re-allocate. */
-export const getSkillSpeedBonusFishing = createSelector(
-  [(state: RootState) => state.character.equipment],
-  (equipment) => computeSkillSpeedBonus(equipment, "fishing")
-);
-export const getSkillSpeedBonusMining = createSelector(
-  [(state: RootState) => state.character.equipment],
-  (equipment) => computeSkillSpeedBonus(equipment, "mining")
-);
-export const getSkillSpeedBonusGathering = createSelector(
-  [(state: RootState) => state.character.equipment],
-  (equipment) => computeSkillSpeedBonus(equipment, "gathering")
+/** Talent bonuses (memoized from character.talentLevels). */
+export const getTalentBonusesSelector = createSelector(
+  [(state: RootState) => state.character.talentLevels],
+  (talentLevels) => getTalentBonuses(talentLevels ?? {})
 );
 
-/** Effective combat stats = realm + equipment + consumable bonus + karma. Attack is multiplied by combat technique. Memoized so same inputs return same reference. */
+/** Pre-built memoized selectors — one per skill so they never re-allocate. */
+export const getSkillSpeedBonusFishing = createSelector(
+  [(state: RootState) => state.character.equipment, getTalentBonusesSelector],
+  (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "fishing") + talentBonuses.fishingSpeedPercent
+);
+export const getSkillSpeedBonusMining = createSelector(
+  [(state: RootState) => state.character.equipment, getTalentBonusesSelector],
+  (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "mining") + talentBonuses.miningYieldPercent
+);
+export const getSkillSpeedBonusGathering = createSelector(
+  [(state: RootState) => state.character.equipment, getTalentBonusesSelector],
+  (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "gathering") + talentBonuses.gatheringSpeedPercent
+);
+
+/** Effective combat stats = realm + equipment + consumable bonus + karma + talents. Attack is multiplied by combat technique. When weakened (normal death penalty), stats are reduced. Memoized so same inputs return same reference. */
 export const getEffectiveCombatStats = createSelector(
   [
     (state: RootState) => state.character.attack,
@@ -123,20 +131,32 @@ export const getEffectiveCombatStats = createSelector(
     (state: RootState) => state.character.bonusHealth,
     (state: RootState) => state.character.equipment,
     (state: RootState) => state.character.karmaBonusLevels,
+    (state: RootState) => state.character.deathPenaltyMode,
+    (state: RootState) => state.character.isWeakened,
+    getTalentBonusesSelector,
   ],
-  (attack, defense, health, bonusAttack, bonusDefense, bonusHealth, equipment, karmaBonusLevels) => {
+  (attack, defense, health, bonusAttack, bonusDefense, bonusHealth, equipment, karmaBonusLevels, deathPenaltyMode, isWeakened, talentBonuses) => {
     const equipmentBonuses = getEquipmentCombatBonuses(equipment);
     const levels = karmaBonusLevels ?? {};
     const karmaAtkMult = 1 + karmaBonusValue(levels, "attackPercent") / 100;
     const karmaDefMult = 1 + karmaBonusValue(levels, "defensePercent") / 100;
     const karmaHpMult = 1 + karmaBonusValue(levels, "healthPercent") / 100;
-    const baseAttack = Math.floor(attack * karmaAtkMult) + bonusAttack + equipmentBonuses.attack;
+    const baseAttack = Math.floor(attack * karmaAtkMult) + bonusAttack + equipmentBonuses.attack + talentBonuses.attack;
+    let outAttack = Math.floor(baseAttack * equipmentBonuses.attackMultiplier);
+    let outDefense = Math.floor(defense * karmaDefMult) + bonusDefense + equipmentBonuses.defense + talentBonuses.defense;
+    let outHealth = Math.floor(health * karmaHpMult) + bonusHealth + equipmentBonuses.vitality + talentBonuses.vitality;
+    if (deathPenaltyMode === "normal" && isWeakened) {
+      outAttack = Math.floor(outAttack * WEAKENED_STAT_MULTIPLIER);
+      outDefense = Math.floor(outDefense * WEAKENED_STAT_MULTIPLIER);
+      outHealth = Math.floor(outHealth * WEAKENED_STAT_MULTIPLIER);
+    }
     return {
-      attack: Math.floor(baseAttack * equipmentBonuses.attackMultiplier),
-      defense: Math.floor(defense * karmaDefMult) + bonusDefense + equipmentBonuses.defense,
-      health: Math.floor(health * karmaHpMult) + bonusHealth + equipmentBonuses.vitality,
+      attack: outAttack,
+      defense: outDefense,
+      health: outHealth,
       attackSpeedReduction: equipmentBonuses.attackSpeedReduction,
       qiGainBonus: equipmentBonuses.qiGainBonus,
+      talentBonuses,
     };
   }
 );
@@ -183,4 +203,28 @@ export const getKarmaHealthMultiplier = createSelector(
 export const getKarmaSpiritStoneMultiplier = createSelector(
   [(state: RootState) => state.character.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "spiritStonePercent") / 100
+);
+
+/** Talent Qi gain (flat bonus added to base + equipment). */
+export const getTalentQiGainBonus = createSelector(
+  [getTalentBonusesSelector],
+  (talentBonuses) => talentBonuses.qiGain
+);
+
+/** Talent spirit stone income multiplier (1 + talent %). */
+export const getTalentSpiritStoneMultiplier = createSelector(
+  [getTalentBonusesSelector],
+  (talentBonuses) => 1 + talentBonuses.spiritStoneIncomePercent / 100
+);
+
+/** Talent shop discount (0–100 percent off). */
+export const getTalentShopDiscountPercent = createSelector(
+  [getTalentBonusesSelector],
+  (talentBonuses) => talentBonuses.shopDiscountPercent
+);
+
+/** Talent alchemy success bonus (percent added to success chance). */
+export const getTalentAlchemySuccessPercent = createSelector(
+  [getTalentBonusesSelector],
+  (talentBonuses) => talentBonuses.alchemySuccessPercent
 );

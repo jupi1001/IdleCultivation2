@@ -6,9 +6,9 @@ import EnemyLootPopover from "../../components/EnemyLootPopover/EnemyLootPopover
 import "./CombatContainer.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { addItems, addMoney, consumeItems, setCurrentHealth } from "../../state/reducers/characterSlice";
+import { addItems, addMoney, consumeItems, setCurrentHealth, setWeakened, recordEnemyKill, recordDeath } from "../../state/reducers/characterSlice";
 import { addLogEntry } from "../../state/reducers/logSlice";
-import { getEffectiveCombatStats, getOwnedTechniqueIds } from "../../state/selectors/characterSelectors";
+import { getEffectiveCombatStats, getOwnedTechniqueIds, getTalentSpiritStoneMultiplier } from "../../state/selectors/characterSelectors";
 import Item from "../../interfaces/ItemI";
 import { changeContent } from "../../state/reducers/contentSlice";
 import { ContentArea } from "../../enum/ContentArea";
@@ -27,6 +27,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const character = useSelector((state: RootState) => state.character);
   const effectiveStats = useSelector(getEffectiveCombatStats);
   const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
+  const talentSpiritStoneMult = useSelector(getTalentSpiritStoneMultiplier);
   const [characterState, setCharacterState] = useState(() => ({
     ...effectiveStats,
     health: Math.min(effectiveStats.health, character.currentHealth),
@@ -95,11 +96,15 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const lastEnemyAttackRef = useRef(Date.now());
   const ownedTechniqueIdsRef = useRef(ownedTechniqueIds);
   const characterRef = useRef(character);
+  const talentBonusesRef = useRef(effectiveStats.talentBonuses);
+  const talentSpiritStoneMultRef = useRef(talentSpiritStoneMult);
 
   characterStateRef.current = characterState;
   currentEnemyRef.current = currentEnemy ?? null;
   ownedTechniqueIdsRef.current = ownedTechniqueIds;
   characterRef.current = character;
+  talentBonusesRef.current = effectiveStats.talentBonuses;
+  talentSpiritStoneMultRef.current = talentSpiritStoneMult;
 
   // Redirect if no valid area, no enemies, or realm too low for this area
   useEffect(() => {
@@ -128,6 +133,23 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     }));
   };
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.getAttribute("contenteditable") === "true") return;
+      if (e.key >= "1" && e.key <= "9") {
+        const idx = e.key.charCodeAt(0) - "1".charCodeAt(0);
+        const item = vitalityFood[idx];
+        if (item) {
+          e.preventDefault();
+          useVitalityFood(item);
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [vitalityFood, effectiveStats.health]);
+
   /** Spirit stones awarded per kill (scaled by enemy max HP for stronger rewards). */
   const getSpiritStonesFromEnemy = (enemy: EnemyI) => {
     const maxHp = enemies.find((e) => e.id === enemy.id)?.health ?? enemy.health;
@@ -150,13 +172,17 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
 
   /**
    * Escaping combat. Persists current HP to Redux, puts loot (items + spirit stones) in inventory (if any), then goes to Meditation.
-   * If the character died, currentHealth is set to 0, loot bag is cleared.
+   * If the character died, currentHealth is set to 0, loot bag is cleared. In normal death penalty mode, weakened state is applied.
    */
   const handleEscapeButton = (died: boolean) => {
     dispatch(setCurrentHealth(died ? 0 : characterState.health));
-    if (died) {
+      if (died) {
       setItemBag([]);
       setLootSpiritStones(0);
+      if (character.deathPenaltyMode === "normal") {
+        dispatch(setWeakened(true));
+      }
+      dispatch(recordDeath());
     } else if (itemBag.length > 0 || lootSpiritStones > 0) {
       handleLootButton();
     }
@@ -247,15 +273,23 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     const doesHit = roll >= percentageEnemyBlock;
 
     if (doesHit) {
-      const damage = charState.attack > 0 ? Math.floor(Math.random() * charState.attack) + 1 : 0;
+      let damage = charState.attack > 0 ? Math.floor(Math.random() * charState.attack) + 1 : 0;
+      const bonuses = talentBonusesRef.current;
+      if (bonuses.critChancePercent > 0 && Math.random() * 100 < bonuses.critChancePercent) damage *= 2;
       dispatch(addLogEntry({ type: "combat_hit", enemyName: enemy.name, damage }));
       setLastDamageToEnemy(damage);
-      const newHealth = enemy.health - damage;
+      let newHealth = enemy.health - damage;
+      if (bonuses.aoeChancePercent > 0 && Math.random() * 100 < bonuses.aoeChancePercent) {
+        const extra = Math.floor(damage * 0.5);
+        newHealth -= extra;
+        damage += extra;
+      }
       setCurrentEnemy({ ...enemy, health: newHealth });
       if (newHealth <= 0) {
         dispatch(addLogEntry({ type: "enemy_killed", enemyName: enemy.name }));
+        if (area) dispatch(recordEnemyKill(area));
         setLastDamageToEnemy(null);
-        const spiritStones = getSpiritStonesFromEnemy(enemy);
+        const spiritStones = Math.floor(getSpiritStonesFromEnemy(enemy) * talentSpiritStoneMultRef.current);
         if (characterRef.current.autoLoot) {
           dispatch(addMoney(spiritStones));
           const droppedItem = rollOneLootDrop(enemy);
@@ -268,6 +302,25 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
           setLootSpiritStones((prev) => prev + spiritStones);
         }
         setCurrentEnemy(getRandomEnemy());
+        if (bonuses.lifestealPercent > 0 && damage > 0) {
+          const heal = Math.floor(damage * (bonuses.lifestealPercent / 100));
+          if (heal > 0) {
+            setCharacterState((prev) => ({
+              ...prev,
+              health: Math.min(characterStateRef.current.health + heal, effectiveStats.health),
+            }));
+          }
+        }
+      } else {
+        if (bonuses.lifestealPercent > 0 && damage > 0) {
+          const heal = Math.floor(damage * (bonuses.lifestealPercent / 100));
+          if (heal > 0) {
+            setCharacterState((prev) => ({
+              ...prev,
+              health: Math.min(prev.health + heal, effectiveStats.health),
+            }));
+          }
+        }
       }
     } else {
       dispatch(addLogEntry({ type: "combat_miss", enemyName: enemy.name }));
@@ -289,11 +342,19 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     if (doesHit) {
       const damage = enemy.attack > 0 ? Math.floor(Math.random() * enemy.attack) + 1 : 0;
       setLastDamageToCharacter(damage);
+      const bonuses = talentBonusesRef.current;
       setCharacterState((prev) => {
         const newHealth = prev.health - damage;
         if (newHealth <= 0) setTimeout(() => handleEscapeRef.current(true), 0);
         return { ...prev, health: newHealth };
       });
+      if (bonuses.damageReflectPercent > 0 && damage > 0) {
+        const reflected = Math.floor(damage * (bonuses.damageReflectPercent / 100));
+        if (reflected > 0) {
+          const newEnemyHealth = enemy.health - reflected;
+          setCurrentEnemy(newEnemyHealth <= 0 ? getRandomEnemy() : { ...enemy, health: newEnemyHealth });
+        }
+      }
     }
     lastEnemyAttackRef.current = Date.now();
   };

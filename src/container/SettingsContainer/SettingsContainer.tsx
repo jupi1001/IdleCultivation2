@@ -2,11 +2,26 @@ import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { formatRealm } from "../../constants/realmProgression";
-import { setAutoLoot } from "../../state/reducers/characterSlice";
+import { setAutoLoot, setDeathPenaltyMode, setNotificationPrefs } from "../../state/reducers/characterSlice";
 import { exportSave, importSave, hardReset, formatSaveDate } from "../../utils/saveManager";
 import "./SettingsContainer.css";
 
-export const SettingsContainer = () => {
+type Theme = "dark" | "light";
+
+interface SettingsContainerProps {
+  theme?: Theme;
+  setTheme?: (t: Theme) => void;
+}
+
+const DEFAULT_NOTIFICATION_PREFS = {
+  toastsEnabled: true,
+  levelUp: true,
+  rareDrop: true,
+  achievement: true,
+  expedition: true,
+};
+
+export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContainerProps) => {
   const dispatch = useDispatch();
   const character = useSelector((state: RootState) => state.character);
 
@@ -77,6 +92,7 @@ export const SettingsContainer = () => {
   };
 
   const lastSaved = character.lastActiveTimestamp;
+  const notificationPrefs = character.notificationPrefs ?? DEFAULT_NOTIFICATION_PREFS;
 
   return (
     <div className="settings">
@@ -84,6 +100,26 @@ export const SettingsContainer = () => {
       <p className="settings__subtitle">
         Manage your save data. Export regularly to avoid losing progress!
       </p>
+
+      {/* Appearance / Theme */}
+      {setTheme != null && (
+        <div className="settings__section">
+          <h3 className="settings__section-title">Appearance</h3>
+          <div className="settings__death-penalty">
+            <span className="settings__toggle-label">Theme</span>
+            <select
+              className="settings__select"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as Theme)}
+              aria-label="Theme"
+            >
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </div>
+          <p className="settings__section-desc">Choose dark or light theme.</p>
+        </div>
+      )}
 
       {/* Save info */}
       <div className="settings__section">
@@ -98,23 +134,95 @@ export const SettingsContainer = () => {
       </div>
 
       {/* Gameplay */}
-      {character.autoLootUnlocked && (
-        <div className="settings__section">
-          <h3 className="settings__section-title">Gameplay</h3>
-          <label className="settings__toggle-row">
-            <span className="settings__toggle-label">Auto-Loot (combat)</span>
-            <input
-              type="checkbox"
-              checked={!!character.autoLoot}
-              onChange={(e) => dispatch(setAutoLoot(e.target.checked))}
-              className="settings__checkbox"
-            />
-          </label>
-          <p className="settings__section-desc">
-            When on, loot and spirit stones from defeated enemies go straight to your inventory. Kept after reincarnation.
-          </p>
+      <div className="settings__section">
+        <h3 className="settings__section-title">Gameplay</h3>
+        <div className="settings__death-penalty">
+          <span className="settings__toggle-label">Death penalty</span>
+          <select
+            className="settings__select"
+            value={character.deathPenaltyMode ?? "normal"}
+            onChange={(e) => dispatch(setDeathPenaltyMode(e.target.value as "normal" | "casual"))}
+            aria-label="Death penalty mode"
+          >
+            <option value="normal">Normal (weakened until you meditate)</option>
+            <option value="casual">Casual (no weakened state)</option>
+          </select>
         </div>
-      )}
+        <p className="settings__section-desc">
+          Normal: on death you lose loot and HP, then stay Weakened (50% combat stats) until you meditate for 30 seconds. Casual: no weakened state.
+        </p>
+        {character.autoLootUnlocked && (
+          <>
+            <label className="settings__toggle-row">
+              <span className="settings__toggle-label">Auto-Loot (combat)</span>
+              <input
+                type="checkbox"
+                checked={!!character.autoLoot}
+                onChange={(e) => dispatch(setAutoLoot(e.target.checked))}
+                className="settings__checkbox"
+              />
+            </label>
+            <p className="settings__section-desc">
+              When on, loot and spirit stones from defeated enemies go straight to your inventory. Kept after reincarnation.
+            </p>
+          </>
+        )}
+      </div>
+
+      {/* Notifications */}
+      <div className="settings__section">
+        <h3 className="settings__section-title">Notifications</h3>
+        <label className="settings__toggle-row">
+          <span className="settings__toggle-label">Show toast popups</span>
+          <input
+            type="checkbox"
+            checked={!!notificationPrefs.toastsEnabled}
+            onChange={(e) => dispatch(setNotificationPrefs({ toastsEnabled: e.target.checked }))}
+            className="settings__checkbox"
+          />
+        </label>
+        <p className="settings__section-desc">When off, notifications are still in Activity Log → Notifications.</p>
+        <div className="settings__check-group">
+          <label className="settings__toggle-row settings__toggle-row--small">
+            <span className="settings__toggle-label">Level-up</span>
+            <input type="checkbox" checked={!!notificationPrefs.levelUp} onChange={(e) => dispatch(setNotificationPrefs({ levelUp: e.target.checked }))} className="settings__checkbox" />
+          </label>
+          <label className="settings__toggle-row settings__toggle-row--small">
+            <span className="settings__toggle-label">Rare drop</span>
+            <input type="checkbox" checked={!!notificationPrefs.rareDrop} onChange={(e) => dispatch(setNotificationPrefs({ rareDrop: e.target.checked }))} className="settings__checkbox" />
+          </label>
+          <label className="settings__toggle-row settings__toggle-row--small">
+            <span className="settings__toggle-label">Achievement</span>
+            <input type="checkbox" checked={!!notificationPrefs.achievement} onChange={(e) => dispatch(setNotificationPrefs({ achievement: e.target.checked }))} className="settings__checkbox" />
+          </label>
+          <label className="settings__toggle-row settings__toggle-row--small">
+            <span className="settings__toggle-label">Expedition</span>
+            <input type="checkbox" checked={!!notificationPrefs.expedition} onChange={(e) => dispatch(setNotificationPrefs({ expedition: e.target.checked }))} className="settings__checkbox" />
+          </label>
+        </div>
+      </div>
+
+      {/* Keyboard Shortcuts */}
+      <div className="settings__section">
+        <h3 className="settings__section-title">Keyboard Shortcuts</h3>
+        <p className="settings__section-desc">Single-letter keys open panels (when not typing in an input).</p>
+        <ul className="settings__shortcuts-list">
+          <li><kbd>M</kbd> Map</li>
+          <li><kbd>S</kbd> Sect</li>
+          <li><kbd>I</kbd> Inventory</li>
+          <li><kbd>T</kbd> Training</li>
+          <li><kbd>F</kbd> Fishing</li>
+          <li><kbd>G</kbd> Gathering</li>
+          <li><kbd>N</kbd> Mining</li>
+          <li><kbd>P</kbd> Shop</li>
+          <li><kbd>C</kbd> Cultivation Tree</li>
+          <li><kbd>A</kbd> Achievements</li>
+          <li><kbd>L</kbd> Activity Log</li>
+          <li><kbd>E</kbd> Stats</li>
+          <li><kbd>Esc</kbd> Close modal / back to Map</li>
+          <li><kbd>1</kbd>–<kbd>9</kbd> Use vitality food in combat (first 9 healing items)</li>
+        </ul>
+      </div>
 
       {/* Export */}
       <div className="settings__section">

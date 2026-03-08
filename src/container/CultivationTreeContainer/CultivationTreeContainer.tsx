@@ -13,7 +13,7 @@ const TREE_TIERS_TOP_TO_BOTTOM = [...TALENT_TREE_TIERS].reverse();
 export const CultivationTreeContainer = () => {
   const dispatch = useDispatch();
   const character = useSelector((state: RootState) => state.character);
-  const { qi, realm, realmLevel, talentLevels } = character;
+  const { qi, realm, realmLevel, talentLevels, path } = character;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export const CultivationTreeContainer = () => {
                 <div className="cultivationTree__row">
                   {tier.nodes.map((node) => {
                     const currentLevel = talentLevels[node.id] ?? 0;
-                    const state = getTalentNodeState(node, qi, realm, realmLevel, talentLevels);
+                    const state = getTalentNodeState(node, qi, realm, realmLevel, talentLevels, path);
                     return (
                       <TalentNodeCard
                         key={node.id}
@@ -56,6 +56,7 @@ export const CultivationTreeContainer = () => {
                         currentLevel={currentLevel}
                         state={state}
                         onPurchase={() => dispatch(purchaseTalentLevel(node.id))}
+                        path={path}
                       />
                     );
                   })}

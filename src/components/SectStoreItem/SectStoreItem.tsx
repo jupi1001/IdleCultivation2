@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem, reduceMoney } from "../../state/reducers/characterSlice";
 import { RootState } from "../../state/store";
-import { getOwnedTechniqueIds } from "../../state/selectors/characterSelectors";
+import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
 import type { SectStoreEntryI } from "../../constants/data";
+import { Tooltip } from "../Tooltip/Tooltip";
+import { formatItemStats } from "../../utils/itemTooltipUtils";
 import "./SectStoreItem.css";
 
 interface SectStoreItemProps {
@@ -17,31 +19,35 @@ interface SectStoreItemProps {
 export const SectStoreItem: React.FC<SectStoreItemProps> = ({ entry, locked, requiredPositionName, sectName }) => {
   const dispatch = useDispatch();
   const money = useSelector((state: RootState) => state.character.money);
+  const shopDiscountPercent = useSelector(getTalentShopDiscountPercent);
   const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
   const [showPoor, setShowPoor] = useState(false);
   const { item } = entry;
+  const effectivePrice = Math.max(1, Math.floor(item.price * (1 - (shopDiscountPercent ?? 0) / 100)));
   const isTechnique = item.equipmentSlot === "qiTechnique" || item.equipmentSlot === "combatTechnique";
   const alreadyOwned = isTechnique && ownedTechniqueIds.has(item.id);
 
   const handleBuy = () => {
     if (alreadyOwned) return;
-    if (money < item.price) {
+    if (money < effectivePrice) {
       setShowPoor(true);
       return;
     }
-    dispatch(reduceMoney(item.price));
+    dispatch(reduceMoney(effectivePrice));
     dispatch(addItem({ ...item, quantity: 1 }));
     setShowPoor(false);
   };
 
   return (
     <div className={`sectStoreItem ${locked ? "sectStoreItem--locked" : ""}`}>
-      <h4 className="sectStoreItem__name">{item.name}</h4>
+      <Tooltip content={formatItemStats(item)} placement="top" maxWidth={280}>
+        <h4 className="sectStoreItem__name">{item.name}</h4>
+      </Tooltip>
       {sectName != null && (
         <p className="sectStoreItem__from">From: {sectName}</p>
       )}
       <p className="sectStoreItem__desc">{item.description}</p>
-      <p className="sectStoreItem__price">Cost: {item.price} Spirit Stones</p>
+      <p className="sectStoreItem__price">Cost: {effectivePrice === item.price ? item.price : `${effectivePrice} (was ${item.price})`} Spirit Stones</p>
       {locked ? (
         <p className="sectStoreItem__requires">Requires: {requiredPositionName}</p>
       ) : alreadyOwned ? (

@@ -1,13 +1,34 @@
 import type { RealmId } from "../constants/realmProgression";
+import type { CultivationPath } from "../constants/cultivationPath";
 
 export interface RealmRequirement {
   realmId: RealmId;
   realmLevel: number;
 }
 
-/** Effect applied per level of the talent (e.g. +5 attack per level). Use "vitality" for character health. */
+/** Effect types: flat stats, Qi gain, skill %, combat %, economy %. */
+export type TalentEffectType =
+  | "attack"
+  | "defense"
+  | "vitality"
+  | "qiGain"
+  | "fishingXP"
+  | "fishingSpeedPercent"
+  | "miningYieldPercent"
+  | "gatheringSpeedPercent"
+  | "alchemySuccessPercent"
+  | "forgingSpeedPercent"
+  | "cookingSpeedPercent"
+  | "critChancePercent"
+  | "lifestealPercent"
+  | "damageReflectPercent"
+  | "aoeChancePercent"
+  | "spiritStoneIncomePercent"
+  | "shopDiscountPercent";
+
+/** Effect applied per level of the talent. Percent types use value as the percent (e.g. 5 = 5%). */
 export interface TalentEffect {
-  type: "attack" | "defense" | "vitality" | "qiGain" | "fishingXP";
+  type: TalentEffectType;
   value: number;
 }
 
@@ -22,6 +43,8 @@ export interface TalentNode {
   requiredRealm?: RealmRequirement;
   /** Must have these talent ids at max level before this node can be purchased */
   requiredTalentIds?: number[];
+  /** If set, only this path can see and purchase this node */
+  path?: CultivationPath;
   effect: TalentEffect;
 }
 

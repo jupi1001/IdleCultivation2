@@ -13,6 +13,12 @@
   color: var(--text-muted);
 }
 
+.app__characterBlock-weakened {
+  margin: 0 0 0.5rem;
+  font-size: 0.9em;
+  color: #b8730a;
+}
+
 .app__characterBlock-ul {
   list-style: none;
   margin: 0;

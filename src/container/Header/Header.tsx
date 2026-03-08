@@ -4,22 +4,13 @@ import { changeContent, type PageValue } from "../../state/reducers/contentSlice
 import "./Header.css";
 import { ContentArea } from "../../enum/ContentArea";
 
-type Theme = "dark" | "light";
+interface HeaderProps {}
 
-interface HeaderProps {
-  theme: Theme;
-  setTheme: (t: Theme) => void;
-}
-
-export const Header = ({ theme, setTheme }: HeaderProps) => {
+export const Header = (_props: HeaderProps) => {
   const dispatch = useDispatch();
 
   const openContent = (input: PageValue) => {
     dispatch(changeContent(input));
-  };
-
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   return (
@@ -49,11 +40,11 @@ export const Header = ({ theme, setTheme }: HeaderProps) => {
         <li>
           <button onClick={() => openContent(ContentArea.ACTIVITY_LOG)}>Activity Log</button>
         </li>
+        <li>
+          <button onClick={() => openContent(ContentArea.STATS)}>Statistics</button>
+        </li>
       </ul>
       <div className="app__header-actions">
-        <button type="button" className="app__header-theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
-          {theme === "dark" ? "☀" : "☽"}
-        </button>
         <button type="button" className="app__header-settings" onClick={() => openContent(ContentArea.SETTINGS)} aria-label="Settings">
           ⚙
         </button>

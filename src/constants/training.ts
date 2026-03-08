@@ -33,4 +33,10 @@ export const TRAINING_AREA_IMAGE_SLUG: Record<CombatArea, string> = {
   [CombatArea.SEA]: "endless-cloudsea-sanctuary",
   [CombatArea.STORM]: "nine-heavens-thunder-plateau",
   [CombatArea.PALACE]: "jade-immortal-court",
+  [CombatArea.JADE_MOUNTAIN_RAID]: "jade-mountain-raid",
+  [CombatArea.VERDANT_VALLEY_RAID]: "verdant-valley-raid",
+  [CombatArea.AZURE_SKY_RAID]: "azure-sky-raid",
+  [CombatArea.CRIMSON_DEMON_RAID]: "crimson-demon-raid",
+  [CombatArea.SHADOW_SERPENT_RAID]: "shadow-serpent-raid",
+  [CombatArea.BONE_ABYSS_RAID]: "bone-abyss-raid",
 };

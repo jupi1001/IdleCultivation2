@@ -8,6 +8,27 @@ A browser-based idle game where you cultivate qi, break through realms, join sec
 2. Open the game in your browser. Progress is saved automatically in this browser.
 3. Choose your path (Righteous or Demonic), then explore the map, meditate, train, and unlock new areas and sects.
 
+## Keyboard shortcuts
+
+These work when focus is not in an input field. You can also see them in **Settings → Keyboard Shortcuts**.
+
+| Key | Action |
+|-----|--------|
+| **M** | Map |
+| **S** | Sect |
+| **I** | Inventory |
+| **T** | Training |
+| **F** | Fishing |
+| **G** | Gathering |
+| **N** | Mining |
+| **P** | Shop |
+| **C** | Cultivation Tree |
+| **A** | Achievements |
+| **L** | Activity Log |
+| **E** | Stats |
+| **Esc** | Close modal / back to Map |
+| **1–9** | Use vitality (healing) food in combat (first 9 healing items) |
+
 ## Run locally
 
 ```bash

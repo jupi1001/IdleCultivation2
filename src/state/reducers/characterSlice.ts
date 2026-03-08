@@ -30,6 +30,12 @@ import {
   AVATAR_TRAIN_SPIRIT_STONES,
 } from "../../constants/avatars";
 
+/** Seconds of meditation required to clear weakened state after death (normal mode). */
+export const WEAKENED_MEDITATION_SECONDS = 30;
+
+/** Stat multiplier when weakened (e.g. 0.5 = 50% attack/defense/health). */
+export const WEAKENED_STAT_MULTIPLIER = 0.5;
+
 /** Payload for applyOfflineProgress (matches OfflineProgressResult from utils/offlineProgress). */
 export interface ApplyOfflineProgressPayload {
   offlineMs: number;
@@ -74,6 +80,26 @@ function upsertItem(items: Item[], item: Item, qty = 1) {
     existing.quantity = (existing.quantity ?? 1) + qty;
   } else {
     items.push({ ...item, quantity: qty });
+  }
+}
+
+function ensureStats(state: { stats?: CharacterStats }): void {
+  if (!state.stats) {
+    state.stats = {
+      enemiesKilledByArea: {},
+      itemsGatheredFishing: 0,
+      itemsGatheredMining: 0,
+      itemsGatheredGathering: 0,
+      totalSpiritStonesEarned: 0,
+      totalQiGenerated: 0,
+      totalBreakthroughs: 0,
+      timePlayedMs: 0,
+      highestRealmStep: 0,
+      itemsCraftedAlchemy: 0,
+      itemsCraftedForging: 0,
+      itemsCraftedCooking: 0,
+      deaths: 0,
+    };
   }
 }
 
@@ -161,6 +187,44 @@ interface CharacterState {
   autoLootUnlocked: boolean;
   /** When true, combat loot and spirit stones go straight to inventory on kill (persists through reincarnation). */
   autoLoot: boolean;
+  /** Death penalty mode: "normal" = weakened state after death until meditation; "casual" = no weakened. */
+  deathPenaltyMode: "normal" | "casual";
+  /** After death (normal mode): true until player meditates for required seconds. */
+  isWeakened: boolean;
+  /** Seconds meditated while weakened; when >= WEAKENED_MEDITATION_SECONDS, weakened clears. */
+  weakenedMeditationSecondsDone: number;
+  /** Lifetime statistics (persisted). */
+  stats: CharacterStats;
+  /** Toast notifications: master switch and per-type. */
+  notificationPrefs: NotificationPrefs;
+  /** Volume 0–100 for music and SFX (persisted; actual audio not yet wired). */
+  soundVolume: { music: number; sfx: number };
+}
+
+export interface NotificationPrefs {
+  toastsEnabled: boolean;
+  levelUp: boolean;
+  rareDrop: boolean;
+  achievement: boolean;
+  expedition: boolean;
+}
+
+export interface CharacterStats {
+  /** Enemies killed per area (area display name as key). */
+  enemiesKilledByArea: Record<string, number>;
+  itemsGatheredFishing: number;
+  itemsGatheredMining: number;
+  itemsGatheredGathering: number;
+  totalSpiritStonesEarned: number;
+  totalQiGenerated: number;
+  totalBreakthroughs: number;
+  timePlayedMs: number;
+  /** Highest realm step index reached (getStepIndex). */
+  highestRealmStep: number;
+  itemsCraftedAlchemy: number;
+  itemsCraftedForging: number;
+  itemsCraftedCooking: number;
+  deaths: number;
 }
 
 /** Display-only summary for the Welcome Back modal (no item lists). */
@@ -234,6 +298,32 @@ const initialState: CharacterState = {
   karmaBonusLevels: {},
   autoLootUnlocked: false,
   autoLoot: false,
+  deathPenaltyMode: "normal",
+  isWeakened: false,
+  weakenedMeditationSecondsDone: 0,
+  stats: {
+    enemiesKilledByArea: {},
+    itemsGatheredFishing: 0,
+    itemsGatheredMining: 0,
+    itemsGatheredGathering: 0,
+    totalSpiritStonesEarned: 0,
+    totalQiGenerated: 0,
+    totalBreakthroughs: 0,
+    timePlayedMs: 0,
+    highestRealmStep: 0,
+    itemsCraftedAlchemy: 0,
+    itemsCraftedForging: 0,
+    itemsCraftedCooking: 0,
+    deaths: 0,
+  },
+  notificationPrefs: {
+    toastsEnabled: true,
+    levelUp: true,
+    rareDrop: true,
+    achievement: true,
+    expedition: true,
+  },
+  soundVolume: { music: 100, sfx: 100 },
 };
 
 export const characterSlice = createSlice({
@@ -259,7 +349,9 @@ export const characterSlice = createSlice({
       state.bonusHealth = Math.max(0, state.bonusHealth - action.payload);
     },
     addMoney: (state, action: PayloadAction<number>) => {
+      ensureStats(state);
       state.money = state.money + action.payload;
+      state.stats!.totalSpiritStonesEarned += action.payload;
     },
     reduceMoney: (state, action: PayloadAction<number>) => {
       state.money = state.money - action.payload;
@@ -329,7 +421,9 @@ export const characterSlice = createSlice({
       state.fishingXP = state.fishingXP + action.payload;
     },
     addQi: (state, action: PayloadAction<number>) => {
+      ensureStats(state);
       state.qi = Math.round((state.qi + action.payload) * 100) / 100;
+      state.stats!.totalQiGenerated += action.payload;
     },
     setQi: (state, action: PayloadAction<number>) => {
       state.qi = action.payload;
@@ -346,6 +440,7 @@ export const characterSlice = createSlice({
     breakthrough: (state) => {
       const next = getNextRealm(state.realm, state.realmLevel);
       if (next) {
+        ensureStats(state);
         const requiredQi = getBreakthroughQiRequired(state.realm, state.realmLevel);
         state.qi = Math.max(0, Math.round((state.qi - requiredQi) * 100) / 100);
         state.realm = next.realmId;
@@ -355,6 +450,9 @@ export const characterSlice = createSlice({
         state.defense = stats.defense;
         state.health = stats.health;
         state.currentHealth = stats.health;
+        state.stats!.totalBreakthroughs += 1;
+        const step = getStepIndex(next.realmId, next.realmLevel);
+        if (step > state.stats!.highestRealmStep) state.stats!.highestRealmStep = step;
       }
     },
     setCurrentHealth: (state, action: PayloadAction<number>) => {
@@ -426,6 +524,8 @@ export const characterSlice = createSlice({
         );
         if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
       }
+      ensureStats(state);
+      state.stats!.itemsGatheredFishing += 1 + (action.payload.rareDropItem ? 1 : 0) + (action.payload.skillingSetDropItem ? 1 : 0);
     },
     setCurrentMiningArea: (state, action: PayloadAction<CurrentMiningArea | null>) => {
       state.currentMiningArea = action.payload;
@@ -464,6 +564,8 @@ export const characterSlice = createSlice({
         );
         if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
       }
+      ensureStats(state);
+      state.stats!.itemsGatheredMining += 1 + (action.payload.geodeDropped ? 1 : 0) + (action.payload.skillingSetDropItem ? 1 : 0);
     },
     setCurrentGatheringArea: (state, action: PayloadAction<CurrentGatheringArea | null>) => {
       state.currentGatheringArea = action.payload;
@@ -509,6 +611,8 @@ export const characterSlice = createSlice({
         );
         if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
       }
+      ensureStats(state);
+      state.stats!.itemsGatheredGathering += 1 + (action.payload.rareDropItem ? 1 : 0) + (action.payload.skillingSetDropItem ? 1 : 0);
     },
     equipItem: (state, action: PayloadAction<{ slot: EquipmentSlot; item: Item }>) => {
       const { slot, item } = action.payload;
@@ -684,6 +788,7 @@ export const characterSlice = createSlice({
     purchaseTalentLevel: (state, action: PayloadAction<number>) => {
       const node = TALENT_NODES_BY_ID[action.payload];
       if (!node) return;
+      if (node.path != null && state.path !== node.path) return;
       const currentLevel = state.talentLevels[node.id] ?? 0;
       if (currentLevel >= node.maxLevel) return;
       if (state.qi < node.costQi) return;
@@ -703,6 +808,10 @@ export const characterSlice = createSlice({
       state.talentLevels[node.id] = currentLevel + 1;
     },
     setLastActiveTimestamp: (state, action: PayloadAction<number>) => {
+      ensureStats(state);
+      if (state.lastActiveTimestamp > 0) {
+        state.stats!.timePlayedMs += Math.max(0, action.payload - state.lastActiveTimestamp);
+      }
       state.lastActiveTimestamp = action.payload;
     },
     applyOfflineProgress: (state, action: PayloadAction<ApplyOfflineProgressPayload>) => {
@@ -846,6 +955,8 @@ export const characterSlice = createSlice({
       state.gatheringCastId = 0;
       state.lastActiveTimestamp = Date.now();
       state.lastOfflineSummary = null;
+      state.isWeakened = false;
+      state.weakenedMeditationSecondsDone = 0;
     },
     purchaseKarmaBonus: (state, action: PayloadAction<KarmaBonusId>) => {
       const bonus = KARMA_BONUSES_BY_ID[action.payload];
@@ -868,6 +979,52 @@ export const characterSlice = createSlice({
     setAutoLoot: (state, action: PayloadAction<boolean>) => {
       if (!state.autoLootUnlocked) return;
       state.autoLoot = action.payload;
+    },
+    /** Death penalty: "normal" = weakened after death; "casual" = no weakened. */
+    setDeathPenaltyMode: (state, action: PayloadAction<"normal" | "casual">) => {
+      state.deathPenaltyMode = action.payload;
+      if (action.payload === "casual") {
+        state.isWeakened = false;
+        state.weakenedMeditationSecondsDone = 0;
+      }
+    },
+    /** Set weakened state (e.g. on death in normal mode). */
+    setWeakened: (state, action: PayloadAction<boolean>) => {
+      state.isWeakened = action.payload;
+      if (!action.payload) state.weakenedMeditationSecondsDone = 0;
+    },
+    /** While meditating and weakened, call every second; clears weakened when done. */
+    tickWeakenedRecovery: (state, action: PayloadAction<number>) => {
+      if (!state.isWeakened || state.deathPenaltyMode !== "normal") return;
+      state.weakenedMeditationSecondsDone += action.payload;
+      if (state.weakenedMeditationSecondsDone >= WEAKENED_MEDITATION_SECONDS) {
+        state.isWeakened = false;
+        state.weakenedMeditationSecondsDone = 0;
+      }
+    },
+    recordEnemyKill: (state, action: PayloadAction<string>) => {
+      ensureStats(state);
+      const area = action.payload;
+      state.stats!.enemiesKilledByArea[area] = (state.stats!.enemiesKilledByArea[area] ?? 0) + 1;
+    },
+    recordDeath: (state) => {
+      ensureStats(state);
+      state.stats!.deaths += 1;
+    },
+    recordItemCrafted: (state, action: PayloadAction<"alchemy" | "forging" | "cooking">) => {
+      ensureStats(state);
+      if (action.payload === "alchemy") state.stats!.itemsCraftedAlchemy += 1;
+      else if (action.payload === "forging") state.stats!.itemsCraftedForging += 1;
+      else state.stats!.itemsCraftedCooking += 1;
+    },
+    setNotificationPrefs: (state, action: PayloadAction<Partial<NotificationPrefs>>) => {
+      if (!state.notificationPrefs) state.notificationPrefs = { toastsEnabled: true, levelUp: true, rareDrop: true, achievement: true, expedition: true };
+      Object.assign(state.notificationPrefs, action.payload);
+    },
+    setSoundVolume: (state, action: PayloadAction<{ music?: number; sfx?: number }>) => {
+      if (!state.soundVolume) state.soundVolume = { music: 100, sfx: 100 };
+      if (action.payload.music != null) state.soundVolume.music = Math.max(0, Math.min(100, action.payload.music));
+      if (action.payload.sfx != null) state.soundVolume.sfx = Math.max(0, Math.min(100, action.payload.sfx));
     },
   },
 });
@@ -928,6 +1085,14 @@ export const {
   purchaseKarmaBonus,
   purchaseAutoLootUnlock,
   setAutoLoot,
+  setDeathPenaltyMode,
+  setWeakened,
+  tickWeakenedRecovery,
+  recordEnemyKill,
+  recordDeath,
+  recordItemCrafted,
+  setNotificationPrefs,
+  setSoundVolume,
 } = characterSlice.actions;
 
 export default characterSlice.reducer;

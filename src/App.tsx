@@ -21,8 +21,8 @@ function App() {
 
   return (
     <div className="theme-wrap" data-theme={theme} style={{ minHeight: "100%", display: "flex", flexDirection: "column", flex: 1 }}>
-      <Header theme={theme} setTheme={setTheme} />
-      <Main />
+      <Header />
+      <Main theme={theme} setTheme={setTheme} />
       <ToastContainer />
     </div>
   );

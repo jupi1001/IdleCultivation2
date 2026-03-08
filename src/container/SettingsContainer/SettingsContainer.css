@@ -173,3 +173,82 @@
   height: 1.15rem;
   accent-color: var(--accent);
 }
+
+.settings__death-penalty {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.settings__select {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg, #1a1a1a);
+  color: var(--text);
+  min-width: 220px;
+}
+
+.settings__check-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.settings__toggle-row--small .settings__toggle-label {
+  font-size: 0.9rem;
+}
+
+.settings__sound-row {
+  margin-top: 0.5rem;
+}
+
+.settings__sound-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  cursor: default;
+}
+
+.settings__sound-label span:first-child {
+  min-width: 3rem;
+}
+
+.settings__range {
+  flex: 1;
+  max-width: 160px;
+  accent-color: var(--accent);
+}
+
+.settings__sound-value {
+  min-width: 2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.settings__shortcuts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.35rem 1rem;
+}
+
+.settings__shortcuts-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.settings__shortcuts-list kbd {
+  font-family: inherit;
+  font-size: 0.85em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: var(--bg-secondary, #333);
+  border: 1px solid var(--border, #555);
+  box-shadow: 0 1px 0 var(--border, #555);
+}
