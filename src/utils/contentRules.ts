@@ -2,12 +2,12 @@
  * Centralized content rules: unlock checks, entry conditions.
  * Pure functions so UI only renders what these return; no realm/area logic in components.
  */
-import type { RealmId } from "../constants/realmProgression";
 import {
   AREA_REALM_REQUIREMENTS,
   canEnterArea,
   type RealmRequirement,
 } from "../constants/areaRealmRequirements";
+import type { RealmId } from "../constants/realmProgression";
 import type { BaseArea } from "../interfaces/BaseArea";
 
 /** Whether the character can enter a combat area by realm/level. */

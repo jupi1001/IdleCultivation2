@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import { dismissToast } from "../../state/reducers/toastSlice";
 import { TOAST_AUTO_DISMISS_MS, TOAST_VISIBLE_MAX } from "../../state/reducers/toastSlice";
 import type { ToastI } from "../../state/reducers/toastSlice";
+import { RootState } from "../../state/store";
 import "./Toast.css";
 
 /** Skill icon paths: under each skill folder, e.g. public/assets/fishing/icon.webp. Use alt with first letter until images exist. */

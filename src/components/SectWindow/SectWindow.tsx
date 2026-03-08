@@ -1,12 +1,12 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setSect } from "../../state/reducers/characterSlice";
-import { selectPath, selectCurrentSectId, selectSectRankIndex } from "../../state/selectors/characterSelectors";
 import { SECTS_BY_ID } from "../../constants/data";
-import SectI from "../../interfaces/SectI";
-import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
-import { ContentArea } from "../../enum/ContentArea";
 import { CombatArea } from "../../enum/CombatArea";
+import { ContentArea } from "../../enum/ContentArea";
+import SectI from "../../interfaces/SectI";
+import { setSect } from "../../state/reducers/characterSlice";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
+import { selectPath, selectCurrentSectId, selectSectRankIndex } from "../../state/selectors/characterSelectors";
 import "./SectWindow.css";
 
 interface SectWindowProps {

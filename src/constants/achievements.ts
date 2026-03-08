@@ -5,14 +5,14 @@
  * the character state and returns true when the achievement is earned.
  * The middleware runs checks after every relevant action.
  */
+import { getAlchemyLevel } from "./alchemy";
+import { getCookingLevel } from "./cooking";
+import { getFishingLevelInfo } from "./fishingLevel";
+import { getForgingLevel } from "./forging";
+import { getGatheringLevelInfo } from "./gatheringLevel";
+import { getMiningLevelInfo } from "./miningLevel";
 import type { RealmId } from "./realmProgression";
 import { getStepIndex, REALM_ORDER } from "./realmProgression";
-import { getFishingLevelInfo } from "./fishingLevel";
-import { getMiningLevelInfo } from "./miningLevel";
-import { getGatheringLevelInfo } from "./gatheringLevel";
-import { getAlchemyLevel } from "./alchemy";
-import { getForgingLevel } from "./forging";
-import { getCookingLevel } from "./cooking";
 
 export type AchievementCategory =
   | "cultivation"

@@ -1,9 +1,9 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Item from "../../interfaces/ItemI";
 import { addAttack, addDefense, addItem, reduceMoney } from "../../state/reducers/characterSlice";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
 import { selectMoney } from "../../state/selectors/characterSelectors";
-import Item from "../../interfaces/ItemI";
 import "./ShopItem.css";
 
 interface ShopItemProps {

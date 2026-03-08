@@ -1,15 +1,15 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import MiningArea from "../../components/MiningArea/MiningArea";
-import { miningAreaData, ITEMS_BY_ID } from "../../constants/data";
-import { getSkillingSetItemById, getSetPieceIds, getTierForMiningAreaIndex } from "../../constants/skillingSets";
-import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
-import { isSkillAreaUnlocked } from "../../utils/contentRules";
-import { getMiningAreaLootEntries } from "../../utils/skillingLoot";
-import { getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
 import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
+import { miningAreaData, ITEMS_BY_ID } from "../../constants/data";
+import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
+import { getSkillingSetItemById, getSetPieceIds, getTierForMiningAreaIndex } from "../../constants/skillingSets";
 import { useSkillActivity } from "../../hooks/useSkillActivity";
 import type MiningAreaI from "../../interfaces/MiningAreaI";
+import { getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
+import { isSkillAreaUnlocked } from "../../utils/contentRules";
+import { getMiningAreaLootEntries } from "../../utils/skillingLoot";
 import "./MiningContainer.css";
 
 const MiningContainer = () => {

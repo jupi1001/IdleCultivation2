@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
+import { SectStoreItem } from "../../components/SectStoreItem/SectStoreItem";
+import { SECTS_BY_ID, SECT_POSITIONS, sectStoreData } from "../../constants/data";
+import { getStepIndex } from "../../constants/realmProgression";
+import {
+  SECT_NPCS_BY_SECT,
+  SECT_QUEST_KILLS_REQUIRED,
+  REALM_DIALOGUE_REALMS,
+  DUAL_CULTIVATION_MIN_FAVOR,
+  GIFT_SPIRIT_STONE_COST,
+} from "../../constants/sectRelationships";
+import { ContentArea } from "../../enum/ContentArea";
 import {
   setSect,
   startPromotion,
@@ -11,6 +21,7 @@ import {
   useRealmDialogue,
   setCultivationPartner,
 } from "../../state/reducers/characterSlice";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import {
   selectCurrentSectId,
   selectSectRankIndex,
@@ -26,17 +37,6 @@ import {
   selectCultivationPartner,
   selectMoney,
 } from "../../state/selectors/characterSelectors";
-import { ContentArea } from "../../enum/ContentArea";
-import { getStepIndex } from "../../constants/realmProgression";
-import { SECTS_BY_ID, SECT_POSITIONS, sectStoreData } from "../../constants/data";
-import {
-  SECT_NPCS_BY_SECT,
-  SECT_QUEST_KILLS_REQUIRED,
-  REALM_DIALOGUE_REALMS,
-  DUAL_CULTIVATION_MIN_FAVOR,
-  GIFT_SPIRIT_STONE_COST,
-} from "../../constants/sectRelationships";
-import { SectStoreItem } from "../../components/SectStoreItem/SectStoreItem";
 import "./SectContainer.css";
 
 type SectTab = "store" | "bulletin" | "relationships";

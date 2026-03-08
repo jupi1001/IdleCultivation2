@@ -2,8 +2,8 @@
  * Discriminated item kinds and type guards for type-safe narrowing.
  * Use with optional `kind` on Item for gradual migration.
  */
-import type { EquipmentSlot } from "./EquipmentSlot";
 import type Item from "../interfaces/ItemI";
+import type { EquipmentSlot } from "./EquipmentSlot";
 
 /** Type guard: item has effect (consumable). Works with or without kind. */
 export function isConsumableItem(item: Item): item is Item & { effect: string } {

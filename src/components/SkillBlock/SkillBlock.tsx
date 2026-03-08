@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { existingSkills } from "../../constants/data";
-import { REINCARNATION_MIN_STEP } from "../../constants/reincarnation";
 import { getStepIndex } from "../../constants/realmProgression";
+import { REINCARNATION_MIN_STEP } from "../../constants/reincarnation";
 import { selectRealm, selectRealmLevel, selectReincarnationCount } from "../../state/selectors/characterSelectors";
 import SkillBlockItem from "../SkillBlockItem/SkillBlockItem";
 import "./SkillBlock.css";

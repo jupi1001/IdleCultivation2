@@ -1,6 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { formatRealm } from "../../constants/realmProgression";
+import { getBreakthroughStatGainText } from "../../constants/realmProgression";
+import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/characterSlice";
 import {
   getEffectiveCombatStats,
   selectRealm,
@@ -13,6 +15,7 @@ import {
   selectDeathPenaltyMode,
   selectWeakenedMeditationSecondsDone,
 } from "../../state/selectors/characterSelectors";
+import { Tooltip } from "../Tooltip/Tooltip";
 import {
   getAttackBreakdown,
   getDefenseBreakdown,
@@ -20,9 +23,6 @@ import {
   getQiBreakdown,
   formatStatBreakdown,
 } from "./characterBlockUtils";
-import { Tooltip } from "../Tooltip/Tooltip";
-import { getBreakthroughStatGainText } from "../../constants/realmProgression";
-import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/characterSlice";
 import "./CharacterBlock.css";
 
 export const CharacterBlock = () => {

@@ -2,10 +2,10 @@
  * Combat loot: resolve loot table (normal vs sect raid) and roll drops.
  * Pure functions for testability and correct memoization (Task 11).
  */
-import type Item from "../interfaces/ItemI";
-import type EnemyI from "../interfaces/EnemyI";
-import { getSectRaidLootForRank, SECTS_BY_ID } from "../constants/data";
 import { isSectRaidArea, SECT_RAID_AREA_TO_SECT_ID } from "../constants/combatAreaRules";
+import { getSectRaidLootForRank, SECTS_BY_ID } from "../constants/data";
+import type EnemyI from "../interfaces/EnemyI";
+import type Item from "../interfaces/ItemI";
 import type { ResolvedLootTable, SectLootContext } from "../types/combatTypes";
 
 /**

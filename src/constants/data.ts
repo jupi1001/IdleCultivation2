@@ -1,19 +1,19 @@
 import { CombatArea } from "../enum/CombatArea";
-import type { CultivationPath } from "./cultivationPath";
-import { totalXpForLevel } from "./fishingLevel";
-import { totalXpForLevel as totalXpForMiningLevel } from "./miningLevel";
-import { totalXpForLevel as totalXpForGatheringLevel } from "./gatheringLevel";
 import EnemyI from "../interfaces/EnemyI";
 import FishingAreaI from "../interfaces/FishingAreaI";
 import GatheringAreaI from "../interfaces/GatheringAreaI";
-import MiningAreaI from "../interfaces/MiningAreaI";
 import Item from "../interfaces/ItemI";
+import MiningAreaI from "../interfaces/MiningAreaI";
 import SectI from "../interfaces/SectI";
 import SkillI from "../interfaces/SkillI";
 import { ALCHEMY_ASSETS } from "./alchemy";
 import { COMBAT_LOOT_QI_PILLS } from "./alchemy";
 import { COMBAT_DROP_ITEMS } from "./combatDrops";
+import type { CultivationPath } from "./cultivationPath";
+import { totalXpForLevel } from "./fishingLevel";
 import { CRAFT_RECIPES } from "./forging";
+import { totalXpForLevel as totalXpForGatheringLevel } from "./gatheringLevel";
+import { totalXpForLevel as totalXpForMiningLevel } from "./miningLevel";
 import { RING_IDS, AMULET_IDS } from "./ringsAmulets";
 import { TRAINING_ENEMIES } from "./training";
 

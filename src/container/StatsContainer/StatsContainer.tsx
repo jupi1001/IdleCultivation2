@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import type { CharacterStats } from "../../state/reducers/characterSlice";
 import { getRealmLabelFromStep } from "../../constants/realmProgression";
+import type { CharacterStats } from "../../state/reducers/characterSlice";
 import { selectStats } from "../../state/selectors/characterSelectors";
 import "./StatsContainer.css";
 

@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { formatRealm } from "../../constants/realmProgression";
 import { setAutoLoot, setAutoEat, setAutoEatHpPercent, setDeathPenaltyMode, setNotificationPrefs } from "../../state/reducers/settingsSlice";
-import { exportSave, importSave, hardReset, formatSaveDate } from "../../utils/saveManager";
 import {
   selectLastActiveTimestamp,
   selectNotificationPrefs,
@@ -16,6 +15,7 @@ import {
   selectAutoEat,
   selectAutoEatHpPercent,
 } from "../../state/selectors/characterSelectors";
+import { exportSave, importSave, hardReset, formatSaveDate } from "../../utils/saveManager";
 import "./SettingsContainer.css";
 
 type Theme = "dark" | "light";

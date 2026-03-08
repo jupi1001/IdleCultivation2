@@ -52,5 +52,20 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "warn",
     },
-  }
+  },
+  // Feature boundaries: reducers must not depend on UI layers
+  {
+    files: ["src/state/reducers/**/*.ts", "src/state/migrations/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "warn",
+        {
+          patterns: [
+            { group: ["**/container/**", "**/container"], message: "Reducers/migrations should not import from container." },
+            { group: ["**/components/**", "**/components"], message: "Reducers/migrations should not import from components." },
+          ],
+        },
+      ],
+    },
+  },
 );

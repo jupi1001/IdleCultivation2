@@ -3,8 +3,8 @@
  * Owned by: state/reducers/contentSlice.
  */
 
-import type { SliceMigrator } from "./types";
 import { parseLegacyPage } from "../types/contentRoute";
+import type { SliceMigrator } from "./types";
 
 /** v1: Parse legacy page string into route object. */
 const contentLegacyPageToRoute: SliceMigrator = (sliceState) => {

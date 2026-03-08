@@ -1,8 +1,8 @@
-import type { RealmId } from "./realmProgression";
+import type { TalentNode } from "../interfaces/TalentI";
 import type { CultivationPath } from "./cultivationPath";
+import type { RealmId } from "./realmProgression";
 import { getStepIndex } from "./realmProgression";
 import { TALENT_NODES_BY_ID } from "./talents";
-import type { TalentNode } from "../interfaces/TalentI";
 
 export type TalentNodeState = "available" | "partial" | "completed" | "locked";
 

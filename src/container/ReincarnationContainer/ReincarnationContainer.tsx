@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { reincarnate, purchaseKarmaBonus } from "../../state/reducers/reincarnationSlice";
-import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
-import { ContentArea } from "../../enum/ContentArea";
+import { getAlchemyLevel } from "../../constants/alchemy";
+import { getCookingLevel } from "../../constants/cooking";
+import { getFishingLevelInfo } from "../../constants/fishingLevel";
+import { getForgingLevel } from "../../constants/forging";
+import { getGatheringLevelInfo } from "../../constants/gatheringLevel";
+import { getMiningLevelInfo } from "../../constants/miningLevel";
 import { getStepIndex, formatRealm } from "../../constants/realmProgression";
 import {
   REINCARNATION_MIN_STEP,
@@ -12,12 +15,9 @@ import {
   KARMA_BONUSES_BY_ID,
   type KarmaBonusId,
 } from "../../constants/reincarnation";
-import { getFishingLevelInfo } from "../../constants/fishingLevel";
-import { getMiningLevelInfo } from "../../constants/miningLevel";
-import { getGatheringLevelInfo } from "../../constants/gatheringLevel";
-import { getAlchemyLevel } from "../../constants/alchemy";
-import { getForgingLevel } from "../../constants/forging";
-import { getCookingLevel } from "../../constants/cooking";
+import { ContentArea } from "../../enum/ContentArea";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
+import { reincarnate, purchaseKarmaBonus } from "../../state/reducers/reincarnationSlice";
 import {
   selectRealm,
   selectRealmLevel,

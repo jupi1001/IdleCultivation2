@@ -4,7 +4,11 @@
  */
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "../state/store";
+import { ACTIVITY_LABELS } from "../constants/activities";
+import type { BaseArea } from "../interfaces/BaseArea";
+import type { FishingAreaI } from "../interfaces/FishingAreaI";
+import type { GatheringAreaI } from "../interfaces/GatheringAreaI";
+import type { MiningAreaI } from "../interfaces/MiningAreaI";
 import {
   setCurrentActivity,
   setCurrentFishingArea,
@@ -27,13 +31,9 @@ import {
   selectGatheringXP,
   selectReincarnationCount,
 } from "../state/selectors/characterSelectors";
-import { useCastProgress } from "./useCastProgress";
-import { ACTIVITY_LABELS } from "../constants/activities";
-import type { BaseArea } from "../interfaces/BaseArea";
-import type { FishingAreaI } from "../interfaces/FishingAreaI";
-import type { MiningAreaI } from "../interfaces/MiningAreaI";
-import type { GatheringAreaI } from "../interfaces/GatheringAreaI";
+import type { RootState } from "../state/store";
 import type { SkillKind } from "../types/skilling";
+import { useCastProgress } from "./useCastProgress";
 
 const SKILL_KIND_TO_ACTIVITY = { fishing: "fish", mining: "mine", gathering: "gather" } as const;
 

@@ -1,8 +1,8 @@
 import { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { changeContent, selectRoute, routeFromArea } from "../state/reducers/contentSlice";
-import { clearOfflineSummary } from "../state/reducers/characterSlice";
 import { ContentArea } from "../enum/ContentArea";
+import { clearOfflineSummary } from "../state/reducers/characterSlice";
+import { changeContent, selectRoute, routeFromArea } from "../state/reducers/contentSlice";
 import { selectLastOfflineSummary } from "../state/selectors/characterSelectors";
 import type { AppDispatch } from "../state/store";
 

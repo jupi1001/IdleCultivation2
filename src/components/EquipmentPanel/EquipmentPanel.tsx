@@ -4,8 +4,8 @@ import { equipItem, unequipItem } from "../../state/reducers/characterSlice";
 import { selectEquipment, selectItems } from "../../state/selectors/characterSelectors";
 import { ALL_EQUIPMENT_SLOTS, EQUIPMENT_SLOT_LABELS } from "../../types/EquipmentSlot";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
-import { Tooltip } from "../Tooltip/Tooltip";
 import { formatItemStats } from "../../utils/itemTooltipUtils";
+import { Tooltip } from "../Tooltip/Tooltip";
 import "./EquipmentPanel.css";
 
 export const EquipmentPanel = () => {

@@ -1,5 +1,10 @@
 import type { Middleware } from "@reduxjs/toolkit";
-import { addToast } from "../reducers/toastSlice";
+import { getAlchemyLevelInfo } from "../../constants/alchemy";
+import { getCookingLevelInfo } from "../../constants/cooking";
+import { getFishingLevelInfo } from "../../constants/fishingLevel";
+import { getForgingLevelInfo } from "../../constants/forging";
+import { getGatheringLevelInfo } from "../../constants/gatheringLevel";
+import { getMiningLevelInfo } from "../../constants/miningLevel";
 import {
   completeFishingCast,
   completeMiningCast,
@@ -8,12 +13,7 @@ import {
   addAlchemyXP,
   addForgingXP,
 } from "../reducers/characterSlice";
-import { getFishingLevelInfo } from "../../constants/fishingLevel";
-import { getMiningLevelInfo } from "../../constants/miningLevel";
-import { getGatheringLevelInfo } from "../../constants/gatheringLevel";
-import { getCookingLevelInfo } from "../../constants/cooking";
-import { getAlchemyLevelInfo } from "../../constants/alchemy";
-import { getForgingLevelInfo } from "../../constants/forging";
+import { addToast } from "../reducers/toastSlice";
 
 const SKILL_LABELS: Record<string, string> = {
   fishing: "Fishing",

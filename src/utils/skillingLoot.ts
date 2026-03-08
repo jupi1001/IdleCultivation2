@@ -2,13 +2,13 @@
  * Centralized loot table assembly for skill areas.
  * Pure functions so UI only passes through the result; no loot logic in components.
  */
+import type { LootTableEntry } from "../components/LootTablePopover/LootTablePopover";
 import { ITEMS_BY_ID } from "../constants/data";
 import { getRingAmuletItemById } from "../constants/ringsAmulets";
 import { getSkillingSetItemById, getSetPieceIds, type SkillSetTier } from "../constants/skillingSets";
 import type { FishingAreaI } from "../interfaces/FishingAreaI";
 import type { GatheringAreaI } from "../interfaces/GatheringAreaI";
 import type { MiningAreaI } from "../interfaces/MiningAreaI";
-import type { LootTableEntry } from "../components/LootTablePopover/LootTablePopover";
 
 const SET_CHANCE_PERCENT = 1 / 4;
 

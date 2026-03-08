@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { TalentNodeCard } from "../../components/TalentNodeCard/TalentNodeCard";
+import { getTalentNodeState } from "../../constants/talentHelpers";
+import { TALENT_TREE_TIERS, formatRealmGateLabel } from "../../constants/talents";
 import { purchaseTalentLevel } from "../../state/reducers/characterSlice";
 import { selectQi, selectRealm, selectRealmLevel, selectTalentLevels, selectPath } from "../../state/selectors/characterSelectors";
-import { TALENT_TREE_TIERS, formatRealmGateLabel } from "../../constants/talents";
-import { getTalentNodeState } from "../../constants/talentHelpers";
-import { TalentNodeCard } from "../../components/TalentNodeCard/TalentNodeCard";
 import "./CultivationTreeContainer.css";
 
 /** Tree order: bottom = roots (Mortal), scroll up = higher realms. So we render tiers reversed (highest first in DOM) and scroll to bottom on load. */

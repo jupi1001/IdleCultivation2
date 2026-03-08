@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { breakthrough, setCurrentActivity, setCultivationPartner } from "../../state/reducers/characterSlice";
-import { formatRealm, getBreakthroughQiRequired, getNextRealm, getBreakthroughStatGainText } from "../../constants/realmProgression";
+import { Tooltip } from "../../components/Tooltip/Tooltip";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
+import { formatRealm, getBreakthroughQiRequired, getNextRealm, getBreakthroughStatGainText } from "../../constants/realmProgression";
+import { SECT_NPCS_BY_SECT, DUAL_CULTIVATION_MIN_FAVOR } from "../../constants/sectRelationships";
 import { getCharacterImage } from "../../constants/ui";
+import { breakthrough, setCurrentActivity, setCultivationPartner } from "../../state/reducers/characterSlice";
+import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/characterSlice";
 import { getKarmaQiMultiplier, getTalentQiGainBonus, getCultivationPartnerInfo } from "../../state/selectors/characterSelectors";
 import {
   selectRealm,
@@ -19,9 +22,6 @@ import {
   selectNpcFavor,
   selectGender,
 } from "../../state/selectors/characterSelectors";
-import { SECT_NPCS_BY_SECT, DUAL_CULTIVATION_MIN_FAVOR } from "../../constants/sectRelationships";
-import { Tooltip } from "../../components/Tooltip/Tooltip";
-import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/characterSlice";
 import "./MeditationContainer.css";
 
 export const MeditationContainer = () => {

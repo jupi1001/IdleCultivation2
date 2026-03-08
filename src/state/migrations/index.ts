@@ -12,12 +12,12 @@
  * When adding a new slice (Task 1), add an entry to SLICE_MIGRATIONS and document above.
  */
 
-import type { SliceKey, SliceMigrationMap } from "./types";
 import { characterMigrations } from "./characterMigrations";
-import { settingsMigrations } from "./settingsMigrations";
-import { reincarnationMigrations } from "./reincarnationMigrations";
 import { contentMigrations } from "./contentMigrations";
 import { globalMigrations } from "./globalMigrations";
+import { reincarnationMigrations } from "./reincarnationMigrations";
+import { settingsMigrations } from "./settingsMigrations";
+import type { SliceKey, SliceMigrationMap } from "./types";
 
 /** Per-slice migration maps. Each slice runs its migrators in order; migrators must be idempotent. */
 export const SLICE_MIGRATIONS: Partial<Record<SliceKey, SliceMigrationMap>> = {

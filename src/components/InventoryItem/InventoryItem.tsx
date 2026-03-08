@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
+import { GEODE_ITEM_ID } from "../../constants/gems";
 import Item from "../../interfaces/ItemI";
 import {
   addAttack,
@@ -12,7 +13,6 @@ import {
   addMoney,
   consumeItems,
 } from "../../state/reducers/characterSlice";
-import { GEODE_ITEM_ID } from "../../constants/gems";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import "./InventoryItem.css";
 

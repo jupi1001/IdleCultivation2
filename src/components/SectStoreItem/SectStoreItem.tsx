@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import type { SectStoreEntryI } from "../../constants/data";
 import { addItem, reduceMoney } from "../../state/reducers/characterSlice";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent, selectMoney } from "../../state/selectors/characterSelectors";
-import type { SectStoreEntryI } from "../../constants/data";
-import { Tooltip } from "../Tooltip/Tooltip";
 import { formatItemStats } from "../../utils/itemTooltipUtils";
+import { Tooltip } from "../Tooltip/Tooltip";
 import "./SectStoreItem.css";
 
 interface SectStoreItemProps {

@@ -4,24 +4,7 @@
  * complete*Cast ignores the payload if payload.castId !== state.*CastId.
  */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { CultivationPath } from "../../constants/cultivationPath";
-import { ITEMS_BY_ID, SECT_POSITIONS } from "../../constants/data";
-import { GEODE_ITEM_ID, GEODE_ITEM, rollGemFromGeode } from "../../constants/gems";
-import { getBreakthroughQiRequired, getNextRealm, getStepIndex, getCombatStatsFromRealm, type RealmId } from "../../constants/realmProgression";
-import { TALENT_NODES_BY_ID } from "../../constants/talents";
-import type { AvatarI } from "../../interfaces/AvatarI";
-import Item from "../../interfaces/ItemI";
-import type { EquipmentSlot } from "../../types/EquipmentSlot";
-import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
 import type { ActivityType } from "../../constants/activities";
-import { REINCARNATION_MIN_STEP } from "../../constants/reincarnation";
-import {
-  SECT_TREASURE_ITEMS_BY_ID,
-  SECT_TREASURE_ITEM_ID_BY_SECT,
-  SECT_QUEST_KILLS_REQUIRED,
-  REALM_DIALOGUE_FAVOR,
-  GIFT_SPIRIT_STONE_COST,
-} from "../../constants/sectRelationships";
 import {
   AVATAR_CREATE_ORE_AMOUNT,
   AVATAR_CREATE_ORE_ID,
@@ -31,6 +14,23 @@ import {
   AVATAR_TRAIN_QI_PILL_AMOUNT,
   AVATAR_TRAIN_SPIRIT_STONES,
 } from "../../constants/avatars";
+import type { CultivationPath } from "../../constants/cultivationPath";
+import { ITEMS_BY_ID, SECT_POSITIONS } from "../../constants/data";
+import { GEODE_ITEM_ID, GEODE_ITEM, rollGemFromGeode } from "../../constants/gems";
+import { getBreakthroughQiRequired, getNextRealm, getStepIndex, getCombatStatsFromRealm, type RealmId } from "../../constants/realmProgression";
+import { REINCARNATION_MIN_STEP } from "../../constants/reincarnation";
+import {
+  SECT_TREASURE_ITEMS_BY_ID,
+  SECT_TREASURE_ITEM_ID_BY_SECT,
+  SECT_QUEST_KILLS_REQUIRED,
+  REALM_DIALOGUE_FAVOR,
+  GIFT_SPIRIT_STONE_COST,
+} from "../../constants/sectRelationships";
+import { TALENT_NODES_BY_ID } from "../../constants/talents";
+import type { AvatarI } from "../../interfaces/AvatarI";
+import Item from "../../interfaces/ItemI";
+import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
 import { reincarnationSlice } from "./reincarnationSlice";
 import { settingsSlice } from "./settingsSlice";
 

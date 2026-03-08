@@ -1,8 +1,8 @@
-import type { RootState } from "../../state/store";
-import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { createSelector } from "@reduxjs/toolkit";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import { getTalentBonuses } from "../../constants/talents";
+import type { RootState } from "../../state/store";
+import type { EquipmentSlot } from "../../types/EquipmentSlot";
 
 const EQUIPMENT_SLOT_LABELS: Partial<Record<EquipmentSlot, string>> = {
   sword: "Sword",

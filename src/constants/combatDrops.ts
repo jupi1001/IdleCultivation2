@@ -2,9 +2,9 @@
  * Unique weapons, armor, rings, and amulets that drop only from combat (Martial Training).
  * One unique rare per main area (Village Outskirts through Jade Immortal Court).
  */
+import { CombatArea } from "../enum/CombatArea";
 import type Item from "../interfaces/ItemI";
 import type { EquipmentSlot } from "../types/EquipmentSlot";
-import { CombatArea } from "../enum/CombatArea";
 
 const COMBAT_DROPS_ASSETS = "/assets/combat-drops";
 

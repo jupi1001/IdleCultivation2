@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import {
   type LogEntry,
   type LogFilterCategory,
@@ -10,6 +9,7 @@ import {
   clearLog,
 } from "../../state/reducers/logSlice";
 import type { ToastI } from "../../state/reducers/toastSlice";
+import { RootState } from "../../state/store";
 import "./LogContainer.css";
 
 const FILTER_OPTIONS: { value: LogFilterCategory | "all" | "notifications"; label: string }[] = [

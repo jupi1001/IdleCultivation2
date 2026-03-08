@@ -1,7 +1,12 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addItem, consumeItems, addForgingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
-import { addToast } from "../../state/reducers/toastSlice";
+import {
+  getCraftingSetItemById,
+  getCraftingSetPieceIds,
+  getTierForForgingTierIndex,
+  CRAFTING_SET_DROP_CHANCE_PERCENT,
+} from "../../constants/craftingSets";
+import { ITEMS_BY_ID } from "../../constants/data";
 import {
   REFINE_RECIPES,
   CRAFT_RECIPES,
@@ -14,10 +19,10 @@ import {
   type RefineRecipeI,
   type CraftRecipeI,
 } from "../../constants/forging";
-import { RING_AMULET_RECIPES, type RingAmuletRecipeI } from "../../constants/ringsAmulets";
 import { GEM_ITEMS } from "../../constants/gems";
-import { ITEMS_BY_ID } from "../../constants/data";
-import { countItem } from "../../utils/inventory";
+import { RING_AMULET_RECIPES, type RingAmuletRecipeI } from "../../constants/ringsAmulets";
+import { addItem, consumeItems, addForgingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
+import { addToast } from "../../state/reducers/toastSlice";
 import {
   getOwnedCraftingSetPieceIds,
   getCraftingSetForgingSavingsPercent,
@@ -25,12 +30,7 @@ import {
   selectItems,
   selectForgingXP,
 } from "../../state/selectors/characterSelectors";
-import {
-  getCraftingSetItemById,
-  getCraftingSetPieceIds,
-  getTierForForgingTierIndex,
-  CRAFTING_SET_DROP_CHANCE_PERCENT,
-} from "../../constants/craftingSets";
+import { countItem } from "../../utils/inventory";
 import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./ForgingContainer.css";
 

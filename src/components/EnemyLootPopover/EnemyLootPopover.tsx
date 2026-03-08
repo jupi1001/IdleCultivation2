@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Item from "../../interfaces/ItemI";
 import { UI_ASSETS } from "../../constants/ui";
+import Item from "../../interfaces/ItemI";
 import "./EnemyLootPopover.css";
 
 const BACKPACK_ICON = "/assets/ui/backpack.webp";

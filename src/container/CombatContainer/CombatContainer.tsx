@@ -1,11 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import EnemyLootPopover from "../../components/EnemyLootPopover/EnemyLootPopover";
 import { ENEMIES_BY_ID, SECTS_BY_ID } from "../../constants/data";
 import { getCharacterImage, UI_ASSETS } from "../../constants/ui";
+import { CombatArea } from "../../enum/CombatArea";
+import { ContentArea } from "../../enum/ContentArea";
 import EnemyI from "../../interfaces/EnemyI";
-import EnemyLootPopover from "../../components/EnemyLootPopover/EnemyLootPopover";
 import "./CombatContainer.css";
 import { useDispatch, useSelector } from "react-redux";
+import Item from "../../interfaces/ItemI";
 import { addItems, addMoney, consumeItems, setCurrentHealth, setWeakened, recordEnemyKill, recordDeath, incrementSectQuestKillCount } from "../../state/reducers/characterSlice";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import { addLogEntry } from "../../state/reducers/logSlice";
 import { getEffectiveCombatStats, getOwnedTechniqueIds, getTalentSpiritStoneMultiplier } from "../../state/selectors/characterSelectors";
 import {
@@ -23,13 +27,9 @@ import {
   selectAutoEat,
   selectAutoEatHpPercent,
 } from "../../state/selectors/characterSelectors";
-import Item from "../../interfaces/ItemI";
-import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import { isConsumableItem } from "../../types/itemGuards";
-import { ContentArea } from "../../enum/ContentArea";
-import { canEnterCombatArea } from "../../utils/contentRules";
-import { CombatArea } from "../../enum/CombatArea";
 import { getResolvedLootTable, rollOneDrop } from "../../utils/combatLoot";
+import { canEnterCombatArea } from "../../utils/contentRules";
 
 const ENEMY_ATTACK_INTERVAL_MS = 3000;
 

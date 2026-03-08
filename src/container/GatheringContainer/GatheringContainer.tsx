@@ -1,14 +1,14 @@
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import GatheringArea from "../../components/GatheringArea/GatheringArea";
+import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
+import { ACTIVITY_LABELS } from "../../constants/activities";
+import { gatheringAreaData, ITEMS_BY_ID } from "../../constants/data";
+import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
+import { getTierForGatheringAreaIndex } from "../../constants/skillingSets";
+import { useCastProgress } from "../../hooks/useCastProgress";
 import { setCurrentActivity, setCurrentGatheringArea } from "../../state/reducers/characterSlice";
 import "./GatheringContainer.css";
-import GatheringArea from "../../components/GatheringArea/GatheringArea";
-import { gatheringAreaData, ITEMS_BY_ID } from "../../constants/data";
-import { getTierForGatheringAreaIndex } from "../../constants/skillingSets";
-import { ACTIVITY_LABELS } from "../../constants/activities";
-import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
-import { isSkillAreaUnlocked } from "../../utils/contentRules";
-import { getGatheringAreaLootEntries } from "../../utils/skillingLoot";
 import { getOwnedRingAmuletIds, getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
 import {
   selectCurrentActivity,
@@ -18,8 +18,8 @@ import {
   selectGatheringXP,
   selectReincarnationCount,
 } from "../../state/selectors/characterSelectors";
-import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
-import { useCastProgress } from "../../hooks/useCastProgress";
+import { isSkillAreaUnlocked } from "../../utils/contentRules";
+import { getGatheringAreaLootEntries } from "../../utils/skillingLoot";
 
 const GatheringContainer = () => {
   const dispatch = useDispatch();

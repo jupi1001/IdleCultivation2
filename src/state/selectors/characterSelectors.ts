@@ -1,9 +1,7 @@
 import { createSelector } from "@reduxjs/toolkit";
-import type { RootState } from "../store";
-import type { EquipmentSlot } from "../../types/EquipmentSlot";
-import { WEAKENED_STAT_MULTIPLIER } from "../reducers/characterSlice";
-import { canEnterCombatArea as canEnterCombatAreaRule } from "../../utils/contentRules";
 import { ITEMS_BY_ID } from "../../constants/data";
+import { KARMA_BONUSES_BY_ID, type KarmaBonusId } from "../../constants/reincarnation";
+import { getSectNpcById, getDualCultivationBonusPercent, type SectNpcI } from "../../constants/sectRelationships";
 import {
   SET_IDS,
   FULL_SET_SPEED_BONUS_PERCENT,
@@ -13,10 +11,12 @@ import {
   type SkillSetName,
   type SkillSetTier,
 } from "../../constants/skillSets";
-import { KARMA_BONUSES_BY_ID, type KarmaBonusId } from "../../constants/reincarnation";
 import { getTalentBonuses } from "../../constants/talents";
-import { getSectNpcById, getDualCultivationBonusPercent, type SectNpcI } from "../../constants/sectRelationships";
 import type Item from "../../interfaces/ItemI";
+import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import { canEnterCombatArea as canEnterCombatAreaRule } from "../../utils/contentRules";
+import { WEAKENED_STAT_MULTIPLIER } from "../reducers/characterSlice";
+import type { RootState } from "../store";
 
 /** Raw normalized inventory (itemId → quantity). Prefer selectItems for UI. */
 export const selectItemsById = (state: RootState) => state.character.itemsById;

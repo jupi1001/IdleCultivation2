@@ -1,18 +1,18 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import characterReducer from "./reducers/characterSlice";
-import settingsReducer from "./reducers/settingsSlice";
-import reincarnationReducer from "./reducers/reincarnationSlice";
-import contentReducer from "./reducers/contentSlice";
-import toastReducer from "./reducers/toastSlice";
-import achievementReducer from "./reducers/achievementSlice";
-import logReducer from "./reducers/logSlice";
-import { toastLevelUpMiddleware } from "./middleware/toastLevelUpMiddleware";
-import { toastNotificationPrefsMiddleware } from "./middleware/toastNotificationPrefsMiddleware";
 import { achievementMiddleware } from "./middleware/achievementMiddleware";
 import { logMiddleware } from "./middleware/logMiddleware";
+import { toastLevelUpMiddleware } from "./middleware/toastLevelUpMiddleware";
+import { toastNotificationPrefsMiddleware } from "./middleware/toastNotificationPrefsMiddleware";
 import { runMigrations } from "./migrations";
+import achievementReducer from "./reducers/achievementSlice";
+import characterReducer from "./reducers/characterSlice";
+import contentReducer from "./reducers/contentSlice";
+import logReducer from "./reducers/logSlice";
+import reincarnationReducer from "./reducers/reincarnationSlice";
+import settingsReducer from "./reducers/settingsSlice";
+import toastReducer from "./reducers/toastSlice";
 
 /** redux-persist migrate callback: runs per-slice migrations then global migrations. */
 function migratePersistedState(state: unknown, _version: number): Promise<unknown> {

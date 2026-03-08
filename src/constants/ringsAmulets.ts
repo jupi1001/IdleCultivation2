@@ -1,7 +1,7 @@
 import type Item from "../interfaces/ItemI";
 import type { EquipmentSlot } from "../types/EquipmentSlot";
-import { GEM_IDS } from "./gems";
 import type { ForgingIngredient } from "./forging";
+import { GEM_IDS } from "./gems";
 
 const FORGING_ASSETS = "/assets/forging";
 

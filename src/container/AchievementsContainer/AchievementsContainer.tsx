@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import {
   ALL_ACHIEVEMENTS,
   ACHIEVEMENT_CATEGORIES,
@@ -8,6 +7,7 @@ import {
   type AchievementCategory,
   type AchievementDef,
 } from "../../constants/achievements";
+import { RootState } from "../../state/store";
 import "./AchievementsContainer.css";
 
 const CATEGORY_ICONS: Record<AchievementCategory, string> = {

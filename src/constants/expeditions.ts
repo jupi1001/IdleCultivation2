@@ -1,5 +1,5 @@
-import type { MissionI } from "../interfaces/MissionI";
 import type Item from "../interfaces/ItemI";
+import type { MissionI } from "../interfaces/MissionI";
 import { ALCHEMY_ASSETS } from "./alchemy";
 
 /** Expedition-only items (techniques, herbs). Each obtainable from one mission only. */

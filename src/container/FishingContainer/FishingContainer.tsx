@@ -1,14 +1,14 @@
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import FishingArea from "../../components/FishingArea/FishingArea";
+import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
+import { ACTIVITY_LABELS } from "../../constants/activities";
+import { fishingAreaData, ITEMS_BY_ID } from "../../constants/data";
+import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
+import { getTierForFishingAreaIndex } from "../../constants/skillingSets";
+import { useCastProgress } from "../../hooks/useCastProgress";
 import { setCurrentActivity, setCurrentFishingArea } from "../../state/reducers/characterSlice";
 import "./FishingContainer.css";
-import FishingArea from "../../components/FishingArea/FishingArea";
-import { fishingAreaData, ITEMS_BY_ID } from "../../constants/data";
-import { getTierForFishingAreaIndex } from "../../constants/skillingSets";
-import { ACTIVITY_LABELS } from "../../constants/activities";
-import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
-import { isSkillAreaUnlocked } from "../../utils/contentRules";
-import { getFishingAreaLootEntries } from "../../utils/skillingLoot";
 import { getOwnedRingAmuletIds, getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
 import {
   selectCurrentActivity,
@@ -18,8 +18,8 @@ import {
   selectFishingXP,
   selectReincarnationCount,
 } from "../../state/selectors/characterSelectors";
-import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
-import { useCastProgress } from "../../hooks/useCastProgress";
+import { isSkillAreaUnlocked } from "../../utils/contentRules";
+import { getFishingAreaLootEntries } from "../../utils/skillingLoot";
 
 const FishingContainer = () => {
   const dispatch = useDispatch();

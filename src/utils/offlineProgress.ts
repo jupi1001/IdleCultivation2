@@ -2,15 +2,15 @@
  * Computes offline progress (meditation, labour, fishing, mining, gathering) for the time
  * the player was away. Used after rehydration to apply gains and show Welcome Back modal.
  */
-import type { RootState } from "../state/store";
-import { BASE_QI_PER_SECOND } from "../constants/meditation";
-import { OFFLINE_PROGRESS_CAP_MS, OFFLINE_PROGRESS_MIN_MS, LAST_ACTIVE_STORAGE_KEY } from "../constants/offlineProgress";
 import {
   FISHING_AREA_INDEX_BY_ID,
   GATHERING_AREA_INDEX_BY_ID,
   MINING_AREA_INDEX_BY_ID,
   ITEMS_BY_ID,
 } from "../constants/data";
+import { GEODE_ITEM } from "../constants/gems";
+import { BASE_QI_PER_SECOND } from "../constants/meditation";
+import { OFFLINE_PROGRESS_CAP_MS, OFFLINE_PROGRESS_MIN_MS, LAST_ACTIVE_STORAGE_KEY } from "../constants/offlineProgress";
 import { getRingAmuletItemById } from "../constants/ringsAmulets";
 import {
   getSetPieceIds,
@@ -20,6 +20,9 @@ import {
   getSkillingSetItemById,
   SKILLING_SET_DROP_CHANCE_PERCENT,
 } from "../constants/skillingSets";
+import { getTalentBonuses } from "../constants/talents";
+import type Item from "../interfaces/ItemI";
+import type { CurrentFishingArea, CurrentGatheringArea, CurrentMiningArea } from "../state/reducers/characterSlice";
 import {
   getSkillSpeedBonusFishing,
   getSkillSpeedBonusMining,
@@ -31,11 +34,8 @@ import {
   getKarmaSpiritStoneMultiplier,
   getTalentSpiritStoneMultiplier,
 } from "../state/selectors/characterSelectors";
-import { getTalentBonuses } from "../constants/talents";
+import type { RootState } from "../state/store";
 import { rollOneTimeDrop } from "./oneTimeDrops";
-import type Item from "../interfaces/ItemI";
-import type { CurrentFishingArea, CurrentGatheringArea, CurrentMiningArea } from "../state/reducers/characterSlice";
-import { GEODE_ITEM } from "../constants/gems";
 
 export interface OfflineSkillResult {
   xp: number;

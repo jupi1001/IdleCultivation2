@@ -1,5 +1,5 @@
-import type { RealmId } from "../constants/realmProgression";
 import type { CultivationPath } from "../constants/cultivationPath";
+import type { RealmId } from "../constants/realmProgression";
 
 export interface RealmRequirement {
   realmId: RealmId;

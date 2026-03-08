@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import "./Map.css";
-import { ContentArea } from "../../enum/ContentArea";
-import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
-import { sectsData } from "../../constants/data";
 import { SectWindow } from "../../components/SectWindow/SectWindow";
+import { sectsData } from "../../constants/data";
+import { ContentArea } from "../../enum/ContentArea";
 import type SectI from "../../interfaces/SectI";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 
 const SECTS_MAP_IMAGE = "/assets/map/sects-map.webp";
 

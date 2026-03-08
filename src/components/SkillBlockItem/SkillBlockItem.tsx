@@ -1,17 +1,16 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { isLockingActivity } from "../../constants/activities";
+import { ALCHEMY_MAX_LEVEL, getAlchemyLevel } from "../../constants/alchemy";
+import { COOKING_MAX_LEVEL, getCookingLevel } from "../../constants/cooking";
+import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
+import { FORGING_MAX_LEVEL, getForgingLevel } from "../../constants/forging";
+import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
+import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
+import { ContentArea } from "../../enum/ContentArea";
 import SkillI from "../../interfaces/SkillI";
 import "./SkillBlockItem.css";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
-import { parseLegacyPage } from "../../state/types/contentRoute";
-import { ContentArea } from "../../enum/ContentArea";
-import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
-import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
-import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
-import { ALCHEMY_MAX_LEVEL, getAlchemyLevel } from "../../constants/alchemy";
-import { FORGING_MAX_LEVEL, getForgingLevel } from "../../constants/forging";
-import { COOKING_MAX_LEVEL, getCookingLevel } from "../../constants/cooking";
-import { isLockingActivity } from "../../constants/activities";
 import {
   selectCurrentActivity,
   selectFishingXP,
@@ -21,6 +20,7 @@ import {
   selectForgingXP,
   selectCookingXP,
 } from "../../state/selectors/characterSelectors";
+import { parseLegacyPage } from "../../state/types/contentRoute";
 
 const PATH_ACCENT_COLORS: Record<string, string> = {
   "Martial Training": "#a04040",

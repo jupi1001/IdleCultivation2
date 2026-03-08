@@ -2,8 +2,8 @@ import type { Middleware } from "@reduxjs/toolkit";
 import { ALL_ACHIEVEMENTS, ACHIEVEMENTS_BY_ID } from "../../constants/achievements";
 import type { CharSnapshot } from "../../constants/achievements";
 import { unlockAchievements } from "../reducers/achievementSlice";
-import { addToast } from "../reducers/toastSlice";
 import { addMoney } from "../reducers/characterSlice";
+import { addToast } from "../reducers/toastSlice";
 import { selectItems } from "../selectors/characterSelectors";
 
 /**
