@@ -382,26 +382,42 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   doEnemyAttackRef.current = doEnemyAttack;
   handleEscapeRef.current = handleEscapeButton;
 
-  // Character attack timer (attack speed)
-  useEffect(() => {
-    const id = setInterval(() => doCharacterAttackRef.current(), fightingInterval);
-    return () => clearInterval(id);
-  }, [fightingInterval]);
+  // Character attack timer (attack speed) and enemy attack timer: no setInterval; driven by timestamp checks in rAF loop below.
+  // Progress bars: requestAnimationFrame for visual updates; progress computed from timestamps so rerenders are predictable and less frequent.
+  const lastCharProgressRef = useRef(0);
+  const lastEnemyProgressRef = useRef(0);
 
-  // Enemy attack timer (fixed 3s)
   useEffect(() => {
-    const id = setInterval(() => doEnemyAttackRef.current(), ENEMY_ATTACK_INTERVAL_MS);
-    return () => clearInterval(id);
-  }, []);
-
-  // Progress bars: tick every 50ms so bars fill smoothly
-  useEffect(() => {
-    const id = setInterval(() => {
+    let rafId: number;
+    const tick = () => {
       const now = Date.now();
-      setCharacterProgress(Math.min(100, ((now - lastCharAttackRef.current) / fightingInterval) * 100));
-      setEnemyProgress(Math.min(100, ((now - lastEnemyAttackRef.current) / ENEMY_ATTACK_INTERVAL_MS) * 100));
-    }, 50);
-    return () => clearInterval(id);
+      const charElapsed = now - lastCharAttackRef.current;
+      const enemyElapsed = now - lastEnemyAttackRef.current;
+
+      if (charElapsed >= fightingInterval) {
+        doCharacterAttackRef.current();
+      }
+      if (enemyElapsed >= ENEMY_ATTACK_INTERVAL_MS) {
+        doEnemyAttackRef.current();
+      }
+
+      const charProgress = Math.min(100, (charElapsed / fightingInterval) * 100);
+      const enemyProgress = Math.min(100, (enemyElapsed / ENEMY_ATTACK_INTERVAL_MS) * 100);
+      const charRounded = Math.floor(charProgress * 10) / 10;
+      const enemyRounded = Math.floor(enemyProgress * 10) / 10;
+      if (charRounded !== lastCharProgressRef.current) {
+        lastCharProgressRef.current = charRounded;
+        setCharacterProgress(charProgress);
+      }
+      if (enemyRounded !== lastEnemyProgressRef.current) {
+        lastEnemyProgressRef.current = enemyRounded;
+        setEnemyProgress(enemyProgress);
+      }
+
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
   }, [fightingInterval]);
 
   const enemyLootEntries = useMemo(() => {
