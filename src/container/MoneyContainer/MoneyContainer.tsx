@@ -2,18 +2,18 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addMoney, addMiner, reduceMoney } from "../../state/reducers/characterSlice";
 import "./MoneyContainer.css";
-import { RootState } from "../../state/store";
+import { selectMoney } from "../../state/selectors/characterSelectors";
 
 const MoneyContainer = () => {
   const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
+  const money = useSelector(selectMoney);
 
   const getMoney = (value: number) => {
     dispatch(addMoney(value));
   };
 
   const getMiner = (value: number) => {
-    if (character.money > 100) {
+    if (money > 100) {
       dispatch(addMiner(value));
       dispatch(reduceMoney(100));
     }

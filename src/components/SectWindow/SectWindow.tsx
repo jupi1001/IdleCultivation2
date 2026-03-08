@@ -1,10 +1,10 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSect } from "../../state/reducers/characterSlice";
-import { RootState } from "../../state/store";
+import { selectPath, selectCurrentSectId, selectSectRankIndex } from "../../state/selectors/characterSelectors";
 import { sectsData } from "../../constants/data";
 import SectI from "../../interfaces/SectI";
-import { changeContent } from "../../state/reducers/contentSlice";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import { ContentArea } from "../../enum/ContentArea";
 import { CombatArea } from "../../enum/CombatArea";
 import "./SectWindow.css";
@@ -16,9 +16,9 @@ interface SectWindowProps {
 
 export const SectWindow: React.FC<SectWindowProps> = ({ sect, onClose }) => {
   const dispatch = useDispatch();
-  const path = useSelector((state: RootState) => state.character.path);
-  const currentSectId = useSelector((state: RootState) => state.character.currentSectId);
-  const sectRankIndex = useSelector((state: RootState) => state.character.sectRankIndex);
+  const path = useSelector(selectPath);
+  const currentSectId = useSelector(selectCurrentSectId);
+  const sectRankIndex = useSelector(selectSectRankIndex);
   const isMember = currentSectId === sect.id;
   const pathMatches = path != null && sect.path === path;
   const inAnotherSect = currentSectId != null && currentSectId !== sect.id;
@@ -60,7 +60,7 @@ export const SectWindow: React.FC<SectWindowProps> = ({ sect, onClose }) => {
     if (!isEligibleRaider) return;
     const raidArea = getRaidAreaForSect(sect);
     if (!raidArea) return;
-    dispatch(changeContent(`${ContentArea.COMBAT}:${raidArea}`));
+    dispatch(changeContent(routeFromArea(ContentArea.COMBAT, raidArea)));
     onClose();
   };
 

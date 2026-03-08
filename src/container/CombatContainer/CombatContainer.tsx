@@ -5,12 +5,26 @@ import EnemyI from "../../interfaces/EnemyI";
 import EnemyLootPopover from "../../components/EnemyLootPopover/EnemyLootPopover";
 import "./CombatContainer.css";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import { addItems, addMoney, consumeItems, setCurrentHealth, setWeakened, recordEnemyKill, recordDeath, incrementSectQuestKillCount } from "../../state/reducers/characterSlice";
 import { addLogEntry } from "../../state/reducers/logSlice";
 import { getEffectiveCombatStats, getOwnedTechniqueIds, getTalentSpiritStoneMultiplier } from "../../state/selectors/characterSelectors";
+import {
+  selectCurrentHealth,
+  selectRealm,
+  selectRealmLevel,
+  selectItems,
+  selectDeathPenaltyMode,
+  selectCurrentSectId,
+  selectPath,
+  selectSectRankIndex,
+  selectGender,
+  selectAutoLoot,
+  selectAutoEatUnlocked,
+  selectAutoEat,
+  selectAutoEatHpPercent,
+} from "../../state/selectors/characterSelectors";
 import Item from "../../interfaces/ItemI";
-import { changeContent } from "../../state/reducers/contentSlice";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import { ContentArea } from "../../enum/ContentArea";
 import { AREA_REALM_REQUIREMENTS, canEnterArea } from "../../constants/areaRealmRequirements";
 import { CombatArea } from "../../enum/CombatArea";
@@ -24,13 +38,25 @@ interface CombatAreaProps {
 const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const dispatch = useDispatch();
 
-  const character = useSelector((state: RootState) => state.character);
+  const currentHealth = useSelector(selectCurrentHealth);
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
+  const items = useSelector(selectItems);
+  const deathPenaltyMode = useSelector(selectDeathPenaltyMode);
+  const currentSectId = useSelector(selectCurrentSectId);
+  const path = useSelector(selectPath);
+  const sectRankIndex = useSelector(selectSectRankIndex);
+  const gender = useSelector(selectGender);
+  const autoLoot = useSelector(selectAutoLoot);
+  const autoEatUnlocked = useSelector(selectAutoEatUnlocked);
+  const autoEat = useSelector(selectAutoEat);
+  const autoEatHpPercent = useSelector(selectAutoEatHpPercent);
   const effectiveStats = useSelector(getEffectiveCombatStats);
   const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
   const talentSpiritStoneMult = useSelector(getTalentSpiritStoneMultiplier);
   const [characterState, setCharacterState] = useState(() => ({
     ...effectiveStats,
-    health: Math.min(effectiveStats.health, character.currentHealth),
+    health: Math.min(effectiveStats.health, currentHealth),
   }));
 
   useEffect(() => {
@@ -43,9 +69,9 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   useEffect(() => {
     setCharacterState((prev) => ({
       ...prev,
-      health: Math.min(effectiveStats.health, character.currentHealth),
+      health: Math.min(effectiveStats.health, currentHealth),
     }));
-  }, [character.currentHealth]);
+  }, [currentHealth]);
 
   const [itemBag, setItemBag] = useState<Item[]>([]);
   const [lootSpiritStones, setLootSpiritStones] = useState(0);
@@ -95,7 +121,26 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const lastCharAttackRef = useRef(Date.now());
   const lastEnemyAttackRef = useRef(Date.now());
   const ownedTechniqueIdsRef = useRef(ownedTechniqueIds);
-  const characterRef = useRef(character);
+  const combatContextRef = useRef({
+    currentSectId,
+    path,
+    sectRankIndex,
+    items,
+    autoLoot,
+    autoEatUnlocked,
+    autoEat,
+    autoEatHpPercent,
+  });
+  combatContextRef.current = {
+    currentSectId,
+    path,
+    sectRankIndex,
+    items,
+    autoLoot,
+    autoEatUnlocked,
+    autoEat,
+    autoEatHpPercent,
+  };
   const talentBonusesRef = useRef(effectiveStats.talentBonuses);
   const talentSpiritStoneMultRef = useRef(talentSpiritStoneMult);
   const effectiveStatsRef = useRef(effectiveStats);
@@ -103,7 +148,6 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   characterStateRef.current = characterState;
   currentEnemyRef.current = currentEnemy ?? null;
   ownedTechniqueIdsRef.current = ownedTechniqueIds;
-  characterRef.current = character;
   talentBonusesRef.current = effectiveStats.talentBonuses;
   talentSpiritStoneMultRef.current = talentSpiritStoneMult;
   effectiveStatsRef.current = effectiveStats;
@@ -111,17 +155,17 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   // Redirect if no valid area, no enemies, or realm too low for this area
   useEffect(() => {
     if (!area || currentEnemies.length === 0) {
-      dispatch(changeContent(ContentArea.MAP));
+      dispatch(changeContent(routeFromArea(ContentArea.MAP)));
       return;
     }
     const required = AREA_REALM_REQUIREMENTS[area];
-    if (required && !canEnterArea(character.realm, character.realmLevel, required)) {
-      dispatch(changeContent(ContentArea.MAP));
+    if (required && !canEnterArea(realm, realmLevel, required)) {
+      dispatch(changeContent(routeFromArea(ContentArea.MAP)));
     }
-  }, [area, currentEnemies.length, character.realm, character.realmLevel, dispatch]);
+  }, [area, currentEnemies.length, realm, realmLevel, dispatch]);
 
   /** Food that restores vitality – use during combat to heal */
-  const vitalityFood = character.items.filter(
+  const vitalityFood = items.filter(
     (i) => i.effect === "vitality" && i.value != null && (i.quantity ?? 1) > 0
   );
 
@@ -181,14 +225,14 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       if (died) {
       setItemBag([]);
       setLootSpiritStones(0);
-      if (character.deathPenaltyMode === "normal") {
+      if (deathPenaltyMode === "normal") {
         dispatch(setWeakened(true));
       }
       dispatch(recordDeath());
     } else if (itemBag.length > 0 || lootSpiritStones > 0) {
       handleLootButton();
     }
-    dispatch(changeContent(ContentArea.MEDITATION));
+    dispatch(changeContent(routeFromArea(ContentArea.MEDITATION)));
   };
 
   /**
@@ -216,17 +260,17 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         [CombatArea.BONE_ABYSS_RAID]: 6,
       };
       const sectId = sectByArea[area ?? ""];
-      const currentSect = character.currentSectId != null
-        ? sectsData.find((s) => s.id === character.currentSectId)
+      const currentSect = currentSectId != null
+        ? sectsData.find((s) => s.id === currentSectId)
         : null;
       if (
         sectId != null &&
         currentSect != null &&
-        currentSect.path === character.path
+        currentSect.path === path
       ) {
         const targetSect = sectsData.find((s) => s.id === sectId);
-        if (targetSect && targetSect.path !== currentSect.path && character.sectRankIndex > 0) {
-          const loot = getSectRaidLootForRank(sectId, character.sectRankIndex);
+        if (targetSect && targetSect.path !== currentSect.path && sectRankIndex > 0) {
+          const loot = getSectRaidLootForRank(sectId, sectRankIndex);
           if (loot) {
             items = loot.items;
             weightRef = loot.weight;
@@ -290,11 +334,11 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       if (newHealth <= 0) {
         dispatch(addLogEntry({ type: "enemy_killed", enemyName: enemy.name }));
         if (area) dispatch(recordEnemyKill(area));
-        const sectId = characterRef.current.currentSectId;
+        const sectId = combatContextRef.current.currentSectId;
         if (sectId != null) dispatch(incrementSectQuestKillCount(sectId));
         setLastDamageToEnemy(null);
         const spiritStones = Math.floor(getSpiritStonesFromEnemy(enemy) * talentSpiritStoneMultRef.current);
-        if (characterRef.current.autoLoot) {
+        if (combatContextRef.current.autoLoot) {
           dispatch(addMoney(spiritStones));
           const droppedItem = rollOneLootDrop(enemy);
           if (droppedItem) {
@@ -351,10 +395,10 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       let healthAfterTick = charState.health - damage;
 
       // Auto-eat: consume one vitality food when HP drops at or below threshold (if unlocked and enabled)
-      if (healthAfterTick > 0 && characterRef.current.autoEatUnlocked && characterRef.current.autoEat) {
-        const threshold = (characterRef.current.autoEatHpPercent ?? 30) / 100 * maxHp;
+      if (healthAfterTick > 0 && combatContextRef.current.autoEatUnlocked && combatContextRef.current.autoEat) {
+        const threshold = (combatContextRef.current.autoEatHpPercent ?? 30) / 100 * maxHp;
         if (healthAfterTick <= threshold) {
-          const food = characterRef.current.items.find(
+          const food = combatContextRef.current.items.find(
             (i) => i.effect === "vitality" && i.value != null && (i.quantity ?? 1) > 0
           );
           if (food) {
@@ -431,17 +475,17 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         [CombatArea.BONE_ABYSS_RAID]: 6,
       };
       const sectId = sectByArea[area ?? ""];
-      const currentSect = character.currentSectId != null
-        ? sectsData.find((s) => s.id === character.currentSectId)
+      const currentSect = currentSectId != null
+        ? sectsData.find((s) => s.id === currentSectId)
         : null;
       if (
         sectId != null &&
         currentSect != null &&
-        currentSect.path === character.path
+        currentSect.path === path
       ) {
         const targetSect = sectsData.find((s) => s.id === sectId);
-        if (targetSect && targetSect.path !== currentSect.path && character.sectRankIndex > 0) {
-          const loot = getSectRaidLootForRank(sectId, character.sectRankIndex);
+        if (targetSect && targetSect.path !== currentSect.path && sectRankIndex > 0) {
+          const loot = getSectRaidLootForRank(sectId, sectRankIndex);
           if (loot) {
             items = loot.items;
             weights = loot.weight;
@@ -458,7 +502,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       chancePercent: (weights[i] / total) * 100,
       amount: item.quantity ?? 1,
     }));
-  }, [currentEnemy]);
+  }, [currentEnemy, area, currentSectId, path, sectRankIndex]);
 
   if (!currentEnemy) return null;
 
@@ -501,7 +545,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         {/* CharacterSection */}
         <div className="combatContainer__main-character">
           <div className="combatContainer__portrait-wrap">
-            <img className="combatContainer__main-img" src={getCharacterImage(character.gender ?? "Male", "default")} alt="You" />
+            <img className="combatContainer__main-img" src={getCharacterImage(gender ?? "Male", "default")} alt="You" />
             {lastDamageToCharacter != null && (
               <span className="combatContainer__damage combatContainer__damage--to-character">-{lastDamageToCharacter}</span>
             )}
@@ -566,7 +610,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       <section className="combatContainer__loot">
         <h4 className="combatContainer__loot-title">
           Loot bag
-          {character.autoLoot && <span className="combatContainer__auto-loot-badge">Auto-Loot: On</span>}
+          {autoLoot && <span className="combatContainer__auto-loot-badge">Auto-Loot: On</span>}
         </h4>
         {itemBag.length === 0 && lootSpiritStones === 0 ? (
           <p className="combatContainer__loot-empty">No loot yet</p>

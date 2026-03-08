@@ -123,11 +123,17 @@ export const getSkillSpeedBonusFishing = createSelector(
 );
 export const getSkillSpeedBonusMining = createSelector(
   [(state: RootState) => state.character.equipment, getTalentBonusesSelector],
-  (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "mining") + talentBonuses.miningYieldPercent
+  (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "mining")
 );
 export const getSkillSpeedBonusGathering = createSelector(
   [(state: RootState) => state.character.equipment, getTalentBonusesSelector],
   (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "gathering") + talentBonuses.gatheringSpeedPercent
+);
+
+/** Mining yield bonus from talents (Miner's Strength: "more ore per swing"). Use when computing ore quantity per cast. */
+export const getMiningYieldBonusPercent = createSelector(
+  [getTalentBonusesSelector],
+  (talentBonuses) => talentBonuses.miningYieldPercent
 );
 
 /** Effective combat stats = realm + equipment + consumable bonus + karma + talents. Attack is multiplied by combat technique. When weakened (normal death penalty), stats are reduced. Memoized so same inputs return same reference. */
@@ -341,3 +347,61 @@ export const getCultivationPartnerInfo = createSelector(
     return { npc, favor, bonusPercent };
   }
 );
+
+// ─── Focused selectors (avoid subscribing to full character) ───
+export const selectRealm = (state: RootState) => state.character.realm;
+export const selectRealmLevel = (state: RootState) => state.character.realmLevel;
+export const selectPath = (state: RootState) => state.character.path;
+export const selectQi = (state: RootState) => state.character.qi;
+export const selectCurrentHealth = (state: RootState) => state.character.currentHealth;
+export const selectMoney = (state: RootState) => state.character.money;
+export const selectCurrentActivity = (state: RootState) => state.character.currentActivity;
+export const selectIsWeakened = (state: RootState) => state.character.isWeakened;
+export const selectDeathPenaltyMode = (state: RootState) => state.character.deathPenaltyMode;
+export const selectWeakenedMeditationSecondsDone = (state: RootState) => state.character.weakenedMeditationSecondsDone;
+export const selectEquipment = (state: RootState) => state.character.equipment;
+export const selectItems = (state: RootState) => state.character.items;
+export const selectCurrentFishingArea = (state: RootState) => state.character.currentFishingArea;
+export const selectFishingXP = (state: RootState) => state.character.fishingXP;
+export const selectCurrentMiningArea = (state: RootState) => state.character.currentMiningArea;
+export const selectMiningXP = (state: RootState) => state.character.miningXP;
+export const selectCurrentGatheringArea = (state: RootState) => state.character.currentGatheringArea;
+export const selectGatheringXP = (state: RootState) => state.character.gatheringXP;
+export const selectAutoLoot = (state: RootState) => state.character.autoLoot;
+export const selectAutoEatUnlocked = (state: RootState) => state.character.autoEatUnlocked;
+export const selectAutoEat = (state: RootState) => state.character.autoEat;
+export const selectAutoEatHpPercent = (state: RootState) => state.character.autoEatHpPercent;
+export const selectGender = (state: RootState) => state.character.gender;
+export const selectReincarnationCount = (state: RootState) => state.character.reincarnationCount;
+export const selectStats = (state: RootState) => state.character.stats;
+export const selectCurrentSectId = (state: RootState) => state.character.currentSectId;
+export const selectSectRankIndex = (state: RootState) => state.character.sectRankIndex;
+export const selectPromotionEndTime = (state: RootState) => state.character.promotionEndTime;
+export const selectPromotionToRankIndex = (state: RootState) => state.character.promotionToRankIndex;
+export const selectSectQuestProgress = (state: RootState) => state.character.sectQuestProgress;
+export const selectSectQuestKillCount = (state: RootState) => state.character.sectQuestKillCount;
+export const selectObtainedSectTreasureIds = (state: RootState) => state.character.obtainedSectTreasureIds;
+export const selectNpcFavor = (state: RootState) => state.character.npcFavor;
+export const selectRealmDialogueUsed = (state: RootState) => state.character.realmDialogueUsed;
+export const selectCultivationPartner = (state: RootState) => state.character.cultivationPartner;
+export const selectLastOfflineSummary = (state: RootState) => state.character.lastOfflineSummary;
+export const selectAutoLootUnlocked = (state: RootState) => state.character.autoLootUnlocked;
+export const selectFishingCastStartTime = (state: RootState) => state.character.fishingCastStartTime;
+export const selectMiningCastStartTime = (state: RootState) => state.character.miningCastStartTime;
+export const selectGatheringCastStartTime = (state: RootState) => state.character.gatheringCastStartTime;
+export const selectFishingCastDuration = (state: RootState) => state.character.fishingCastDuration;
+export const selectMiningCastDuration = (state: RootState) => state.character.miningCastDuration;
+export const selectGatheringCastDuration = (state: RootState) => state.character.gatheringCastDuration;
+export const selectMiner = (state: RootState) => state.character.miner;
+export const selectAlchemyXP = (state: RootState) => state.character.alchemyXP;
+export const selectForgingXP = (state: RootState) => state.character.forgingXP;
+export const selectCookingXP = (state: RootState) => state.character.cookingXP;
+export const selectLastActiveTimestamp = (state: RootState) => state.character.lastActiveTimestamp;
+export const selectNotificationPrefs = (state: RootState) => state.character.notificationPrefs;
+export const selectKarmaPoints = (state: RootState) => state.character.karmaPoints;
+export const selectTotalKarmaEarned = (state: RootState) => state.character.totalKarmaEarned;
+export const selectKarmaBonusLevels = (state: RootState) => state.character.karmaBonusLevels;
+export const selectTalentLevels = (state: RootState) => state.character.talentLevels;
+export const selectExpeditionEndTime = (state: RootState) => state.character.expeditionEndTime;
+export const selectExpeditionMissionId = (state: RootState) => state.character.expeditionMissionId;
+export const selectAvatars = (state: RootState) => state.character.avatars;

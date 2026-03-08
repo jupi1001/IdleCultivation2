@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import { clearOfflineSummary } from "../../state/reducers/characterSlice";
+import { selectLastOfflineSummary } from "../../state/selectors/characterSelectors";
 import { OFFLINE_PROGRESS_CAP_MS } from "../../constants/offlineProgress";
 import "./OfflineProgressModal.css";
 
@@ -16,7 +16,7 @@ function formatDuration(ms: number): string {
 
 export function OfflineProgressModal() {
   const dispatch = useDispatch();
-  const summary = useSelector((state: RootState) => state.character.lastOfflineSummary);
+  const summary = useSelector(selectLastOfflineSummary);
 
   if (summary == null) return null;
 

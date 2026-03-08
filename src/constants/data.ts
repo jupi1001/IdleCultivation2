@@ -1644,3 +1644,46 @@ export const herbTypes: Item[] = [
 
 /** All gathering loot (wood + herbs) for lookup when completing a gather. */
 export const gatheringLootTypes: Item[] = [...woodTypes, ...herbTypes];
+
+// ─── ID-indexed registries for constant-time lookup (domain registries) ───
+export const ENEMIES_BY_ID: Record<number, EnemyI> = Object.fromEntries(
+  enemies.map((e) => [e.id, e])
+) as Record<number, EnemyI>;
+
+export const SECTS_BY_ID: Record<number, SectI> = Object.fromEntries(
+  sectsData.map((s) => [s.id, s])
+) as Record<number, SectI>;
+
+export const FISHING_AREAS_BY_ID: Record<number, FishingAreaI> = Object.fromEntries(
+  fishingAreaData.map((a) => [a.id, a])
+) as Record<number, FishingAreaI>;
+
+export const MINING_AREAS_BY_ID: Record<number, MiningAreaI> = Object.fromEntries(
+  miningAreaData.map((a) => [a.id, a])
+) as Record<number, MiningAreaI>;
+
+export const GATHERING_AREAS_BY_ID: Record<number, GatheringAreaI> = Object.fromEntries(
+  gatheringAreaData.map((a) => [a.id, a])
+) as Record<number, GatheringAreaI>;
+
+/** All item definitions flattened for by-id lookup. Includes techniques, fish, ore, wood, herbs, shop/combat drops, sect store items. */
+const SECT_STORE_ITEMS: Item[] = Object.values(sectStoreData).flatMap((entries) =>
+  entries.map((e) => e.item)
+);
+const ALL_ITEMS: Item[] = [
+  ...QI_TECHNIQUES,
+  ...COMBAT_TECHNIQUES,
+  ...fishTypes,
+  ...oreTypes,
+  ...woodTypes,
+  ...herbTypes,
+  ...existingShopItems,
+  ...existingBlackMarketItems,
+  ...existingShopItemUpgrades,
+  ...COMBAT_LOOT_QI_PILLS,
+  ...COMBAT_DROP_ITEMS,
+  ...SECT_STORE_ITEMS,
+];
+export const ITEMS_BY_ID: Record<number, Item> = Object.fromEntries(
+  ALL_ITEMS.map((item) => [item.id, item])
+) as Record<number, Item>;

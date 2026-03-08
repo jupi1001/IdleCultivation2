@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentActivity, setCurrentFishingArea } from "../../state/reducers/characterSlice";
 import "./FishingContainer.css";
-import { RootState } from "../../state/store";
 import FishingArea from "../../components/FishingArea/FishingArea";
 import { fishTypes, fishingAreaData } from "../../constants/data";
 import { getRingAmuletItemById } from "../../constants/ringsAmulets";
@@ -10,19 +9,30 @@ import { getSkillingSetItemById, getSetPieceIds, getTierForFishingAreaIndex } fr
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
 import { getOwnedRingAmuletIds, getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
+import {
+  selectCurrentActivity,
+  selectCurrentFishingArea,
+  selectFishingCastStartTime,
+  selectFishingCastDuration,
+  selectFishingXP,
+  selectReincarnationCount,
+} from "../../state/selectors/characterSelectors";
 import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
 import { useCastProgress } from "../../hooks/useCastProgress";
 import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
 
 const FishingContainer = () => {
   const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
-  const { currentActivity, currentFishingArea, fishingCastStartTime, fishingCastDuration } =
-    character;
+  const currentActivity = useSelector(selectCurrentActivity);
+  const currentFishingArea = useSelector(selectCurrentFishingArea);
+  const fishingCastStartTime = useSelector(selectFishingCastStartTime);
+  const fishingCastDuration = useSelector(selectFishingCastDuration);
+  const fishingXP = useSelector(selectFishingXP);
+  const reincarnationCount = useSelector(selectReincarnationCount) ?? 0;
   const busyWithOther =
     currentActivity !== "none" && currentActivity !== "fish";
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
-  const levelInfo = getFishingLevelInfo(character.fishingXP);
+  const levelInfo = getFishingLevelInfo(fishingXP);
   const ownedRingAmuletIds = useSelector(getOwnedRingAmuletIds);
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const ownedLootIds = useMemo(
@@ -31,7 +41,6 @@ const FishingContainer = () => {
   );
   const isFishing = currentActivity === "fish" && currentFishingArea != null;
   const progress = useCastProgress(fishingCastStartTime, fishingCastDuration);
-  const reincarnationCount = character.reincarnationCount ?? 0;
   const areasVisible = useMemo(
     () =>
       fishingAreaData.filter(
@@ -82,7 +91,7 @@ const FishingContainer = () => {
       <div className="fishingContainer__areas">
       {areasVisible.map((area, areaIndex) => {
         const reincarnationOk = !area.requiresReincarnation || reincarnationCount >= 1;
-        const unlocked = character.fishingXP >= area.fishingXPUnlock && reincarnationOk;
+        const unlocked = fishingXP >= area.fishingXPUnlock && reincarnationOk;
         const tier = getTierForFishingAreaIndex(fishingAreaData.indexOf(area));
         const setPieceIds = getSetPieceIds("fishing", tier);
         return (

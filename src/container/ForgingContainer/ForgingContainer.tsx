@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import { addItem, consumeItems, addForgingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
 import { addToast } from "../../state/reducers/toastSlice";
 import {
@@ -23,6 +22,8 @@ import {
   getOwnedCraftingSetPieceIds,
   getCraftingSetForgingSavingsPercent,
   getCraftingSetForgingXpPercent,
+  selectItems,
+  selectForgingXP,
 } from "../../state/selectors/characterSelectors";
 import {
   getCraftingSetItemById,
@@ -75,8 +76,8 @@ function groupByTier<T extends { tier: string }>(recipes: T[]): Map<string, T[]>
 
 export const ForgingContainer = () => {
   const dispatch = useDispatch();
-  const items = useSelector((state: RootState) => state.character.items);
-  const forgingXP = useSelector((state: RootState) => state.character.forgingXP);
+  const items = useSelector(selectItems);
+  const forgingXP = useSelector(selectForgingXP);
   const forgingSavings = useSelector(getCraftingSetForgingSavingsPercent);
   const setXpBonus = useSelector(getCraftingSetForgingXpPercent);
   const ownedCraftingSetIds = useSelector(getOwnedCraftingSetPieceIds);

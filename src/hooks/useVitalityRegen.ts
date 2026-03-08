@@ -5,16 +5,16 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { regenerateVitality } from "../state/reducers/characterSlice";
-import { getEffectiveCombatStats } from "../state/selectors/characterSelectors";
-import { RootState } from "../state/store";
+import { getEffectiveCombatStats, selectCurrentHealth } from "../state/selectors/characterSelectors";
 
 const REGEN_INTERVAL_MS = 10_000;
 const REGEN_AMOUNT = 1;
 
 export function useVitalityRegen() {
   const dispatch = useDispatch();
-  const currentHealth = useSelector((state: RootState) => state.character.currentHealth);
-  const maxHealth = useSelector((state: RootState) => getEffectiveCombatStats(state).health);
+  const currentHealth = useSelector(selectCurrentHealth);
+  const effectiveStats = useSelector(getEffectiveCombatStats);
+  const maxHealth = effectiveStats.health;
 
   const ref = useRef({ currentHealth, maxHealth });
   ref.current = { currentHealth, maxHealth };

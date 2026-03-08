@@ -79,7 +79,7 @@ export function importSave(encoded: string): string | null {
   try {
     const persistPayload: Record<string, string> = {
       character: JSON.stringify(envelope.state.character),
-      content: JSON.stringify(envelope.state.content ?? { page: "Map" }),
+      content: JSON.stringify(envelope.state.content ?? { route: { type: "map" } }),
       achievements: JSON.stringify(envelope.state.achievements ?? { unlocked: {} }),
       _persist: JSON.stringify({ version: 1, rehydrated: true }),
     };

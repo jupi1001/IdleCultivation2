@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentActivity, setCurrentGatheringArea } from "../../state/reducers/characterSlice";
 import "./GatheringContainer.css";
-import { RootState } from "../../state/store";
 import GatheringArea from "../../components/GatheringArea/GatheringArea";
 import { gatheringAreaData, gatheringLootTypes } from "../../constants/data";
 import { getRingAmuletItemById } from "../../constants/ringsAmulets";
@@ -10,19 +9,30 @@ import { getSkillingSetItemById, getSetPieceIds, getTierForGatheringAreaIndex } 
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
 import { getOwnedRingAmuletIds, getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
+import {
+  selectCurrentActivity,
+  selectCurrentGatheringArea,
+  selectGatheringCastStartTime,
+  selectGatheringCastDuration,
+  selectGatheringXP,
+  selectReincarnationCount,
+} from "../../state/selectors/characterSelectors";
 import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
 import { useCastProgress } from "../../hooks/useCastProgress";
 import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
 
 const GatheringContainer = () => {
   const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
-  const { currentActivity, currentGatheringArea, gatheringCastStartTime, gatheringCastDuration } =
-    character;
+  const currentActivity = useSelector(selectCurrentActivity);
+  const currentGatheringArea = useSelector(selectCurrentGatheringArea);
+  const gatheringCastStartTime = useSelector(selectGatheringCastStartTime);
+  const gatheringCastDuration = useSelector(selectGatheringCastDuration);
+  const gatheringXP = useSelector(selectGatheringXP);
+  const reincarnationCount = useSelector(selectReincarnationCount) ?? 0;
   const busyWithOther =
     currentActivity !== "none" && currentActivity !== "gather";
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
-  const levelInfo = getGatheringLevelInfo(character.gatheringXP);
+  const levelInfo = getGatheringLevelInfo(gatheringXP);
   const ownedRingAmuletIds = useSelector(getOwnedRingAmuletIds);
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const ownedLootIds = useMemo(
@@ -31,7 +41,6 @@ const GatheringContainer = () => {
   );
   const isGathering = currentActivity === "gather" && currentGatheringArea != null;
   const progress = useCastProgress(gatheringCastStartTime, gatheringCastDuration);
-  const reincarnationCount = character.reincarnationCount ?? 0;
   const areasVisible = useMemo(
     () =>
       gatheringAreaData.filter(
@@ -89,7 +98,7 @@ const GatheringContainer = () => {
       <div className="gatheringContainer__areas">
       {areasVisible.map((area, areaIndex) => {
         const reincarnationOk = !area.requiresReincarnation || reincarnationCount >= 1;
-        const unlocked = character.gatheringXP >= area.gatheringXPUnlock && reincarnationOk;
+        const unlocked = gatheringXP >= area.gatheringXPUnlock && reincarnationOk;
         const tier = getTierForGatheringAreaIndex(gatheringAreaData.indexOf(area));
         const setPieceIds = getSetPieceIds("gathering", tier);
         return (

@@ -1,6 +1,5 @@
 import React, { useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import { addItem, consumeItems, addAlchemyXP, recordItemCrafted } from "../../state/reducers/characterSlice";
 import { addToast } from "../../state/reducers/toastSlice";
 import {
@@ -18,6 +17,8 @@ import {
   getCraftingSetAlchemySuccessPercent,
   getCraftingSetAlchemyXpPercent,
   getOwnedCraftingSetPieceIds,
+  selectItems,
+  selectAlchemyXP,
 } from "../../state/selectors/characterSelectors";
 import {
   getCraftingSetItemById,
@@ -43,8 +44,8 @@ function canCraft(items: { id: number; quantity?: number }[], recipe: AlchemyRec
 
 export const AlchemyContainer = () => {
   const dispatch = useDispatch();
-  const items = useSelector((state: RootState) => state.character.items);
-  const alchemyXP = useSelector((state: RootState) => state.character.alchemyXP);
+  const items = useSelector(selectItems);
+  const alchemyXP = useSelector(selectAlchemyXP);
   const talentAlchemyBonus = useSelector(getTalentAlchemySuccessPercent);
   const setSuccessBonus = useSelector(getCraftingSetAlchemySuccessPercent);
   const setXpBonus = useSelector(getCraftingSetAlchemyXpPercent);

@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import { equipItem, unequipItem } from "../../state/reducers/characterSlice";
+import { selectEquipment, selectItems } from "../../state/selectors/characterSelectors";
 import { ALL_EQUIPMENT_SLOTS, EQUIPMENT_SLOT_LABELS } from "../../types/EquipmentSlot";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { Tooltip } from "../Tooltip/Tooltip";
@@ -10,8 +10,8 @@ import "./EquipmentPanel.css";
 
 export const EquipmentPanel = () => {
   const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
-  const { equipment, items } = character;
+  const equipment = useSelector(selectEquipment);
+  const items = useSelector(selectItems);
 
   const itemsForSlot = (slot: EquipmentSlot) =>
     items.filter((i) => i.equipmentSlot === slot);

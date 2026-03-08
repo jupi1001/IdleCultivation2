@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import { purchaseAutoLootUnlock, purchaseAutoEatUnlock } from "../../state/reducers/characterSlice";
+import { selectMoney, selectAutoLootUnlocked, selectAutoEatUnlocked } from "../../state/selectors/characterSelectors";
 import { existingShopItemUpgrades, existingShopItems, existingShopQiTechniques, existingShopCombatTechniques } from "../../constants/data";
 import "./Shop.css";
 import ShopItem from "../../components/ShopItem/ShopItem";
@@ -11,9 +11,9 @@ const AUTO_EAT_PRICE = 50000;
 
 export const Shop = () => {
   const dispatch = useDispatch();
-  const money = useSelector((state: RootState) => state.character.money);
-  const autoLootUnlocked = useSelector((state: RootState) => state.character.autoLootUnlocked);
-  const autoEatUnlocked = useSelector((state: RootState) => state.character.autoEatUnlocked);
+  const money = useSelector(selectMoney);
+  const autoLootUnlocked = useSelector(selectAutoLootUnlocked);
+  const autoEatUnlocked = useSelector(selectAutoEatUnlocked);
   const [showPoorLoot, setShowPoorLoot] = React.useState(false);
   const [showPoorEat, setShowPoorEat] = React.useState(false);
 

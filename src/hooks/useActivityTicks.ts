@@ -40,6 +40,7 @@ import {
   getSkillSpeedBonusFishing,
   getSkillSpeedBonusMining,
   getSkillSpeedBonusGathering,
+  getMiningYieldBonusPercent,
   getOwnedSkillingSetPieceIds,
   getKarmaQiMultiplier,
   getKarmaSkillXpMultiplier,
@@ -47,8 +48,19 @@ import {
   getTalentQiGainBonus,
   getTalentSpiritStoneMultiplier,
 } from "../state/selectors/characterSelectors";
+import {
+  selectCurrentActivity,
+  selectCurrentFishingArea,
+  selectFishingCastStartTime,
+  selectCurrentMiningArea,
+  selectMiningCastStartTime,
+  selectCurrentGatheringArea,
+  selectGatheringCastStartTime,
+  selectEquipment,
+  selectMiner,
+  selectIsWeakened,
+} from "../state/selectors/characterSelectors";
 import { rollOneTimeDrop } from "../utils/oneTimeDrops";
-import { RootState } from "../state/store";
 import { BASE_QI_PER_SECOND } from "../constants/meditation";
 import type Item from "../interfaces/ItemI";
 
@@ -83,19 +95,20 @@ function rollSkillingSetForArea(
 
 export function useActivityTicks() {
   const dispatch = useDispatch();
-  const currentActivity = useSelector((state: RootState) => state.character.currentActivity);
-  const currentFishingArea = useSelector((state: RootState) => state.character.currentFishingArea);
-  const fishingCastStartTime = useSelector((state: RootState) => state.character.fishingCastStartTime);
-  const currentMiningArea = useSelector((state: RootState) => state.character.currentMiningArea);
-  const miningCastStartTime = useSelector((state: RootState) => state.character.miningCastStartTime);
-  const currentGatheringArea = useSelector((state: RootState) => state.character.currentGatheringArea);
-  const gatheringCastStartTime = useSelector((state: RootState) => state.character.gatheringCastStartTime);
-  const equipment = useSelector((state: RootState) => state.character.equipment);
-  const miner = useSelector((state: RootState) => state.character.miner);
+  const currentActivity = useSelector(selectCurrentActivity);
+  const currentFishingArea = useSelector(selectCurrentFishingArea);
+  const fishingCastStartTime = useSelector(selectFishingCastStartTime);
+  const currentMiningArea = useSelector(selectCurrentMiningArea);
+  const miningCastStartTime = useSelector(selectMiningCastStartTime);
+  const currentGatheringArea = useSelector(selectCurrentGatheringArea);
+  const gatheringCastStartTime = useSelector(selectGatheringCastStartTime);
+  const equipment = useSelector(selectEquipment);
+  const miner = useSelector(selectMiner);
   const minerRef = useRef(miner);
   const skillSpeedBonusFishing = useSelector(getSkillSpeedBonusFishing);
   const skillSpeedBonusMining = useSelector(getSkillSpeedBonusMining);
   const skillSpeedBonusGathering = useSelector(getSkillSpeedBonusGathering);
+  const miningYieldPercent = useSelector(getMiningYieldBonusPercent);
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const ownedSkillingSetRef = useRef<Set<number>>(new Set());
   ownedSkillingSetRef.current = ownedSkillingSetPieceIds;
@@ -105,7 +118,7 @@ export function useActivityTicks() {
   const talentSsMult = useSelector(getTalentSpiritStoneMultiplier);
   const talentQiGain = useSelector(getTalentQiGainBonus);
   const karmaQiMultRef = useRef(karmaQiMult);
-  const isWeakened = useSelector((state: RootState) => state.character.isWeakened);
+  const isWeakened = useSelector(selectIsWeakened);
   const karmaXpMultRef = useRef(karmaXpMult);
   const karmaSsMultRef = useRef(karmaSsMult * talentSsMult);
   karmaQiMultRef.current = karmaQiMult;
@@ -211,17 +224,19 @@ export function useActivityTicks() {
       const skillingSetDropItem = rollSkillingSetForArea(
         "mining", area.areaId, miningAreaData, getTierForMiningAreaIndex, ownedSkillingSetRef
       );
+      const lootQuantity = miningYieldPercent > 0 && Math.random() * 100 < miningYieldPercent ? 2 : 1;
       dispatch(completeMiningCast({
         castId,
         miningXP: Math.round(area.miningXP * karmaXpMultRef.current),
         miningLootId: area.miningLootId,
+        lootQuantity,
         geodeDropped,
         skillingSetDropItem: skillingSetDropItem ?? undefined,
       }));
       if (geodeDropped) dispatch(addToast({ type: "rareDrop", itemName: "Geode" }));
       if (skillingSetDropItem) dispatch(addToast({ type: "rareDrop", itemName: skillingSetDropItem.name }));
     }, effectiveDuration);
-  }, [currentActivity, currentMiningArea, miningCastStartTime, dispatch, skillSpeedBonusMining]);
+  }, [currentActivity, currentMiningArea, miningCastStartTime, dispatch, skillSpeedBonusMining, miningYieldPercent]);
 
   // ── Gathering ──
   useEffect(() => {

@@ -7,6 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "skilling-stats": "node scripts/generate-skilling-stats.mjs"
   },
   "dependencies": {
@@ -17,10 +20,16 @@
     "redux-persist": "^6.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^9.39.4",
+    "eslint-plugin-import": "^2.32.0",
     "typescript": "~5.6.3",
-    "vite": "^5.4.11"
+    "typescript-eslint": "^8.56.1",
+    "vite": "^5.4.11",
+    "vitest": "^4.0.18"
   }
 }

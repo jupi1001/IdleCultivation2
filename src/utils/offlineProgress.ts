@@ -19,6 +19,7 @@ import {
   getSkillSpeedBonusFishing,
   getSkillSpeedBonusMining,
   getSkillSpeedBonusGathering,
+  getMiningYieldBonusPercent,
   getOwnedSkillingSetPieceIds,
   getKarmaQiMultiplier,
   getKarmaSkillXpMultiplier,
@@ -158,6 +159,7 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
   if (activity === "mine" && char.currentMiningArea) {
     const area = char.currentMiningArea as CurrentMiningArea;
     const skillBonus = getSkillSpeedBonusMining(state);
+    const miningYieldPercent = getMiningYieldBonusPercent(state);
     const effectiveDuration = Math.max(100, area.miningDelay * (1 - skillBonus / 100));
     const casts = Math.floor(offlineMs / effectiveDuration);
     if (casts > 0) {
@@ -167,7 +169,10 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
       for (let i = 0; i < casts; i++) {
         xp += Math.round(area.miningXP * karmaXpMult);
         const ore = oreTypes.find((o) => o.id === area.miningLootId);
-        if (ore) items.push(ore);
+        if (ore) {
+          items.push(ore);
+          if (miningYieldPercent > 0 && Math.random() * 100 < miningYieldPercent) items.push(ore);
+        }
         if (Math.random() * 100 < 3) items.push(GEODE_ITEM);
         const setPiece = rollSkillingSetForArea(
           "mining",

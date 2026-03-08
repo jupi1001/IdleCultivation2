@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
-import { changeContent } from "../../state/reducers/contentSlice";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import {
   setSect,
   startPromotion,
@@ -12,6 +11,21 @@ import {
   useRealmDialogue,
   setCultivationPartner,
 } from "../../state/reducers/characterSlice";
+import {
+  selectCurrentSectId,
+  selectSectRankIndex,
+  selectRealm,
+  selectRealmLevel,
+  selectPromotionEndTime,
+  selectPromotionToRankIndex,
+  selectSectQuestProgress,
+  selectSectQuestKillCount,
+  selectObtainedSectTreasureIds,
+  selectNpcFavor,
+  selectRealmDialogueUsed,
+  selectCultivationPartner,
+  selectMoney,
+} from "../../state/selectors/characterSelectors";
 import { ContentArea } from "../../enum/ContentArea";
 import { getStepIndex } from "../../constants/realmProgression";
 import { sectsData, SECT_POSITIONS, sectStoreData } from "../../constants/data";
@@ -32,19 +46,19 @@ const PROMOTION_DURATION_MS = 5000;
 export const SectContainer = () => {
   const dispatch = useDispatch();
   const [now, setNow] = useState(Date.now());
-  const currentSectId = useSelector((state: RootState) => state.character.currentSectId);
-  const sectRankIndex = useSelector((state: RootState) => state.character.sectRankIndex);
-  const realm = useSelector((state: RootState) => state.character.realm);
-  const realmLevel = useSelector((state: RootState) => state.character.realmLevel);
-  const promotionEndTime = useSelector((state: RootState) => state.character.promotionEndTime);
-  const promotionToRankIndex = useSelector((state: RootState) => state.character.promotionToRankIndex);
-  const sectQuestProgress = useSelector((state: RootState) => state.character.sectQuestProgress);
-  const sectQuestKillCount = useSelector((state: RootState) => state.character.sectQuestKillCount);
-  const obtainedSectTreasureIds = useSelector((state: RootState) => state.character.obtainedSectTreasureIds);
-  const npcFavor = useSelector((state: RootState) => state.character.npcFavor);
-  const realmDialogueUsed = useSelector((state: RootState) => state.character.realmDialogueUsed);
-  const cultivationPartner = useSelector((state: RootState) => state.character.cultivationPartner);
-  const money = useSelector((state: RootState) => state.character.money);
+  const currentSectId = useSelector(selectCurrentSectId);
+  const sectRankIndex = useSelector(selectSectRankIndex);
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
+  const promotionEndTime = useSelector(selectPromotionEndTime);
+  const promotionToRankIndex = useSelector(selectPromotionToRankIndex);
+  const sectQuestProgress = useSelector(selectSectQuestProgress);
+  const sectQuestKillCount = useSelector(selectSectQuestKillCount);
+  const obtainedSectTreasureIds = useSelector(selectObtainedSectTreasureIds);
+  const npcFavor = useSelector(selectNpcFavor);
+  const realmDialogueUsed = useSelector(selectRealmDialogueUsed);
+  const cultivationPartner = useSelector(selectCultivationPartner);
+  const money = useSelector(selectMoney);
 
   const [activeTab, setActiveTab] = useState<SectTab>("store");
 
@@ -102,7 +116,7 @@ export const SectContainer = () => {
     );
   };
 
-  const openMap = () => dispatch(changeContent(ContentArea.MAP));
+  const openMap = () => dispatch(changeContent(routeFromArea(ContentArea.MAP)));
   const handleLeave = () => dispatch(setSect(null));
   const handlePromote = () =>
     dispatch(startPromotion({ targetRankIndex: nextRankIndex, durationMs: PROMOTION_DURATION_MS }));

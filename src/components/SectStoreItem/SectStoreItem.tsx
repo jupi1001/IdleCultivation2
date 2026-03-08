@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem, reduceMoney } from "../../state/reducers/characterSlice";
-import { RootState } from "../../state/store";
-import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
+import { getOwnedTechniqueIds, getTalentShopDiscountPercent, selectMoney } from "../../state/selectors/characterSelectors";
 import type { SectStoreEntryI } from "../../constants/data";
 import { Tooltip } from "../Tooltip/Tooltip";
 import { formatItemStats } from "../../utils/itemTooltipUtils";
@@ -18,7 +17,7 @@ interface SectStoreItemProps {
 
 export const SectStoreItem: React.FC<SectStoreItemProps> = ({ entry, locked, requiredPositionName, sectName }) => {
   const dispatch = useDispatch();
-  const money = useSelector((state: RootState) => state.character.money);
+  const money = useSelector(selectMoney);
   const shopDiscountPercent = useSelector(getTalentShopDiscountPercent);
   const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
   const [showPoor, setShowPoor] = useState(false);

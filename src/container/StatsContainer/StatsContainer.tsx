@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import type { CharacterStats } from "../../state/reducers/characterSlice";
 import { getRealmLabelFromStep } from "../../constants/realmProgression";
+import { selectStats } from "../../state/selectors/characterSelectors";
 import "./StatsContainer.css";
 
 const defaultStats: CharacterStats = {
@@ -32,8 +32,8 @@ function formatTime(ms: number): string {
 }
 
 export const StatsContainer = () => {
-  const character = useSelector((state: RootState) => state.character);
-  const stats: CharacterStats = character.stats ?? defaultStats;
+  const statsResolved = useSelector(selectStats);
+  const stats: CharacterStats = statsResolved ?? defaultStats;
 
   const totalEnemiesKilled = Object.values(stats.enemiesKilledByArea ?? {}).reduce((a, b) => a + b, 0);
   const totalItemsGathered =

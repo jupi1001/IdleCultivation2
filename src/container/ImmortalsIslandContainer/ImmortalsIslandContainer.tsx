@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import {
   addMoney,
   addItem,
@@ -9,6 +8,17 @@ import {
   createAvatar,
   trainAvatar,
 } from "../../state/reducers/characterSlice";
+import {
+  selectRealm,
+  selectRealmLevel,
+  selectExpeditionEndTime,
+  selectExpeditionMissionId,
+  selectCurrentActivity,
+  selectMoney,
+  selectItems,
+  selectEquipment,
+  selectAvatars,
+} from "../../state/selectors/characterSelectors";
 import { addToast } from "../../state/reducers/toastSlice";
 import { canEnterArea, formatRealmRequirement } from "../../constants/areaRealmRequirements";
 import {
@@ -54,23 +64,34 @@ function formatDuration(seconds: number): string {
 
 export const ImmortalsIslandContainer = () => {
   const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
-  const {
-    realm,
-    realmLevel,
-    expeditionEndTime,
-    expeditionMissionId,
-    currentActivity,
-    money,
-    items,
-  } = character;
-  const avatars = character.avatars ?? [];
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
+  const expeditionEndTime = useSelector(selectExpeditionEndTime);
+  const expeditionMissionId = useSelector(selectExpeditionMissionId);
+  const currentActivity = useSelector(selectCurrentActivity);
+  const money = useSelector(selectMoney);
+  const items = useSelector(selectItems);
+  const equipment = useSelector(selectEquipment);
+  const avatarsResolved = useSelector(selectAvatars);
+  const avatars = avatarsResolved ?? [];
   const [tick, setTick] = useState(0);
   const [avatarsOpen, setAvatarsOpen] = useState(true);
   const [createName, setCreateName] = useState("");
   const completionCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const characterRef = useRef(character);
-  characterRef.current = character;
+  const expeditionContextRef = useRef({
+    expeditionEndTime,
+    expeditionMissionId,
+    items,
+    equipment,
+    avatars,
+  });
+  expeditionContextRef.current = {
+    expeditionEndTime,
+    expeditionMissionId,
+    items,
+    equipment,
+    avatars,
+  };
 
   const isMainOnExpedition = currentActivity === "expedition" && expeditionEndTime != null;
   const currentMission = expeditionMissionId != null
@@ -100,7 +121,7 @@ export const ImmortalsIslandContainer = () => {
 
   useEffect(() => {
     const checkCompletions = () => {
-      const current = characterRef.current;
+      const current = expeditionContextRef.current;
       const now = Date.now();
 
       if (current.expeditionEndTime != null && now >= current.expeditionEndTime) {
@@ -132,7 +153,7 @@ export const ImmortalsIslandContainer = () => {
             mission.spiritStonesMin +
             Math.floor(Math.random() * (mission.spiritStonesMax - mission.spiritStonesMin + 1));
           dispatch(addMoney(spiritStones));
-          const stateForRare = characterRef.current;
+          const stateForRare = expeditionContextRef.current;
           const ownedIds = getOwnedItemIds({ items: stateForRare.items, equipment: stateForRare.equipment });
           const rareItem = rollOneTimeDropFromTable(ownedIds, mission.rareDrops, getExpeditionItem);
           let rareItemName: string | null = null;

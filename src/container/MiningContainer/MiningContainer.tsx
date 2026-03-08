@@ -2,30 +2,39 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentActivity, setCurrentMiningArea } from "../../state/reducers/characterSlice";
 import "./MiningContainer.css";
-import { RootState } from "../../state/store";
 import MiningArea from "../../components/MiningArea/MiningArea";
 import { miningAreaData, oreTypes } from "../../constants/data";
 import { getSkillingSetItemById, getSetPieceIds, getTierForMiningAreaIndex } from "../../constants/skillingSets";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
 import { getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
+import {
+  selectCurrentActivity,
+  selectCurrentMiningArea,
+  selectMiningCastStartTime,
+  selectMiningCastDuration,
+  selectMiningXP,
+  selectReincarnationCount,
+} from "../../state/selectors/characterSelectors";
 import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
 import { useCastProgress } from "../../hooks/useCastProgress";
 import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
 
 const MiningContainer = () => {
   const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
-  const { currentActivity, currentMiningArea, miningCastStartTime, miningCastDuration } =
-    character;
+  const currentActivity = useSelector(selectCurrentActivity);
+  const currentMiningArea = useSelector(selectCurrentMiningArea);
+  const miningCastStartTime = useSelector(selectMiningCastStartTime);
+  const miningCastDuration = useSelector(selectMiningCastDuration);
+  const miningXP = useSelector(selectMiningXP);
+  const reincarnationCount = useSelector(selectReincarnationCount) ?? 0;
   const busyWithOther =
     currentActivity !== "none" && currentActivity !== "mine";
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
-  const levelInfo = getMiningLevelInfo(character.miningXP);
+  const levelInfo = getMiningLevelInfo(miningXP);
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const isMining = currentActivity === "mine" && currentMiningArea != null;
   const progress = useCastProgress(miningCastStartTime, miningCastDuration);
-  const reincarnationCount = character.reincarnationCount ?? 0;
   const areasVisible = useMemo(
     () =>
       miningAreaData.filter(
@@ -76,7 +85,7 @@ const MiningContainer = () => {
       <div className="miningContainer__areas">
       {areasVisible.map((area, areaIndex) => {
         const reincarnationOk = !area.requiresReincarnation || reincarnationCount >= 1;
-        const unlocked = character.miningXP >= area.miningXPUnlock && reincarnationOk;
+        const unlocked = miningXP >= area.miningXPUnlock && reincarnationOk;
         const tier = getTierForMiningAreaIndex(miningAreaData.indexOf(area));
         const setPieceIds = getSetPieceIds("mining", tier);
         const ore = oreTypes.find((o) => o.id === area.miningLootId);

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import { purchaseTalentLevel } from "../../state/reducers/characterSlice";
+import { selectQi, selectRealm, selectRealmLevel, selectTalentLevels, selectPath } from "../../state/selectors/characterSelectors";
 import { TALENT_TREE_TIERS, formatRealmGateLabel } from "../../constants/talents";
 import { getTalentNodeState } from "../../constants/talentHelpers";
 import { TalentNodeCard } from "../../components/TalentNodeCard/TalentNodeCard";
@@ -12,8 +12,11 @@ const TREE_TIERS_TOP_TO_BOTTOM = [...TALENT_TREE_TIERS].reverse();
 
 export const CultivationTreeContainer = () => {
   const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
-  const { qi, realm, realmLevel, talentLevels, path } = character;
+  const qi = useSelector(selectQi);
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
+  const talentLevels = useSelector(selectTalentLevels);
+  const path = useSelector(selectPath);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

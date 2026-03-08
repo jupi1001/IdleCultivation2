@@ -17,6 +17,8 @@ import { Inventory } from "../Inventory/Inventory";
 import MoneyContainer from "../MoneyContainer/MoneyContainer";
 import CombatContainer from "../CombatContainer/CombatContainer";
 import { ContentArea } from "../../enum/ContentArea";
+import { selectRoute } from "../../state/reducers/contentSlice";
+import { selectPath, selectGender } from "../../state/selectors/characterSelectors";
 import FishingContainer from "../FishingContainer/FishingContainer";
 import GatheringContainer from "../GatheringContainer/GatheringContainer";
 import MiningContainer from "../MiningContainer/MiningContainer";
@@ -52,9 +54,9 @@ export const Main = ({ theme = "dark", setTheme }: MainProps) => {
   useVitalityRegen();
   useKeyboardShortcuts();
 
-  const content = useSelector((state: RootState) => state.content.page);
-  const path = useSelector((state: RootState) => state.character.path);
-  const gender = useSelector((state: RootState) => state.character.gender);
+  const route = useSelector(selectRoute);
+  const path = useSelector(selectPath);
+  const gender = useSelector(selectGender);
   const hasRunOfflineRef = useRef(false);
 
   useEffect(() => {
@@ -108,30 +110,30 @@ export const Main = ({ theme = "dark", setTheme }: MainProps) => {
       </div>
       <div className="app__main-content">
         <div className="app__main-content-scroll">
-          {content === ContentArea.MAP && <Map />}
-          {content === ContentArea.SECT && <SectContainer />}
-          {content === ContentArea.TRAINING && <TrainingContainer />}
-          {content === ContentArea.SHOP && <Shop />}
-          {content === ContentArea.BLACK_MARKET && <BlackMarket />}
-          {content === ContentArea.INVENTORY && <Inventory />}
-          {content.split(":").shift() === ContentArea.COMBAT && <CombatContainer area={content.split(":").pop()} />}
-          {content === ContentArea.LABOUR && <MoneyContainer />}
-          {content === ContentArea.MEDITATION && <MeditationContainer />}
-          {content === ContentArea.FISHING && <FishingContainer />}
-          {content === ContentArea.MINING && <MiningContainer />}
-          {content === ContentArea.GATHERING && <GatheringContainer />}
-          {content === ContentArea.CULTIVATION_TREE && <CultivationTreeContainer />}
-          {content === ContentArea.ALCHEMY && <AlchemyContainer />}
-          {content === ContentArea.FORGING && <ForgingContainer />}
-          {content === ContentArea.COOKING && <CookingContainer />}
-          {content === ContentArea.IMMORTALS_ISLAND && <ImmortalsIslandContainer />}
-          {content === ContentArea.REINCARNATION && <ReincarnationContainer />}
-          {content === ContentArea.ACHIEVEMENTS && <AchievementsContainer />}
-          {content === ContentArea.SETTINGS && <SettingsContainer theme={theme} setTheme={setTheme} />}
-          {content === ContentArea.ACTIVITY_LOG && <LogContainer />}
-          {content === ContentArea.STATS && <StatsContainer />}
+          {route.type === "map" && <Map />}
+          {route.type === "sect" && <SectContainer />}
+          {route.type === "training" && <TrainingContainer />}
+          {route.type === "shop" && <Shop />}
+          {route.type === "black_market" && <BlackMarket />}
+          {route.type === "inventory" && <Inventory />}
+          {route.type === "combat" && <CombatContainer area={route.areaId} />}
+          {route.type === "labour" && <MoneyContainer />}
+          {route.type === "meditation" && <MeditationContainer />}
+          {route.type === "fishing" && <FishingContainer />}
+          {route.type === "mining" && <MiningContainer />}
+          {route.type === "gathering" && <GatheringContainer />}
+          {route.type === "cultivation_tree" && <CultivationTreeContainer />}
+          {route.type === "alchemy" && <AlchemyContainer />}
+          {route.type === "forging" && <ForgingContainer />}
+          {route.type === "cooking" && <CookingContainer />}
+          {route.type === "immortals_island" && <ImmortalsIslandContainer />}
+          {route.type === "reincarnation" && <ReincarnationContainer />}
+          {route.type === "achievements" && <AchievementsContainer />}
+          {route.type === "settings" && <SettingsContainer theme={theme} setTheme={setTheme} />}
+          {route.type === "activity_log" && <LogContainer />}
+          {route.type === "stats" && <StatsContainer />}
         </div>
-        {content !== ContentArea.ACTIVITY_LOG && <LogContainer asPanel />}
+        {route.type !== "activity_log" && <LogContainer asPanel />}
       </div>
       <div className="app__main-right">
         <RightMain />

@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addAttack, addDefense, addItem, reduceMoney } from "../../state/reducers/characterSlice";
-import { RootState } from "../../state/store";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
+import { selectMoney } from "../../state/selectors/characterSelectors";
 import Item from "../../interfaces/ItemI";
 import "./ShopItem.css";
 
@@ -15,7 +15,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
   const [moneyMessage, setMoneyMessage] = useState(false);
   const [stock, setStock] = useState(item.quantity);
 
-  const money = useSelector((state: RootState) => state.character.money);
+  const money = useSelector(selectMoney);
   const shopDiscountPercent = useSelector(getTalentShopDiscountPercent);
   const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
   const dispatch = useDispatch();

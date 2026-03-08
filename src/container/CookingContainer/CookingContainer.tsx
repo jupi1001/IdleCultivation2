@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import { addItem, consumeItems, addCookingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
 import { addToast } from "../../state/reducers/toastSlice";
 import {
@@ -15,6 +14,8 @@ import {
   getOwnedCraftingSetPieceIds,
   getCraftingSetCookingDoubleChancePercent,
   getCraftingSetCookingXpPercent,
+  selectItems,
+  selectCookingXP,
 } from "../../state/selectors/characterSelectors";
 import {
   getCraftingSetItemById,
@@ -38,8 +39,8 @@ function canCook(items: { id: number; quantity?: number }[], recipe: CookingReci
 
 export const CookingContainer = () => {
   const dispatch = useDispatch();
-  const items = useSelector((state: RootState) => state.character.items);
-  const cookingXP = useSelector((state: RootState) => state.character.cookingXP);
+  const items = useSelector(selectItems);
+  const cookingXP = useSelector(selectCookingXP);
   const doubleChance = useSelector(getCraftingSetCookingDoubleChancePercent);
   const setXpBonus = useSelector(getCraftingSetCookingXpPercent);
   const ownedCraftingSetIds = useSelector(getOwnedCraftingSetPieceIds);

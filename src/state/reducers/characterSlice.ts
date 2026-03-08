@@ -579,16 +579,17 @@ export const characterSlice = createSlice({
     /** Completion is idempotent: ignored entirely if payload.castId !== state.miningCastId (stale/duplicate timeout). */
     completeMiningCast: (
       state,
-      action: PayloadAction<{ castId: number; miningXP: number; miningLootId: number; geodeDropped?: boolean; skillingSetDropItem?: Item | null }>
+      action: PayloadAction<{ castId: number; miningXP: number; miningLootId: number; lootQuantity?: number; geodeDropped?: boolean; skillingSetDropItem?: Item | null }>
     ) => {
       if (action.payload.castId !== state.miningCastId) return;
       state.miningCastStartTime = null;
       state.miningCastDuration = 0;
       if (state.currentActivity !== "mine" || !state.currentMiningArea) return;
       const { miningXP, miningLootId, geodeDropped } = action.payload;
+      const lootQty = Math.max(1, action.payload.lootQuantity ?? 1);
       state.miningXP += miningXP;
       const ore = oreTypes.find((o) => o.id === miningLootId);
-      if (ore) upsertItem(state.items, ore);
+      if (ore) upsertItem(state.items, ore, lootQty);
       if (geodeDropped) upsertItem(state.items, GEODE_ITEM);
       if (action.payload.skillingSetDropItem) {
         const piece = action.payload.skillingSetDropItem;
@@ -599,7 +600,7 @@ export const characterSlice = createSlice({
         if (!inItems && !inEquip) state.items.push({ ...piece, quantity: 1 });
       }
       ensureStats(state);
-      state.stats!.itemsGatheredMining += 1 + (action.payload.geodeDropped ? 1 : 0) + (action.payload.skillingSetDropItem ? 1 : 0);
+      state.stats!.itemsGatheredMining += lootQty + (action.payload.geodeDropped ? 1 : 0) + (action.payload.skillingSetDropItem ? 1 : 0);
     },
     setCurrentGatheringArea: (state, action: PayloadAction<CurrentGatheringArea | null>) => {
       state.currentGatheringArea = action.payload;

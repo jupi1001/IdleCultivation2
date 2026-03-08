@@ -10,6 +10,7 @@ import { toastLevelUpMiddleware } from "./middleware/toastLevelUpMiddleware";
 import { toastNotificationPrefsMiddleware } from "./middleware/toastNotificationPrefsMiddleware";
 import { achievementMiddleware } from "./middleware/achievementMiddleware";
 import { logMiddleware } from "./middleware/logMiddleware";
+import { parseLegacyPage } from "./types/contentRoute";
 
 const DEFAULT_NOTIFICATION_PREFS = {
   toastsEnabled: true,
@@ -39,6 +40,13 @@ function migratePersistedState(state: unknown, _version: number): Promise<unknow
     if (c.npcFavor == null) c.npcFavor = {};
     if (c.realmDialogueUsed == null) c.realmDialogueUsed = {};
     if (c.cultivationPartner == null) c.cultivationPartner = null;
+  }
+  const content = s.content;
+  if (content && typeof content === "object" && !Array.isArray(content)) {
+    const c = content as Record<string, unknown>;
+    if (c.route == null && c.page != null && typeof c.page === "string") {
+      c.route = parseLegacyPage(c.page);
+    }
   }
   return Promise.resolve(state);
 }
