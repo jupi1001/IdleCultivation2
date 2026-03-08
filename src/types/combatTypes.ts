@@ -21,3 +21,10 @@ export interface ResolvedLootTable {
   items: Item[];
   weight: number[];
 }
+
+/** One entry for UI display: item with chance % and amount (used by EnemyLootPopover). */
+export interface EnemyLootDisplayEntry {
+  item: Item;
+  chancePercent: number;
+  amount: number;
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { getResolvedLootTable, rollOneDrop } from "./combatLoot";
+import { getResolvedLootTable, getEnemyLootEntries, rollOneDrop } from "./combatLoot";
 import type EnemyI from "../interfaces/EnemyI";
 import type { SectLootContext } from "../types/combatTypes";
 import { CombatArea } from "../enum/CombatArea";
@@ -51,6 +51,43 @@ describe("combatLoot", () => {
     it("returns null when items array is empty", () => {
       const enemy = { ...enemyWithLoot, loot: { items: [], weight: [] } };
       expect(getResolvedLootTable(enemy, { area: undefined, currentSectId: null, path: null, sectRankIndex: 0 })).toBeNull();
+    });
+  });
+
+  describe("getEnemyLootEntries", () => {
+    const enemyWithLoot: EnemyI = {
+      id: 1,
+      name: "Test Enemy",
+      location: CombatArea.FARM,
+      attack: 5,
+      defense: 2,
+      health: 20,
+      picture: "",
+      loot: {
+        items: [
+          { id: 101, name: "Drop A", description: "", quantity: 2, price: 0, equipmentSlot: undefined },
+          { id: 102, name: "Drop B", description: "", quantity: 1, price: 0, equipmentSlot: undefined },
+        ] as Item[],
+        weight: [1, 3],
+      },
+    };
+
+    it("returns empty array when enemy is null or undefined", () => {
+      const ctx: SectLootContext = { area: "Farm", currentSectId: null, path: null, sectRankIndex: 0 };
+      expect(getEnemyLootEntries(null, ctx)).toEqual([]);
+      expect(getEnemyLootEntries(undefined, ctx)).toEqual([]);
+    });
+
+    it("returns display entries with chancePercent and amount", () => {
+      const ctx: SectLootContext = { area: "Farm", currentSectId: null, path: null, sectRankIndex: 0 };
+      const entries = getEnemyLootEntries(enemyWithLoot, ctx);
+      expect(entries).toHaveLength(2);
+      expect(entries[0].item.id).toBe(101);
+      expect(entries[0].amount).toBe(2);
+      expect(entries[0].chancePercent).toBe(25);
+      expect(entries[1].item.id).toBe(102);
+      expect(entries[1].amount).toBe(1);
+      expect(entries[1].chancePercent).toBe(75);
     });
   });
 

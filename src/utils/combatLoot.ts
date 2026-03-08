@@ -6,7 +6,7 @@ import { isSectRaidArea, SECT_RAID_AREA_TO_SECT_ID } from "../constants/combatAr
 import { getSectRaidLootForRank, SECTS_BY_ID } from "../constants/data";
 import type EnemyI from "../interfaces/EnemyI";
 import type Item from "../interfaces/ItemI";
-import type { ResolvedLootTable, SectLootContext } from "../types/combatTypes";
+import type { EnemyLootDisplayEntry, ResolvedLootTable, SectLootContext } from "../types/combatTypes";
 
 /**
  * Resolve enemy loot table for the current area and sect context.
@@ -41,6 +41,26 @@ export function getResolvedLootTable(
 
   if (!items?.length || !weight?.length || items.length !== weight.length) return null;
   return { items, weight: weight.slice() };
+}
+
+/**
+ * Pure helper for combat UI: get display entries (item, chancePercent, amount) for an enemy.
+ * Call with explicit inputs so useMemo dependency array is correct (currentEnemy, area, sect context).
+ */
+export function getEnemyLootEntries(
+  enemy: EnemyI | null | undefined,
+  context: SectLootContext
+): EnemyLootDisplayEntry[] {
+  if (!enemy) return [];
+  const table = getResolvedLootTable(enemy, context);
+  if (!table || !table.items.length) return [];
+  const total = table.weight.reduce((a, b) => a + b, 0);
+  if (total <= 0) return [];
+  return table.items.map((item, i) => ({
+    item,
+    chancePercent: (table.weight[i] / total) * 100,
+    amount: item.quantity ?? 1,
+  }));
 }
 
 /**

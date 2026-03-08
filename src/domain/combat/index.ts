@@ -12,6 +12,7 @@ export {
 export type { RealmRequirement } from "../../constants/areaRealmRequirements";
 export {
   getResolvedLootTable,
+  getEnemyLootEntries,
   rollOneDrop,
 } from "../../utils/combatLoot";
 export {
@@ -20,4 +21,4 @@ export {
   getDamageRange,
   computeBaseDamage,
 } from "../../utils/combatMath";
-export type { SectLootContext, ResolvedLootTable } from "../../types/combatTypes";
+export type { SectLootContext, ResolvedLootTable, EnemyLootDisplayEntry } from "../../types/combatTypes";

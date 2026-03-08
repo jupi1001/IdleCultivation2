@@ -28,7 +28,7 @@ import {
   selectAutoEatHpPercent,
 } from "../../state/selectors/characterSelectors";
 import { isConsumableItem } from "../../types/itemGuards";
-import { getResolvedLootTable, rollOneDrop } from "../../utils/combatLoot";
+import { getResolvedLootTable, getEnemyLootEntries, rollOneDrop } from "../../utils/combatLoot";
 import { canEnterCombatArea } from "../../utils/contentRules";
 
 const ENEMY_ATTACK_INTERVAL_MS = 3000;
@@ -421,17 +421,8 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   }, [fightingInterval]);
 
   const enemyLootEntries = useMemo(() => {
-    if (!currentEnemy) return [];
     const context = { area, currentSectId, path, sectRankIndex };
-    const table = getResolvedLootTable(currentEnemy, context);
-    if (!table || !table.items.length) return [];
-    const total = table.weight.reduce((a, b) => a + b, 0);
-    if (total <= 0) return [];
-    return table.items.map((item, i) => ({
-      item,
-      chancePercent: (table.weight[i] / total) * 100,
-      amount: item.quantity ?? 1,
-    }));
+    return getEnemyLootEntries(currentEnemy, context);
   }, [currentEnemy, area, currentSectId, path, sectRankIndex]);
 
   if (!currentEnemy) return null;
