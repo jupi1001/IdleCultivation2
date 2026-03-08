@@ -20,7 +20,7 @@ interface InventoryItemProps {
   item: Item;
 }
 
-const InventoryItem: React.FC<InventoryItemProps> = ({ item }) => {
+const InventoryItem: React.FC<InventoryItemProps> = React.memo(({ item }) => {
   const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -161,6 +161,6 @@ const InventoryItem: React.FC<InventoryItemProps> = ({ item }) => {
       )}
     </div>
   );
-};
+});
 
 export default InventoryItem;

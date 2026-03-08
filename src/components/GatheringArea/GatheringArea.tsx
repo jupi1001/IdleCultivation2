@@ -43,7 +43,7 @@ function getSkillAreaTooltipContent(
   return lines.join("\n");
 }
 
-const GatheringArea: React.FC<GatheringAreaProps> = ({
+const GatheringArea: React.FC<GatheringAreaProps> = React.memo(({
   title,
   imageSrc,
   altText,
@@ -102,6 +102,6 @@ const GatheringArea: React.FC<GatheringAreaProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default GatheringArea;

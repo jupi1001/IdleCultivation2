@@ -15,7 +15,7 @@ interface SectStoreItemProps {
   sectName?: string;
 }
 
-export const SectStoreItem: React.FC<SectStoreItemProps> = ({ entry, locked, requiredPositionName, sectName }) => {
+export const SectStoreItem: React.FC<SectStoreItemProps> = React.memo(({ entry, locked, requiredPositionName, sectName }) => {
   const dispatch = useDispatch();
   const money = useSelector(selectMoney);
   const shopDiscountPercent = useSelector(getTalentShopDiscountPercent);
@@ -61,4 +61,4 @@ export const SectStoreItem: React.FC<SectStoreItemProps> = ({ entry, locked, req
       )}
     </div>
   );
-};
+});

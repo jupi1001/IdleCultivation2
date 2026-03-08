@@ -43,7 +43,7 @@ function getSkillAreaTooltipContent(
   return lines.join("\n");
 }
 
-const MiningArea: React.FC<MiningAreaProps> = ({
+const MiningArea: React.FC<MiningAreaProps> = React.memo(({
   title,
   imageSrc,
   altText,
@@ -102,6 +102,6 @@ const MiningArea: React.FC<MiningAreaProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default MiningArea;

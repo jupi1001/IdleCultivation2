@@ -41,7 +41,7 @@ interface SkillItemProps {
   skill: SkillI;
 }
 
-const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
+const SkillBlockItem: React.FC<SkillItemProps> = React.memo(({ skill }) => {
   const dispatch = useDispatch();
   const currentActivity = useSelector(selectCurrentActivity);
   const fishingXP = useSelector(selectFishingXP);
@@ -99,6 +99,6 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
       <p className="skillBlockItem__main-p">{skill.description}</p>
     </div>
   );
-};
+});
 
 export default SkillBlockItem;

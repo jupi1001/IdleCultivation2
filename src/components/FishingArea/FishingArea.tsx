@@ -44,7 +44,7 @@ function getSkillAreaTooltipContent(
   return lines.join("\n");
 }
 
-const FishingArea: React.FC<FishingAreaProps> = ({
+const FishingArea: React.FC<FishingAreaProps> = React.memo(({
   title,
   imageSrc,
   altText,
@@ -103,6 +103,6 @@ const FishingArea: React.FC<FishingAreaProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default FishingArea;

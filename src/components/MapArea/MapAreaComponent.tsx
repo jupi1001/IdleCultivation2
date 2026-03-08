@@ -18,7 +18,7 @@ interface MapAreaProps {
   characterRealmLevel?: number;
 }
 
-const MapAreaComponent: React.FC<MapAreaProps> = ({
+const MapAreaComponent: React.FC<MapAreaProps> = React.memo(({
   image,
   text,
   requiredRealm,
@@ -55,6 +55,6 @@ const MapAreaComponent: React.FC<MapAreaProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default MapAreaComponent;
