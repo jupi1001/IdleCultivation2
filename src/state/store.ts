@@ -30,6 +30,9 @@ function migratePersistedState(state: unknown, _version: number): Promise<unknow
     const c = char as Record<string, unknown>;
     if (!c.notificationPrefs) c.notificationPrefs = { ...DEFAULT_NOTIFICATION_PREFS };
     if (!c.soundVolume) c.soundVolume = { ...DEFAULT_SOUND_VOLUME };
+    if (c.autoEatUnlocked == null) c.autoEatUnlocked = false;
+    if (c.autoEat == null) c.autoEat = false;
+    if (c.autoEatHpPercent == null) c.autoEatHpPercent = 30;
   }
   return Promise.resolve(state);
 }

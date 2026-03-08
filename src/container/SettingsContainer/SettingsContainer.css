@@ -190,6 +190,16 @@
   min-width: 220px;
 }
 
+.settings__input-narrow {
+  width: 4rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg, #1a1a1a);
+  color: var(--text);
+}
+
 .settings__check-group {
   display: flex;
   flex-direction: column;

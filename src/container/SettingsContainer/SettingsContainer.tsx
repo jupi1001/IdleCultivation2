@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { formatRealm } from "../../constants/realmProgression";
-import { setAutoLoot, setDeathPenaltyMode, setNotificationPrefs } from "../../state/reducers/characterSlice";
+import { setAutoLoot, setAutoEat, setAutoEatHpPercent, setDeathPenaltyMode, setNotificationPrefs } from "../../state/reducers/characterSlice";
 import { exportSave, importSave, hardReset, formatSaveDate } from "../../utils/saveManager";
 import "./SettingsContainer.css";
 
@@ -164,6 +164,37 @@ export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContaine
             </label>
             <p className="settings__section-desc">
               When on, loot and spirit stones from defeated enemies go straight to your inventory. Kept after reincarnation.
+            </p>
+          </>
+        )}
+        {character.autoEatUnlocked && (
+          <>
+            <label className="settings__toggle-row">
+              <span className="settings__toggle-label">Auto-Eat (combat)</span>
+              <input
+                type="checkbox"
+                checked={!!character.autoEat}
+                onChange={(e) => dispatch(setAutoEat(e.target.checked))}
+                className="settings__checkbox"
+              />
+            </label>
+            <div className="settings__death-penalty">
+              <span className="settings__toggle-label">Eat food when HP below (%)</span>
+              <input
+                type="number"
+                min={1}
+                max={99}
+                value={character.autoEatHpPercent ?? 30}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  if (!Number.isNaN(v)) dispatch(setAutoEatHpPercent(v));
+                }}
+                className="settings__input-narrow"
+                aria-label="Auto-eat HP percent"
+              />
+            </div>
+            <p className="settings__section-desc">
+              When on, automatically consumes vitality food in combat when your HP drops to or below this percentage. Unlock in Shop.
             </p>
           </>
         )}
