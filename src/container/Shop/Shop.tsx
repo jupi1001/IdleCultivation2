@@ -1,27 +1,40 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { purchaseAutoLootUnlock } from "../../state/reducers/characterSlice";
+import { purchaseAutoLootUnlock, purchaseAutoEatUnlock } from "../../state/reducers/characterSlice";
 import { existingShopItemUpgrades, existingShopItems, existingShopQiTechniques, existingShopCombatTechniques } from "../../constants/data";
 import "./Shop.css";
 import ShopItem from "../../components/ShopItem/ShopItem";
 
 const AUTO_LOOT_PRICE = 5000;
+const AUTO_EAT_PRICE = 50000;
 
 export const Shop = () => {
   const dispatch = useDispatch();
   const money = useSelector((state: RootState) => state.character.money);
   const autoLootUnlocked = useSelector((state: RootState) => state.character.autoLootUnlocked);
-  const [showPoor, setShowPoor] = React.useState(false);
+  const autoEatUnlocked = useSelector((state: RootState) => state.character.autoEatUnlocked);
+  const [showPoorLoot, setShowPoorLoot] = React.useState(false);
+  const [showPoorEat, setShowPoorEat] = React.useState(false);
 
   const buyAutoLoot = () => {
     if (autoLootUnlocked) return;
     if (money < AUTO_LOOT_PRICE) {
-      setShowPoor(true);
+      setShowPoorLoot(true);
       return;
     }
-    setShowPoor(false);
+    setShowPoorLoot(false);
     dispatch(purchaseAutoLootUnlock());
+  };
+
+  const buyAutoEat = () => {
+    if (autoEatUnlocked) return;
+    if (money < AUTO_EAT_PRICE) {
+      setShowPoorEat(true);
+      return;
+    }
+    setShowPoorEat(false);
+    dispatch(purchaseAutoEatUnlock());
   };
 
   return (
@@ -42,10 +55,22 @@ export const Shop = () => {
             {!autoLootUnlocked && (
               <>
                 <button type="button" onClick={buyAutoLoot}>Buy</button>
-                {showPoor && <p className="shop__poor">Not enough Spirit Stones</p>}
+                {showPoorLoot && <p className="shop__poor">Not enough Spirit Stones</p>}
               </>
             )}
             {autoLootUnlocked && <p className="shopitem__already">Already purchased</p>}
+          </div>
+          <div className="shopitem__main">
+            <h3>Auto-Eat</h3>
+            <p>Automatically consume vitality food in combat when your HP drops to a set percentage. Configure the threshold in Settings.</p>
+            <p>Cost: {AUTO_EAT_PRICE.toLocaleString()} Spirit Stones</p>
+            {!autoEatUnlocked && (
+              <>
+                <button type="button" onClick={buyAutoEat}>Buy</button>
+                {showPoorEat && <p className="shop__poor">Not enough Spirit Stones</p>}
+              </>
+            )}
+            {autoEatUnlocked && <p className="shopitem__already">Already purchased</p>}
           </div>
         </div>
         <h3>Consumables</h3>

@@ -98,6 +98,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const characterRef = useRef(character);
   const talentBonusesRef = useRef(effectiveStats.talentBonuses);
   const talentSpiritStoneMultRef = useRef(talentSpiritStoneMult);
+  const effectiveStatsRef = useRef(effectiveStats);
 
   characterStateRef.current = characterState;
   currentEnemyRef.current = currentEnemy ?? null;
@@ -105,6 +106,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   characterRef.current = character;
   talentBonusesRef.current = effectiveStats.talentBonuses;
   talentSpiritStoneMultRef.current = talentSpiritStoneMult;
+  effectiveStatsRef.current = effectiveStats;
 
   // Redirect if no valid area, no enemies, or realm too low for this area
   useEffect(() => {
@@ -343,10 +345,27 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       const damage = enemy.attack > 0 ? Math.floor(Math.random() * enemy.attack) + 1 : 0;
       setLastDamageToCharacter(damage);
       const bonuses = talentBonusesRef.current;
+      const maxHp = effectiveStatsRef.current.health;
+      let healthAfterTick = charState.health - damage;
+
+      // Auto-eat: consume one vitality food when HP drops at or below threshold (if unlocked and enabled)
+      if (healthAfterTick > 0 && characterRef.current.autoEatUnlocked && characterRef.current.autoEat) {
+        const threshold = (characterRef.current.autoEatHpPercent ?? 30) / 100 * maxHp;
+        if (healthAfterTick <= threshold) {
+          const food = characterRef.current.items.find(
+            (i) => i.effect === "vitality" && i.value != null && (i.quantity ?? 1) > 0
+          );
+          if (food) {
+            dispatch(consumeItems([{ itemId: food.id, amount: 1 }]));
+            const heal = food.value ?? 0;
+            healthAfterTick = Math.min(maxHp, healthAfterTick + heal);
+          }
+        }
+      }
+
       setCharacterState((prev) => {
-        const newHealth = prev.health - damage;
-        if (newHealth <= 0) setTimeout(() => handleEscapeRef.current(true), 0);
-        return { ...prev, health: newHealth };
+        if (healthAfterTick <= 0) setTimeout(() => handleEscapeRef.current(true), 0);
+        return { ...prev, health: healthAfterTick };
       });
       if (bonuses.damageReflectPercent > 0 && damage > 0) {
         const reflected = Math.floor(damage * (bonuses.damageReflectPercent / 100));

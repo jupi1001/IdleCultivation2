@@ -187,6 +187,12 @@ interface CharacterState {
   autoLootUnlocked: boolean;
   /** When true, combat loot and spirit stones go straight to inventory on kill (persists through reincarnation). */
   autoLoot: boolean;
+  /** Whether the player has purchased the Auto-Eat upgrade (persists through reincarnation). */
+  autoEatUnlocked: boolean;
+  /** When true, automatically consume vitality food in combat when HP drops to or below autoEatHpPercent (persists through reincarnation). */
+  autoEat: boolean;
+  /** HP percentage (1–99) below which auto-eat triggers. */
+  autoEatHpPercent: number;
   /** Death penalty mode: "normal" = weakened state after death until meditation; "casual" = no weakened. */
   deathPenaltyMode: "normal" | "casual";
   /** After death (normal mode): true until player meditates for required seconds. */
@@ -298,6 +304,9 @@ const initialState: CharacterState = {
   karmaBonusLevels: {},
   autoLootUnlocked: false,
   autoLoot: false,
+  autoEatUnlocked: false,
+  autoEat: false,
+  autoEatHpPercent: 30,
   deathPenaltyMode: "normal",
   isWeakened: false,
   weakenedMeditationSecondsDone: 0,
@@ -980,6 +989,23 @@ export const characterSlice = createSlice({
       if (!state.autoLootUnlocked) return;
       state.autoLoot = action.payload;
     },
+    /** One-time purchase: unlock Auto-Eat for 50,000 spirit stones. Persists through reincarnation. */
+    purchaseAutoEatUnlock: (state) => {
+      if (state.autoEatUnlocked) return;
+      if (state.money < 50000) return;
+      state.money -= 50000;
+      state.autoEatUnlocked = true;
+      state.autoEat = true;
+    },
+    /** Toggle Auto-Eat on/off (only when unlocked). Persists through reincarnation. */
+    setAutoEat: (state, action: PayloadAction<boolean>) => {
+      if (!state.autoEatUnlocked) return;
+      state.autoEat = action.payload;
+    },
+    /** Set HP percent (1–99) below which auto-eat consumes food in combat. */
+    setAutoEatHpPercent: (state, action: PayloadAction<number>) => {
+      state.autoEatHpPercent = Math.min(99, Math.max(1, Math.round(action.payload)));
+    },
     /** Death penalty: "normal" = weakened after death; "casual" = no weakened. */
     setDeathPenaltyMode: (state, action: PayloadAction<"normal" | "casual">) => {
       state.deathPenaltyMode = action.payload;
@@ -1085,6 +1111,9 @@ export const {
   purchaseKarmaBonus,
   purchaseAutoLootUnlock,
   setAutoLoot,
+  purchaseAutoEatUnlock,
+  setAutoEat,
+  setAutoEatHpPercent,
   setDeathPenaltyMode,
   setWeakened,
   tickWeakenedRecovery,

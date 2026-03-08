@@ -13,6 +13,24 @@
 
 ---
 
+## Combat drops – images needed
+
+Rare combat-only drops (weapons, armor, rings, amulets). Place under `public/assets/combat-drops/`:
+
+- `village-defender-ring.webp` (FARM)
+- `spirit-beast-claw.webp` (CAVE)
+- `crystal-shard-blade.webp` (CRYSTALCAVE)
+- `blackwater-scale-guard.webp` (RIVER)
+- `sect-remnant-ring.webp` (RUINS)
+- `miasma-ward-amulet.webp` (SWAMP)
+- `void-edge-fragment.webp` (RIFT)
+- `hermits-crown.webp` (PEAK)
+- `cloudsea-lotus-pendant.webp` (SEA)
+- `thunderbrand.webp` (STORM)
+- `jade-court-sigil.webp` (PALACE)
+
+---
+
 ## Level 100–120 content – images needed
 
 All paths below are under `public/` (e.g. `public/assets/fish/sage-carp.webp`). Add images for these so the new 105/110/115/120 areas and items display correctly.
