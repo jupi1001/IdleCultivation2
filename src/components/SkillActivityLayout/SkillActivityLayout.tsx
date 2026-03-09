@@ -4,8 +4,8 @@
  * Use with useSkillActivity; pass areas list as children.
  */
 import React from "react";
-import { SkillXPBar } from "../SkillXPBar/SkillXPBar";
 import type { SkillLevelInfo } from "../../hooks/useSkillActivity";
+import { SkillXPBar } from "../SkillXPBar/SkillXPBar";
 
 export interface SkillActivityLayoutProps {
   /** Skill display name (e.g. "Fishing", "Mining", "Gathering"). */

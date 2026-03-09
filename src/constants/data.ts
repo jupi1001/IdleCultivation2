@@ -3,10 +3,6 @@
  * Data lives in src/domain/*; this file preserves existing import paths (constants/data)
  * and builds ITEMS_BY_ID from domain item arrays + sect store + combat loot/drops.
  */
-import type SkillI from "../interfaces/SkillI";
-import { COMBAT_LOOT_QI_PILLS } from "./alchemy";
-import { COOKING_RECIPES } from "./cooking";
-import { COMBAT_DROP_ITEMS } from "./combatDrops";
 import {
   buildItemsById,
   QI_TECHNIQUES,
@@ -20,7 +16,11 @@ import {
   existingShopItemUpgrades,
 } from "../domain/items";
 import { getSectStoreItemsFlat } from "../domain/sects";
+import type SkillI from "../interfaces/SkillI";
 import { parseItems } from "../schemas/items";
+import { COMBAT_LOOT_QI_PILLS } from "./alchemy";
+import { COMBAT_DROP_ITEMS } from "./combatDrops";
+import { COOKING_RECIPES } from "./cooking";
 
 // Re-export all domain data and registries
 export {

@@ -50,7 +50,7 @@ describe("enemies schema", () => {
       parseEnemy({
         id: 3,
         name: "Nowhere Beast",
-        // @ts-expect-error runtime schema should reject this
+        // @ts-ignore runtime schema should reject this
         location: "Unknown Area",
         attack: 1,
         defense: 1,

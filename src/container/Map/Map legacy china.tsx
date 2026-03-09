@@ -1,7 +1,7 @@
 import React from "react";
 
 export const MapChina = () => {
-  const handleOnClick = (e: { preventDefault: () => void }) => {
+  const handleOnClick = () => {
     console.log("You have clicked in the specified area");
   };
 

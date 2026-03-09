@@ -1,9 +1,9 @@
 /**
  * Gathering area definitions and GATHERING_AREAS_BY_ID registry.
  */
-import type GatheringAreaI from "../../interfaces/GatheringAreaI";
 import { totalXpForLevel } from "../../constants/gatheringLevel";
 import { RING_IDS, AMULET_IDS } from "../../constants/ringsAmulets";
+import type GatheringAreaI from "../../interfaces/GatheringAreaI";
 import { parseGatheringAreas } from "../../schemas/areas";
 
 const GATHERING_ASSETS = "/assets/gathering";
@@ -31,7 +31,7 @@ export const gatheringAreaData: GatheringAreaI[] = [
 ];
 
 // Dev/test-only: validate gathering area definitions.
-if (process.env.NODE_ENV !== "production") {
+if (import.meta.env.MODE !== "production") {
   parseGatheringAreas(gatheringAreaData);
 }
 

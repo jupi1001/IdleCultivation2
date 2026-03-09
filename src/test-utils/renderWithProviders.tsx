@@ -3,18 +3,20 @@
  * Optionally pass preloadedState (e.g. from createMockState) or a custom store.
  */
 import React from "react";
+import { configureStore } from "@reduxjs/toolkit";
 import { render, type RenderOptions } from "@testing-library/react";
 import { Provider } from "react-redux";
-import { configureStore } from "@reduxjs/toolkit";
 import type { RootState } from "../state/store";
 import { rootReducer } from "../state/store";
 import { createMockState } from "./index";
 
-export interface RenderWithProvidersOptions extends Omit<RenderOptions, "wrapper"> {
+type TestStore = ReturnType<typeof createTestStore>;
+
+export interface RenderWithProvidersOptions extends RenderOptions {
   /** Preloaded state (merged over createMockState() if store not provided). */
   preloadedState?: Partial<RootState>;
   /** Custom store; if provided, preloadedState is ignored. */
-  store?: ReturnType<typeof configureStore>;
+  store?: TestStore;
 }
 
 /**
@@ -40,8 +42,11 @@ export function renderWithProviders(
   const store =
     options.store ?? createTestStore(options.preloadedState ?? createMockState());
   const { wrapper, ...renderOptions } = options;
-  const Wrapper = wrapper ?? (({ children }: { children: React.ReactNode }) =>
-    React.createElement(Provider, { store }, children));
+  const Wrapper =
+    wrapper ??
+    (({ children }: { children?: React.ReactNode }) => (
+      <Provider store={store}>{children}</Provider>
+    ));
   return {
     store,
     ...render(ui, { wrapper: Wrapper, ...renderOptions }),

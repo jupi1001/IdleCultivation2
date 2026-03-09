@@ -12,6 +12,9 @@ import {
   SECT_TREASURE_ITEM_ID_BY_SECT,
 } from "../../constants/sectRelationships";
 import { ContentArea } from "../../enum/ContentArea";
+import { reduceMoney } from "../../state/reducers/characterCoreSlice";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
+import { addItemById } from "../../state/reducers/inventorySlice";
 import {
   setSect,
   startPromotion,
@@ -22,9 +25,6 @@ import {
   useRealmDialogue,
   setCultivationPartner,
 } from "../../state/reducers/sectSlice";
-import { reduceMoney } from "../../state/reducers/characterCoreSlice";
-import { addItemById } from "../../state/reducers/inventorySlice";
-import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import {
   selectCurrentSectId,
   selectSectRankIndex,
@@ -34,7 +34,6 @@ import {
   selectPromotionToRankIndex,
   selectSectQuestProgress,
   selectSectQuestKillCount,
-  selectObtainedSectTreasureIds,
   selectNpcFavor,
   selectRealmDialogueUsed,
   selectCultivationPartner,
@@ -57,7 +56,6 @@ export const SectContainer = () => {
   const promotionToRankIndex = useSelector(selectPromotionToRankIndex);
   const sectQuestProgress = useSelector(selectSectQuestProgress);
   const sectQuestKillCount = useSelector(selectSectQuestKillCount);
-  const obtainedSectTreasureIds = useSelector(selectObtainedSectTreasureIds);
   const npcFavor = useSelector(selectNpcFavor);
   const realmDialogueUsed = useSelector(selectRealmDialogueUsed);
   const cultivationPartner = useSelector(selectCultivationPartner);
@@ -83,8 +81,6 @@ export const SectContainer = () => {
   const nextRank = nextRankIndex < SECT_POSITIONS.length ? SECT_POSITIONS[nextRankIndex] : null;
   const realmMeetsNextRank = nextRank != null && characterStep >= nextRank.requiredStepIndex;
   const isPromoting = promotionEndTime != null && promotionToRankIndex != null;
-  const canPromote =
-    sectRankIndex < SECT_POSITIONS.length - 1 && realmMeetsNextRank && !isPromoting;
 
   const promotionProgress =
     isPromoting && promotionEndTime != null

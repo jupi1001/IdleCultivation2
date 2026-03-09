@@ -6,8 +6,8 @@ import { ITEMS_BY_ID } from "../../constants/data";
 import { GEODE_ITEM } from "../../constants/gems";
 import type Item from "../../interfaces/ItemI";
 import type { AppDispatch, RootState } from "../store";
-import { skillsSlice } from "./skillsSlice";
 import { addItemById } from "./inventorySlice";
+import { skillsSlice } from "./skillsSlice";
 
 function getQuantity(itemsById: Record<number, number>, itemId: number): number {
   return itemsById[itemId] ?? 0;

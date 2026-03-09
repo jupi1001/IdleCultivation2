@@ -1,9 +1,9 @@
 /**
  * Fishing area definitions and FISHING_AREAS_BY_ID registry.
  */
-import type FishingAreaI from "../../interfaces/FishingAreaI";
 import { totalXpForLevel } from "../../constants/fishingLevel";
 import { RING_IDS, AMULET_IDS } from "../../constants/ringsAmulets";
+import type FishingAreaI from "../../interfaces/FishingAreaI";
 import { parseFishingAreas } from "../../schemas/areas";
 
 const FISHING_ASSETS = "/assets/fishing";
@@ -31,7 +31,7 @@ export const fishingAreaData: FishingAreaI[] = [
 ];
 
 // Dev/test-only: validate fishing area definitions.
-if (process.env.NODE_ENV !== "production") {
+if (import.meta.env.MODE !== "production") {
   parseFishingAreas(fishingAreaData);
 }
 

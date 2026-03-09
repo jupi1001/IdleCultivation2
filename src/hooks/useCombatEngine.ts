@@ -6,15 +6,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ENEMIES_BY_ID, ITEMS_BY_ID } from "../constants/data";
+import { ContentArea } from "../enum/ContentArea";
 import EnemyI from "../interfaces/EnemyI";
 import Item, { getConsumableEffect } from "../interfaces/ItemI";
-import { addItemById, addItemsById, consumeItems } from "../state/reducers/inventorySlice";
 import { addMoney } from "../state/reducers/characterCoreSlice";
-import { incrementSectQuestKillCount } from "../state/reducers/sectSlice";
-import { recordEnemyKill, recordDeath } from "../state/reducers/statsSlice";
 import { setCurrentHealth, setWeakened } from "../state/reducers/combatSlice";
 import { changeContent, routeFromArea } from "../state/reducers/contentSlice";
+import { addItemById, addItemsById, consumeItems } from "../state/reducers/inventorySlice";
 import { addLogEntry } from "../state/reducers/logSlice";
+import { incrementSectQuestKillCount } from "../state/reducers/sectSlice";
+import { recordEnemyKill, recordDeath } from "../state/reducers/statsSlice";
 import {
   getEffectiveCombatStats,
   getOwnedTechniqueIds,
@@ -31,11 +32,9 @@ import {
   selectAutoEatHpPercent,
   selectGender,
 } from "../state/selectors/characterSelectors";
-import type { RootState } from "../state/store";
 import { isConsumableItem } from "../types/itemGuards";
 import { getResolvedLootTable, getEnemyLootEntries, rollOneDrop } from "../utils/combatLoot";
 import { doesHit, computeBaseDamage } from "../utils/combatMath";
-import { ContentArea } from "../enum/ContentArea";
 
 const ENEMY_ATTACK_INTERVAL_MS = 3000;
 const BASE_ATTACK_INTERVAL_MS = 2000;

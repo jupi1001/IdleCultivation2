@@ -11,7 +11,6 @@ import { REINCARNATION_MIN_STEP } from "../../constants/reincarnation";
 import { TALENT_NODES_BY_ID } from "../../constants/talents";
 import Item from "../../interfaces/ItemI";
 import { reincarnationSlice } from "./reincarnationSlice";
-import { settingsSlice } from "./settingsSlice";
 
 /** Seconds of meditation required to clear weakened state after death (normal mode). Re-exported for backward compat. */
 export const WEAKENED_MEDITATION_SECONDS = 30;

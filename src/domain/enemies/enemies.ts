@@ -1,13 +1,13 @@
 /**
  * Combat enemies and ENEMIES_BY_ID registry.
  */
-import { CombatArea } from "../../enum/CombatArea";
-import type EnemyI from "../../interfaces/EnemyI";
-import { TRAINING_ENEMIES } from "../../constants/training";
 import { COMBAT_LOOT_QI_PILLS } from "../../constants/alchemy";
 import { COMBAT_DROP_ITEMS } from "../../constants/combatDrops";
-import { QI_TECHNIQUES, COMBAT_TECHNIQUES } from "../items/techniques";
+import { TRAINING_ENEMIES } from "../../constants/training";
+import { CombatArea } from "../../enum/CombatArea";
+import type EnemyI from "../../interfaces/EnemyI";
 import { parseEnemies } from "../../schemas/enemies";
+import { QI_TECHNIQUES, COMBAT_TECHNIQUES } from "../items/techniques";
 
 /** Slug for enemy image filename: "Starving Wolf" -> "starving-wolf" (use .webp in public/assets/training/enemies/) */
 function enemyImageSlug(name: string): string {
@@ -91,7 +91,7 @@ export const enemies: EnemyI[] = [
 ];
 
 // Dev/test-only: validate enemy definitions against Zod schema.
-if (process.env.NODE_ENV !== "production") {
+if (import.meta.env.MODE !== "production") {
   parseEnemies(enemies);
 }
 

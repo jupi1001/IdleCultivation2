@@ -53,7 +53,7 @@ describe("items schema", () => {
       parseItem({
         ...base,
         kind: "consumable",
-        // @ts-expect-error runtime schema should reject this
+        // @ts-ignore runtime schema should reject this
         effect: { type: "unknownEffect", amount: 1 },
       }),
     ).toThrow();

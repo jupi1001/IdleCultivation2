@@ -9,10 +9,9 @@ import {
   addQi,
   addMoney,
 } from "../../state/reducers/characterCoreSlice";
-import { removeItem, openGeodes, consumeItems, addItemById } from "../../state/reducers/inventorySlice";
 import { equipItem, unequipItem } from "../../state/reducers/equipmentSlice";
+import { removeItem, openGeodes, consumeItems, addItemById } from "../../state/reducers/inventorySlice";
 import { selectEquipment } from "../../state/selectors/characterSelectors";
-import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import "./InventoryItem.css";
 
 interface InventoryItemProps {

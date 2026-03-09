@@ -1,12 +1,12 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { ITEMS_BY_ID } from "../../constants/data";
+import { getEquipmentSlot } from "../../interfaces/ItemI";
 import { equipItem, unequipItem } from "../../state/reducers/equipmentSlice";
 import { addItemById, consumeItems } from "../../state/reducers/inventorySlice";
 import { selectEquipment, selectItemsById } from "../../state/selectors/characterSelectors";
 import { ALL_EQUIPMENT_SLOTS, EQUIPMENT_SLOT_LABELS } from "../../types/EquipmentSlot";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
-import { getEquipmentSlot } from "../../interfaces/ItemI";
-import { ITEMS_BY_ID } from "../../constants/data";
 import { formatItemStats } from "../../utils/itemTooltipUtils";
 import { Tooltip } from "../Tooltip/Tooltip";
 import "./EquipmentPanel.css";

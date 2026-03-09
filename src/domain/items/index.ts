@@ -10,9 +10,9 @@ export { herbTypes } from "./herbs";
 export { existingShopItems, existingBlackMarketItems, existingShopItemUpgrades } from "./shopItems";
 export { buildItemsById } from "./registry";
 
-import { woodTypes } from "./wood";
-import { herbTypes } from "./herbs";
 import type Item from "../../interfaces/ItemI";
+import { herbTypes } from "./herbs";
+import { woodTypes } from "./wood";
 
 /** All gathering loot (wood + herbs) for lookup when completing a gather. */
 export const gatheringLootTypes: Item[] = [...woodTypes, ...herbTypes];

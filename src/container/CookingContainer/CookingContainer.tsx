@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   COOKING_RECIPES,
@@ -13,6 +13,7 @@ import {
   CRAFTING_SET_DROP_CHANCE_PERCENT,
 } from "../../constants/craftingSets";
 import { ITEMS_BY_ID } from "../../constants/data";
+import { getConsumableEffect } from "../../interfaces/ItemI";
 import { addItemById, consumeItems } from "../../state/reducers/inventorySlice";
 import { addCookingXP } from "../../state/reducers/skillsSlice";
 import { recordItemCrafted } from "../../state/reducers/statsSlice";
@@ -25,7 +26,6 @@ import {
   selectCookingXP,
 } from "../../state/selectors/characterSelectors";
 import { getItemQuantity } from "../../utils/inventory";
-import { getConsumableEffect } from "../../interfaces/ItemI";
 import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./CookingContainer.css";
 

@@ -5,6 +5,8 @@
  * the character state and returns true when the achievement is earned.
  * The middleware runs checks after every relevant action.
  */
+import { getEquipmentSlot } from "../interfaces/ItemI";
+import type Item from "../interfaces/ItemI";
 import { getAlchemyLevel } from "./alchemy";
 import { getCookingLevel } from "./cooking";
 import { getFishingLevelInfo } from "./fishingLevel";
@@ -12,8 +14,6 @@ import { getForgingLevel } from "./forging";
 import { getGatheringLevelInfo } from "./gatheringLevel";
 import { getMiningLevelInfo } from "./miningLevel";
 import type { RealmId } from "./realmProgression";
-import { getEquipmentSlot } from "../interfaces/ItemI";
-import type Item from "../interfaces/ItemI";
 import { getStepIndex, REALM_ORDER } from "./realmProgression";
 
 export type AchievementCategory =

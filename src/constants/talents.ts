@@ -1,6 +1,6 @@
 import type { TalentNode, TalentTreeTier } from "../interfaces/TalentI";
-import type { CultivationPath } from "./cultivationPath";
 import { parseTalentTiers } from "../schemas/talents";
+import type { CultivationPath } from "./cultivationPath";
 
 /**
 * Talent effect types — where they are applied:
@@ -146,7 +146,7 @@ export const TALENT_TREE_TIERS: TalentTreeTier[] = [
 ];
 
 // Dev/test-only: validate talent tree tiers against Zod schema.
-if (process.env.NODE_ENV !== "production") {
+if (import.meta.env.MODE !== "production") {
   parseTalentTiers(TALENT_TREE_TIERS);
 }
 

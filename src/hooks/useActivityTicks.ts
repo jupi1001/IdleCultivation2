@@ -37,9 +37,8 @@ import {
   completeMiningCast,
   setLastActiveTimestamp,
 } from "../state/reducers/characterCoreSlice";
-import { setFishingCast, setGatheringCast, setMiningCast } from "../state/reducers/skillsSlice";
-import { useAppDispatch } from "../state/store";
 import { tickWeakenedRecovery } from "../state/reducers/combatSlice";
+import { setFishingCast, setGatheringCast, setMiningCast } from "../state/reducers/skillsSlice";
 import { addToast } from "../state/reducers/toastSlice";
 import {
   getSkillSpeedBonusFishing,
@@ -66,8 +65,10 @@ import {
   selectIsWeakened,
   selectDeathPenaltyMode,
 } from "../state/selectors/characterSelectors";
-import { rollOneTimeDrop } from "../utils/oneTimeDrops";
+import { useAppDispatch } from "../state/store";
+import { useAppDispatch } from "../state/store";
 import { getEffectiveDuration, rollMiningLootQuantity } from "../utils/activityTiming";
+import { rollOneTimeDrop } from "../utils/oneTimeDrops";
 
 function rollRareDropRingAmulet(
   rareDropChancePercent: number | undefined,

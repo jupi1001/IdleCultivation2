@@ -1,8 +1,8 @@
 import React from "react";
 import { useDispatch } from "react-redux";
+import { ContentArea } from "../../enum/ContentArea";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import "./Header.css";
-import { ContentArea } from "../../enum/ContentArea";
 
 export const Header = () => {
   const dispatch = useDispatch();

@@ -1,11 +1,11 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import ShopItem from "../../components/ShopItem/ShopItem";
 import { existingShopItemUpgrades, existingShopItems, existingShopQiTechniques, existingShopCombatTechniques } from "../../constants/data";
 import { reduceMoney } from "../../state/reducers/characterCoreSlice";
 import { purchaseAutoLootUnlock, purchaseAutoEatUnlock } from "../../state/reducers/settingsSlice";
 import { selectMoney, selectAutoLootUnlocked, selectAutoEatUnlocked } from "../../state/selectors/characterSelectors";
 import "./Shop.css";
-import ShopItem from "../../components/ShopItem/ShopItem";
 
 const AUTO_LOOT_PRICE = 5000;
 const AUTO_EAT_PRICE = 50000;

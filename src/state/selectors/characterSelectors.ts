@@ -12,9 +12,9 @@ import {
   type SkillSetTier,
 } from "../../constants/skillSets";
 import { getTalentBonuses } from "../../constants/talents";
+import { getEquipmentSlot } from "../../interfaces/ItemI";
 import type Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
-import { getEquipmentSlot } from "../../interfaces/ItemI";
 import { canEnterCombatArea as canEnterCombatAreaRule } from "../../utils/contentRules";
 import { WEAKENED_STAT_MULTIPLIER } from "../reducers/combatSlice";
 import type { RootState } from "../store";
@@ -151,7 +151,7 @@ export const getSkillSpeedBonusFishing = createSelector(
 );
 export const getSkillSpeedBonusMining = createSelector(
   [(state: RootState) => state.equipment.equipment, getTalentBonusesSelector],
-  (equipment, talentBonuses) =>
+  (equipment, _talentBonuses) =>
     // Intentionally exclude talentBonuses.miningYieldPercent: Miner's Strength affects yield (ore per swing), not cast speed.
     computeSkillSpeedBonus(equipment, "mining")
 );

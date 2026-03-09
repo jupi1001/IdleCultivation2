@@ -4,10 +4,10 @@
  */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getStepIndex } from "../../constants/realmProgression";
-import { characterCoreSlice } from "./characterCoreSlice";
-import { skillsSlice } from "./skillsSlice";
 import type { CharacterStats } from "../types/characterStats";
 import { INITIAL_CHARACTER_STATS } from "../types/characterStats";
+import { characterCoreSlice } from "./characterCoreSlice";
+import { skillsSlice } from "./skillsSlice";
 
 export type { CharacterStats };
 

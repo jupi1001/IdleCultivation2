@@ -3,10 +3,10 @@
  * to compute preservedItemsById from inventory + equipment.
  */
 import { ITEMS_BY_ID } from "../../constants/data";
+import { getEquipmentSlot } from "../../interfaces/ItemI";
 import type Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
-import { getEquipmentSlot } from "../../interfaces/ItemI";
 
 export function isReincarnationPreservedItem(item: Item): boolean {
   const slot = getEquipmentSlot(item);

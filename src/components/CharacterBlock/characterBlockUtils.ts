@@ -1,8 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import { getTalentBonuses } from "../../constants/talents";
-import type { RootState } from "../../state/store";
-import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import {
   selectAttack,
   selectBonusAttack,
@@ -15,6 +13,8 @@ import {
   selectTalentLevels,
   getTalentBonusesSelector,
 } from "../../state/selectors/characterSelectors";
+import type { RootState } from "../../state/store";
+import type { EquipmentSlot } from "../../types/EquipmentSlot";
 
 const EQUIPMENT_SLOT_LABELS: Partial<Record<EquipmentSlot, string>> = {
   sword: "Sword",
@@ -43,13 +43,13 @@ function getEquipmentBreakdown(equipment: RootState["equipment"]["equipment"]) {
     if (item) {
       const label = EQUIPMENT_SLOT_LABELS[slot] ?? slot;
       if ("attackBonus" in item && item.attackBonus != null && item.attackBonus !== 0) {
-        attackSources.push({ label: item.name, value: item.attackBonus });
+        attackSources.push({ label, value: item.attackBonus });
       }
       if ("defenseBonus" in item && item.defenseBonus != null && item.defenseBonus !== 0) {
-        defenseSources.push({ label: item.name, value: item.defenseBonus });
+        defenseSources.push({ label, value: item.defenseBonus });
       }
       if ("vitalityBonus" in item && item.vitalityBonus != null && item.vitalityBonus !== 0) {
-        vitalitySources.push({ label: item.name, value: item.vitalityBonus });
+        vitalitySources.push({ label, value: item.vitalityBonus });
       }
     }
   }

@@ -14,12 +14,10 @@ import {
   getForgingTierIndex,
   getForgingXPRefine,
   getForgingXPCraft,
-  FORGE_BAR_ITEMS,
   FORGING_TIER_ORDER,
   type RefineRecipeI,
   type CraftRecipeI,
 } from "../../constants/forging";
-import { GEM_ITEMS } from "../../constants/gems";
 import { RING_AMULET_RECIPES, type RingAmuletRecipeI } from "../../constants/ringsAmulets";
 import { addItemById, consumeItems } from "../../state/reducers/inventorySlice";
 import { addForgingXP } from "../../state/reducers/skillsSlice";

@@ -1,10 +1,10 @@
 /**
  * Shop and black market item definitions (main shop, upgrades, black market).
  */
-import type Item from "../../interfaces/ItemI";
 import { ALCHEMY_ASSETS } from "../../constants/alchemy";
 import { COMBAT_LOOT_QI_PILLS } from "../../constants/alchemy";
 import { CRAFT_RECIPES } from "../../constants/forging";
+import type Item from "../../interfaces/ItemI";
 
 export const existingShopItemUpgrades: Item[] = [
   { ...CRAFT_RECIPES[0].output, price: 500, quantity: 1 },

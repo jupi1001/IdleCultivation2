@@ -3,9 +3,9 @@ import { useDispatch } from "react-redux";
 import { canEnterArea } from "../../constants/areaRealmRequirements";
 import type { RealmRequirement } from "../../constants/areaRealmRequirements";
 import type { RealmId } from "../../constants/realmProgression";
+import { ContentArea } from "../../enum/ContentArea";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import "./MapAreaComponent.css";
-import { ContentArea } from "../../enum/ContentArea";
 
 interface MapAreaProps {
   image: string;

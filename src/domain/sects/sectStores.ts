@@ -1,8 +1,8 @@
 /**
  * Sect store inventory and raid loot. requiredRankIndex: 0=Sect Aspirant, 1=Outer, 2=Inner, 3=Core.
  */
-import type Item from "../../interfaces/ItemI";
 import { ALCHEMY_ASSETS } from "../../constants/alchemy";
+import type Item from "../../interfaces/ItemI";
 import { QI_TECHNIQUES, COMBAT_TECHNIQUES } from "../items/techniques";
 
 /** One entry in a sect's store: item and minimum rank (0=Outer, 1=Inner, 2=Core) required to see/buy. */

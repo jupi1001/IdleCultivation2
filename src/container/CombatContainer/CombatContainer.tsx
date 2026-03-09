@@ -1,14 +1,14 @@
 import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import EnemyLootPopover from "../../components/EnemyLootPopover/EnemyLootPopover";
 import { getCharacterImage, UI_ASSETS } from "../../constants/ui";
 import { ContentArea } from "../../enum/ContentArea";
+import { useCombatEngine } from "../../hooks/useCombatEngine";
+import { getConsumableEffect } from "../../interfaces/ItemI";
 import "./CombatContainer.css";
-import { useDispatch, useSelector } from "react-redux";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import { selectRealm, selectRealmLevel } from "../../state/selectors/characterSelectors";
 import { canEnterCombatArea } from "../../utils/contentRules";
-import { useCombatEngine } from "../../hooks/useCombatEngine";
-import { getConsumableEffect } from "../../interfaces/ItemI";
 
 interface CombatAreaProps {
   area: string | undefined;

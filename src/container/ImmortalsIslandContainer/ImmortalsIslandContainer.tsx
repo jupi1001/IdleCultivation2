@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { useAppDispatch } from "../../state/store";
 import { canEnterArea, formatRealmRequirement } from "../../constants/areaRealmRequirements";
 import {
   AVATAR_CREATE_ORE_AMOUNT,
@@ -12,21 +11,23 @@ import {
   AVATAR_TRAIN_SPIRIT_STONES,
   canCreateAvatar,
 } from "../../constants/avatars";
+import { ITEMS_BY_ID } from "../../constants/data";
 import {
   EXPEDITION_MISSIONS,
   EXPEDITION_MISSIONS_BY_ID,
   getExpeditionItem,
 } from "../../constants/expeditions";
+import { getConsumableEffect } from "../../interfaces/ItemI";
 import type { MissionI } from "../../interfaces/MissionI";
-import {
-  addMoney,
-  reduceMoney,
-} from "../../state/reducers/characterCoreSlice";
+import { createAvatar, trainAvatar } from "../../state/reducers/avatarsSlice";
 import {
   startExpedition,
   clearExpedition,
 } from "../../state/reducers/avatarsThunks";
-import { createAvatar, trainAvatar } from "../../state/reducers/avatarsSlice";
+import {
+  addMoney,
+  reduceMoney,
+} from "../../state/reducers/characterCoreSlice";
 import { addItemById, consumeItems } from "../../state/reducers/inventorySlice";
 import { addToast } from "../../state/reducers/toastSlice";
 import {
@@ -40,8 +41,7 @@ import {
   selectEquipment,
   selectAvatars,
 } from "../../state/selectors/characterSelectors";
-import { ITEMS_BY_ID } from "../../constants/data";
-import { getConsumableEffect } from "../../interfaces/ItemI";
+import { useAppDispatch } from "../../state/store";
 import { rollOneTimeDropFromTable } from "../../utils/oneTimeDrops";
 import { getOwnedItemIds } from "../../utils/ownership";
 import "./ImmortalsIslandContainer.css";
@@ -80,7 +80,7 @@ export const ImmortalsIslandContainer = () => {
   const equipment = useSelector(selectEquipment);
   const avatarsResolved = useSelector(selectAvatars);
   const avatars = avatarsResolved ?? [];
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
   const [avatarsOpen, setAvatarsOpen] = useState(true);
   const [createName, setCreateName] = useState("");
   const completionCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -107,8 +107,6 @@ export const ImmortalsIslandContainer = () => {
     isMainOnExpedition && expeditionEndTime != null
       ? Math.max(0, Math.ceil((expeditionEndTime - Date.now()) / 1000))
       : 0;
-
-  const anyAvatarBusy = avatars.some((a) => a.isBusy);
 
   const oreQty = itemsById[AVATAR_CREATE_ORE_ID] ?? 0;
   const woodQty = itemsById[AVATAR_CREATE_WOOD_ID] ?? 0;
@@ -358,7 +356,6 @@ export const ImmortalsIslandContainer = () => {
                 const canEnter = canEnterArea(realm, realmLevel, mission.requiredRealm);
                 const canSendMain = canEnter && !isMainOnExpedition;
                 const realmLabel = formatRealmRequirement(mission.requiredRealm);
-                const canSendAny = canEnter && (canSendMain || avatars.some((a) => !a.isBusy));
 
                 return (
                   <li key={mission.id} className="immortalsIsland__mission">
