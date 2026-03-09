@@ -36,10 +36,11 @@ import {
   selectExpeditionMissionId,
   selectCurrentActivity,
   selectMoney,
-  selectItems,
+  selectItemsById,
   selectEquipment,
   selectAvatars,
 } from "../../state/selectors/characterSelectors";
+import { ITEMS_BY_ID } from "../../constants/data";
 import { rollOneTimeDropFromTable } from "../../utils/oneTimeDrops";
 import { getOwnedItemIds } from "../../utils/ownership";
 import "./ImmortalsIslandContainer.css";
@@ -74,7 +75,7 @@ export const ImmortalsIslandContainer = () => {
   const expeditionMissionId = useSelector(selectExpeditionMissionId);
   const currentActivity = useSelector(selectCurrentActivity);
   const money = useSelector(selectMoney);
-  const items = useSelector(selectItems);
+  const itemsById = useSelector(selectItemsById);
   const equipment = useSelector(selectEquipment);
   const avatarsResolved = useSelector(selectAvatars);
   const avatars = avatarsResolved ?? [];
@@ -85,14 +86,14 @@ export const ImmortalsIslandContainer = () => {
   const expeditionContextRef = useRef({
     expeditionEndTime,
     expeditionMissionId,
-    items,
+    itemsById,
     equipment,
     avatars,
   });
   expeditionContextRef.current = {
     expeditionEndTime,
     expeditionMissionId,
-    items,
+    itemsById,
     equipment,
     avatars,
   };
@@ -108,8 +109,8 @@ export const ImmortalsIslandContainer = () => {
 
   const anyAvatarBusy = avatars.some((a) => a.isBusy);
 
-  const oreQty = items.find((i) => i.id === AVATAR_CREATE_ORE_ID)?.quantity ?? 0;
-  const woodQty = items.find((i) => i.id === AVATAR_CREATE_WOOD_ID)?.quantity ?? 0;
+  const oreQty = itemsById[AVATAR_CREATE_ORE_ID] ?? 0;
+  const woodQty = itemsById[AVATAR_CREATE_WOOD_ID] ?? 0;
   const canAffordAvatar =
     money >= AVATAR_CREATE_SPIRIT_STONES &&
     oreQty >= AVATAR_CREATE_ORE_AMOUNT &&
@@ -135,7 +136,7 @@ export const ImmortalsIslandContainer = () => {
             mission.spiritStonesMin +
             Math.floor(Math.random() * (mission.spiritStonesMax - mission.spiritStonesMin + 1));
           dispatch(addMoney(spiritStones));
-          const ownedIds = getOwnedItemIds({ items: current.items, equipment: current.equipment });
+          const ownedIds = getOwnedItemIds({ itemsById: current.itemsById, equipment: current.equipment });
           const rareItem = rollOneTimeDropFromTable(ownedIds, mission.rareDrops, getExpeditionItem);
           let rareItemName: string | null = null;
           if (rareItem) {
@@ -158,7 +159,7 @@ export const ImmortalsIslandContainer = () => {
             Math.floor(Math.random() * (mission.spiritStonesMax - mission.spiritStonesMin + 1));
           dispatch(addMoney(spiritStones));
           const stateForRare = expeditionContextRef.current;
-          const ownedIds = getOwnedItemIds({ items: stateForRare.items, equipment: stateForRare.equipment });
+          const ownedIds = getOwnedItemIds({ itemsById: stateForRare.itemsById, equipment: stateForRare.equipment });
           const rareItem = rollOneTimeDropFromTable(ownedIds, mission.rareDrops, getExpeditionItem);
           let rareItemName: string | null = null;
           if (rareItem) {
@@ -281,7 +282,14 @@ export const ImmortalsIslandContainer = () => {
                           Train ({AVATAR_TRAIN_SPIRIT_STONES} Spirit Stones)
                         </button>
                         {(() => {
-                          const qiPill = items.find((i) => i.effect === "qi" && (i.quantity ?? 0) >= AVATAR_TRAIN_QI_PILL_AMOUNT);
+                          const qiPillId = Object.keys(ITEMS_BY_ID)
+                            .map(Number)
+                            .find(
+                              (id) =>
+                                ITEMS_BY_ID[id]?.effect === "qi" &&
+                                (itemsById[id] ?? 0) >= AVATAR_TRAIN_QI_PILL_AMOUNT
+                            );
+                          const qiPill = qiPillId != null ? ITEMS_BY_ID[qiPillId] : null;
                           return (
                             <button
                               type="button"

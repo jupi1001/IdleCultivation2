@@ -29,10 +29,10 @@ import {
   getOwnedCraftingSetPieceIds,
   getCraftingSetForgingSavingsPercent,
   getCraftingSetForgingXpPercent,
-  selectItems,
+  selectItemsById,
   selectForgingXP,
 } from "../../state/selectors/characterSelectors";
-import { countItem } from "../../utils/inventory";
+import { getItemQuantity } from "../../utils/inventory";
 import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./ForgingContainer.css";
 
@@ -40,24 +40,24 @@ function getItemName(itemId: number): string {
   return ITEMS_BY_ID[itemId]?.name ?? `Item ${itemId}`;
 }
 
-function canRefine(items: { id: number; quantity?: number }[], recipe: RefineRecipeI): boolean {
-  return countItem(items, recipe.ore.itemId) >= recipe.ore.amount;
+function canRefine(itemsById: Record<number, number>, recipe: RefineRecipeI): boolean {
+  return getItemQuantity(itemsById, recipe.ore.itemId) >= recipe.ore.amount;
 }
 
-function canCraft(items: { id: number; quantity?: number }[], recipe: CraftRecipeI): boolean {
+function canCraft(itemsById: Record<number, number>, recipe: CraftRecipeI): boolean {
   for (const { itemId, amount } of recipe.bars) {
-    if (countItem(items, itemId) < amount) return false;
+    if (getItemQuantity(itemsById, itemId) < amount) return false;
   }
   return true;
 }
 
-function canCraftRingAmulet(items: { id: number; quantity?: number }[], recipe: RingAmuletRecipeI): boolean {
+function canCraftRingAmulet(itemsById: Record<number, number>, recipe: RingAmuletRecipeI): boolean {
   for (const { itemId, amount } of recipe.bars) {
-    if (countItem(items, itemId) < amount) return false;
+    if (getItemQuantity(itemsById, itemId) < amount) return false;
   }
   if (recipe.gems) {
     for (const { itemId, amount } of recipe.gems) {
-      if (countItem(items, itemId) < amount) return false;
+      if (getItemQuantity(itemsById, itemId) < amount) return false;
     }
   }
   return true;
@@ -75,7 +75,7 @@ function groupByTier<T extends { tier: string }>(recipes: T[]): Map<string, T[]>
 
 export const ForgingContainer = () => {
   const dispatch = useDispatch();
-  const items = useSelector(selectItems);
+  const itemsById = useSelector(selectItemsById);
   const forgingXP = useSelector(selectForgingXP);
   const forgingSavings = useSelector(getCraftingSetForgingSavingsPercent);
   const setXpBonus = useSelector(getCraftingSetForgingXpPercent);
@@ -96,7 +96,7 @@ export const ForgingContainer = () => {
 
   const doRefine = useCallback(
     (recipe: RefineRecipeI) => {
-      if (!canRefine(items, recipe)) return;
+      if (!canRefine(itemsById, recipe)) return;
       const amount = recipe.ore.amount;
       const consumeAmount = Math.max(1, amount - Math.floor((amount * forgingSavings) / 100));
       dispatch(consumeItems([{ itemId: recipe.ore.itemId, amount: consumeAmount }]));
@@ -118,12 +118,12 @@ export const ForgingContainer = () => {
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },
-    [dispatch, items, forgingSavings, setXpBonus]
+    [dispatch, itemsById, forgingSavings, setXpBonus]
   );
 
   const doCraft = useCallback(
     (recipe: CraftRecipeI) => {
-      if (!canCraft(items, recipe)) return;
+      if (!canCraft(itemsById, recipe)) return;
       const toConsume = recipe.bars.map(({ itemId, amount }) => ({
         itemId,
         amount: Math.max(1, amount - Math.floor((amount * forgingSavings) / 100)),
@@ -147,12 +147,12 @@ export const ForgingContainer = () => {
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },
-    [dispatch, items, forgingSavings, setXpBonus]
+    [dispatch, itemsById, forgingSavings, setXpBonus]
   );
 
   const doCraftRingAmulet = useCallback(
     (recipe: RingAmuletRecipeI) => {
-      if (!canCraftRingAmulet(items, recipe)) return;
+      if (!canCraftRingAmulet(itemsById, recipe)) return;
       const barConsume = recipe.bars.map(({ itemId, amount }) => ({
         itemId,
         amount: Math.max(1, amount - Math.floor((amount * forgingSavings) / 100)),
@@ -180,7 +180,7 @@ export const ForgingContainer = () => {
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },
-    [dispatch, items, forgingSavings, setXpBonus]
+    [dispatch, itemsById, forgingSavings, setXpBonus]
   );
 
   return (
@@ -203,7 +203,7 @@ export const ForgingContainer = () => {
       <p className="forging__hint">Raw ore only. Each recipe produces one bar.</p>
       <div className="forging__recipes">
         {REFINE_RECIPES.map((recipe) => {
-          const canDo = canRefine(items, recipe);
+          const canDo = canRefine(itemsById, recipe);
           return (
             <div key={recipe.id} className="forging__recipe">
               <h4 className="forging__recipeName">{recipe.name}</h4>
@@ -211,8 +211,8 @@ export const ForgingContainer = () => {
               <div className="forging__mats">
                 <span>
                   {getItemName(recipe.ore.itemId)} × {recipe.ore.amount}
-                  {countItem(items, recipe.ore.itemId) < recipe.ore.amount && (
-                    <span className="forging__short"> (have {countItem(items, recipe.ore.itemId)})</span>
+                  {getItemQuantity(itemsById, recipe.ore.itemId) < recipe.ore.amount && (
+                    <span className="forging__short"> (have {getItemQuantity(itemsById, recipe.ore.itemId)})</span>
                   )}
                 </span>
               </div>
@@ -250,7 +250,7 @@ export const ForgingContainer = () => {
             {tiersOpen[tier] !== false && (
               <div className="forging__recipes">
                 {recipes.map((recipe) => {
-                  const canDo = canCraft(items, recipe);
+                  const canDo = canCraft(itemsById, recipe);
                   return (
                     <div key={recipe.id} className="forging__recipe">
                       <h4 className="forging__recipeName">{recipe.name}</h4>
@@ -259,8 +259,8 @@ export const ForgingContainer = () => {
                         {recipe.bars.map(({ itemId, amount }) => (
                           <span key={itemId}>
                             {getItemName(itemId)} × {amount}
-                            {countItem(items, itemId) < amount && (
-                              <span className="forging__short"> (have {countItem(items, itemId)})</span>
+                            {getItemQuantity(itemsById, itemId) < amount && (
+                              <span className="forging__short"> (have {getItemQuantity(itemsById, itemId)})</span>
                             )}
                           </span>
                         ))}
@@ -288,7 +288,7 @@ export const ForgingContainer = () => {
       <p className="forging__hint">Bars + gems. Equip in character panel. Rare rings/amulets can also drop from fishing and gathering.</p>
       <div className="forging__recipes">
         {RING_AMULET_RECIPES.map((recipe) => {
-          const canDo = canCraftRingAmulet(items, recipe);
+          const canDo = canCraftRingAmulet(itemsById, recipe);
           return (
             <div key={recipe.id} className="forging__recipe">
               <h4 className="forging__recipeName">{recipe.name}</h4>
@@ -297,16 +297,16 @@ export const ForgingContainer = () => {
                 {recipe.bars.map(({ itemId, amount }) => (
                   <span key={`b-${itemId}`}>
                     {getItemName(itemId)} × {amount}
-                    {countItem(items, itemId) < amount && (
-                      <span className="forging__short"> (have {countItem(items, itemId)})</span>
+                    {getItemQuantity(itemsById, itemId) < amount && (
+                      <span className="forging__short"> (have {getItemQuantity(itemsById, itemId)})</span>
                     )}
                   </span>
                 ))}
                 {recipe.gems?.map(({ itemId, amount }) => (
                   <span key={`g-${itemId}`}>
                     {getItemName(itemId)} × {amount}
-                    {countItem(items, itemId) < amount && (
-                      <span className="forging__short"> (have {countItem(items, itemId)})</span>
+                    {getItemQuantity(itemsById, itemId) < amount && (
+                      <span className="forging__short"> (have {getItemQuantity(itemsById, itemId)})</span>
                     )}
                   </span>
                 ))}

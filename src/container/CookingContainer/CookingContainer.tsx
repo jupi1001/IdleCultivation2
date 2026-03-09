@@ -21,10 +21,10 @@ import {
   getOwnedCraftingSetPieceIds,
   getCraftingSetCookingDoubleChancePercent,
   getCraftingSetCookingXpPercent,
-  selectItems,
+  selectItemsById,
   selectCookingXP,
 } from "../../state/selectors/characterSelectors";
-import { countItem } from "../../utils/inventory";
+import { getItemQuantity } from "../../utils/inventory";
 import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./CookingContainer.css";
 
@@ -32,16 +32,16 @@ function getItemName(itemId: number): string {
   return ITEMS_BY_ID[itemId]?.name ?? `Item ${itemId}`;
 }
 
-function canCook(items: { id: number; quantity?: number }[], recipe: CookingRecipeI): boolean {
+function canCook(itemsById: Record<number, number>, recipe: CookingRecipeI): boolean {
   for (const { itemId, amount } of recipe.ingredients) {
-    if (countItem(items, itemId) < amount) return false;
+    if (getItemQuantity(itemsById, itemId) < amount) return false;
   }
   return true;
 }
 
 export const CookingContainer = () => {
   const dispatch = useDispatch();
-  const items = useSelector(selectItems);
+  const itemsById = useSelector(selectItemsById);
   const cookingXP = useSelector(selectCookingXP);
   const doubleChance = useSelector(getCraftingSetCookingDoubleChancePercent);
   const setXpBonus = useSelector(getCraftingSetCookingXpPercent);
@@ -52,7 +52,7 @@ export const CookingContainer = () => {
 
   const doCook = useCallback(
     (recipe: CookingRecipeI) => {
-      if (!canCook(items, recipe)) return;
+      if (!canCook(itemsById, recipe)) return;
       const toConsume = recipe.ingredients.map(({ itemId, amount }) => ({ itemId, amount }));
       dispatch(consumeItems(toConsume));
       const doubleOutput = doubleChance > 0 && Math.random() * 100 < doubleChance;
@@ -74,7 +74,7 @@ export const CookingContainer = () => {
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },
-    [dispatch, items, doubleChance, setXpBonus]
+    [dispatch, itemsById, doubleChance, setXpBonus]
   );
 
   return (
@@ -96,7 +96,7 @@ export const CookingContainer = () => {
       <h3 className="cooking__recipesTitle">Recipes</h3>
       <div className="cooking__recipes">
         {COOKING_RECIPES.map((recipe) => {
-          const canDo = canCook(items, recipe);
+          const canDo = canCook(itemsById, recipe);
           return (
             <div key={recipe.id} className="cooking__recipe">
               <h4 className="cooking__recipeName">{recipe.name}</h4>
@@ -105,8 +105,8 @@ export const CookingContainer = () => {
                 {recipe.ingredients.map(({ itemId, amount }) => (
                   <span key={itemId}>
                     {getItemName(itemId)} × {amount}
-                    {countItem(items, itemId) < amount && (
-                      <span className="cooking__short"> (have {countItem(items, itemId)})</span>
+                    {getItemQuantity(itemsById, itemId) < amount && (
+                      <span className="cooking__short"> (have {getItemQuantity(itemsById, itemId)})</span>
                     )}
                   </span>
                 ))}

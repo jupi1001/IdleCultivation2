@@ -24,10 +24,10 @@ import {
   getCraftingSetAlchemySuccessPercent,
   getCraftingSetAlchemyXpPercent,
   getOwnedCraftingSetPieceIds,
-  selectItems,
+  selectItemsById,
   selectAlchemyXP,
 } from "../../state/selectors/characterSelectors";
-import { countItem } from "../../utils/inventory";
+import { getItemQuantity } from "../../utils/inventory";
 import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./AlchemyContainer.css";
 
@@ -35,18 +35,18 @@ function getItemName(itemId: number): string {
   return ITEMS_BY_ID[itemId]?.name ?? `Item ${itemId}`;
 }
 
-function canCraft(items: { id: number; quantity?: number }[], recipe: AlchemyRecipeI): boolean {
+function canCraft(itemsById: Record<number, number>, recipe: AlchemyRecipeI): boolean {
   for (const { itemId, amount } of recipe.ingredients) {
-    if (countItem(items, itemId) < amount) return false;
+    if (getItemQuantity(itemsById, itemId) < amount) return false;
   }
   const { itemId, amount } = recipe.woodForFire;
-  if (countItem(items, itemId) < amount) return false;
+  if (getItemQuantity(itemsById, itemId) < amount) return false;
   return true;
 }
 
 export const AlchemyContainer = () => {
   const dispatch = useDispatch();
-  const items = useSelector(selectItems);
+  const itemsById = useSelector(selectItemsById);
   const alchemyXP = useSelector(selectAlchemyXP);
   const talentAlchemyBonus = useSelector(getTalentAlchemySuccessPercent);
   const setSuccessBonus = useSelector(getCraftingSetAlchemySuccessPercent);
@@ -58,7 +58,7 @@ export const AlchemyContainer = () => {
 
   const attemptCraft = useCallback(
     (recipe: AlchemyRecipeI) => {
-      if (!canCraft(items, recipe)) return;
+      if (!canCraft(itemsById, recipe)) return;
       const baseChance = getAlchemySuccessChance(alchemyLevel, recipe.recipeLevel);
       const chance = Math.min(100, baseChance + (talentAlchemyBonus ?? 0) + setSuccessBonus);
       const success = Math.random() * 100 < chance;
@@ -93,7 +93,7 @@ export const AlchemyContainer = () => {
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },
-    [dispatch, items, alchemyLevel, talentAlchemyBonus, setSuccessBonus, setXpBonus]
+    [dispatch, itemsById, alchemyLevel, talentAlchemyBonus, setSuccessBonus, setXpBonus]
   );
 
   return (
@@ -115,7 +115,7 @@ export const AlchemyContainer = () => {
       <h3 className="alchemy__recipesTitle">Recipes</h3>
       <div className="alchemy__recipes">
         {ALCHEMY_RECIPES.map((recipe) => {
-          const canDo = canCraft(items, recipe);
+          const canDo = canCraft(itemsById, recipe);
           const baseChance = getAlchemySuccessChance(alchemyLevel, recipe.recipeLevel);
           const successChance = Math.min(100, baseChance + (talentAlchemyBonus ?? 0) + setSuccessBonus);
           return (
@@ -129,8 +129,8 @@ export const AlchemyContainer = () => {
                   {recipe.ingredients.map(({ itemId, amount }) => (
                     <li key={itemId}>
                       {getItemName(itemId)} × {amount}
-                      {countItem(items, itemId) < amount && (
-                        <span className="alchemy__matsShort"> (have {countItem(items, itemId)})</span>
+                      {getItemQuantity(itemsById, itemId) < amount && (
+                        <span className="alchemy__matsShort"> (have {getItemQuantity(itemsById, itemId)})</span>
                       )}
                     </li>
                   ))}
@@ -138,9 +138,9 @@ export const AlchemyContainer = () => {
                 <span className="alchemy__matsLabel">Wood for fire:</span>
                 <span className="alchemy__wood">
                   {getItemName(recipe.woodForFire.itemId)} × {recipe.woodForFire.amount}
-                  {countItem(items, recipe.woodForFire.itemId) < recipe.woodForFire.amount && (
+                  {getItemQuantity(itemsById, recipe.woodForFire.itemId) < recipe.woodForFire.amount && (
                     <span className="alchemy__matsShort">
-                      {" "}(have {countItem(items, recipe.woodForFire.itemId)})
+                      {" "}(have {getItemQuantity(itemsById, recipe.woodForFire.itemId)})
                     </span>
                   )}
                 </span>

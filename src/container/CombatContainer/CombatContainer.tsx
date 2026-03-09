@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import EnemyLootPopover from "../../components/EnemyLootPopover/EnemyLootPopover";
-import { ENEMIES_BY_ID, SECTS_BY_ID } from "../../constants/data";
+import { ENEMIES_BY_ID, ITEMS_BY_ID, SECTS_BY_ID } from "../../constants/data";
 import { getCharacterImage, UI_ASSETS } from "../../constants/ui";
 import { CombatArea } from "../../enum/CombatArea";
 import { ContentArea } from "../../enum/ContentArea";
@@ -20,7 +20,7 @@ import {
   selectCurrentHealth,
   selectRealm,
   selectRealmLevel,
-  selectItems,
+  selectItemsById,
   selectDeathPenaltyMode,
   selectCurrentSectId,
   selectPath,
@@ -47,7 +47,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   const currentHealth = useSelector(selectCurrentHealth);
   const realm = useSelector(selectRealm);
   const realmLevel = useSelector(selectRealmLevel);
-  const items = useSelector(selectItems);
+  const itemsById = useSelector(selectItemsById);
   const deathPenaltyMode = useSelector(selectDeathPenaltyMode);
   const currentSectId = useSelector(selectCurrentSectId);
   const path = useSelector(selectPath);
@@ -131,7 +131,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     currentSectId,
     path,
     sectRankIndex,
-    items,
+    itemsById,
     autoLoot,
     autoEatUnlocked,
     autoEat,
@@ -141,7 +141,7 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
     currentSectId,
     path,
     sectRankIndex,
-    items,
+    itemsById,
     autoLoot,
     autoEatUnlocked,
     autoEat,
@@ -170,10 +170,19 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
   }, [area, currentEnemies.length, realm, realmLevel, dispatch]);
 
   /** Food that restores vitality – use during combat to heal */
-  const vitalityFood = items.filter(
-    (i): i is Item & { effect: string; value: number } =>
-      isConsumableItem(i) && i.effect === "vitality" && i.value != null && (i.quantity ?? 1) > 0
-  );
+  const vitalityFood = useMemo(() => {
+    const list: (Item & { effect: string; value: number })[] = [];
+    for (const idStr of Object.keys(itemsById)) {
+      const id = Number(idStr);
+      const qty = itemsById[id] ?? 0;
+      if (qty <= 0) continue;
+      const def = ITEMS_BY_ID[id];
+      if (def && isConsumableItem(def) && def.effect === "vitality" && def.value != null) {
+        list.push({ ...def, quantity: qty } as Item & { effect: string; value: number });
+      }
+    }
+    return list;
+  }, [itemsById]);
 
   const useVitalityFood = (item: Item) => {
     const heal = item.value ?? 0;
@@ -353,10 +362,17 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
       if (healthAfterTick > 0 && combatContextRef.current.autoEatUnlocked && combatContextRef.current.autoEat) {
         const threshold = (combatContextRef.current.autoEatHpPercent ?? 30) / 100 * maxHp;
         if (healthAfterTick <= threshold) {
-          const food = combatContextRef.current.items.find(
-            (i) => i.effect === "vitality" && i.value != null && (i.quantity ?? 1) > 0
-          );
-          if (food) {
+          const itemsByIdRef = combatContextRef.current.itemsById;
+          const foodId = Object.keys(itemsByIdRef)
+            .map(Number)
+            .find(
+              (id) =>
+                ITEMS_BY_ID[id]?.effect === "vitality" &&
+                ITEMS_BY_ID[id]?.value != null &&
+                (itemsByIdRef[id] ?? 0) > 0
+            );
+          if (foodId != null) {
+            const food = ITEMS_BY_ID[foodId]!;
             dispatch(consumeItems([{ itemId: food.id, amount: 1 }]));
             const heal = food.value ?? 0;
             healthAfterTick = Math.min(maxHp, healthAfterTick + heal);

@@ -7,15 +7,15 @@ import type { EquipmentSlot } from "../types/EquipmentSlot";
 import { ALL_EQUIPMENT_SLOTS } from "../types/EquipmentSlot";
 
 export interface CharacterItemsState {
-  items: Item[];
+  itemsById: Record<number, number>;
   equipment: Record<EquipmentSlot, Item | null>;
 }
 
 /** Returns the set of item IDs the character has (inventory + any equipped). */
 export function getOwnedItemIds(state: CharacterItemsState): Set<number> {
   const ids = new Set<number>();
-  for (const item of state.items) {
-    ids.add(item.id);
+  for (const idStr of Object.keys(state.itemsById)) {
+    if ((state.itemsById[Number(idStr)] ?? 0) > 0) ids.add(Number(idStr));
   }
   for (const slot of ALL_EQUIPMENT_SLOTS) {
     const item = state.equipment[slot];
