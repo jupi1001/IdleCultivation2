@@ -61,6 +61,15 @@ Each category has at least one example in the repo; follow the same patterns whe
 - Assert on resulting state; cover initial state, payloads, and guards.
 - No DOM or timers; use `*.test.ts` with `node` environment.
 
+### Migration tests
+
+- Migration tests live next to the migration entry point (e.g. `src/state/migrations/migrations.test.ts`).
+- Use small, hand-crafted fixtures that simulate older save shapes (e.g. character-only saves, legacy `content.page`, old inventory shapes).
+- Call `runMigrations` on the fixture, then:
+  - Validate the result with `parsePersistedRootState` from `src/schemas/saveState.ts`.
+  - Assert that per-slice behavior is correct (fields moved out of `character`, defaults applied, legacy fields removed).
+- Keep fixtures minimal and focused on a single behavior so it’s easy to understand what each test protects.
+
 ### Component tests
 
 - Use `renderWithProviders()` from `test-utils` when the component needs the Redux store.
