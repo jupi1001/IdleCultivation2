@@ -67,6 +67,7 @@ import {
   selectDeathPenaltyMode,
 } from "../state/selectors/characterSelectors";
 import { rollOneTimeDrop } from "../utils/oneTimeDrops";
+import { getEffectiveDuration, rollMiningLootQuantity } from "../utils/activityTiming";
 
 function rollRareDropRingAmulet(
   rareDropChancePercent: number | undefined,
@@ -187,7 +188,7 @@ export function useActivityTicks() {
     }
 
     const area = currentFishingArea;
-    const effectiveDuration = Math.max(100, area.delay * (1 - skillSpeedBonusFishing / 100));
+    const effectiveDuration = getEffectiveDuration(area.delay, skillSpeedBonusFishing);
     const castId = ++nextFishingCastIdRef.current;
     dispatch(setFishingCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
 
@@ -219,7 +220,7 @@ export function useActivityTicks() {
     }
 
     const area = currentMiningArea;
-    const effectiveDuration = Math.max(100, area.delay * (1 - skillSpeedBonusMining / 100));
+    const effectiveDuration = getEffectiveDuration(area.delay, skillSpeedBonusMining);
     const castId = ++nextMiningCastIdRef.current;
     dispatch(setMiningCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
 
@@ -229,7 +230,7 @@ export function useActivityTicks() {
       const skillingSetDropItem = rollSkillingSetForArea(
         "mining", area.areaId, MINING_AREA_INDEX_BY_ID, getTierForMiningAreaIndex, ownedSkillingSetRef
       );
-      const lootQuantity = miningYieldPercent > 0 && Math.random() * 100 < miningYieldPercent ? 2 : 1;
+      const lootQuantity = rollMiningLootQuantity(miningYieldPercent, Math.random());
       dispatch(completeMiningCast({
         castId,
         xp: Math.round(area.xp * karmaXpMultRef.current),
@@ -253,7 +254,7 @@ export function useActivityTicks() {
     }
 
     const area = currentGatheringArea;
-    const effectiveDuration = Math.max(100, area.delay * (1 - skillSpeedBonusGathering / 100));
+    const effectiveDuration = getEffectiveDuration(area.delay, skillSpeedBonusGathering);
     const castId = ++nextGatheringCastIdRef.current;
     dispatch(setGatheringCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
 
