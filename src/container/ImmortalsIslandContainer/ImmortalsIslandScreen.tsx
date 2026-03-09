@@ -1,13 +1,18 @@
 import React from "react";
+import type { RealmRequirement } from "../../constants/areaRealmRequirements";
+import type { RealmId } from "../../constants/realmProgression";
+import type { AvatarI } from "../../interfaces/AvatarI";
+import type Item from "../../interfaces/ItemI";
+import type { ConsumableEffect } from "../../interfaces/ItemI";
 import type { MissionI } from "../../interfaces/MissionI";
 import "./ImmortalsIslandContainer.css";
 
 interface ImmortalsIslandScreenProps {
-  realm: string;
+  realm: RealmId;
   realmLevel: number;
   money: number;
   itemsById: Record<number, number>;
-  avatars: any[];
+  avatars: AvatarI[];
   avatarsOpen: boolean;
   setAvatarsOpen: (open: boolean) => void;
   createName: string;
@@ -25,17 +30,15 @@ interface ImmortalsIslandScreenProps {
   EXPEDITION_MISSIONS: MissionI[];
   EXPEDITION_MISSIONS_BY_ID: Record<number, MissionI>;
   AVATAR_CREATE_ORE_AMOUNT: number;
-  AVATAR_CREATE_ORE_ID: number;
   AVATAR_CREATE_SPIRIT_STONES: number;
   AVATAR_CREATE_WOOD_AMOUNT: number;
-  AVATAR_CREATE_WOOD_ID: number;
   AVATAR_TRAIN_QI_PILL_AMOUNT: number;
   AVATAR_TRAIN_SPIRIT_STONES: number;
-  ITEMS_BY_ID: Record<number, any>;
-  getConsumableEffect: (item: any) => any;
-  canEnterArea: (realm: string, realmLevel: number, requiredRealm: any) => boolean;
-  formatRealmRequirement: (requiredRealm: any) => string;
-  getExpeditionItem: (id: number) => any;
+  ITEMS_BY_ID: Record<number, Item>;
+  getConsumableEffect: (item: Item) => ConsumableEffect | null;
+  canEnterArea: (realm: RealmId, realmLevel: number, requiredRealm: RealmRequirement) => boolean;
+  formatRealmRequirement: (requiredRealm: RealmRequirement) => string;
+  getExpeditionItem: (id: number) => Item | undefined;
   groupMissionsByRealm: (missions: MissionI[]) => { realmLabel: string; missions: MissionI[] }[];
   formatDuration: (seconds: number) => string;
   handleTrainAvatarWithStones: (avatarId: number) => void;
@@ -66,10 +69,8 @@ export const ImmortalsIslandScreen: React.FC<ImmortalsIslandScreenProps> = (prop
     EXPEDITION_MISSIONS,
     EXPEDITION_MISSIONS_BY_ID,
     AVATAR_CREATE_ORE_AMOUNT,
-    AVATAR_CREATE_ORE_ID,
     AVATAR_CREATE_SPIRIT_STONES,
     AVATAR_CREATE_WOOD_AMOUNT,
-    AVATAR_CREATE_WOOD_ID,
     AVATAR_TRAIN_QI_PILL_AMOUNT,
     AVATAR_TRAIN_SPIRIT_STONES,
     ITEMS_BY_ID,

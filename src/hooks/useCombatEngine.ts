@@ -3,14 +3,14 @@
  * loot roll, auto-eat, death handling. Uses combatMath and combatLoot.
  * Container uses this and renders JSX only.
  */
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ENEMIES_BY_ID } from "../constants/data";
+import { combatSessionReducer, createInitialCombatSessionState } from "../domain/combat/combatSession";
+import { ENEMIES_BY_AREA } from "../domain/enemies/enemies";
 import { ContentArea } from "../enum/ContentArea";
 import EnemyI from "../interfaces/EnemyI";
 import Item, { getConsumableEffect } from "../interfaces/ItemI";
-import { combatSessionReducer, createInitialCombatSessionState } from "../domain/combat/combatSession";
-import { ENEMIES_BY_AREA } from "../domain/enemies/enemies";
 import { addMoney } from "../state/reducers/characterCoreSlice";
 import { setCurrentHealth, setWeakened } from "../state/reducers/combatSlice";
 import { changeContent, routeFromArea } from "../state/reducers/contentSlice";
@@ -34,7 +34,6 @@ import {
   selectGender,
 } from "../state/selectors/characterSelectors";
 import { selectItemsById, selectVitalityFood } from "../state/selectors/inventorySelectors";
-import { isConsumableItem } from "../types/itemGuards";
 import { getResolvedLootTable, getEnemyLootEntries, rollOneDrop } from "../utils/combatLoot";
 import { doesHit, computeBaseDamage } from "../utils/combatMath";
 
@@ -69,6 +68,7 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
   const dispatch = useDispatch();
   const currentHealth = useSelector(selectCurrentHealth);
   const itemsById = useSelector(selectItemsById);
+  const vitalityFood = useSelector(selectVitalityFood);
   const deathPenaltyMode = useSelector(selectDeathPenaltyMode);
   const currentSectId = useSelector(selectCurrentSectId);
   const path = useSelector(selectPath);
@@ -99,38 +99,38 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
     session;
 
   const setCharacterHealthLocal = (health: number) =>
-    dispatchSession((prev) => combatSessionReducer(prev, { type: "setCharacterHealth", health }));
+    dispatchSession({ type: "setCharacterHealth", health });
   const setCurrentEnemyLocal = (enemy: EnemyI | null) =>
-    dispatchSession((prev) => combatSessionReducer(prev, { type: "setEnemy", enemy }));
+    dispatchSession({ type: "setEnemy", enemy });
   const setLastDamageToEnemyLocal = (value: number | null) =>
-    dispatchSession((prev) => combatSessionReducer(prev, { type: "setLastDamageToEnemy", value }));
+    dispatchSession({ type: "setLastDamageToEnemy", value });
   const setLastDamageToCharacterLocal = (value: number | null) =>
-    dispatchSession((prev) => combatSessionReducer(prev, { type: "setLastDamageToCharacter", value }));
+    dispatchSession({ type: "setLastDamageToCharacter", value });
   const addLootSpiritStonesLocal = (amount: number) =>
-    dispatchSession((prev) => combatSessionReducer(prev, { type: "addLootSpiritStones", amount }));
+    dispatchSession({ type: "addLootSpiritStones", amount });
   const resetLootSpiritStonesLocal = () =>
-    dispatchSession((prev) => combatSessionReducer(prev, { type: "resetLootSpiritStones" }));
+    dispatchSession({ type: "resetLootSpiritStones" });
   const addItemToBagLocal = (item: Item) =>
-    dispatchSession((prev) => combatSessionReducer(prev, { type: "addItemToBag", item }));
+    dispatchSession({ type: "addItemToBag", item });
   const clearItemBagLocal = () =>
-    dispatchSession((prev) => combatSessionReducer(prev, { type: "clearItemBag" }));
+    dispatchSession({ type: "clearItemBag" });
   const [characterProgress, setCharacterProgress] = useState(0);
   const [enemyProgress, setEnemyProgress] = useState(0);
 
   useEffect(() => {
     setCharacterHealthLocal(Math.min(effectiveStats.health, characterHealth));
-  }, [effectiveStats.health]);
+  }, [effectiveStats.health, characterHealth]);
   useEffect(() => {
     setCharacterHealthLocal(Math.min(effectiveStats.health, currentHealth));
   }, [currentHealth, effectiveStats.health]);
   useEffect(() => {
     if (lastDamageToEnemy == null) return;
-    const t = setTimeout(() => setLastDamageToEnemy(null), 2000);
+    const t = setTimeout(() => setLastDamageToEnemyLocal(null), 2000);
     return () => clearTimeout(t);
   }, [lastDamageToEnemy]);
   useEffect(() => {
     if (lastDamageToCharacter == null) return;
-    const t = setTimeout(() => setLastDamageToCharacter(null), 2000);
+    const t = setTimeout(() => setLastDamageToCharacterLocal(null), 2000);
     return () => clearTimeout(t);
   }, [lastDamageToCharacter]);
 
@@ -154,7 +154,6 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
     path,
     sectRankIndex,
     itemsById,
-    vitalityFood,
     autoLoot,
     autoEatUnlocked,
     autoEat,
@@ -171,7 +170,6 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
     path,
     sectRankIndex,
     itemsById,
-    vitalityFood,
     autoLoot,
     autoEatUnlocked,
     autoEat,
@@ -199,7 +197,7 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
       const dropped = rollOneDrop(table, ownedTechniqueIdsRef.current);
       if (!dropped) return;
       onItemDropped?.(dropped);
-      setItemBag((prev) => [...prev, dropped]);
+      addItemToBagLocal(dropped);
     },
     [area, currentSectId, path, sectRankIndex]
   );
@@ -217,7 +215,7 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
 
   const handleEscapeButton = useCallback(
     (died: boolean) => {
-      dispatch(setCurrentHealth(died ? 0 : characterState.health));
+      dispatch(setCurrentHealth(died ? 0 : characterHealth));
       if (died) {
         clearItemBagLocal();
         resetLootSpiritStonesLocal();
@@ -235,7 +233,7 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
       }
       dispatch(changeContent(routeFromArea(ContentArea.MEDITATION)));
     },
-    [dispatch, characterState.health, deathPenaltyMode, itemBag, lootSpiritStones]
+    [dispatch, characterHealth, deathPenaltyMode, itemBag, lootSpiritStones]
   );
 
   const useVitalityFood = useCallback(
@@ -244,10 +242,9 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
       const heal = effect?.type === "healVitality" ? effect.amount : 0;
       if (heal <= 0) return;
       dispatch(consumeItems([{ itemId: item.id, amount: 1 }]));
-      setCharacterState((prev) => ({
-        ...prev,
-        health: Math.min(effectiveStats.health, prev.health + heal),
-      }));
+      setCharacterHealthLocal(
+        Math.min(characterStateRef.current.health + heal, effectiveStats.health)
+      );
     },
     [dispatch, effectiveStats.health]
   );
@@ -267,7 +264,7 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
 
     let damage = computeBaseDamage(charState.attack, Math.random());
     if (bonuses.critChancePercent > 0 && Math.random() * 100 < bonuses.critChancePercent) damage *= 2;
-    dispatch(addLogEntry({ type: "combat_hit", enemyName: enemy.name, damage }));
+      dispatch(addLogEntry({ type: "combat_hit", enemyName: enemy.name, damage }));
     setLastDamageToEnemyLocal(damage);
     let newHealth = enemy.health - damage;
     if (bonuses.aoeChancePercent > 0 && Math.random() * 100 < bonuses.aoeChancePercent) {
@@ -282,7 +279,7 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
       if (combatContextRef.current.currentSectId != null) {
         dispatch(incrementSectQuestKillCount(combatContextRef.current.currentSectId));
       }
-      setLastDamageToEnemy(null);
+      setLastDamageToEnemyLocal(null);
       const spiritStones = Math.floor(
         getSpiritStonesFromEnemy(enemy) * talentSpiritStoneMultRef.current
       );
@@ -346,7 +343,7 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
       const threshold =
         ((combatContextRef.current.autoEatHpPercent ?? 30) / 100) * maxHp;
       if (healthAfterTick <= threshold) {
-        const food = combatContextRef.current.vitalityFood[0];
+        const food = vitalityFood[0];
         if (food) {
           const effect = getConsumableEffect(food);
           const healAmount = effect?.type === "healVitality" ? effect.amount : 0;
@@ -407,8 +404,6 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
     return () => cancelAnimationFrame(rafId);
   }, [fightingInterval]);
 
-  const vitalityFood = useSelector(selectVitalityFood);
-
   const context = useMemo(
     () => ({ area, currentSectId, path, sectRankIndex }),
     [area, currentSectId, path, sectRankIndex]
@@ -420,9 +415,11 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
 
   if (!area || currentEnemies.length === 0) return null;
 
+  const characterState = { ...effectiveStats, health: characterHealth };
+
   return {
     characterState,
-    currentEnemy,
+    currentEnemy: currentEnemy ?? undefined,
     enemyMaxHealth,
     characterProgress,
     enemyProgress,

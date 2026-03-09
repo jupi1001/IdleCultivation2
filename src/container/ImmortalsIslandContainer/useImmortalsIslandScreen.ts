@@ -35,6 +35,7 @@ import {
   selectEquipment,
   selectAvatars,
 } from "../../state/selectors/characterSelectors";
+import type { RootState } from "../../state/store";
 import { useAppDispatch } from "../../state/store";
 import { rollOneTimeDropFromTable } from "../../utils/oneTimeDrops";
 import { getOwnedItemIds } from "../../utils/ownership";
@@ -46,11 +47,13 @@ export function useImmortalsIslandScreen() {
   const expeditionEndTime = useSelector(selectExpeditionEndTime);
   const expeditionMissionId = useSelector(selectExpeditionMissionId);
   const currentActivity = useSelector(selectCurrentActivity);
-  const money = useSelector(selectMoney);
-  const itemsById = useSelector(selectItemsById);
-  const equipment = useSelector(selectEquipment);
-  const avatarsResolved = useSelector(selectAvatars);
-  const avatars = avatarsResolved ?? [];
+  const money = useSelector(selectMoney) as number;
+  const itemsById = useSelector(selectItemsById) as Record<number, number>;
+  const equipment = useSelector(selectEquipment) as RootState["equipment"]["equipment"];
+  const avatarsResolved = useSelector(selectAvatars) as
+    | RootState["avatars"]["avatars"]
+    | undefined;
+  const avatars: RootState["avatars"]["avatars"] = avatarsResolved ?? [];
 
   const [, setTick] = useState(0);
   const [avatarsOpen, setAvatarsOpen] = useState(true);

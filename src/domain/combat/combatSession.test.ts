@@ -20,8 +20,11 @@ const dummyEnemy: EnemyI = {
 const dummyItem: Item = {
   id: 1,
   name: "Test Item",
+  description: "Test material item",
   price: 1,
-  type: "material",
+  quantity: 1,
+  picture: "",
+  kind: "material",
 };
 
 describe("combatSessionReducer", () => {

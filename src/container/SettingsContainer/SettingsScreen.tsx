@@ -1,11 +1,12 @@
 import React from "react";
 import "./SettingsContainer.css";
+import type { RealmId } from "../../constants/realmProgression";
 import type { Theme } from "./useSettingsScreen";
 
 interface SettingsScreenProps {
   theme?: Theme;
   setTheme?: (t: Theme) => void;
-  realm: string;
+  realm: RealmId;
   realmLevel: number;
   reincarnationCount: number | null | undefined;
   deathPenaltyMode: "normal" | "casual" | null | undefined;
@@ -40,7 +41,7 @@ interface SettingsScreenProps {
   toggleAutoEat: (value: boolean) => void;
   changeAutoEatHpPercent: (value: number) => void;
   updateNotificationPrefs: (partial: Partial<typeof notificationPrefs>) => void;
-  formatRealm: (realm: string, level: number) => string;
+  formatRealm: (realm: RealmId, level: number) => string;
   formatSaveDate: (ts: number) => string;
 }
 

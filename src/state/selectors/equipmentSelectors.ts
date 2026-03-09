@@ -1,6 +1,5 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { getEquipmentSlot } from "../../interfaces/ItemI";
-import type Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import type { RootState } from "../store";
 import { selectItems } from "./inventorySelectors";
@@ -99,4 +98,7 @@ export const getOwnedSetPieceIds = createSelector(
 
 /** @deprecated Use getOwnedSetPieceIds. Same set for gathering (fishing/mining/gathering). */
 export const getOwnedSkillingSetPieceIds = getOwnedSetPieceIds;
+
+/** Crafting set pieces (alchemy/forging/cooking). Alias kept for backwards compatibility. */
+export const getOwnedCraftingSetPieceIds = getOwnedSetPieceIds;
 

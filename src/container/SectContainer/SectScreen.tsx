@@ -1,12 +1,13 @@
 import React from "react";
 import { SectStoreItem } from "../../components/SectStoreItem/SectStoreItem";
+import type { SectStoreEntryI } from "../../domain/sects";
 import type SectI from "../../interfaces/SectI";
 import type { SectTab } from "./useSectScreen";
 import "./SectContainer.css";
 
 interface SectOnPathEntry {
   sect: SectI;
-  entries: { item: any; requiredRankIndex: number }[];
+  entries: SectStoreEntryI[];
 }
 
 interface SectScreenProps {
@@ -22,8 +23,8 @@ interface SectScreenProps {
   promotionProgress: number;
   expandedSectIds: number[];
   activeTab: SectTab;
-  SECT_POSITIONS: { name: string }[];
-  SECT_NPCS_BY_SECT: Record<number, any[]>;
+  SECT_POSITIONS: ReadonlyArray<{ name: string; requiredRealmLabel: string; requiredStepIndex: number }>;
+  SECT_NPCS_BY_SECT: Record<number, { sectId: number; id: number; name: string; gender: string; portraitImage: string }[]>;
   SECT_QUEST_KILLS_REQUIRED: number;
   REALM_DIALOGUE_REALMS: string[];
   DUAL_CULTIVATION_MIN_FAVOR: number;

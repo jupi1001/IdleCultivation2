@@ -77,6 +77,11 @@ export const selectAutoEat = (state: RootState) => state.settings.autoEat;
 export const selectAutoEatHpPercent = (state: RootState) => state.settings.autoEatHpPercent;
 export const selectNotificationPrefs = (state: RootState) => state.settings.notificationPrefs;
 
+// Avatars / expeditions
+export const selectExpeditionEndTime = (state: RootState) => state.avatars.expeditionEndTime;
+export const selectExpeditionMissionId = (state: RootState) => state.avatars.expeditionMissionId;
+export const selectAvatars = (state: RootState) => state.avatars.avatars;
+
 // Misc
 export const selectMoneyState = (state: RootState) => state.character.money;
 export const selectStats = (state: RootState) => state.stats;

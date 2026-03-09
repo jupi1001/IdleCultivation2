@@ -1,15 +1,16 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { KARMA_BONUSES_BY_ID, type KarmaBonusId } from "../../constants/reincarnation";
-import { getTalentBonuses } from "../../constants/talents";
-import type { SkillSetName, SkillSetTier } from "../../constants/skillSets";
 import {
   FULL_SET_ALCHEMY_SUCCESS_PERCENT,
   FULL_SET_COOKING_DOUBLE_PERCENT,
   FULL_SET_FORGING_SAVINGS_PERCENT,
+  FULL_SET_SPEED_BONUS_PERCENT,
   SET_IDS,
+  type SkillSetName,
+  type SkillSetTier,
 } from "../../constants/skillSets";
+import { getTalentBonuses } from "../../constants/talents";
 import type { RootState } from "../store";
-import { getEquipmentCombatBonuses } from "./equipmentSelectors";
 
 /** Talent bonuses (memoized from character.talentLevels). */
 export const getTalentBonusesSelector = createSelector(
