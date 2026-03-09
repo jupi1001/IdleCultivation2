@@ -45,7 +45,7 @@ export const MeditationContainer = () => {
   const weakenedRemaining = Math.max(0, WEAKENED_MEDITATION_SECONDS - (weakenedMeditationSecondsDone ?? 0));
   const qiTechnique = equipment.qiTechnique;
   const partnerBonusMult = 1 + (partnerInfo.bonusPercent ?? 0) / 100;
-  const baseQiPerSecond = (BASE_QI_PER_SECOND + (qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0) + talentQiGain) * partnerBonusMult;
+  const baseQiPerSecond = (BASE_QI_PER_SECOND + (qiTechnique && "qiGainBonus" in qiTechnique ? qiTechnique.qiGainBonus ?? 0 : 0) + (equipment.amulet && "qiGainBonus" in equipment.amulet ? equipment.amulet.qiGainBonus ?? 0 : 0) + talentQiGain) * partnerBonusMult;
   const qiPerSecond = Math.round(baseQiPerSecond * karmaQiMult * 100) / 100;
   const requiredQi = getBreakthroughQiRequired(realm, realmLevel);
   const nextRealm = getNextRealm(realm, realmLevel);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { UI_ASSETS } from "../../constants/ui";
-import Item from "../../interfaces/ItemI";
+import Item, { getEquipmentSlot } from "../../interfaces/ItemI";
 import "./EnemyLootPopover.css";
 
 const BACKPACK_ICON = "/assets/ui/backpack.webp";
@@ -67,7 +67,8 @@ const EnemyLootPopover: React.FC<EnemyLootPopoverProps> = ({
               </li>
             )}
             {lootEntries.map(({ item, chancePercent, amount }) => {
-              const isTechnique = item.equipmentSlot === "qiTechnique" || item.equipmentSlot === "combatTechnique";
+              const slot = getEquipmentSlot(item);
+              const isTechnique = slot === "qiTechnique" || slot === "combatTechnique";
               const alreadyOwned = isTechnique && ownedTechniqueIds?.has(item.id);
               return (
                 <li key={item.id} className="enemyLootPopover__item" title={item.description}>

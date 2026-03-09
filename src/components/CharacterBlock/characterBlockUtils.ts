@@ -42,20 +42,20 @@ function getEquipmentBreakdown(equipment: RootState["equipment"]["equipment"]) {
     const item = equipment[slot];
     if (item) {
       const label = EQUIPMENT_SLOT_LABELS[slot] ?? slot;
-      if (item.attackBonus != null && item.attackBonus !== 0) {
+      if ("attackBonus" in item && item.attackBonus != null && item.attackBonus !== 0) {
         attackSources.push({ label: item.name, value: item.attackBonus });
       }
-      if (item.defenseBonus != null && item.defenseBonus !== 0) {
+      if ("defenseBonus" in item && item.defenseBonus != null && item.defenseBonus !== 0) {
         defenseSources.push({ label: item.name, value: item.defenseBonus });
       }
-      if (item.vitalityBonus != null && item.vitalityBonus !== 0) {
+      if ("vitalityBonus" in item && item.vitalityBonus != null && item.vitalityBonus !== 0) {
         vitalitySources.push({ label: item.name, value: item.vitalityBonus });
       }
     }
   }
 
   const combatTech = equipment.combatTechnique;
-  const attackMultiplier = combatTech?.attackMultiplier ?? 1;
+  const attackMultiplier = combatTech && "attackMultiplier" in combatTech ? combatTech.attackMultiplier ?? 1 : 1;
 
   return { attackSources, defenseSources, vitalitySources, attackMultiplier };
 }
@@ -157,11 +157,11 @@ export function getQiBreakdown(state: RootState): string {
   lines.push(`Current Qi: ${currentQi}`);
   let qiPerSec = BASE_QI_PER_SECOND;
   const parts: string[] = [`Base: ${BASE_QI_PER_SECOND}`];
-  if (eq.qiTechnique?.qiGainBonus != null && eq.qiTechnique.qiGainBonus !== 0) {
+  if (eq.qiTechnique && "qiGainBonus" in eq.qiTechnique && eq.qiTechnique.qiGainBonus != null && eq.qiTechnique.qiGainBonus !== 0) {
     qiPerSec += eq.qiTechnique.qiGainBonus;
     parts.push(`${eq.qiTechnique.name}: +${eq.qiTechnique.qiGainBonus}`);
   }
-  if (eq.amulet?.qiGainBonus != null && eq.amulet.qiGainBonus !== 0) {
+  if (eq.amulet && "qiGainBonus" in eq.amulet && eq.amulet.qiGainBonus != null && eq.amulet.qiGainBonus !== 0) {
     qiPerSec += eq.amulet.qiGainBonus;
     parts.push(`${eq.amulet.name}: +${eq.amulet.qiGainBonus}`);
   }

@@ -92,13 +92,21 @@ export interface AlchemyRecipeI {
   id: string;
   name: string;
   description: string;
-  /** Recipe difficulty 1–35; higher = harder, lower success when underlevelled */
   recipeLevel: number;
   ingredients: AlchemyRecipeIngredient[];
-  /** Wood consumed to light the alchemy fire */
   woodForFire: AlchemyRecipeIngredient;
   output: Item;
   outputAmount: number;
+}
+
+function pillOutput(
+  id: number,
+  name: string,
+  description: string,
+  picture: string,
+  effect: { type: "grantQi" | "healVitality"; amount: number }
+): Item {
+  return { kind: "consumable", id, name, description, price: 0, quantity: 1, picture: `${ALCHEMY_ASSETS}/${picture}`, effect };
 }
 
 /** Wood 601–608, 609–610 (new); herbs 611–622, 623–626 (new). */
@@ -141,16 +149,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 1,
     ingredients: [{ itemId: H.common, amount: 2 }, { itemId: H.spiritLeaf, amount: 1 }],
     woodForFire: { itemId: W.oak, amount: 1 },
-    output: {
-      id: 700,
-      name: "Basic Qi Pill",
-      description: "A simple pill that restores a small amount of Qi.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/basic-qi-pill.webp`,
-      value: 1,
-      effect: "qi",
-    },
+    output: pillOutput(700, "Basic Qi Pill", "A simple pill that restores a small amount of Qi.", "basic-qi-pill.webp", { type: "grantQi", amount: 1 }),
     outputAmount: 1,
   },
   {
@@ -160,16 +159,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 5,
     ingredients: [{ itemId: H.spiritLeaf, amount: 2 }, { itemId: H.spiritGrass, amount: 1 }],
     woodForFire: { itemId: W.oak, amount: 2 },
-    output: {
-      id: 701,
-      name: "Spirit Qi Pill",
-      description: "Restores a moderate amount of Qi.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/spirit-qi-pill.webp`,
-      value: 3,
-      effect: "qi",
-    },
+    output: pillOutput(701, "Spirit Qi Pill", "Restores a moderate amount of Qi.", "spirit-qi-pill.webp", { type: "grantQi", amount: 3 }),
     outputAmount: 1,
   },
   {
@@ -179,16 +169,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 10,
     ingredients: [{ itemId: H.spiritGrass, amount: 2 }, { itemId: H.silverLeaf, amount: 1 }],
     woodForFire: { itemId: W.bamboo, amount: 1 },
-    output: {
-      id: 702,
-      name: "Refined Qi Pill",
-      description: "Restores a good amount of Qi.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/refined-qi-pill.webp`,
-      value: 5,
-      effect: "qi",
-    },
+    output: pillOutput(702, "Refined Qi Pill", "Restores a good amount of Qi.", "refined-qi-pill.webp", { type: "grantQi", amount: 5 }),
     outputAmount: 1,
   },
   {
@@ -198,16 +179,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 15,
     ingredients: [{ itemId: H.silverLeaf, amount: 2 }, { itemId: H.jadeHerb, amount: 1 }],
     woodForFire: { itemId: W.bamboo, amount: 2 },
-    output: {
-      id: 703,
-      name: "Condensation Pill",
-      description: "Restores a large amount of Qi.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/condensation-pill.webp`,
-      value: 8,
-      effect: "qi",
-    },
+    output: pillOutput(703, "Condensation Pill", "Restores a large amount of Qi.", "condensation-pill.webp", { type: "grantQi", amount: 8 }),
     outputAmount: 1,
   },
   {
@@ -217,16 +189,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 20,
     ingredients: [{ itemId: H.jadeHerb, amount: 2 }, { itemId: H.ginseng, amount: 1 }],
     woodForFire: { itemId: W.cypress, amount: 1 },
-    output: {
-      id: 704,
-      name: "Foundation Pill",
-      description: "Restores a very large amount of Qi.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/foundation-pill.webp`,
-      value: 12,
-      effect: "qi",
-    },
+    output: pillOutput(704, "Foundation Pill", "Restores a very large amount of Qi.", "foundation-pill.webp", { type: "grantQi", amount: 12 }),
     outputAmount: 1,
   },
   {
@@ -236,16 +199,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 7,
     ingredients: [{ itemId: H.common, amount: 1 }, { itemId: H.spiritGrass, amount: 2 }],
     woodForFire: { itemId: W.oak, amount: 2 },
-    output: {
-      id: 710,
-      name: "Herb Vitality Pill",
-      description: "Temporarily increases max vitality when consumed.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/herb-vitality-pill.webp`,
-      value: 2,
-      effect: "vitality",
-    },
+    output: pillOutput(710, "Herb Vitality Pill", "Temporarily increases max vitality when consumed.", "herb-vitality-pill.webp", { type: "healVitality", amount: 2 }),
     outputAmount: 1,
   },
   // Mid-tier Qi pills (new herbs)
@@ -256,16 +210,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 25,
     ingredients: [{ itemId: H.moonPetal, amount: 2 }, { itemId: H.starMoss, amount: 1 }, { itemId: H.ginseng, amount: 1 }],
     woodForFire: { itemId: W.pine, amount: 2 },
-    output: {
-      id: 705,
-      name: "Lunar Qi Pill",
-      description: "Restores a large amount of Qi. Refined with lunar herbs.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/lunar-qi-pill.webp`,
-      value: 15,
-      effect: "qi",
-    },
+    output: pillOutput(705, "Lunar Qi Pill", "Restores a large amount of Qi. Refined with lunar herbs.", "lunar-qi-pill.webp", { type: "grantQi", amount: 15 }),
     outputAmount: 1,
   },
   {
@@ -275,16 +220,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 28,
     ingredients: [{ itemId: H.starMoss, amount: 2 }, { itemId: H.primordialRoot, amount: 1 }, { itemId: H.jadeHerb, amount: 1 }],
     woodForFire: { itemId: W.ebony, amount: 2 },
-    output: {
-      id: 706,
-      name: "Stellar Condensation Pill",
-      description: "Restores a very large amount of Qi.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/stellar-condensation-pill.webp`,
-      value: 18,
-      effect: "qi",
-    },
+    output: pillOutput(706, "Stellar Condensation Pill", "Restores a very large amount of Qi.", "stellar-condensation-pill.webp", { type: "grantQi", amount: 18 }),
     outputAmount: 1,
   },
   {
@@ -294,16 +230,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 30,
     ingredients: [{ itemId: H.primordialRoot, amount: 2 }, { itemId: H.voidBloom, amount: 1 }, { itemId: H.ginseng, amount: 1 }],
     woodForFire: { itemId: W.voidWillow, amount: 2 },
-    output: {
-      id: 707,
-      name: "Void-Refined Pill",
-      description: "Restores a massive amount of Qi. Touched by the void.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/void-refined-pill.webp`,
-      value: 22,
-      effect: "qi",
-    },
+    output: pillOutput(707, "Void-Refined Pill", "Restores a massive amount of Qi. Touched by the void.", "void-refined-pill.webp", { type: "grantQi", amount: 22 }),
     outputAmount: 1,
   },
   {
@@ -313,16 +240,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 33,
     ingredients: [{ itemId: H.voidBloom, amount: 2 }, { itemId: H.celestialLotus, amount: 1 }, { itemId: H.moonPetal, amount: 1 }],
     woodForFire: { itemId: W.dragonAsh, amount: 2 },
-    output: {
-      id: 708,
-      name: "Celestial Qi Pill",
-      description: "Restores an immense amount of Qi. Heavenly grade.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/celestial-qi-pill.webp`,
-      value: 26,
-      effect: "qi",
-    },
+    output: pillOutput(708, "Celestial Qi Pill", "Restores an immense amount of Qi. Heavenly grade.", "celestial-qi-pill.webp", { type: "grantQi", amount: 26 }),
     outputAmount: 1,
   },
   {
@@ -332,16 +250,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 35,
     ingredients: [{ itemId: H.celestialLotus, amount: 2 }, { itemId: H.transcendentHerb, amount: 1 }, { itemId: H.primordialRoot, amount: 1 }],
     woodForFire: { itemId: W.celestialBamboo, amount: 3 },
-    output: {
-      id: 709,
-      name: "Transcendent Qi Pill",
-      description: "The pinnacle of Qi pills. Transcendent grade.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/transcendent-qi-pill.webp`,
-      value: 32,
-      effect: "qi",
-    },
+    output: pillOutput(709, "Transcendent Qi Pill", "The pinnacle of Qi pills. Transcendent grade.", "transcendent-qi-pill.webp", { type: "grantQi", amount: 32 }),
     outputAmount: 1,
   },
   // Mid- and high-tier Vitality pills
@@ -352,16 +261,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 22,
     ingredients: [{ itemId: H.silverLeaf, amount: 1 }, { itemId: H.jadeHerb, amount: 1 }, { itemId: H.moonPetal, amount: 2 }],
     woodForFire: { itemId: W.bamboo, amount: 2 },
-    output: {
-      id: 711,
-      name: "Spirit Vitality Pill",
-      description: "Increases max vitality when consumed.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/spirit-vitality-pill.webp`,
-      value: 4,
-      effect: "vitality",
-    },
+    output: pillOutput(711, "Spirit Vitality Pill", "Increases max vitality when consumed.", "spirit-vitality-pill.webp", { type: "healVitality", amount: 4 }),
     outputAmount: 1,
   },
   {
@@ -371,16 +271,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 26,
     ingredients: [{ itemId: H.jadeHerb, amount: 1 }, { itemId: H.ginseng, amount: 1 }, { itemId: H.starMoss, amount: 2 }],
     woodForFire: { itemId: W.cypress, amount: 2 },
-    output: {
-      id: 712,
-      name: "Refined Vitality Pill",
-      description: "Significantly increases max vitality when consumed.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/refined-vitality-pill.webp`,
-      value: 6,
-      effect: "vitality",
-    },
+    output: pillOutput(712, "Refined Vitality Pill", "Significantly increases max vitality when consumed.", "refined-vitality-pill.webp", { type: "healVitality", amount: 6 }),
     outputAmount: 1,
   },
   {
@@ -390,16 +281,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 31,
     ingredients: [{ itemId: H.primordialRoot, amount: 2 }, { itemId: H.voidBloom, amount: 1 }, { itemId: H.starMoss, amount: 1 }],
     woodForFire: { itemId: W.ebony, amount: 2 },
-    output: {
-      id: 713,
-      name: "Primordial Vitality Pill",
-      description: "Greatly increases max vitality when consumed.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/primordial-vitality-pill.webp`,
-      value: 8,
-      effect: "vitality",
-    },
+    output: pillOutput(713, "Primordial Vitality Pill", "Greatly increases max vitality when consumed.", "primordial-vitality-pill.webp", { type: "healVitality", amount: 8 }),
     outputAmount: 1,
   },
   {
@@ -409,16 +291,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 34,
     ingredients: [{ itemId: H.celestialLotus, amount: 2 }, { itemId: H.transcendentHerb, amount: 1 }, { itemId: H.voidBloom, amount: 1 }],
     woodForFire: { itemId: W.dragonAsh, amount: 3 },
-    output: {
-      id: 714,
-      name: "Transcendent Vitality Pill",
-      description: "Max vitality increase. Transcendent grade.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/transcendent-vitality-pill.webp`,
-      value: 10,
-      effect: "vitality",
-    },
+    output: pillOutput(714, "Transcendent Vitality Pill", "Max vitality increase. Transcendent grade.", "transcendent-vitality-pill.webp", { type: "healVitality", amount: 10 }),
     outputAmount: 1,
   },
   // Post-99 Qi pills (require reincarnation; use new herbs 623–626)
@@ -429,16 +302,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 36,
     ingredients: [{ itemId: H.transcendentHerb, amount: 2 }, { itemId: H.ascendantHerb, amount: 1 }, { itemId: H.celestialLotus, amount: 1 }],
     woodForFire: { itemId: W.ascendant, amount: 2 },
-    output: {
-      id: 715,
-      name: "Ascendant Qi Pill",
-      description: "Restores an immense amount of Qi. Ascendant grade. Requires reincarnation.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/ascendant-qi-pill.webp`,
-      value: 36,
-      effect: "qi",
-    },
+    output: pillOutput(715, "Ascendant Qi Pill", "Restores an immense amount of Qi. Ascendant grade. Requires reincarnation.", "ascendant-qi-pill.webp", { type: "grantQi", amount: 36 }),
     outputAmount: 1,
   },
   {
@@ -448,16 +312,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 38,
     ingredients: [{ itemId: H.ascendantHerb, amount: 2 }, { itemId: H.karmicLotus, amount: 1 }, { itemId: H.primordialRoot, amount: 1 }],
     woodForFire: { itemId: W.karmic, amount: 2 },
-    output: {
-      id: 716,
-      name: "Karmic Qi Pill",
-      description: "Restores a vast amount of Qi. Karmic grade. Requires reincarnation.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/karmic-qi-pill.webp`,
-      value: 42,
-      effect: "qi",
-    },
+    output: pillOutput(716, "Karmic Qi Pill", "Restores a vast amount of Qi. Karmic grade. Requires reincarnation.", "karmic-qi-pill.webp", { type: "grantQi", amount: 42 }),
     outputAmount: 1,
   },
   {
@@ -467,16 +322,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 40,
     ingredients: [{ itemId: H.karmicLotus, amount: 2 }, { itemId: H.immortalRoot, amount: 1 }, { itemId: H.voidBloom, amount: 1 }],
     woodForFire: { itemId: W.celestialBamboo, amount: 3 },
-    output: {
-      id: 717,
-      name: "Immortal Qi Pill",
-      description: "Restores a tremendous amount of Qi. Immortal grade. Requires reincarnation.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/immortal-qi-pill.webp`,
-      value: 48,
-      effect: "qi",
-    },
+    output: pillOutput(717, "Immortal Qi Pill", "Restores a tremendous amount of Qi. Immortal grade. Requires reincarnation.", "immortal-qi-pill.webp", { type: "grantQi", amount: 48 }),
     outputAmount: 1,
   },
   {
@@ -486,16 +332,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeI[] = [
     recipeLevel: 42,
     ingredients: [{ itemId: H.immortalRoot, amount: 2 }, { itemId: H.daoFlower, amount: 1 }, { itemId: H.transcendentHerb, amount: 1 }],
     woodForFire: { itemId: W.celestialBamboo, amount: 4 },
-    output: {
-      id: 718,
-      name: "Dao Essence Pill",
-      description: "The pinnacle of Qi pills. Dao grade. Requires reincarnation.",
-      price: 0,
-      quantity: 1,
-      picture: `${ALCHEMY_ASSETS}/dao-essence-pill.webp`,
-      value: 55,
-      effect: "qi",
-    },
+    output: pillOutput(718, "Dao Essence Pill", "The pinnacle of Qi pills. Dao grade. Requires reincarnation.", "dao-essence-pill.webp", { type: "grantQi", amount: 55 }),
     outputAmount: 1,
   },
 ];

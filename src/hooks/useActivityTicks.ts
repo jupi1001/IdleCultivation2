@@ -166,7 +166,7 @@ export function useActivityTicks() {
 
   // Meditation: +Qi per second while currentActivity === "meditate"; when weakened, tick recovery.
   const baseQiPerSecond =
-    Math.round((BASE_QI_PER_SECOND + (equipment.qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0) + talentQiGain) * 10) / 10;
+    Math.round((BASE_QI_PER_SECOND + (equipment.qiTechnique && "qiGainBonus" in equipment.qiTechnique ? equipment.qiTechnique.qiGainBonus ?? 0 : 0) + (equipment.amulet && "qiGainBonus" in equipment.amulet ? equipment.amulet.qiGainBonus ?? 0 : 0) + talentQiGain) * 10) / 10;
   const qiPerSecond = Math.round(baseQiPerSecond * karmaQiMult * 100) / 100;
   useEffect(() => {
     if (currentActivity !== "meditate") return;

@@ -86,13 +86,15 @@ export interface RefineRecipeI {
 }
 
 /** Craft bars into weapon or armour. tier used for grouping in UI. */
+export type CraftEquipmentSlot = Exclude<EquipmentSlot, "qiTechnique" | "combatTechnique">;
+
 export interface CraftRecipeI {
   id: string;
   name: string;
   description: string;
   tier: string;
   bars: ForgingIngredient[];
-  output: Item & { equipmentSlot: EquipmentSlot };
+  output: Item & { equipmentSlot: CraftEquipmentSlot };
   outputAmount: number;
 }
 
@@ -159,23 +161,23 @@ const BAR = {
 
 /** Bar items (refined from ore). Icons in /assets/forging/bar/ use -bar.webp. */
 export const FORGE_BAR_ITEMS: Item[] = [
-  { id: BAR.copper, name: "Copper Bar", description: "Refined copper.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/copper-bar.webp`, value: 0 },
-  { id: BAR.iron, name: "Iron Bar", description: "Refined iron.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/iron-bar.webp`, value: 0 },
-  { id: BAR.spirit, name: "Spirit Bar", description: "Condensed spirit bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/spirit-bar.webp`, value: 0 },
-  { id: BAR.tin, name: "Tin Bar", description: "Refined tin.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/tin-bar.webp`, value: 0 },
-  { id: BAR.jade, name: "Jade Bar", description: "Polished jade bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/jade-bar.webp`, value: 0 },
-  { id: BAR.silver, name: "Silver Bar", description: "Refined silver.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/silver-bar.webp`, value: 0 },
-  { id: BAR.gold, name: "Gold Bar", description: "Refined gold.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/gold-bar.webp`, value: 0 },
-  { id: BAR.thunder, name: "Thunder Crystal Bar", description: "Crystal fused with lightning Qi.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/thunder-crystal-bar.webp`, value: 0 },
-  { id: BAR.obsidian, name: "Obsidian Bar", description: "Forged volcanic glass.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/obsidian-bar.webp`, value: 0 },
-  { id: BAR.starIron, name: "Star Iron Bar", description: "Meteor iron bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/star-iron-bar.webp`, value: 0 },
-  { id: BAR.voidstone, name: "Voidstone Bar", description: "Condensed voidstone.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/voidstone-bar.webp`, value: 0 },
-  { id: BAR.dragonbone, name: "Dragonbone Bar", description: "Reinforced dragonbone.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/dragonbone-bar.webp`, value: 0 },
-  { id: BAR.celestial, name: "Celestial Bar", description: "Heavenly Qi condensed.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/celestial-bar.webp`, value: 0 },
-  { id: BAR.ascendant, name: "Ascendant Bar", description: "Refined ascendant ore. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/ascendant-bar.webp`, value: 0 },
-  { id: BAR.karmic, name: "Karmic Bar", description: "Refined karmic crystal. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/karmic-bar.webp`, value: 0 },
-  { id: BAR.immortal, name: "Immortal Bar", description: "Refined immortal stone. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/immortal-bar.webp`, value: 0 },
-  { id: BAR.dao, name: "Dao Bar", description: "Refined Dao fragment. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/dao-bar.webp`, value: 0 },
+  { kind: "material", id: BAR.copper, name: "Copper Bar", description: "Refined copper.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/copper-bar.webp` },
+  { kind: "material", id: BAR.iron, name: "Iron Bar", description: "Refined iron.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/iron-bar.webp` },
+  { kind: "material", id: BAR.spirit, name: "Spirit Bar", description: "Condensed spirit bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/spirit-bar.webp` },
+  { kind: "material", id: BAR.tin, name: "Tin Bar", description: "Refined tin.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/tin-bar.webp` },
+  { kind: "material", id: BAR.jade, name: "Jade Bar", description: "Polished jade bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/jade-bar.webp` },
+  { kind: "material", id: BAR.silver, name: "Silver Bar", description: "Refined silver.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/silver-bar.webp` },
+  { kind: "material", id: BAR.gold, name: "Gold Bar", description: "Refined gold.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/gold-bar.webp` },
+  { kind: "material", id: BAR.thunder, name: "Thunder Crystal Bar", description: "Crystal fused with lightning Qi.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/thunder-crystal-bar.webp` },
+  { kind: "material", id: BAR.obsidian, name: "Obsidian Bar", description: "Forged volcanic glass.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/obsidian-bar.webp` },
+  { kind: "material", id: BAR.starIron, name: "Star Iron Bar", description: "Meteor iron bar.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/star-iron-bar.webp` },
+  { kind: "material", id: BAR.voidstone, name: "Voidstone Bar", description: "Condensed voidstone.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/voidstone-bar.webp` },
+  { kind: "material", id: BAR.dragonbone, name: "Dragonbone Bar", description: "Reinforced dragonbone.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/dragonbone-bar.webp` },
+  { kind: "material", id: BAR.celestial, name: "Celestial Bar", description: "Heavenly Qi condensed.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/celestial-bar.webp` },
+  { kind: "material", id: BAR.ascendant, name: "Ascendant Bar", description: "Refined ascendant ore. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/ascendant-bar.webp` },
+  { kind: "material", id: BAR.karmic, name: "Karmic Bar", description: "Refined karmic crystal. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/karmic-bar.webp` },
+  { kind: "material", id: BAR.immortal, name: "Immortal Bar", description: "Refined immortal stone. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/immortal-bar.webp` },
+  { kind: "material", id: BAR.dao, name: "Dao Bar", description: "Refined Dao fragment. Used to enhance Celestial gear.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/bar/dao-bar.webp` },
 ];
 
 export const REFINE_RECIPES: RefineRecipeI[] = [
@@ -214,13 +216,14 @@ function mkWeapon(
     tier,
     bars: [{ itemId: barId, amount: barAmount }],
     output: {
+      kind: "equipment",
       id,
       name,
       description: desc,
       price: 0,
       quantity: 1,
       picture: `${FORGING_ASSETS}/sword/${tier.toLowerCase().replace(/\s+/g, "-")}-sword.webp`,
-      equipmentSlot: "sword" as EquipmentSlot,
+      equipmentSlot: "sword" as CraftEquipmentSlot,
       attackBonus,
     },
     outputAmount: 1,
@@ -244,13 +247,14 @@ function mkHelmet(
     tier,
     bars: [{ itemId: barId, amount: barAmount }],
     output: {
+      kind: "equipment",
       id,
       name,
       description: desc,
       price: 0,
       quantity: 1,
       picture: `${FORGING_ASSETS}/helmet/${tier.toLowerCase().replace(/\s+/g, "-")}-helmet.webp`,
-      equipmentSlot: "helmet" as EquipmentSlot,
+      equipmentSlot: "helmet" as CraftEquipmentSlot,
       defenseBonus,
       vitalityBonus,
     },
@@ -275,13 +279,14 @@ function mkBody(
     tier,
     bars: [{ itemId: barId, amount: barAmount }],
     output: {
+      kind: "equipment",
       id,
       name,
       description: desc,
       price: 0,
       quantity: 1,
       picture: `${FORGING_ASSETS}/body/${tier.toLowerCase().replace(/\s+/g, "-")}-body.webp`,
-      equipmentSlot: "body" as EquipmentSlot,
+      equipmentSlot: "body" as CraftEquipmentSlot,
       defenseBonus,
       vitalityBonus,
     },
@@ -308,13 +313,14 @@ function mkEnhanceWeapon(
       { itemId: enhancementBarId, amount: 1 },
     ],
     output: {
+      kind: "equipment",
       id,
       name,
       description: desc,
       price: 0,
       quantity: 1,
       picture: `${FORGING_ASSETS}/sword/${tier.toLowerCase().replace(/\s+/g, "-")}-enhanced-sword.webp`,
-      equipmentSlot: "sword" as EquipmentSlot,
+      equipmentSlot: "sword" as CraftEquipmentSlot,
       attackBonus,
     },
     outputAmount: 1,
@@ -340,13 +346,14 @@ function mkEnhanceHelmet(
       { itemId: enhancementBarId, amount: 1 },
     ],
     output: {
+      kind: "equipment",
       id,
       name,
       description: desc,
       price: 0,
       quantity: 1,
       picture: `${FORGING_ASSETS}/helmet/${tier.toLowerCase().replace(/\s+/g, "-")}-enhanced-helmet.webp`,
-      equipmentSlot: "helmet" as EquipmentSlot,
+      equipmentSlot: "helmet" as CraftEquipmentSlot,
       defenseBonus,
       vitalityBonus,
     },
@@ -373,13 +380,14 @@ function mkEnhanceBody(
       { itemId: enhancementBarId, amount: 1 },
     ],
     output: {
+      kind: "equipment",
       id,
       name,
       description: desc,
       price: 0,
       quantity: 1,
       picture: `${FORGING_ASSETS}/body/${tier.toLowerCase().replace(/\s+/g, "-")}-enhanced-body.webp`,
-      equipmentSlot: "body" as EquipmentSlot,
+      equipmentSlot: "body" as CraftEquipmentSlot,
       defenseBonus,
       vitalityBonus,
     },

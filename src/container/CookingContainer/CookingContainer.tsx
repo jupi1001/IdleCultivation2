@@ -25,6 +25,7 @@ import {
   selectCookingXP,
 } from "../../state/selectors/characterSelectors";
 import { getItemQuantity } from "../../utils/inventory";
+import { getConsumableEffect } from "../../interfaces/ItemI";
 import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./CookingContainer.css";
 
@@ -111,7 +112,7 @@ export const CookingContainer = () => {
                   </span>
                 ))}
               </div>
-              <p className="cooking__output">→ {recipe.output.name} (restores {recipe.output.value} vitality)</p>
+              <p className="cooking__output">→ {recipe.output.name}{(() => { const eff = getConsumableEffect(recipe.output); return eff ? (eff.type === "healVitality" ? ` (restores ${eff.amount} vitality)` : eff.type === "grantQi" ? ` (restores ${eff.amount} Qi)` : "") : ""; })()}</p>
               <button
                 type="button"
                 className="cooking__btn"

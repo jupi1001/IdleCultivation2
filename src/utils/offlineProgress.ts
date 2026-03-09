@@ -123,8 +123,8 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
     const equipment = state.equipment.equipment;
     const qiPerSecond =
       BASE_QI_PER_SECOND +
-      (equipment.qiTechnique?.qiGainBonus ?? 0) +
-      (equipment.amulet?.qiGainBonus ?? 0) +
+      (equipment.qiTechnique && "qiGainBonus" in equipment.qiTechnique ? equipment.qiTechnique.qiGainBonus ?? 0 : 0) +
+      (equipment.amulet && "qiGainBonus" in equipment.amulet ? equipment.amulet.qiGainBonus ?? 0 : 0) +
       talentQi;
     result.offlineQi = qiPerSecond * (offlineMs / 1000) * karmaQiMult;
   }

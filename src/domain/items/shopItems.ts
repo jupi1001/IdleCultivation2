@@ -14,9 +14,9 @@ export const existingShopItemUpgrades: Item[] = [
 
 /** Black market items (e.g. Shadow Bazaar on map) – forbidden or rare wares. */
 export const existingBlackMarketItems: Item[] = [
-  { id: 500, name: "Forbidden Qi Pill", description: "Unrefined qi from questionable sources. Stronger, riskier.", price: 25, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, value: 3, effect: "attack" },
-  { id: 501, name: "Blood Spirit Stone", description: "Spirit stone tinged with demonic essence. No questions asked.", price: 350, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, value: 25, effect: "attack" },
-  { id: 502, name: "Veiled Meditation Scroll", description: "A technique not taught in righteous sects. +0.4 Qi/s when meditating.", price: 800, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.4 },
+  { kind: "consumable", id: 500, name: "Forbidden Qi Pill", description: "Unrefined qi from questionable sources. Stronger, riskier.", price: 25, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, effect: { type: "grantQi", amount: 3 } },
+  { kind: "consumable", id: 501, name: "Blood Spirit Stone", description: "Spirit stone tinged with demonic essence. No questions asked.", price: 350, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, effect: { type: "grantQi", amount: 25 } },
+  { kind: "technique", id: 502, name: "Veiled Meditation Scroll", description: "A technique not taught in righteous sects. +0.4 Qi/s when meditating.", price: 800, quantity: 1, picture: `${ALCHEMY_ASSETS}/potion1.webp`, equipmentSlot: "qiTechnique", qiGainBonus: 0.4 },
 ];
 
 export const existingShopItems: Item[] = [

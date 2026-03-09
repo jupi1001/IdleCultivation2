@@ -6,6 +6,7 @@ import { isSectRaidArea, SECT_RAID_AREA_TO_SECT_ID } from "../constants/combatAr
 import { getSectRaidLootForRank, SECTS_BY_ID } from "../constants/data";
 import type EnemyI from "../interfaces/EnemyI";
 import type Item from "../interfaces/ItemI";
+import { getEquipmentSlot } from "../interfaces/ItemI";
 import type { EnemyLootDisplayEntry, ResolvedLootTable, SectLootContext } from "../types/combatTypes";
 
 /**
@@ -83,7 +84,7 @@ export function rollOneDrop(
     if (weights[i] > random) break;
   }
   const dropped = table.items[i];
-  const isTechnique = dropped.equipmentSlot === "qiTechnique" || dropped.equipmentSlot === "combatTechnique";
-  if (isTechnique && ownedTechniqueIds.has(dropped.id)) return null;
+  const isTechnique = (slot: string | undefined) => slot === "qiTechnique" || slot === "combatTechnique";
+  if (isTechnique(getEquipmentSlot(dropped)) && ownedTechniqueIds.has(dropped.id)) return null;
   return dropped;
 }

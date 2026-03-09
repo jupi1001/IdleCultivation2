@@ -8,6 +8,7 @@ import { changeContent, routeFromArea } from "../../state/reducers/contentSlice"
 import { selectRealm, selectRealmLevel } from "../../state/selectors/characterSelectors";
 import { canEnterCombatArea } from "../../utils/contentRules";
 import { useCombatEngine } from "../../hooks/useCombatEngine";
+import { getConsumableEffect } from "../../interfaces/ItemI";
 
 interface CombatAreaProps {
   area: string | undefined;
@@ -227,17 +228,21 @@ const CombatContainer: React.FC<CombatAreaProps> = ({ area }) => {
         {vitalityFood.length > 0 && (
           <div className="combatContainer__consumables">
             <span className="combatContainer__consumables-label">Food (heal):</span>
-            {vitalityFood.map((item) => (
+            {vitalityFood.map((item) => {
+              const effect = getConsumableEffect(item);
+              const healAmount = effect?.type === "healVitality" ? effect.amount : 0;
+              return (
               <button
                 key={item.id}
                 type="button"
                 className="combatContainer__use-food"
                 onClick={() => useVitalityFood(item)}
-                title={`${item.name}: restores ${item.value} vitality`}
+                title={`${item.name}: restores ${healAmount} vitality`}
               >
-                {item.name} (+{item.value})
+                {item.name} (+{healAmount})
               </button>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

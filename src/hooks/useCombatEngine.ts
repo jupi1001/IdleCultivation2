@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ENEMIES_BY_ID, ITEMS_BY_ID } from "../constants/data";
 import EnemyI from "../interfaces/EnemyI";
-import Item from "../interfaces/ItemI";
+import Item, { getConsumableEffect } from "../interfaces/ItemI";
 import { addItemById, addItemsById, consumeItems } from "../state/reducers/inventorySlice";
 import { addMoney } from "../state/reducers/characterCoreSlice";
 import { incrementSectQuestKillCount } from "../state/reducers/sectSlice";
@@ -51,7 +51,7 @@ export interface UseCombatEngineResult {
   lootSpiritStones: number;
   lastDamageToEnemy: number | null;
   lastDamageToCharacter: number | null;
-  vitalityFood: (Item & { effect: string; value: number })[];
+  vitalityFood: (Item & { quantity: number })[];
   enemyLootEntries: ReturnType<typeof getEnemyLootEntries>;
   fightingInterval: number;
   effectiveStats: ReturnType<typeof getEffectiveCombatStats>;
@@ -223,7 +223,8 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
 
   const useVitalityFood = useCallback(
     (item: Item) => {
-      const heal = item.value ?? 0;
+      const effect = getConsumableEffect(item);
+      const heal = effect?.type === "healVitality" ? effect.amount : 0;
       if (heal <= 0) return;
       dispatch(consumeItems([{ itemId: item.id, amount: 1 }]));
       setCharacterState((prev) => ({
@@ -334,15 +335,18 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
         const foodId = Object.keys(itemsByIdRef)
           .map(Number)
           .find(
-            (id) =>
-              ITEMS_BY_ID[id]?.effect === "vitality" &&
-              ITEMS_BY_ID[id]?.value != null &&
-              (itemsByIdRef[id] ?? 0) > 0
+            (id) => {
+              const def = ITEMS_BY_ID[id];
+              const effect = def ? getConsumableEffect(def) : null;
+              return effect?.type === "healVitality" && (itemsByIdRef[id] ?? 0) > 0;
+            }
           );
         if (foodId != null) {
           const food = ITEMS_BY_ID[foodId]!;
+          const effect = getConsumableEffect(food);
+          const healAmount = effect?.type === "healVitality" ? effect.amount : 0;
           dispatch(consumeItems([{ itemId: food.id, amount: 1 }]));
-          healthAfterTick = Math.min(maxHp, healthAfterTick + (food.value ?? 0));
+          healthAfterTick = Math.min(maxHp, healthAfterTick + healAmount);
         }
       }
     }
@@ -399,19 +403,15 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
   }, [fightingInterval]);
 
   const vitalityFood = useMemo(() => {
-    const list: (Item & { effect: string; value: number })[] = [];
+    const list: (Item & { quantity: number })[] = [];
     for (const idStr of Object.keys(itemsById)) {
       const id = Number(idStr);
       const qty = itemsById[id] ?? 0;
       if (qty <= 0) continue;
       const def = ITEMS_BY_ID[id];
-      if (
-        def &&
-        isConsumableItem(def) &&
-        def.effect === "vitality" &&
-        def.value != null
-      ) {
-        list.push({ ...def, quantity: qty } as Item & { effect: string; value: number });
+      const effect = def ? getConsumableEffect(def) : null;
+      if (def && isConsumableItem(def) && effect?.type === "healVitality") {
+        list.push({ ...def, quantity: qty });
       }
     }
     return list;

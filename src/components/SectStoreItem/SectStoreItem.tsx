@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { SectStoreEntryI } from "../../constants/data";
+import { getEquipmentSlot } from "../../interfaces/ItemI";
 import { reduceMoney } from "../../state/reducers/characterCoreSlice";
 import { addItemById } from "../../state/reducers/inventorySlice";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent, selectMoney } from "../../state/selectors/characterSelectors";
@@ -24,7 +25,8 @@ export const SectStoreItem: React.FC<SectStoreItemProps> = React.memo(({ entry, 
   const [showPoor, setShowPoor] = useState(false);
   const { item } = entry;
   const effectivePrice = Math.max(1, Math.floor(item.price * (1 - (shopDiscountPercent ?? 0) / 100)));
-  const isTechnique = item.equipmentSlot === "qiTechnique" || item.equipmentSlot === "combatTechnique";
+  const slot = getEquipmentSlot(item);
+  const isTechnique = slot === "qiTechnique" || slot === "combatTechnique";
   const alreadyOwned = isTechnique && ownedTechniqueIds.has(item.id);
 
   const handleBuy = () => {

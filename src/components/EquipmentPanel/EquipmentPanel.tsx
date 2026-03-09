@@ -5,6 +5,7 @@ import { addItemById, consumeItems } from "../../state/reducers/inventorySlice";
 import { selectEquipment, selectItemsById } from "../../state/selectors/characterSelectors";
 import { ALL_EQUIPMENT_SLOTS, EQUIPMENT_SLOT_LABELS } from "../../types/EquipmentSlot";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import { getEquipmentSlot } from "../../interfaces/ItemI";
 import { ITEMS_BY_ID } from "../../constants/data";
 import { formatItemStats } from "../../utils/itemTooltipUtils";
 import { Tooltip } from "../Tooltip/Tooltip";
@@ -18,7 +19,7 @@ export const EquipmentPanel = () => {
   const itemsForSlot = (slot: EquipmentSlot) =>
     Object.keys(itemsById)
       .map(Number)
-      .filter((id) => (itemsById[id] ?? 0) > 0 && ITEMS_BY_ID[id]?.equipmentSlot === slot)
+      .filter((id) => (itemsById[id] ?? 0) > 0 && getEquipmentSlot(ITEMS_BY_ID[id]) === slot)
       .map((id) => ({ id, name: ITEMS_BY_ID[id]!.name }));
 
   return (

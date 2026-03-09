@@ -5,6 +5,7 @@
  */
 import type SkillI from "../interfaces/SkillI";
 import { COMBAT_LOOT_QI_PILLS } from "./alchemy";
+import { COOKING_RECIPES } from "./cooking";
 import { COMBAT_DROP_ITEMS } from "./combatDrops";
 import {
   buildItemsById,
@@ -59,6 +60,7 @@ export {
 } from "../domain/areas";
 
 // Build ITEMS_BY_ID from all item sources (sect store last so its entries override any id collision)
+const COOKING_OUTPUT_ITEMS = COOKING_RECIPES.map((r) => r.output);
 export const ITEMS_BY_ID = buildItemsById([
   QI_TECHNIQUES,
   COMBAT_TECHNIQUES,
@@ -71,6 +73,7 @@ export const ITEMS_BY_ID = buildItemsById([
   existingShopItemUpgrades,
   COMBAT_LOOT_QI_PILLS,
   COMBAT_DROP_ITEMS,
+  COOKING_OUTPUT_ITEMS,
   getSectStoreItemsFlat(),
 ]);
 

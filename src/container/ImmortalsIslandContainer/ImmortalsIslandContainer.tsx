@@ -41,6 +41,7 @@ import {
   selectAvatars,
 } from "../../state/selectors/characterSelectors";
 import { ITEMS_BY_ID } from "../../constants/data";
+import { getConsumableEffect } from "../../interfaces/ItemI";
 import { rollOneTimeDropFromTable } from "../../utils/oneTimeDrops";
 import { getOwnedItemIds } from "../../utils/ownership";
 import "./ImmortalsIslandContainer.css";
@@ -285,9 +286,11 @@ export const ImmortalsIslandContainer = () => {
                           const qiPillId = Object.keys(ITEMS_BY_ID)
                             .map(Number)
                             .find(
-                              (id) =>
-                                ITEMS_BY_ID[id]?.effect === "qi" &&
-                                (itemsById[id] ?? 0) >= AVATAR_TRAIN_QI_PILL_AMOUNT
+                              (id) => {
+                                const item = ITEMS_BY_ID[id];
+                                const eff = item ? getConsumableEffect(item) : null;
+                                return eff != null && eff.type === "grantQi" && (itemsById[id] ?? 0) >= AVATAR_TRAIN_QI_PILL_AMOUNT;
+                              }
                             );
                           const qiPill = qiPillId != null ? ITEMS_BY_ID[qiPillId] : null;
                           return (

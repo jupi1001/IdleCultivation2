@@ -6,14 +6,16 @@ import { ITEMS_BY_ID } from "../../constants/data";
 import type Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
+import { getEquipmentSlot } from "../../interfaces/ItemI";
 
 export function isReincarnationPreservedItem(item: Item): boolean {
+  const slot = getEquipmentSlot(item);
   return (
-    item.equipmentSlot === "qiTechnique" ||
-    item.equipmentSlot === "combatTechnique" ||
-    item.equipmentSlot === "ring" ||
-    item.equipmentSlot === "amulet" ||
-    item.skillSet != null ||
+    slot === "qiTechnique" ||
+    slot === "combatTechnique" ||
+    slot === "ring" ||
+    slot === "amulet" ||
+    ("skillSet" in item && item.skillSet != null) ||
     (item.id >= 981 && item.id <= 986)
   );
 }

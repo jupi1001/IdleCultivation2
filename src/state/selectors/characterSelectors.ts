@@ -14,6 +14,7 @@ import {
 import { getTalentBonuses } from "../../constants/talents";
 import type Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import { getEquipmentSlot } from "../../interfaces/ItemI";
 import { canEnterCombatArea as canEnterCombatAreaRule } from "../../utils/contentRules";
 import { WEAKENED_STAT_MULTIPLIER } from "../reducers/combatSlice";
 import type { RootState } from "../store";
@@ -47,16 +48,17 @@ function getEquipmentCombatBonuses(equipment: RootState["equipment"]["equipment"
   for (const slot of slots) {
     const item = equipment[slot];
     if (item) {
-      if (item.attackBonus != null) attack += item.attackBonus;
-      if (item.defenseBonus != null) defense += item.defenseBonus;
-      if (item.vitalityBonus != null) vitality += item.vitalityBonus;
-      if (item.qiGainBonus != null) qiGainBonus += item.qiGainBonus;
+      if ("attackBonus" in item && item.attackBonus != null) attack += item.attackBonus;
+      if ("defenseBonus" in item && item.defenseBonus != null) defense += item.defenseBonus;
+      if ("vitalityBonus" in item && item.vitalityBonus != null) vitality += item.vitalityBonus;
+      if ("qiGainBonus" in item && item.qiGainBonus != null) qiGainBonus += item.qiGainBonus;
     }
   }
   const combatTech = equipment.combatTechnique;
-  const attackMultiplier = combatTech?.attackMultiplier ?? 1;
-  if (combatTech?.attackSpeedReduction != null) attackSpeedReduction += combatTech.attackSpeedReduction;
-  if (equipment.ring?.attackSpeedReduction != null) attackSpeedReduction += equipment.ring.attackSpeedReduction;
+  const attackMultiplier = combatTech && "attackMultiplier" in combatTech ? combatTech.attackMultiplier ?? 1 : 1;
+  if (combatTech && "attackSpeedReduction" in combatTech && combatTech.attackSpeedReduction != null) attackSpeedReduction += combatTech.attackSpeedReduction;
+  const ring = equipment.ring;
+  if (ring && "attackSpeedReduction" in ring && ring.attackSpeedReduction != null) attackSpeedReduction += ring.attackSpeedReduction;
   return { attack, defense, vitality, attackMultiplier, attackSpeedReduction, qiGainBonus };
 }
 
@@ -66,7 +68,8 @@ export const getOwnedTechniqueIds = createSelector(
   (items, equipment) => {
     const ids = new Set<number>();
     for (const item of items) {
-      if (item.equipmentSlot === "qiTechnique" || item.equipmentSlot === "combatTechnique") ids.add(item.id);
+      const slot = getEquipmentSlot(item);
+      if (slot === "qiTechnique" || slot === "combatTechnique") ids.add(item.id);
     }
     if (equipment.qiTechnique?.id != null) ids.add(equipment.qiTechnique.id);
     if (equipment.combatTechnique?.id != null) ids.add(equipment.combatTechnique.id);
@@ -80,7 +83,8 @@ export const getOwnedRingAmuletIds = createSelector(
   (items, equipment) => {
     const ids = new Set<number>();
     for (const item of items) {
-      if (item.equipmentSlot === "ring" || item.equipmentSlot === "amulet") ids.add(item.id);
+      const slot = getEquipmentSlot(item);
+      if (slot === "ring" || slot === "amulet") ids.add(item.id);
     }
     if (equipment.ring?.id != null) ids.add(equipment.ring.id);
     if (equipment.amulet?.id != null) ids.add(equipment.amulet.id);
@@ -95,11 +99,11 @@ export const getOwnedSetPieceIds = createSelector(
     const ids = new Set<number>();
     const slots: EquipmentSlot[] = ["helmet", "body", "legs", "shoes"];
     for (const item of items) {
-      if (item.skillSet != null && item.skillSetTier != null) ids.add(item.id);
+      if ("skillSet" in item && item.skillSet != null && "skillSetTier" in item && item.skillSetTier != null) ids.add(item.id);
     }
     for (const slot of slots) {
       const eq = equipment[slot];
-      if (eq?.skillSet != null && eq.skillSetTier != null) ids.add(eq.id);
+      if (eq && "skillSet" in eq && eq.skillSet != null && "skillSetTier" in eq && eq.skillSetTier != null) ids.add(eq.id);
     }
     return ids;
   }
@@ -120,7 +124,7 @@ function computeSkillSpeedBonus(
   const slots: ("helmet" | "body" | "legs" | "shoes")[] = ["helmet", "body", "legs", "shoes"];
   for (const slot of slots) {
     const item = equipment[slot];
-    if (item?.skillSet === skill && item.skillSpeedBonus != null) {
+    if (item && "skillSet" in item && item.skillSet === skill && "skillSpeedBonus" in item && item.skillSpeedBonus != null) {
       total += item.skillSpeedBonus;
     }
   }
@@ -281,7 +285,7 @@ function computeCraftingSetBonuses(equipment: RootState["equipment"]["equipment"
   for (const skill of ["alchemy", "forging", "cooking"] as SkillSetName[]) {
     for (const slot of slots) {
       const item = equipment[slot];
-      if (item?.skillSet === skill && item.skillXpBonus != null) {
+      if (item && "skillSet" in item && item.skillSet === skill && "skillXpBonus" in item && item.skillXpBonus != null) {
         if (skill === "alchemy") alchemyXpPercent += item.skillXpBonus;
         else if (skill === "forging") forgingXpPercent += item.skillXpBonus;
         else cookingXpPercent += item.skillXpBonus;

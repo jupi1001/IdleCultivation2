@@ -1,35 +1,34 @@
 /**
- * Discriminated item kinds and type guards for type-safe narrowing.
- * Use with optional `kind` on Item for gradual migration.
+ * Type guards for discriminated Item union (Task 2).
  */
-import type Item from "../interfaces/ItemI";
+import type { Item } from "../types/items";
+import type { ConsumableItem, EquipmentItem, TechniqueItem, SetPieceItem } from "../types/items";
 import type { EquipmentSlot } from "./EquipmentSlot";
 
-/** Type guard: item has effect (consumable). Works with or without kind. */
-export function isConsumableItem(item: Item): item is Item & { effect: string } {
-  return (item as Item & { kind?: string }).kind === "consumable" || (item as Item).effect != null;
+export function isConsumableItem(item: Item): item is ConsumableItem {
+  return item.kind === "consumable";
 }
 
-/** Type guard: item has equipmentSlot (equipment). Works with or without kind. */
-export function isEquipmentItem(item: Item): item is Item & { equipmentSlot: EquipmentSlot } {
-  return (item as Item & { kind?: string }).kind === "equipment" || (item as Item).equipmentSlot != null;
+export function isEquipmentItem(item: Item): item is EquipmentItem | SetPieceItem {
+  return item.kind === "equipment" || item.kind === "setPiece";
 }
 
-/** Type guard: item is qi or combat technique. */
-export function isTechniqueItem(
+export function isTechniqueItem(item: Item): item is TechniqueItem {
+  return item.kind === "technique";
+}
+
+export function isSetPieceItem(item: Item): item is SetPieceItem {
+  return item.kind === "setPiece";
+}
+
+/** Narrow to item that has equipmentSlot (equipment, technique, or setPiece). */
+export function hasEquipmentSlot(
   item: Item
-): item is Item & { equipmentSlot: "qiTechnique" | "combatTechnique" } {
-  if ((item as Item & { kind?: string }).kind === "technique") return true;
-  const slot = (item as Item).equipmentSlot;
-  return slot === "qiTechnique" || slot === "combatTechnique";
+): item is Item & { equipmentSlot: EquipmentSlot } {
+  return "equipmentSlot" in item && item.equipmentSlot != null;
 }
 
-/** Type guard: item is a set piece (has skillSet and skillSetTier). */
-export function isSetPieceItem(
-  item: Item
-): item is Item & { skillSet: string; skillSetTier: string } {
-  return (
-    (item as Item & { kind?: string }).kind === "setPiece" ||
-    ((item as Item).skillSet != null && (item as Item).skillSetTier != null)
-  );
+/** Get equipment slot if item has one. */
+export function getEquipmentSlot(item: Item): EquipmentSlot | undefined {
+  return hasEquipmentSlot(item) ? item.equipmentSlot : undefined;
 }

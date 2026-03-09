@@ -19,8 +19,8 @@ describe("combatLoot", () => {
       picture: "",
       loot: {
         items: [
-          { id: 101, name: "Drop A", description: "", quantity: 1, price: 0, equipmentSlot: undefined },
-          { id: 102, name: "Drop B", description: "", quantity: 1, price: 0, equipmentSlot: undefined },
+          { kind: "material", id: 101, name: "Drop A", description: "", quantity: 1, price: 0 },
+          { kind: "material", id: 102, name: "Drop B", description: "", quantity: 1, price: 0 },
         ] as Item[],
         weight: [1, 2],
       },
@@ -41,7 +41,7 @@ describe("combatLoot", () => {
 
     it("returns null when items and weight length mismatch", () => {
       const badLoot = {
-        items: [{ id: 1, name: "X", description: "", quantity: 1, price: 0 }] as Item[],
+        items: [{ kind: "material", id: 1, name: "X", description: "", quantity: 1, price: 0 }] as Item[],
         weight: [1, 2],
       };
       const enemy = { ...enemyWithLoot, loot: badLoot };
@@ -65,8 +65,8 @@ describe("combatLoot", () => {
       picture: "",
       loot: {
         items: [
-          { id: 101, name: "Drop A", description: "", quantity: 2, price: 0, equipmentSlot: undefined },
-          { id: 102, name: "Drop B", description: "", quantity: 1, price: 0, equipmentSlot: undefined },
+          { kind: "material", id: 101, name: "Drop A", description: "", quantity: 2, price: 0 },
+          { kind: "material", id: 102, name: "Drop B", description: "", quantity: 1, price: 0 },
         ] as Item[],
         weight: [1, 3],
       },
@@ -94,8 +94,8 @@ describe("combatLoot", () => {
   describe("rollOneDrop", () => {
     const table: ResolvedLootTable = {
       items: [
-        { id: 201, name: "A", description: "", quantity: 1, price: 0, equipmentSlot: undefined },
-        { id: 202, name: "B", description: "", quantity: 1, price: 0, equipmentSlot: "qiTechnique" },
+        { kind: "material", id: 201, name: "A", description: "", quantity: 1, price: 0 },
+        { kind: "technique", id: 202, name: "B", description: "", quantity: 1, price: 0, equipmentSlot: "qiTechnique" },
       ],
       weight: [1, 1],
     };

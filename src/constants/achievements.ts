@@ -12,6 +12,8 @@ import { getForgingLevel } from "./forging";
 import { getGatheringLevelInfo } from "./gatheringLevel";
 import { getMiningLevelInfo } from "./miningLevel";
 import type { RealmId } from "./realmProgression";
+import { getEquipmentSlot } from "../interfaces/ItemI";
+import type Item from "../interfaces/ItemI";
 import { getStepIndex, REALM_ORDER } from "./realmProgression";
 
 export type AchievementCategory =
@@ -211,7 +213,10 @@ const collectionAchievements: AchievementDef[] = [
     category: "collection",
     reward: 100,
     check: (char) => {
-      const hasTechItem = char.items.some((i) => i.equipmentSlot === "qiTechnique" || i.equipmentSlot === "combatTechnique");
+      const hasTechItem = char.items.some((i) => {
+        const slot = getEquipmentSlot(i as Item);
+        return slot === "qiTechnique" || slot === "combatTechnique";
+      });
       const hasTechEquipped = char.equipment.qiTechnique != null || char.equipment.combatTechnique != null;
       return hasTechItem || hasTechEquipped;
     },
@@ -223,9 +228,12 @@ const collectionAchievements: AchievementDef[] = [
     category: "collection",
     reward: 100,
     check: (char) => {
-      const hasSetItem = char.items.some((i) => i.skillSet != null);
+      const hasSetItem = char.items.some((i) => "skillSet" in i && i.skillSet != null);
       const hasSetEquip = (["helmet", "body", "legs", "shoes"] as const).some(
-        (s) => (char.equipment as Record<string, { id: number; skillSet?: string } | null>)[s]?.skillSet != null
+        (s) => {
+          const eq = (char.equipment as Record<string, { id: number; skillSet?: string } | null>)[s];
+          return eq != null && "skillSet" in eq && eq.skillSet != null;
+        }
       );
       return hasSetItem || hasSetEquip;
     },

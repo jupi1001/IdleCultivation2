@@ -5,6 +5,7 @@ import { ALCHEMY_ASSETS } from "./alchemy";
 /** Expedition-only items (techniques, herbs). Each obtainable from one mission only. */
 export const EXPEDITION_ITEMS_BY_ID: Record<number, Item> = {
   500: {
+    kind: "material",
     id: 500,
     name: "Spirit Herb",
     description: "A herb found on Immortals Island. Used in alchemy.",
@@ -13,6 +14,7 @@ export const EXPEDITION_ITEMS_BY_ID: Record<number, Item> = {
     picture: `${ALCHEMY_ASSETS}/potion1.webp`,
   },
   501: {
+    kind: "technique",
     id: 501,
     name: "Island Qi Method",
     description: "Qi technique from the island. +0.3 Qi/s when meditating.",
@@ -23,6 +25,7 @@ export const EXPEDITION_ITEMS_BY_ID: Record<number, Item> = {
     qiGainBonus: 0.3,
   },
   502: {
+    kind: "technique",
     id: 502,
     name: "Explorer's Strike",
     description: "Combat technique from the island.",
@@ -32,6 +35,7 @@ export const EXPEDITION_ITEMS_BY_ID: Record<number, Item> = {
     equipmentSlot: "combatTechnique",
   },
   503: {
+    kind: "technique",
     id: 503,
     name: "Ancient Circulation",
     description: "Rare Qi technique from the island. +0.4 Qi/s when meditating.",
