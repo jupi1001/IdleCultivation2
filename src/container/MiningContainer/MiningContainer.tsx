@@ -14,7 +14,7 @@ import "./MiningContainer.css";
 
 const MiningContainer = () => {
   const {
-    currentAreaState,
+    currentAreaState: currentMiningArea,
     xp: miningXP,
     reincarnationCount,
     levelInfo,
@@ -26,14 +26,12 @@ const MiningContainer = () => {
     activityLabel,
     start,
     stop,
-  } = useSkillActivity<MiningAreaI>({
+  } = useSkillActivity<"mining", MiningAreaI>({
     kind: "mining",
     areaData: miningAreaData,
     getLevelInfo: getMiningLevelInfo,
     maxLevel: MINING_MAX_LEVEL,
   });
-
-  const currentMiningArea = currentAreaState as { areaId?: number } | null;
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
 
   return (

@@ -11,6 +11,9 @@ import type { GatheringAreaI } from "../interfaces/GatheringAreaI";
 import type { MiningAreaI } from "../interfaces/MiningAreaI";
 import { setCurrentActivity } from "../state/reducers/characterCoreSlice";
 import {
+  type CurrentFishingArea,
+  type CurrentGatheringArea,
+  type CurrentMiningArea,
   setCurrentFishingArea,
   setCurrentMiningArea,
   setCurrentGatheringArea,
@@ -43,16 +46,24 @@ export interface SkillLevelInfo {
   xpRequiredForNext: number;
 }
 
-export interface UseSkillActivityConfig<TArea extends BaseArea> {
-  kind: SkillKind;
+export interface UseSkillActivityConfig<K extends SkillKind, TArea extends BaseArea> {
+  kind: K;
   areaData: TArea[];
   getLevelInfo: (xp: number) => SkillLevelInfo;
   maxLevel: number;
 }
 
-export interface UseSkillActivityResult<TArea extends BaseArea> {
+type CurrentAreaForKind<K extends SkillKind> =
+  K extends "fishing" ? CurrentFishingArea | null
+    : K extends "mining" ? CurrentMiningArea | null
+      : K extends "gathering" ? CurrentGatheringArea | null
+        : never;
+
+type CurrentAreaNonNullForKind<K extends SkillKind> = Exclude<CurrentAreaForKind<K>, null>;
+
+export interface UseSkillActivityResult<K extends SkillKind, TArea extends BaseArea> {
   /** Current activity state (areaId + xp/delay/loot ids). Use currentAreaState?.areaId to compare with area.id. */
-  currentAreaState: unknown;
+  currentAreaState: CurrentAreaForKind<K>;
   currentActivity: string;
   castStartTime: number | null;
   castDuration: number;
@@ -70,16 +81,16 @@ export interface UseSkillActivityResult<TArea extends BaseArea> {
   stop: () => void;
 }
 
-function getCurrentAreaSelector(kind: SkillKind): (state: RootState) => unknown {
+function getCurrentAreaSelector<K extends SkillKind>(kind: K): (state: RootState) => CurrentAreaForKind<K> {
   switch (kind) {
     case "fishing":
-      return selectCurrentFishingArea as (state: RootState) => unknown;
+      return selectCurrentFishingArea as (state: RootState) => CurrentAreaForKind<K>;
     case "mining":
-      return selectCurrentMiningArea as (state: RootState) => unknown;
+      return selectCurrentMiningArea as (state: RootState) => CurrentAreaForKind<K>;
     case "gathering":
-      return selectCurrentGatheringArea as (state: RootState) => unknown;
+      return selectCurrentGatheringArea as (state: RootState) => CurrentAreaForKind<K>;
     default:
-      return selectCurrentFishingArea as (state: RootState) => unknown;
+      return selectCurrentFishingArea as (state: RootState) => CurrentAreaForKind<K>;
   }
 }
 
@@ -96,10 +107,13 @@ function getCastSelectors(kind: SkillKind) {
   }
 }
 
-function buildPayload(kind: SkillKind, area: BaseArea): unknown {
+function buildPayload<K extends SkillKind, TArea extends BaseArea>(
+  kind: K,
+  area: TArea
+): CurrentAreaNonNullForKind<K> {
   switch (kind) {
     case "fishing": {
-      const a = area as FishingAreaI;
+      const a = area as unknown as FishingAreaI;
       return {
         areaId: a.id,
         xp: a.xp,
@@ -107,14 +121,19 @@ function buildPayload(kind: SkillKind, area: BaseArea): unknown {
         fishingLootIds: a.fishingLootIds,
         rareDropChancePercent: a.rareDropChancePercent,
         rareDropItemIds: a.rareDropItemIds,
-      };
+      } as CurrentAreaNonNullForKind<K>;
     }
     case "mining": {
-      const a = area as MiningAreaI;
-      return { areaId: a.id, xp: a.xp, delay: a.delay, miningLootId: a.miningLootId };
+      const a = area as unknown as MiningAreaI;
+      return {
+        areaId: a.id,
+        xp: a.xp,
+        delay: a.delay,
+        miningLootId: a.miningLootId,
+      } as CurrentAreaNonNullForKind<K>;
     }
     case "gathering": {
-      const a = area as GatheringAreaI;
+      const a = area as unknown as GatheringAreaI;
       return {
         areaId: a.id,
         xp: a.xp,
@@ -122,23 +141,11 @@ function buildPayload(kind: SkillKind, area: BaseArea): unknown {
         gatheringLootIds: a.gatheringLootIds,
         rareDropChancePercent: a.rareDropChancePercent,
         rareDropItemIds: a.rareDropItemIds,
-      };
+      } as CurrentAreaNonNullForKind<K>;
     }
     default:
-      return null;
-  }
-}
-
-function getSetAreaAction(kind: SkillKind) {
-  switch (kind) {
-    case "fishing":
-      return setCurrentFishingArea;
-    case "mining":
-      return setCurrentMiningArea;
-    case "gathering":
-      return setCurrentGatheringArea;
-    default:
-      return setCurrentFishingArea;
+      // This branch should never be hit for valid SkillKind.
+      throw new Error(`Unsupported skill kind: ${kind satisfies never}`);
   }
 }
 
@@ -146,9 +153,9 @@ function getActivityForKind(kind: SkillKind): "fish" | "mine" | "gather" {
   return SKILL_KIND_TO_ACTIVITY[kind];
 }
 
-export function useSkillActivity<TArea extends BaseArea>(
-  config: UseSkillActivityConfig<TArea>
-): UseSkillActivityResult<TArea> {
+export function useSkillActivity<K extends SkillKind, TArea extends BaseArea>(
+  config: UseSkillActivityConfig<K, TArea>
+): UseSkillActivityResult<K, TArea> {
   const { kind, areaData, getLevelInfo, maxLevel } = config;
   const dispatch = useDispatch();
   const currentActivity = useSelector(selectCurrentActivity);
@@ -170,13 +177,38 @@ export function useSkillActivity<TArea extends BaseArea>(
   const busyWithOther = currentActivity !== "none" && currentActivity !== activityType;
   const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
 
-  const setAreaAction = getSetAreaAction(kind);
   const start = (area: TArea) => {
-    dispatch(setAreaAction(buildPayload(kind, area) as never));
+    switch (kind) {
+      case "fishing": {
+        const payload = buildPayload("fishing", area as unknown as FishingAreaI) as CurrentFishingArea;
+        dispatch(setCurrentFishingArea(payload));
+        break;
+      }
+      case "mining": {
+        const payload = buildPayload("mining", area as unknown as MiningAreaI) as CurrentMiningArea;
+        dispatch(setCurrentMiningArea(payload));
+        break;
+      }
+      case "gathering": {
+        const payload = buildPayload("gathering", area as unknown as GatheringAreaI) as CurrentGatheringArea;
+        dispatch(setCurrentGatheringArea(payload));
+        break;
+      }
+    }
     dispatch(setCurrentActivity(activityType));
   };
   const stop = () => {
-    dispatch(setAreaAction(null as never));
+    switch (kind) {
+      case "fishing":
+        dispatch(setCurrentFishingArea(null));
+        break;
+      case "mining":
+        dispatch(setCurrentMiningArea(null));
+        break;
+      case "gathering":
+        dispatch(setCurrentGatheringArea(null));
+        break;
+    }
     dispatch(setCurrentActivity("none"));
   };
 

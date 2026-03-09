@@ -14,7 +14,7 @@ import "./FishingContainer.css";
 
 const FishingContainer = () => {
   const {
-    currentAreaState,
+    currentAreaState: currentFishingArea,
     xp: fishingXP,
     reincarnationCount,
     levelInfo,
@@ -26,14 +26,12 @@ const FishingContainer = () => {
     activityLabel,
     start,
     stop,
-  } = useSkillActivity<FishingAreaI>({
+  } = useSkillActivity<"fishing", FishingAreaI>({
     kind: "fishing",
     areaData: fishingAreaData,
     getLevelInfo: getFishingLevelInfo,
     maxLevel: FISHING_MAX_LEVEL,
   });
-
-  const currentFishingArea = currentAreaState as { areaId?: number } | null;
   const ownedRingAmuletIds = useSelector(getOwnedRingAmuletIds);
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const ownedLootIds = useMemo(

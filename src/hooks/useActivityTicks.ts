@@ -66,7 +66,6 @@ import {
   selectDeathPenaltyMode,
 } from "../state/selectors/characterSelectors";
 import { useAppDispatch } from "../state/store";
-import { useAppDispatch } from "../state/store";
 import { getEffectiveDuration, rollMiningLootQuantity } from "../utils/activityTiming";
 import { rollOneTimeDrop } from "../utils/oneTimeDrops";
 

@@ -14,7 +14,7 @@ import "./GatheringContainer.css";
 
 const GatheringContainer = () => {
   const {
-    currentAreaState,
+    currentAreaState: currentGatheringArea,
     xp: gatheringXP,
     reincarnationCount,
     levelInfo,
@@ -26,14 +26,12 @@ const GatheringContainer = () => {
     activityLabel,
     start,
     stop,
-  } = useSkillActivity<GatheringAreaI>({
+  } = useSkillActivity<"gathering", GatheringAreaI>({
     kind: "gathering",
     areaData: gatheringAreaData,
     getLevelInfo: getGatheringLevelInfo,
     maxLevel: GATHERING_MAX_LEVEL,
   });
-
-  const currentGatheringArea = currentAreaState as { areaId?: number } | null;
   const ownedRingAmuletIds = useSelector(getOwnedRingAmuletIds);
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const ownedLootIds = useMemo(

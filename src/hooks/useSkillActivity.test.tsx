@@ -38,7 +38,7 @@ function TestFishingSkillActivity() {
     xpRequiredForNext: 10,
   });
 
-  const result = useSkillActivity<FishingAreaI>({
+  const result = useSkillActivity<"fishing", FishingAreaI>({
     kind: "fishing",
     areaData: areas,
     getLevelInfo,
