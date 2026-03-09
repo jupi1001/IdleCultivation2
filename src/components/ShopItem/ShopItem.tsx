@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addAttack, addDefense, addItem, reduceMoney } from "../../state/reducers/characterSlice";
-import { RootState } from "../../state/store";
+import Item, { getConsumableEffect, getEquipmentSlot } from "../../interfaces/ItemI";
+import { addItemById } from "../../state/reducers/inventorySlice";
+import { reduceMoney } from "../../state/reducers/characterCoreSlice";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
-import Item from "../../interfaces/ItemI";
+import { selectMoney } from "../../state/selectors/characterSelectors";
 import "./ShopItem.css";
 
 interface ShopItemProps {
@@ -15,7 +16,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
   const [moneyMessage, setMoneyMessage] = useState(false);
   const [stock, setStock] = useState(item.quantity);
 
-  const money = useSelector((state: RootState) => state.character.money);
+  const money = useSelector(selectMoney);
   const shopDiscountPercent = useSelector(getTalentShopDiscountPercent);
   const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
   const dispatch = useDispatch();
@@ -30,27 +31,23 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, isEquipment }) => {
     setMoneyMessage(false);
     dispatch(reduceMoney(effectivePrice));
 
-    if (item.equipmentSlot) {
-      dispatch(addItem({ ...item, quantity: 1 }));
+    const slot = getEquipmentSlot(item);
+    if (slot != null) {
+      dispatch(addItemById({ itemId: item.id, amount: 1 }));
       return;
     }
 
-    switch (item.effect) {
-      case "attack":
-        dispatch(addAttack(item.value ?? 1));
-        setStock((s) => s - 1);
-        break;
-      case "defense":
-        dispatch(addDefense(item.value ?? 1));
-        setStock((s) => s - 1);
-        break;
-      default:
-        dispatch(addItem(item));
-        break;
+    const effect = getConsumableEffect(item);
+    if (effect) {
+      dispatch(addItemById({ itemId: item.id, amount: item.quantity ?? 1 }));
+      setStock((s) => (s ?? 0) - 1);
+      return;
     }
+
+    dispatch(addItemById({ itemId: item.id, amount: item.quantity ?? 1 }));
   }, [dispatch, money, item, effectivePrice]);
 
-  const showItem = isEquipment || stock > 0;
+  const showItem = isEquipment || (stock ?? 0) > 0;
   const canBuy = !alreadyOwned;
 
   return (

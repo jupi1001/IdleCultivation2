@@ -1,18 +1,17 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import Item from "../../interfaces/ItemI";
+import { useDispatch, useSelector } from "react-redux";
+import { GEODE_ITEM_ID } from "../../constants/gems";
+import Item, { getConsumableEffect, getEquipmentSlot } from "../../interfaces/ItemI";
 import {
   addAttack,
   addDefense,
   addHealth,
   addQi,
-  removeItem,
-  openGeodes,
-  equipItem,
   addMoney,
-  consumeItems,
-} from "../../state/reducers/characterSlice";
-import { GEODE_ITEM_ID } from "../../constants/gems";
+} from "../../state/reducers/characterCoreSlice";
+import { removeItem, openGeodes, consumeItems, addItemById } from "../../state/reducers/inventorySlice";
+import { equipItem, unequipItem } from "../../state/reducers/equipmentSlice";
+import { selectEquipment } from "../../state/selectors/characterSelectors";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import "./InventoryItem.css";
 
@@ -20,20 +19,27 @@ interface InventoryItemProps {
   item: Item;
 }
 
-const InventoryItem: React.FC<InventoryItemProps> = ({ item }) => {
+const InventoryItem: React.FC<InventoryItemProps> = React.memo(({ item }) => {
   const dispatch = useDispatch();
+  const equipment = useSelector(selectEquipment);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const canUse =
-    item.effect && item.value != null && ["attack", "defense", "vitality", "qi"].includes(item.effect);
+  const canUse = getConsumableEffect(item) != null;
   const isGeode = item.id === GEODE_ITEM_ID;
-  const canEquip = !!item.equipmentSlot && ["sword", "helmet", "body", "shoes", "legs", "ring", "amulet", "qiTechnique", "combatTechnique"].includes(item.equipmentSlot);
+  const equipmentSlot = getEquipmentSlot(item);
+  const canEquip = equipmentSlot != null && ["sword", "helmet", "body", "shoes", "legs", "ring", "amulet", "qiTechnique", "combatTechnique"].includes(equipmentSlot);
   const canSell = typeof item.price === "number" && item.price > 0;
   const qty = item.quantity ?? 1;
 
   function handleEquip() {
-    if (!canEquip) return;
-    dispatch(equipItem({ slot: item.equipmentSlot as EquipmentSlot, item }));
+    if (!canEquip || !equipmentSlot) return;
+    const current = equipment[equipmentSlot];
+    if (current) {
+      dispatch(addItemById({ itemId: current.id, amount: 1 }));
+      dispatch(unequipItem(equipmentSlot));
+    }
+    dispatch(consumeItems([{ itemId: item.id, amount: 1 }]));
+    dispatch(equipItem({ slot: equipmentSlot, item }));
     setMenuOpen(false);
   }
 
@@ -63,12 +69,25 @@ const InventoryItem: React.FC<InventoryItemProps> = ({ item }) => {
   }
 
   function useItem() {
-    if (!canUse) return;
+    const effect = getConsumableEffect(item);
+    if (!effect) return;
     dispatch(removeItem(item));
-    if (item.effect === "attack" && item.value != null) dispatch(addAttack(item.value));
-    if (item.effect === "defense" && item.value != null) dispatch(addDefense(item.value));
-    if (item.effect === "vitality" && item.value != null) dispatch(addHealth(item.value));
-    if (item.effect === "qi" && item.value != null) dispatch(addQi(item.value));
+    switch (effect.type) {
+      case "grantAttack":
+        dispatch(addAttack(effect.amount));
+        break;
+      case "grantDefense":
+        dispatch(addDefense(effect.amount));
+        break;
+      case "healVitality":
+        dispatch(addHealth(effect.amount));
+        break;
+      case "grantQi":
+        dispatch(addQi(effect.amount));
+        break;
+      default:
+        break;
+    }
     setMenuOpen(false);
   }
 
@@ -161,6 +180,6 @@ const InventoryItem: React.FC<InventoryItemProps> = ({ item }) => {
       )}
     </div>
   );
-};
+});
 
 export default InventoryItem;

@@ -1,102 +1,68 @@
-import React, { useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setCurrentActivity, setCurrentMiningArea } from "../../state/reducers/characterSlice";
-import "./MiningContainer.css";
-import { RootState } from "../../state/store";
+import React from "react";
+import { useSelector } from "react-redux";
 import MiningArea from "../../components/MiningArea/MiningArea";
-import { miningAreaData, oreTypes } from "../../constants/data";
-import { getSkillingSetItemById, getSetPieceIds, getTierForMiningAreaIndex } from "../../constants/skillingSets";
-import { ACTIVITY_LABELS } from "../../constants/activities";
+import { SkillActivityLayout } from "../../components/SkillActivityLayout/SkillActivityLayout";
+import { miningAreaData, ITEMS_BY_ID } from "../../constants/data";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
+import { getTierForMiningAreaIndex } from "../../constants/skillingSets";
+import { useSkillActivity } from "../../hooks/useSkillActivity";
+import type MiningAreaI from "../../interfaces/MiningAreaI";
 import { getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
-import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
-import { useCastProgress } from "../../hooks/useCastProgress";
-import type { LootTableEntry } from "../../components/LootTablePopover/LootTablePopover";
+import { isSkillAreaUnlocked } from "../../utils/contentRules";
+import { getMiningAreaLootEntries } from "../../utils/skillingLoot";
+import "./MiningContainer.css";
 
 const MiningContainer = () => {
-  const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
-  const { currentActivity, currentMiningArea, miningCastStartTime, miningCastDuration } =
-    character;
-  const busyWithOther =
-    currentActivity !== "none" && currentActivity !== "mine";
-  const activityLabel = ACTIVITY_LABELS[currentActivity] ?? currentActivity;
-  const levelInfo = getMiningLevelInfo(character.miningXP);
+  const {
+    currentAreaState,
+    xp: miningXP,
+    reincarnationCount,
+    levelInfo,
+    maxLevel,
+    progress,
+    areasVisible,
+    isActive,
+    busyWithOther,
+    activityLabel,
+    start,
+    stop,
+  } = useSkillActivity<MiningAreaI>({
+    kind: "mining",
+    areaData: miningAreaData,
+    getLevelInfo: getMiningLevelInfo,
+    maxLevel: MINING_MAX_LEVEL,
+  });
+
+  const currentMiningArea = currentAreaState as { areaId?: number } | null;
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
-  const isMining = currentActivity === "mine" && currentMiningArea != null;
-  const progress = useCastProgress(miningCastStartTime, miningCastDuration);
-  const reincarnationCount = character.reincarnationCount ?? 0;
-  const areasVisible = useMemo(
-    () =>
-      miningAreaData.filter(
-        (area) => !area.requiresReincarnation || reincarnationCount >= 1
-      ),
-    [reincarnationCount]
-  );
-
-  const startMining = (areaId: number, miningXP: number, miningDelay: number, miningLootId: number) => {
-    dispatch(
-      setCurrentMiningArea({ areaId, miningXP, miningDelay, miningLootId })
-    );
-    dispatch(setCurrentActivity("mine"));
-  };
-
-  const stopMining = () => {
-    dispatch(setCurrentMiningArea(null));
-    dispatch(setCurrentActivity("none"));
-  };
 
   return (
-    <div className="miningContainer__main">
-      <SkillXPBar
-        skillName="Mining"
-        level={levelInfo.level}
-        maxLevel={MINING_MAX_LEVEL}
-        xpInLevel={levelInfo.xpInLevel}
-        xpRequiredForNext={levelInfo.xpRequiredForNext}
-      />
-      {busyWithOther && (
-        <p className="miningContainer__busy">
-          You're busy ({activityLabel}). One activity at a time.
-        </p>
-      )}
-      {isMining && (
-        <button
-          type="button"
-          className="miningContainer__stop"
-          onClick={stopMining}
-        >
-          Stop mining
-        </button>
-      )}
-      <div
-        className="miningContainer__cast-bar progress-bar"
-        style={{ width: `${progress}%` }}
-      />
-      <div className="miningContainer__areas">
-      {areasVisible.map((area, areaIndex) => {
-        const reincarnationOk = !area.requiresReincarnation || reincarnationCount >= 1;
-        const unlocked = character.miningXP >= area.miningXPUnlock && reincarnationOk;
+    <SkillActivityLayout
+      skillName="Mining"
+      levelInfo={levelInfo}
+      maxLevel={maxLevel}
+      busyWithOther={busyWithOther}
+      activityLabel={activityLabel}
+      isActive={isActive}
+      stopLabel="Stop mining"
+      progress={progress}
+      onStop={stop}
+      blockClass="miningContainer"
+    >
+      {areasVisible.map((area) => {
+        const unlocked = isSkillAreaUnlocked(area, miningXP, reincarnationCount);
         const tier = getTierForMiningAreaIndex(miningAreaData.indexOf(area));
-        const setPieceIds = getSetPieceIds("mining", tier);
-        const ore = oreTypes.find((o) => o.id === area.miningLootId);
-        const lootEntries: LootTableEntry[] = ore
-          ? [{ item: ore, chancePercent: 100 }]
-          : [];
-        const setChancePercent = 1 / 4;
-        for (const pieceId of setPieceIds) {
-          const piece = getSkillingSetItemById(pieceId);
-          if (piece) lootEntries.push({ item: piece, chancePercent: setChancePercent });
-        }
+        const lootEntries = getMiningAreaLootEntries(area, tier);
+        const ore = ITEMS_BY_ID[area.miningLootId];
         return (
           <MiningArea
             key={area.id}
             title={area.name}
             imageSrc={area.picture}
             altText={area.altText}
-            miningXP={area.miningXP}
-            miningDelay={area.miningDelay}
-            requiredLevel={getMiningLevelInfo(area.miningXPUnlock).level}
+            xp={area.xp}
+            delay={area.delay}
+            requiredLevel={getMiningLevelInfo(area.xpUnlock).level}
             possibleLoot={ore ? [ore] : []}
             lootEntries={lootEntries.length > 0 ? lootEntries : undefined}
             ownedItemIds={ownedSkillingSetPieceIds}
@@ -104,14 +70,13 @@ const MiningContainer = () => {
             onClick={() => {
               if (busyWithOther || !unlocked) return;
               if (currentMiningArea?.areaId === area.id) return;
-              stopMining();
-              startMining(area.id, area.miningXP, area.miningDelay, area.miningLootId);
+              stop();
+              start(area);
             }}
           />
         );
       })}
-      </div>
-    </div>
+    </SkillActivityLayout>
   );
 };
 

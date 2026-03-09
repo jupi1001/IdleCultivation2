@@ -1,5 +1,6 @@
 import React from "react";
 import { existingBlackMarketItems } from "../../constants/data";
+import { getEquipmentSlot } from "../../interfaces/ItemI";
 import "../Shop/Shop.css";
 import ShopItem from "../../components/ShopItem/ShopItem";
 
@@ -14,7 +15,7 @@ export const BlackMarket = () => {
             <ShopItem
               key={item.id}
               item={item}
-              isEquipment={item.equipmentSlot != null}
+              isEquipment={getEquipmentSlot(item) != null}
             />
           ))}
         </div>

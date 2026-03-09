@@ -8,8 +8,8 @@ interface FishingAreaProps {
   title: string;
   imageSrc: string;
   altText: string;
-  fishingXP: number;
-  fishingDelay: number;
+  xp: number;
+  delay: number;
   /** Minimum fishing level required to unlock (display only; unlock still uses XP in container). */
   requiredLevel: number;
   /** Possible fish from this area (from data; dynamic). */
@@ -44,12 +44,12 @@ function getSkillAreaTooltipContent(
   return lines.join("\n");
 }
 
-const FishingArea: React.FC<FishingAreaProps> = ({
+const FishingArea: React.FC<FishingAreaProps> = React.memo(({
   title,
   imageSrc,
   altText,
-  fishingXP,
-  fishingDelay,
+  xp,
+  delay,
   requiredLevel,
   possibleLoot,
   lootEntries,
@@ -73,8 +73,8 @@ const FishingArea: React.FC<FishingAreaProps> = ({
         <Tooltip
           content={getSkillAreaTooltipContent(
             "Fishing XP",
-            fishingXP,
-            formatFishingDuration(fishingDelay),
+            xp,
+            formatFishingDuration(delay),
             requiredLevel,
             unlocked,
             "Possible finds"
@@ -85,7 +85,7 @@ const FishingArea: React.FC<FishingAreaProps> = ({
           <span className="fishingAreaContainer__tooltip-trigger">
             <h2 className="fishingAreaContainer__title">{title}</h2>
             <p className="fishingAreaContainer__meta">
-              Fishing XP: {fishingXP} · Duration: {formatFishingDuration(fishingDelay)}
+              Fishing XP: {xp} · Duration: {formatFishingDuration(delay)}
             </p>
             {!unlocked && (
               <p className="fishingAreaContainer__lock">
@@ -103,6 +103,6 @@ const FishingArea: React.FC<FishingAreaProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default FishingArea;

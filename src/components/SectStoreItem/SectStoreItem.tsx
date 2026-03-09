@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addItem, reduceMoney } from "../../state/reducers/characterSlice";
-import { RootState } from "../../state/store";
-import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
 import type { SectStoreEntryI } from "../../constants/data";
-import { Tooltip } from "../Tooltip/Tooltip";
+import { getEquipmentSlot } from "../../interfaces/ItemI";
+import { reduceMoney } from "../../state/reducers/characterCoreSlice";
+import { addItemById } from "../../state/reducers/inventorySlice";
+import { getOwnedTechniqueIds, getTalentShopDiscountPercent, selectMoney } from "../../state/selectors/characterSelectors";
 import { formatItemStats } from "../../utils/itemTooltipUtils";
+import { Tooltip } from "../Tooltip/Tooltip";
 import "./SectStoreItem.css";
 
 interface SectStoreItemProps {
@@ -16,15 +17,16 @@ interface SectStoreItemProps {
   sectName?: string;
 }
 
-export const SectStoreItem: React.FC<SectStoreItemProps> = ({ entry, locked, requiredPositionName, sectName }) => {
+export const SectStoreItem: React.FC<SectStoreItemProps> = React.memo(({ entry, locked, requiredPositionName, sectName }) => {
   const dispatch = useDispatch();
-  const money = useSelector((state: RootState) => state.character.money);
+  const money = useSelector(selectMoney);
   const shopDiscountPercent = useSelector(getTalentShopDiscountPercent);
   const ownedTechniqueIds = useSelector(getOwnedTechniqueIds);
   const [showPoor, setShowPoor] = useState(false);
   const { item } = entry;
   const effectivePrice = Math.max(1, Math.floor(item.price * (1 - (shopDiscountPercent ?? 0) / 100)));
-  const isTechnique = item.equipmentSlot === "qiTechnique" || item.equipmentSlot === "combatTechnique";
+  const slot = getEquipmentSlot(item);
+  const isTechnique = slot === "qiTechnique" || slot === "combatTechnique";
   const alreadyOwned = isTechnique && ownedTechniqueIds.has(item.id);
 
   const handleBuy = () => {
@@ -34,7 +36,7 @@ export const SectStoreItem: React.FC<SectStoreItemProps> = ({ entry, locked, req
       return;
     }
     dispatch(reduceMoney(effectivePrice));
-    dispatch(addItem({ ...item, quantity: 1 }));
+    dispatch(addItemById({ itemId: item.id, amount: 1 }));
     setShowPoor(false);
   };
 
@@ -62,4 +64,4 @@ export const SectStoreItem: React.FC<SectStoreItemProps> = ({ entry, locked, req
       )}
     </div>
   );
-};
+});

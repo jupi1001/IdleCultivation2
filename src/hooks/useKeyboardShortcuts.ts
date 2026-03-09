@@ -1,9 +1,9 @@
 import { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { changeContent } from "../state/reducers/contentSlice";
-import { clearOfflineSummary } from "../state/reducers/characterSlice";
 import { ContentArea } from "../enum/ContentArea";
-import type { RootState } from "../state/store";
+import { clearOfflineSummary } from "../state/reducers/characterCoreSlice";
+import { changeContent, selectRoute, routeFromArea } from "../state/reducers/contentSlice";
+import { selectLastOfflineSummary } from "../state/selectors/characterSelectors";
 import type { AppDispatch } from "../state/store";
 
 const KEY_TO_PAGE: Record<string, ContentArea> = {
@@ -21,10 +21,12 @@ const KEY_TO_PAGE: Record<string, ContentArea> = {
   e: ContentArea.STATS,
 };
 
+const SECONDARY_ROUTE_TYPES = new Set(["settings", "activity_log", "stats", "achievements", "black_market"]);
+
 export function useKeyboardShortcuts() {
   const dispatch = useDispatch<AppDispatch>();
-  const content = useSelector((state: RootState) => state.content.page);
-  const offlineSummary = useSelector((state: RootState) => state.character.lastOfflineSummary);
+  const route = useSelector(selectRoute);
+  const offlineSummary = useSelector(selectLastOfflineSummary);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -37,15 +39,8 @@ export function useKeyboardShortcuts() {
           dispatch(clearOfflineSummary());
           return;
         }
-        const secondaryPages: string[] = [
-          ContentArea.SETTINGS,
-          ContentArea.ACTIVITY_LOG,
-          ContentArea.STATS,
-          ContentArea.ACHIEVEMENTS,
-          ContentArea.BLACK_MARKET,
-        ];
-        if (secondaryPages.includes(content)) {
-          dispatch(changeContent(ContentArea.MAP));
+        if (route && SECONDARY_ROUTE_TYPES.has(route.type)) {
+          dispatch(changeContent(routeFromArea(ContentArea.MAP)));
         }
         return;
       }
@@ -54,10 +49,10 @@ export function useKeyboardShortcuts() {
       const page = KEY_TO_PAGE[key];
       if (page && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
-        dispatch(changeContent(page));
+        dispatch(changeContent(routeFromArea(page)));
       }
     },
-    [dispatch, content, offlineSummary]
+    [dispatch, route, offlineSummary]
   );
 
   useEffect(() => {

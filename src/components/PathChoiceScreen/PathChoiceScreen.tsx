@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { pathDescriptions } from "../../constants/data";
 import type { CultivationPath } from "../../constants/cultivationPath";
-import { setPath, setGender } from "../../state/reducers/characterSlice";
+import { pathDescriptions } from "../../constants/data";
+import { setPath, setGender } from "../../state/reducers/characterCoreSlice";
 import "./PathChoiceScreen.css";
 
 export const PathChoiceScreen = () => {

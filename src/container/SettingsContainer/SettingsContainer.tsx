@@ -1,8 +1,20 @@
 import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import { formatRealm } from "../../constants/realmProgression";
-import { setAutoLoot, setAutoEat, setAutoEatHpPercent, setDeathPenaltyMode, setNotificationPrefs } from "../../state/reducers/characterSlice";
+import { setAutoLoot, setAutoEat, setAutoEatHpPercent, setDeathPenaltyMode, setNotificationPrefs } from "../../state/reducers/settingsSlice";
+import {
+  selectLastActiveTimestamp,
+  selectNotificationPrefs,
+  selectRealm,
+  selectRealmLevel,
+  selectReincarnationCount,
+  selectDeathPenaltyMode,
+  selectAutoLootUnlocked,
+  selectAutoLoot,
+  selectAutoEatUnlocked,
+  selectAutoEat,
+  selectAutoEatHpPercent,
+} from "../../state/selectors/characterSelectors";
 import { exportSave, importSave, hardReset, formatSaveDate } from "../../utils/saveManager";
 import "./SettingsContainer.css";
 
@@ -23,7 +35,17 @@ const DEFAULT_NOTIFICATION_PREFS = {
 
 export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContainerProps) => {
   const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
+  const lastActiveTimestamp = useSelector(selectLastActiveTimestamp);
+  const notificationPrefs = useSelector(selectNotificationPrefs);
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
+  const reincarnationCount = useSelector(selectReincarnationCount);
+  const deathPenaltyMode = useSelector(selectDeathPenaltyMode);
+  const autoLootUnlocked = useSelector(selectAutoLootUnlocked);
+  const autoLoot = useSelector(selectAutoLoot);
+  const autoEatUnlocked = useSelector(selectAutoEatUnlocked);
+  const autoEat = useSelector(selectAutoEat);
+  const autoEatHpPercent = useSelector(selectAutoEatHpPercent);
 
   const [exportMsg, setExportMsg] = useState<string | null>(null);
   const [importText, setImportText] = useState("");
@@ -91,8 +113,8 @@ export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContaine
     hardReset();
   };
 
-  const lastSaved = character.lastActiveTimestamp;
-  const notificationPrefs = character.notificationPrefs ?? DEFAULT_NOTIFICATION_PREFS;
+  const lastSaved = lastActiveTimestamp;
+  const notificationPrefsResolved = notificationPrefs ?? DEFAULT_NOTIFICATION_PREFS;
 
   return (
     <div className="settings">
@@ -125,8 +147,8 @@ export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContaine
       <div className="settings__section">
         <h3 className="settings__section-title">Save Info</h3>
         <p className="settings__info">
-          Realm: {formatRealm(character.realm, character.realmLevel)}
-          {(character.reincarnationCount ?? 0) > 0 && ` · Reincarnations: ${character.reincarnationCount}`}
+          Realm: {formatRealm(realm, realmLevel)}
+          {(reincarnationCount ?? 0) > 0 && ` · Reincarnations: ${reincarnationCount}`}
         </p>
         {lastSaved > 0 && (
           <p className="settings__info">Last saved: {formatSaveDate(lastSaved)}</p>
@@ -140,7 +162,7 @@ export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContaine
           <span className="settings__toggle-label">Death penalty</span>
           <select
             className="settings__select"
-            value={character.deathPenaltyMode ?? "normal"}
+            value={deathPenaltyMode ?? "normal"}
             onChange={(e) => dispatch(setDeathPenaltyMode(e.target.value as "normal" | "casual"))}
             aria-label="Death penalty mode"
           >
@@ -151,13 +173,13 @@ export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContaine
         <p className="settings__section-desc">
           Normal: on death you lose loot and HP, then stay Weakened (50% combat stats) until you meditate for 30 seconds. Casual: no weakened state.
         </p>
-        {character.autoLootUnlocked && (
+        {autoLootUnlocked && (
           <>
             <label className="settings__toggle-row">
               <span className="settings__toggle-label">Auto-Loot (combat)</span>
               <input
                 type="checkbox"
-                checked={!!character.autoLoot}
+                checked={!!autoLoot}
                 onChange={(e) => dispatch(setAutoLoot(e.target.checked))}
                 className="settings__checkbox"
               />
@@ -167,13 +189,13 @@ export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContaine
             </p>
           </>
         )}
-        {character.autoEatUnlocked && (
+        {autoEatUnlocked && (
           <>
             <label className="settings__toggle-row">
               <span className="settings__toggle-label">Auto-Eat (combat)</span>
               <input
                 type="checkbox"
-                checked={!!character.autoEat}
+                checked={!!autoEat}
                 onChange={(e) => dispatch(setAutoEat(e.target.checked))}
                 className="settings__checkbox"
               />
@@ -184,7 +206,7 @@ export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContaine
                 type="number"
                 min={1}
                 max={99}
-                value={character.autoEatHpPercent ?? 30}
+                value={autoEatHpPercent ?? 30}
                 onChange={(e) => {
                   const v = Number(e.target.value);
                   if (!Number.isNaN(v)) dispatch(setAutoEatHpPercent(v));
@@ -207,7 +229,7 @@ export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContaine
           <span className="settings__toggle-label">Show toast popups</span>
           <input
             type="checkbox"
-            checked={!!notificationPrefs.toastsEnabled}
+            checked={!!notificationPrefsResolved.toastsEnabled}
             onChange={(e) => dispatch(setNotificationPrefs({ toastsEnabled: e.target.checked }))}
             className="settings__checkbox"
           />
@@ -216,19 +238,19 @@ export const SettingsContainer = ({ theme = "dark", setTheme }: SettingsContaine
         <div className="settings__check-group">
           <label className="settings__toggle-row settings__toggle-row--small">
             <span className="settings__toggle-label">Level-up</span>
-            <input type="checkbox" checked={!!notificationPrefs.levelUp} onChange={(e) => dispatch(setNotificationPrefs({ levelUp: e.target.checked }))} className="settings__checkbox" />
+            <input type="checkbox" checked={!!notificationPrefsResolved.levelUp} onChange={(e) => dispatch(setNotificationPrefs({ levelUp: e.target.checked }))} className="settings__checkbox" />
           </label>
           <label className="settings__toggle-row settings__toggle-row--small">
             <span className="settings__toggle-label">Rare drop</span>
-            <input type="checkbox" checked={!!notificationPrefs.rareDrop} onChange={(e) => dispatch(setNotificationPrefs({ rareDrop: e.target.checked }))} className="settings__checkbox" />
+            <input type="checkbox" checked={!!notificationPrefsResolved.rareDrop} onChange={(e) => dispatch(setNotificationPrefs({ rareDrop: e.target.checked }))} className="settings__checkbox" />
           </label>
           <label className="settings__toggle-row settings__toggle-row--small">
             <span className="settings__toggle-label">Achievement</span>
-            <input type="checkbox" checked={!!notificationPrefs.achievement} onChange={(e) => dispatch(setNotificationPrefs({ achievement: e.target.checked }))} className="settings__checkbox" />
+            <input type="checkbox" checked={!!notificationPrefsResolved.achievement} onChange={(e) => dispatch(setNotificationPrefs({ achievement: e.target.checked }))} className="settings__checkbox" />
           </label>
           <label className="settings__toggle-row settings__toggle-row--small">
             <span className="settings__toggle-label">Expedition</span>
-            <input type="checkbox" checked={!!notificationPrefs.expedition} onChange={(e) => dispatch(setNotificationPrefs({ expedition: e.target.checked }))} className="settings__checkbox" />
+            <input type="checkbox" checked={!!notificationPrefsResolved.expedition} onChange={(e) => dispatch(setNotificationPrefs({ expedition: e.target.checked }))} className="settings__checkbox" />
           </label>
         </div>
       </div>

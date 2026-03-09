@@ -1,8 +1,20 @@
-import type { RootState } from "../../state/store";
-import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { createSelector } from "@reduxjs/toolkit";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import { getTalentBonuses } from "../../constants/talents";
+import type { RootState } from "../../state/store";
+import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import {
+  selectAttack,
+  selectBonusAttack,
+  selectBonusDefense,
+  selectBonusHealth,
+  selectDefense,
+  selectEquipment,
+  selectHealth,
+  selectQi,
+  selectTalentLevels,
+  getTalentBonusesSelector,
+} from "../../state/selectors/characterSelectors";
 
 const EQUIPMENT_SLOT_LABELS: Partial<Record<EquipmentSlot, string>> = {
   sword: "Sword",
@@ -20,7 +32,7 @@ export interface StatBreakdown {
   total: number;
 }
 
-function getEquipmentBreakdown(equipment: RootState["character"]["equipment"]) {
+function getEquipmentBreakdown(equipment: RootState["equipment"]["equipment"]) {
   const attackSources: { label: string; value: number }[] = [];
   const defenseSources: { label: string; value: number }[] = [];
   const vitalitySources: { label: string; value: number }[] = [];
@@ -30,35 +42,35 @@ function getEquipmentBreakdown(equipment: RootState["character"]["equipment"]) {
     const item = equipment[slot];
     if (item) {
       const label = EQUIPMENT_SLOT_LABELS[slot] ?? slot;
-      if (item.attackBonus != null && item.attackBonus !== 0) {
+      if ("attackBonus" in item && item.attackBonus != null && item.attackBonus !== 0) {
         attackSources.push({ label: item.name, value: item.attackBonus });
       }
-      if (item.defenseBonus != null && item.defenseBonus !== 0) {
+      if ("defenseBonus" in item && item.defenseBonus != null && item.defenseBonus !== 0) {
         defenseSources.push({ label: item.name, value: item.defenseBonus });
       }
-      if (item.vitalityBonus != null && item.vitalityBonus !== 0) {
+      if ("vitalityBonus" in item && item.vitalityBonus != null && item.vitalityBonus !== 0) {
         vitalitySources.push({ label: item.name, value: item.vitalityBonus });
       }
     }
   }
 
   const combatTech = equipment.combatTechnique;
-  const attackMultiplier = combatTech?.attackMultiplier ?? 1;
+  const attackMultiplier = combatTech && "attackMultiplier" in combatTech ? combatTech.attackMultiplier ?? 1 : 1;
 
   return { attackSources, defenseSources, vitalitySources, attackMultiplier };
 }
 
 const getEquipmentBreakdownMemo = createSelector(
-  [(state: RootState) => state.character.equipment],
+  [selectEquipment],
   (equipment) => getEquipmentBreakdown(equipment)
 );
 
 export const getAttackBreakdown = createSelector(
   [
-    (state: RootState) => state.character.attack,
-    (state: RootState) => state.character.bonusAttack,
+    selectAttack,
+    selectBonusAttack,
     getEquipmentBreakdownMemo,
-    (state: RootState) => getTalentBonuses(state.character.talentLevels ?? {}),
+    getTalentBonusesSelector,
   ],
   (attack, bonusAttack, { attackSources, attackMultiplier }, talentBonuses): StatBreakdown => {
     const base = attack + (bonusAttack ?? 0);
@@ -79,10 +91,10 @@ export const getAttackBreakdown = createSelector(
 
 export const getDefenseBreakdown = createSelector(
   [
-    (state: RootState) => state.character.defense,
-    (state: RootState) => state.character.bonusDefense,
+    selectDefense,
+    selectBonusDefense,
     getEquipmentBreakdownMemo,
-    (state: RootState) => getTalentBonuses(state.character.talentLevels ?? {}),
+    getTalentBonusesSelector,
   ],
   (defense, bonusDefense, { defenseSources }, talentBonuses): StatBreakdown => {
     const base = defense + (bonusDefense ?? 0);
@@ -101,10 +113,10 @@ export const getDefenseBreakdown = createSelector(
 
 export const getHealthBreakdown = createSelector(
   [
-    (state: RootState) => state.character.health,
-    (state: RootState) => state.character.bonusHealth,
+    selectHealth,
+    selectBonusHealth,
     getEquipmentBreakdownMemo,
-    (state: RootState) => getTalentBonuses(state.character.talentLevels ?? {}),
+    getTalentBonusesSelector,
   ],
   (health, bonusHealth, { vitalitySources }, talentBonuses): StatBreakdown => {
     const base = health + (bonusHealth ?? 0);
@@ -136,19 +148,20 @@ export function formatStatBreakdown(b: StatBreakdown, statName: string): string 
 
 /** Qi tooltip: current Qi and Qi/s when meditating (base + technique + amulet + talents). */
 export function getQiBreakdown(state: RootState): string {
-  const { character } = state;
-  const eq = character.equipment;
-  const talentBonuses = getTalentBonuses(character.talentLevels ?? {});
-  const currentQi = Math.round(character.qi * 100) / 100;
+  const qi = selectQi(state);
+  const talentLevels = selectTalentLevels(state);
+  const eq = selectEquipment(state);
+  const talentBonuses = getTalentBonuses(talentLevels ?? {});
+  const currentQi = Math.round(qi * 100) / 100;
   const lines: string[] = [];
   lines.push(`Current Qi: ${currentQi}`);
   let qiPerSec = BASE_QI_PER_SECOND;
   const parts: string[] = [`Base: ${BASE_QI_PER_SECOND}`];
-  if (eq.qiTechnique?.qiGainBonus != null && eq.qiTechnique.qiGainBonus !== 0) {
+  if (eq.qiTechnique && "qiGainBonus" in eq.qiTechnique && eq.qiTechnique.qiGainBonus != null && eq.qiTechnique.qiGainBonus !== 0) {
     qiPerSec += eq.qiTechnique.qiGainBonus;
     parts.push(`${eq.qiTechnique.name}: +${eq.qiTechnique.qiGainBonus}`);
   }
-  if (eq.amulet?.qiGainBonus != null && eq.amulet.qiGainBonus !== 0) {
+  if (eq.amulet && "qiGainBonus" in eq.amulet && eq.amulet.qiGainBonus != null && eq.amulet.qiGainBonus !== 0) {
     qiPerSec += eq.amulet.qiGainBonus;
     parts.push(`${eq.amulet.name}: +${eq.amulet.qiGainBonus}`);
   }

@@ -8,8 +8,8 @@ interface GatheringAreaProps {
   title: string;
   imageSrc: string;
   altText: string;
-  gatheringXP: number;
-  gatheringDelay: number;
+  xp: number;
+  delay: number;
   requiredLevel: number;
   /** Possible wood/herbs from this area (from data; dynamic). */
   possibleLoot: Item[];
@@ -43,12 +43,12 @@ function getSkillAreaTooltipContent(
   return lines.join("\n");
 }
 
-const GatheringArea: React.FC<GatheringAreaProps> = ({
+const GatheringArea: React.FC<GatheringAreaProps> = React.memo(({
   title,
   imageSrc,
   altText,
-  gatheringXP,
-  gatheringDelay,
+  xp,
+  delay,
   requiredLevel,
   possibleLoot,
   lootEntries,
@@ -72,8 +72,8 @@ const GatheringArea: React.FC<GatheringAreaProps> = ({
         <Tooltip
           content={getSkillAreaTooltipContent(
             "Gathering XP",
-            gatheringXP,
-            formatGatheringDuration(gatheringDelay),
+            xp,
+            formatGatheringDuration(delay),
             requiredLevel,
             unlocked,
             "Possible finds"
@@ -84,7 +84,7 @@ const GatheringArea: React.FC<GatheringAreaProps> = ({
           <span className="gatheringAreaContainer__tooltip-trigger">
             <h2 className="gatheringAreaContainer__title">{title}</h2>
             <p className="gatheringAreaContainer__meta">
-              Gathering XP: {gatheringXP} · Duration: {formatGatheringDuration(gatheringDelay)}
+              Gathering XP: {xp} · Duration: {formatGatheringDuration(delay)}
             </p>
             {!unlocked && (
               <p className="gatheringAreaContainer__lock">
@@ -102,6 +102,6 @@ const GatheringArea: React.FC<GatheringAreaProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default GatheringArea;

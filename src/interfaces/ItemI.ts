@@ -1,36 +1,21 @@
-import type { EquipmentSlot } from "../types/EquipmentSlot";
+/**
+ * Item type (Task 2). Discriminated union; re-exports from types/items.
+ */
+export type {
+  Item,
+  ItemKind,
+  DomainItem,
+  ConsumableEffect,
+  ConsumableItem,
+  EquipmentItem,
+  TechniqueItem,
+  SetPieceItem,
+  QuestItem,
+  MaterialItem,
+  BaseItemFields,
+} from "../types/items";
+export { getConsumableEffect, hasConsumableEffect } from "../types/items";
+export { getEquipmentSlot, hasEquipmentSlot } from "../types/itemGuards";
 
-interface Item {
-  id: number;
-  name: string;
-  description: string;
-  quantity: number;
-  price: number;
-  picture?: string;
-  value?: number;
-  effect?: string;
-  /** Equipment slot this item can be equipped in */
-  equipmentSlot?: EquipmentSlot;
-  /** Qi gain per second when equipped in qiTechnique slot */
-  qiGainBonus?: number;
-  /** Attack bonus when equipped (e.g. sword) */
-  attackBonus?: number;
-  /** Defense bonus when equipped (e.g. helmet, body) */
-  defenseBonus?: number;
-  /** Vitality (max health) bonus when equipped (e.g. helmet, body) */
-  vitalityBonus?: number;
-  /** Combat technique: multiplicative attack modifier (e.g. 1.1 = +10% damage) */
-  attackMultiplier?: number;
-  /** Combat technique: flat attack speed bonus in ms (reduces time between attacks) */
-  attackSpeedReduction?: number;
-  /** Skill set: which skill this piece boosts (fishing / mining / gathering / alchemy / forging / cooking) */
-  skillSet?: "fishing" | "mining" | "gathering" | "alchemy" | "forging" | "cooking";
-  /** Skill set tier: lesser / greater / perfected */
-  skillSetTier?: "lesser" | "greater" | "perfected";
-  /** Gathering sets (fishing/mining/gathering): percent faster per piece (e.g. 2 = +2% speed) */
-  skillSpeedBonus?: number;
-  /** Crafting sets (alchemy/forging/cooking): percent bonus to that skill's XP per piece (e.g. 2 = +2% XP) */
-  skillXpBonus?: number;
-}
-
-export default Item;
+import type { Item } from "../types/items";
+export type { Item as default };

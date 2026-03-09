@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import type { TalentNode } from "../../interfaces/TalentI";
+import type { CultivationPath } from "../../constants/cultivationPath";
 import type { TalentNodeState } from "../../constants/talentHelpers";
 import { formatTalentEffectType } from "../../constants/talents";
-import type { CultivationPath } from "../../constants/cultivationPath";
+import type { TalentNode } from "../../interfaces/TalentI";
 import "./TalentNodeCard.css";
 
 interface TalentNodeCardProps {

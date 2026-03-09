@@ -1,17 +1,24 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
-import SkillI from "../../interfaces/SkillI";
-import "./SkillBlockItem.css";
-import { changeContent, type PageValue } from "../../state/reducers/contentSlice";
-import { ContentArea } from "../../enum/ContentArea";
+import { isLockingActivity } from "../../constants/activities";
+import { ALCHEMY_MAX_LEVEL, getAlchemyLevel } from "../../constants/alchemy";
+import { COOKING_MAX_LEVEL, getCookingLevel } from "../../constants/cooking";
 import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
+import { FORGING_MAX_LEVEL, getForgingLevel } from "../../constants/forging";
 import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
-import { ALCHEMY_MAX_LEVEL, getAlchemyLevel } from "../../constants/alchemy";
-import { FORGING_MAX_LEVEL, getForgingLevel } from "../../constants/forging";
-import { COOKING_MAX_LEVEL, getCookingLevel } from "../../constants/cooking";
-import { isLockingActivity } from "../../constants/activities";
+import SkillI from "../../interfaces/SkillI";
+import "./SkillBlockItem.css";
+import { changeContent, routeForSkillName } from "../../state/reducers/contentSlice";
+import {
+  selectCurrentActivity,
+  selectFishingXP,
+  selectMiningXP,
+  selectGatheringXP,
+  selectAlchemyXP,
+  selectForgingXP,
+  selectCookingXP,
+} from "../../state/selectors/characterSelectors";
 
 const PATH_ACCENT_COLORS: Record<string, string> = {
   "Martial Training": "#a04040",
@@ -32,15 +39,15 @@ interface SkillItemProps {
   skill: SkillI;
 }
 
-const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
+const SkillBlockItem: React.FC<SkillItemProps> = React.memo(({ skill }) => {
   const dispatch = useDispatch();
-  const currentActivity = useSelector((state: RootState) => state.character.currentActivity);
-  const fishingXP = useSelector((state: RootState) => state.character.fishingXP);
-  const miningXP = useSelector((state: RootState) => state.character.miningXP);
-  const gatheringXP = useSelector((state: RootState) => state.character.gatheringXP);
-  const alchemyXP = useSelector((state: RootState) => state.character.alchemyXP);
-  const forgingXP = useSelector((state: RootState) => state.character.forgingXP);
-  const cookingXP = useSelector((state: RootState) => state.character.cookingXP);
+  const currentActivity = useSelector(selectCurrentActivity);
+  const fishingXP = useSelector(selectFishingXP);
+  const miningXP = useSelector(selectMiningXP);
+  const gatheringXP = useSelector(selectGatheringXP);
+  const alchemyXP = useSelector(selectAlchemyXP);
+  const forgingXP = useSelector(selectForgingXP);
+  const cookingXP = useSelector(selectCookingXP);
   const accentColor = PATH_ACCENT_COLORS[skill.name] ?? "var(--accent)";
   const isNavigationLocked = isLockingActivity(currentActivity);
   const isBlocked = isNavigationLocked && skill.name !== "Immortals Island";
@@ -53,11 +60,7 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
 
   const openSkill = (input: string) => {
     if (isBlocked) return;
-    if (input === "Martial Training") {
-      dispatch(changeContent(ContentArea.TRAINING));
-      return;
-    }
-    dispatch(changeContent(input as PageValue));
+    dispatch(changeContent(routeForSkillName(input)));
   };
 
   return (
@@ -90,6 +93,6 @@ const SkillBlockItem: React.FC<SkillItemProps> = ({ skill }) => {
       <p className="skillBlockItem__main-p">{skill.description}</p>
     </div>
   );
-};
+});
 
 export default SkillBlockItem;

@@ -77,6 +77,10 @@ export function getSectNpcs(): SectNpcI[] {
 
 export const SECT_NPCS = getSectNpcs();
 
+export const SECT_NPCS_BY_ID: Record<number, SectNpcI> = Object.fromEntries(
+  SECT_NPCS.map((n) => [n.id, n])
+) as Record<number, SectNpcI>;
+
 export const SECT_NPCS_BY_SECT: Record<number, SectNpcI[]> = SECT_NPCS.reduce(
   (acc, npc) => {
     if (!acc[npc.sectId]) acc[npc.sectId] = [];
@@ -87,7 +91,7 @@ export const SECT_NPCS_BY_SECT: Record<number, SectNpcI[]> = SECT_NPCS.reduce(
 );
 
 export function getSectNpcById(npcId: number): SectNpcI | undefined {
-  return SECT_NPCS.find((n) => n.id === npcId);
+  return SECT_NPCS_BY_ID[npcId];
 }
 
 /** Quest step: 0 = not started, 1 = in progress (kill 15 enemies), 2 = ready to claim, 3 = claimed */
@@ -118,6 +122,7 @@ export const SECT_TREASURE_ITEM_ID_BY_SECT: Record<number, number> = {
 /** Sect treasure items: names derived from sect. One-time obtainable from quest. */
 export const SECT_TREASURE_ITEMS: (Item & { equipmentSlot: EquipmentSlot })[] = [
   {
+    kind: "equipment",
     id: SECT_TREASURE_IDS.jadeMountain,
     name: "Jade Mountain Heartstone",
     description: "Sect-defining treasure of the Jade Mountain Sect. Earned by proving your worth.",
@@ -129,6 +134,7 @@ export const SECT_TREASURE_ITEMS: (Item & { equipmentSlot: EquipmentSlot })[] = 
     defenseBonus: 2,
   },
   {
+    kind: "equipment",
     id: SECT_TREASURE_IDS.verdantValley,
     name: "Verdant Valley Heirloom",
     description: "Sect-defining treasure of the Verdant Valley Sect.",
@@ -140,6 +146,7 @@ export const SECT_TREASURE_ITEMS: (Item & { equipmentSlot: EquipmentSlot })[] = 
     qiGainBonus: 3,
   },
   {
+    kind: "equipment",
     id: SECT_TREASURE_IDS.azureSky,
     name: "Azure Sky Sigil",
     description: "Sect-defining treasure of the Azure Sky Pavilion.",
@@ -150,6 +157,7 @@ export const SECT_TREASURE_ITEMS: (Item & { equipmentSlot: EquipmentSlot })[] = 
     qiGainBonus: 8,
   },
   {
+    kind: "equipment",
     id: SECT_TREASURE_IDS.crimsonDemon,
     name: "Crimson Demon Brand",
     description: "Sect-defining treasure of the Crimson Demon Sect.",
@@ -160,6 +168,7 @@ export const SECT_TREASURE_ITEMS: (Item & { equipmentSlot: EquipmentSlot })[] = 
     attackBonus: 4,
   },
   {
+    kind: "equipment",
     id: SECT_TREASURE_IDS.shadowSerpent,
     name: "Shadow Serpent Fang",
     description: "Sect-defining treasure of the Shadow Serpent Hall.",
@@ -171,6 +180,7 @@ export const SECT_TREASURE_ITEMS: (Item & { equipmentSlot: EquipmentSlot })[] = 
     attackSpeedReduction: 30,
   },
   {
+    kind: "equipment",
     id: SECT_TREASURE_IDS.boneAbyss,
     name: "Bone Abyss Relic",
     description: "Sect-defining treasure of the Bone Abyss Sect.",
@@ -183,8 +193,12 @@ export const SECT_TREASURE_ITEMS: (Item & { equipmentSlot: EquipmentSlot })[] = 
   },
 ];
 
+export const SECT_TREASURE_ITEMS_BY_ID: Record<number, Item & { equipmentSlot: EquipmentSlot }> = Object.fromEntries(
+  SECT_TREASURE_ITEMS.map((i) => [i.id, i])
+) as Record<number, Item & { equipmentSlot: EquipmentSlot }>;
+
 export function getSectTreasureItemById(id: number): Item | undefined {
-  return SECT_TREASURE_ITEMS.find((i) => i.id === id);
+  return SECT_TREASURE_ITEMS_BY_ID[id];
 }
 
 /** Major realms that unlock one-time dialogue with NPCs (favor boost). */

@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { canEnterArea } from "../../constants/areaRealmRequirements";
 import type { RealmRequirement } from "../../constants/areaRealmRequirements";
 import type { RealmId } from "../../constants/realmProgression";
-import { changeContent } from "../../state/reducers/contentSlice";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import "./MapAreaComponent.css";
 import { ContentArea } from "../../enum/ContentArea";
 
@@ -18,7 +18,7 @@ interface MapAreaProps {
   characterRealmLevel?: number;
 }
 
-const MapAreaComponent: React.FC<MapAreaProps> = ({
+const MapAreaComponent: React.FC<MapAreaProps> = React.memo(({
   image,
   text,
   requiredRealm,
@@ -32,7 +32,7 @@ const MapAreaComponent: React.FC<MapAreaProps> = ({
 
   const handleOnClick = (areaName: string) => {
     if (!canEnter) return;
-    dispatch(changeContent(`${ContentArea.COMBAT}:${areaName}`));
+    dispatch(changeContent(routeFromArea(ContentArea.COMBAT, areaName)));
   };
 
   return (
@@ -55,6 +55,6 @@ const MapAreaComponent: React.FC<MapAreaProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default MapAreaComponent;

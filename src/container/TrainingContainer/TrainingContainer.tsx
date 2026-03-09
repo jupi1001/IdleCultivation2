@@ -6,11 +6,12 @@ import {
   formatRealmRequirement,
 } from "../../constants/areaRealmRequirements";
 import { TRAINING_ASSETS, TRAINING_AREA_IMAGE_SLUG, TRAINING_AREA_ORDER } from "../../constants/training";
-import { RootState } from "../../state/store";
+import { selectRealm, selectRealmLevel } from "../../state/selectors/characterSelectors";
 import "./TrainingContainer.css";
 
 export const TrainingContainer = () => {
-  const character = useSelector((state: RootState) => state.character);
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
 
   return (
     <div className="trainingContainer__main">
@@ -24,8 +25,8 @@ export const TrainingContainer = () => {
             text={area}
             requiredRealm={AREA_REALM_REQUIREMENTS[area]}
             requiredRealmLabel={formatRealmRequirement(AREA_REALM_REQUIREMENTS[area])}
-            characterRealm={character.realm}
-            characterRealmLevel={character.realmLevel}
+            characterRealm={realm}
+            characterRealmLevel={realmLevel}
           />
         ))}
       </div>

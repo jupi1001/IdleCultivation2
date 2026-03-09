@@ -1,7 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
-import { changeContent } from "../../state/reducers/contentSlice";
+import { SectStoreItem } from "../../components/SectStoreItem/SectStoreItem";
+import { SECTS_BY_ID, SECT_POSITIONS, sectStoreData } from "../../constants/data";
+import { getStepIndex } from "../../constants/realmProgression";
+import {
+  SECT_NPCS_BY_SECT,
+  SECT_QUEST_KILLS_REQUIRED,
+  REALM_DIALOGUE_REALMS,
+  DUAL_CULTIVATION_MIN_FAVOR,
+  GIFT_SPIRIT_STONE_COST,
+  SECT_TREASURE_ITEM_ID_BY_SECT,
+} from "../../constants/sectRelationships";
+import { ContentArea } from "../../enum/ContentArea";
 import {
   setSect,
   startPromotion,
@@ -11,18 +21,25 @@ import {
   giftNpc,
   useRealmDialogue,
   setCultivationPartner,
-} from "../../state/reducers/characterSlice";
-import { ContentArea } from "../../enum/ContentArea";
-import { getStepIndex } from "../../constants/realmProgression";
-import { sectsData, SECT_POSITIONS, sectStoreData } from "../../constants/data";
+} from "../../state/reducers/sectSlice";
+import { reduceMoney } from "../../state/reducers/characterCoreSlice";
+import { addItemById } from "../../state/reducers/inventorySlice";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import {
-  SECT_NPCS_BY_SECT,
-  SECT_QUEST_KILLS_REQUIRED,
-  REALM_DIALOGUE_REALMS,
-  DUAL_CULTIVATION_MIN_FAVOR,
-  GIFT_SPIRIT_STONE_COST,
-} from "../../constants/sectRelationships";
-import { SectStoreItem } from "../../components/SectStoreItem/SectStoreItem";
+  selectCurrentSectId,
+  selectSectRankIndex,
+  selectRealm,
+  selectRealmLevel,
+  selectPromotionEndTime,
+  selectPromotionToRankIndex,
+  selectSectQuestProgress,
+  selectSectQuestKillCount,
+  selectObtainedSectTreasureIds,
+  selectNpcFavor,
+  selectRealmDialogueUsed,
+  selectCultivationPartner,
+  selectMoney,
+} from "../../state/selectors/characterSelectors";
 import "./SectContainer.css";
 
 type SectTab = "store" | "bulletin" | "relationships";
@@ -32,27 +49,27 @@ const PROMOTION_DURATION_MS = 5000;
 export const SectContainer = () => {
   const dispatch = useDispatch();
   const [now, setNow] = useState(Date.now());
-  const currentSectId = useSelector((state: RootState) => state.character.currentSectId);
-  const sectRankIndex = useSelector((state: RootState) => state.character.sectRankIndex);
-  const realm = useSelector((state: RootState) => state.character.realm);
-  const realmLevel = useSelector((state: RootState) => state.character.realmLevel);
-  const promotionEndTime = useSelector((state: RootState) => state.character.promotionEndTime);
-  const promotionToRankIndex = useSelector((state: RootState) => state.character.promotionToRankIndex);
-  const sectQuestProgress = useSelector((state: RootState) => state.character.sectQuestProgress);
-  const sectQuestKillCount = useSelector((state: RootState) => state.character.sectQuestKillCount);
-  const obtainedSectTreasureIds = useSelector((state: RootState) => state.character.obtainedSectTreasureIds);
-  const npcFavor = useSelector((state: RootState) => state.character.npcFavor);
-  const realmDialogueUsed = useSelector((state: RootState) => state.character.realmDialogueUsed);
-  const cultivationPartner = useSelector((state: RootState) => state.character.cultivationPartner);
-  const money = useSelector((state: RootState) => state.character.money);
+  const currentSectId = useSelector(selectCurrentSectId);
+  const sectRankIndex = useSelector(selectSectRankIndex);
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
+  const promotionEndTime = useSelector(selectPromotionEndTime);
+  const promotionToRankIndex = useSelector(selectPromotionToRankIndex);
+  const sectQuestProgress = useSelector(selectSectQuestProgress);
+  const sectQuestKillCount = useSelector(selectSectQuestKillCount);
+  const obtainedSectTreasureIds = useSelector(selectObtainedSectTreasureIds);
+  const npcFavor = useSelector(selectNpcFavor);
+  const realmDialogueUsed = useSelector(selectRealmDialogueUsed);
+  const cultivationPartner = useSelector(selectCultivationPartner);
+  const money = useSelector(selectMoney);
 
   const [activeTab, setActiveTab] = useState<SectTab>("store");
 
-  const currentSect = currentSectId != null ? sectsData.find((s) => s.id === currentSectId) : null;
+  const currentSect = currentSectId != null ? SECTS_BY_ID[currentSectId] : null;
   /** All sects on the same path (your sect + allied sects); you can buy from any of them based on your rank. */
   const sectsOnPath =
     currentSectId != null && currentSect != null
-      ? sectsData
+      ? Object.values(SECTS_BY_ID)
           .filter((s) => s.path === currentSect.path)
           .map((sect) => ({
             sect,
@@ -84,9 +101,9 @@ export const SectContainer = () => {
 
   useEffect(() => {
     if (promotionEndTime != null && Date.now() >= promotionEndTime) {
-      dispatch(completePromotion());
+      dispatch(completePromotion({ realm, realmLevel }));
     }
-  }, [now, promotionEndTime, dispatch]);
+  }, [now, promotionEndTime, realm, realmLevel, dispatch]);
 
   const [expandedSectIds, setExpandedSectIds] = useState<number[]>([]);
 
@@ -102,7 +119,7 @@ export const SectContainer = () => {
     );
   };
 
-  const openMap = () => dispatch(changeContent(ContentArea.MAP));
+  const openMap = () => dispatch(changeContent(routeFromArea(ContentArea.MAP)));
   const handleLeave = () => dispatch(setSect(null));
   const handlePromote = () =>
     dispatch(startPromotion({ targetRankIndex: nextRankIndex, durationMs: PROMOTION_DURATION_MS }));
@@ -293,7 +310,11 @@ export const SectContainer = () => {
                   <button
                     type="button"
                     className="sectContainer__btn sectContainer__btn--primary"
-                    onClick={() => dispatch(claimSectQuestReward(currentSectId))}
+                    onClick={() => {
+                      dispatch(claimSectQuestReward(currentSectId));
+                      const itemId = SECT_TREASURE_ITEM_ID_BY_SECT[currentSectId];
+                      if (itemId != null) dispatch(addItemById({ itemId, amount: 1 }));
+                    }}
                   >
                     Claim reward
                   </button>
@@ -331,7 +352,10 @@ export const SectContainer = () => {
                       <button
                         type="button"
                         className="sectContainer__btn sectContainer__btn--small"
-                        onClick={() => dispatch(giftNpc({ sectId: npc.sectId, npcId: npc.id }))}
+                        onClick={() => {
+                          dispatch(reduceMoney(GIFT_SPIRIT_STONE_COST));
+                          dispatch(giftNpc({ sectId: npc.sectId, npcId: npc.id }));
+                        }}
                         disabled={money < GIFT_SPIRIT_STONE_COST || favor >= 100}
                         title={`${GIFT_SPIRIT_STONE_COST} Spirit Stones → +1 Favor`}
                       >

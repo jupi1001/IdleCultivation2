@@ -1,53 +1,86 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
-import { reincarnate, purchaseKarmaBonus } from "../../state/reducers/characterSlice";
-import { changeContent } from "../../state/reducers/contentSlice";
-import { ContentArea } from "../../enum/ContentArea";
+import { getAlchemyLevel } from "../../constants/alchemy";
+import { getCookingLevel } from "../../constants/cooking";
+import { getFishingLevelInfo } from "../../constants/fishingLevel";
+import { getForgingLevel } from "../../constants/forging";
+import { getGatheringLevelInfo } from "../../constants/gatheringLevel";
+import { getMiningLevelInfo } from "../../constants/miningLevel";
 import { getStepIndex, formatRealm } from "../../constants/realmProgression";
 import {
   REINCARNATION_MIN_STEP,
   REINCARNATION_MIN_REALM_LABEL,
   calculateKarmaEarned,
   KARMA_BONUSES,
+  KARMA_BONUSES_BY_ID,
   type KarmaBonusId,
 } from "../../constants/reincarnation";
-import { getFishingLevelInfo } from "../../constants/fishingLevel";
-import { getMiningLevelInfo } from "../../constants/miningLevel";
-import { getGatheringLevelInfo } from "../../constants/gatheringLevel";
-import { getAlchemyLevel } from "../../constants/alchemy";
-import { getForgingLevel } from "../../constants/forging";
-import { getCookingLevel } from "../../constants/cooking";
+import { ContentArea } from "../../enum/ContentArea";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
+import { reincarnateAndReset } from "../../state/reducers/reincarnationThunks";
+import { purchaseKarmaBonus } from "../../state/reducers/reincarnationSlice";
+import { useAppDispatch } from "../../state/store";
+import {
+  selectRealm,
+  selectRealmLevel,
+  selectKarmaPoints,
+  selectTotalKarmaEarned,
+  selectReincarnationCount,
+  selectKarmaBonusLevels,
+  selectFishingXP,
+  selectMiningXP,
+  selectGatheringXP,
+  selectAlchemyXP,
+  selectForgingXP,
+  selectCookingXP,
+} from "../../state/selectors/characterSelectors";
 import "./ReincarnationContainer.css";
 
-function getTotalSkillLevels(char: RootState["character"]): number {
+function getTotalSkillLevels(xp: {
+  fishingXP: number;
+  miningXP: number;
+  gatheringXP: number;
+  alchemyXP: number;
+  forgingXP: number;
+  cookingXP: number;
+}): number {
   return (
-    getFishingLevelInfo(char.fishingXP).level +
-    getMiningLevelInfo(char.miningXP).level +
-    getGatheringLevelInfo(char.gatheringXP).level +
-    getAlchemyLevel(char.alchemyXP) +
-    getForgingLevel(char.forgingXP) +
-    getCookingLevel(char.cookingXP)
+    getFishingLevelInfo(xp.fishingXP).level +
+    getMiningLevelInfo(xp.miningXP).level +
+    getGatheringLevelInfo(xp.gatheringXP).level +
+    getAlchemyLevel(xp.alchemyXP) +
+    getForgingLevel(xp.forgingXP) +
+    getCookingLevel(xp.cookingXP)
   );
 }
 
 export const ReincarnationContainer = () => {
-  const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
-  const {
-    realm,
-    realmLevel,
-    karmaPoints,
-    totalKarmaEarned,
-    reincarnationCount,
-    karmaBonusLevels,
-  } = character;
+  const dispatch = useAppDispatch();
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
+  const karmaPoints = useSelector(selectKarmaPoints);
+  const totalKarmaEarned = useSelector(selectTotalKarmaEarned);
+  const reincarnationCount = useSelector(selectReincarnationCount);
+  const karmaBonusLevels = useSelector(selectKarmaBonusLevels);
+  const fishingXP = useSelector(selectFishingXP);
+  const miningXP = useSelector(selectMiningXP);
+  const gatheringXP = useSelector(selectGatheringXP);
+  const alchemyXP = useSelector(selectAlchemyXP);
+  const forgingXP = useSelector(selectForgingXP);
+  const cookingXP = useSelector(selectCookingXP);
 
   const [confirming, setConfirming] = useState(false);
 
   const step = getStepIndex(realm, realmLevel);
   const canReincarnate = step >= REINCARNATION_MIN_STEP;
-  const totalSkillLevels = getTotalSkillLevels(character);
+  const totalSkillLevels = getTotalSkillLevels({
+    fishingXP,
+    miningXP,
+    gatheringXP,
+    alchemyXP,
+    forgingXP,
+    cookingXP,
+  });
   const karmaPreview = canReincarnate
     ? calculateKarmaEarned(realm, realmLevel, totalSkillLevels)
     : 0;
@@ -55,9 +88,11 @@ export const ReincarnationContainer = () => {
   const handleReincarnate = () => {
     if (!canReincarnate) return;
     const earned = calculateKarmaEarned(realm, realmLevel, totalSkillLevels);
-    dispatch(reincarnate({ karmaEarned: earned }));
+    const startingMoneyLevel = karmaBonusLevels?.startingMoney ?? 0;
+    const startingMoneyBonus = startingMoneyLevel * (KARMA_BONUSES_BY_ID.startingMoney?.valuePerLevel ?? 0);
+    dispatch(reincarnateAndReset({ karmaEarned: earned, startingMoneyBonus }));
     setConfirming(false);
-    dispatch(changeContent(ContentArea.MEDITATION));
+    dispatch(changeContent(routeFromArea(ContentArea.MEDITATION)));
   };
 
   const handleBuyBonus = (id: KarmaBonusId) => {

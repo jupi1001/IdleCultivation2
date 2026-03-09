@@ -1,45 +1,49 @@
 import React, { useCallback, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
-import { addItem, consumeItems, addCookingXP, recordItemCrafted } from "../../state/reducers/characterSlice";
-import { addToast } from "../../state/reducers/toastSlice";
 import {
   COOKING_RECIPES,
   getCookingLevelInfo,
   getCookingXP,
   type CookingRecipeI,
 } from "../../constants/cooking";
-import { fishTypes } from "../../constants/data";
-import { countItem } from "../../utils/inventory";
-import {
-  getOwnedCraftingSetPieceIds,
-  getCraftingSetCookingDoubleChancePercent,
-  getCraftingSetCookingXpPercent,
-} from "../../state/selectors/characterSelectors";
 import {
   getCraftingSetItemById,
   getCraftingSetPieceIds,
   getTierForCookingRecipeLevel,
   CRAFTING_SET_DROP_CHANCE_PERCENT,
 } from "../../constants/craftingSets";
+import { ITEMS_BY_ID } from "../../constants/data";
+import { addItemById, consumeItems } from "../../state/reducers/inventorySlice";
+import { addCookingXP } from "../../state/reducers/skillsSlice";
+import { recordItemCrafted } from "../../state/reducers/statsSlice";
+import { addToast } from "../../state/reducers/toastSlice";
+import {
+  getOwnedCraftingSetPieceIds,
+  getCraftingSetCookingDoubleChancePercent,
+  getCraftingSetCookingXpPercent,
+  selectItemsById,
+  selectCookingXP,
+} from "../../state/selectors/characterSelectors";
+import { getItemQuantity } from "../../utils/inventory";
+import { getConsumableEffect } from "../../interfaces/ItemI";
 import { rollOneTimeDrop } from "../../utils/oneTimeDrops";
 import "./CookingContainer.css";
 
-function getItemName(itemId: number, allItems: { id: number; name: string }[]): string {
-  return allItems.find((i) => i.id === itemId)?.name ?? `Item ${itemId}`;
+function getItemName(itemId: number): string {
+  return ITEMS_BY_ID[itemId]?.name ?? `Item ${itemId}`;
 }
 
-function canCook(items: { id: number; quantity?: number }[], recipe: CookingRecipeI): boolean {
+function canCook(itemsById: Record<number, number>, recipe: CookingRecipeI): boolean {
   for (const { itemId, amount } of recipe.ingredients) {
-    if (countItem(items, itemId) < amount) return false;
+    if (getItemQuantity(itemsById, itemId) < amount) return false;
   }
   return true;
 }
 
 export const CookingContainer = () => {
   const dispatch = useDispatch();
-  const items = useSelector((state: RootState) => state.character.items);
-  const cookingXP = useSelector((state: RootState) => state.character.cookingXP);
+  const itemsById = useSelector(selectItemsById);
+  const cookingXP = useSelector(selectCookingXP);
   const doubleChance = useSelector(getCraftingSetCookingDoubleChancePercent);
   const setXpBonus = useSelector(getCraftingSetCookingXpPercent);
   const ownedCraftingSetIds = useSelector(getOwnedCraftingSetPieceIds);
@@ -47,19 +51,14 @@ export const CookingContainer = () => {
   ownedCraftingSetRef.current = ownedCraftingSetIds;
   const { level: cookingLevel, xpInLevel, xpRequiredForNext: xpForNext } = getCookingLevelInfo(cookingXP);
 
-  const allItemNames = useMemo(
-    () => fishTypes.map((i) => ({ id: i.id, name: i.name })),
-    []
-  );
-
   const doCook = useCallback(
     (recipe: CookingRecipeI) => {
-      if (!canCook(items, recipe)) return;
+      if (!canCook(itemsById, recipe)) return;
       const toConsume = recipe.ingredients.map(({ itemId, amount }) => ({ itemId, amount }));
       dispatch(consumeItems(toConsume));
       const doubleOutput = doubleChance > 0 && Math.random() * 100 < doubleChance;
       const outputQty = doubleOutput ? recipe.outputAmount * 2 : recipe.outputAmount;
-      dispatch(addItem({ ...recipe.output, quantity: outputQty }));
+      dispatch(addItemById({ itemId: recipe.output.id, amount: outputQty }));
       const xpMult = 1 + setXpBonus / 100;
       dispatch(addCookingXP(Math.max(1, Math.floor(getCookingXP(recipe.recipeLevel) * xpMult))));
       dispatch(recordItemCrafted("cooking"));
@@ -72,11 +71,11 @@ export const CookingContainer = () => {
         getCraftingSetItemById
       );
       if (drop) {
-        dispatch(addItem({ ...drop, quantity: 1 }));
+        dispatch(addItemById({ itemId: drop.id, amount: 1 }));
         dispatch(addToast({ type: "rareDrop", itemName: drop.name }));
       }
     },
-    [dispatch, items, doubleChance, setXpBonus]
+    [dispatch, itemsById, doubleChance, setXpBonus]
   );
 
   return (
@@ -98,7 +97,7 @@ export const CookingContainer = () => {
       <h3 className="cooking__recipesTitle">Recipes</h3>
       <div className="cooking__recipes">
         {COOKING_RECIPES.map((recipe) => {
-          const canDo = canCook(items, recipe);
+          const canDo = canCook(itemsById, recipe);
           return (
             <div key={recipe.id} className="cooking__recipe">
               <h4 className="cooking__recipeName">{recipe.name}</h4>
@@ -106,14 +105,14 @@ export const CookingContainer = () => {
               <div className="cooking__mats">
                 {recipe.ingredients.map(({ itemId, amount }) => (
                   <span key={itemId}>
-                    {getItemName(itemId, allItemNames)} × {amount}
-                    {countItem(items, itemId) < amount && (
-                      <span className="cooking__short"> (have {countItem(items, itemId)})</span>
+                    {getItemName(itemId)} × {amount}
+                    {getItemQuantity(itemsById, itemId) < amount && (
+                      <span className="cooking__short"> (have {getItemQuantity(itemsById, itemId)})</span>
                     )}
                   </span>
                 ))}
               </div>
-              <p className="cooking__output">→ {recipe.output.name} (restores {recipe.output.value} vitality)</p>
+              <p className="cooking__output">→ {recipe.output.name}{(() => { const eff = getConsumableEffect(recipe.output); return eff ? (eff.type === "healVitality" ? ` (restores ${eff.amount} vitality)` : eff.type === "grantQi" ? ` (restores ${eff.amount} Qi)` : "") : ""; })()}</p>
               <button
                 type="button"
                 className="cooking__btn"

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import "./Map.css";
-import { ContentArea } from "../../enum/ContentArea";
-import { changeContent } from "../../state/reducers/contentSlice";
-import { sectsData } from "../../constants/data";
 import { SectWindow } from "../../components/SectWindow/SectWindow";
+import { sectsData } from "../../constants/data";
+import { ContentArea } from "../../enum/ContentArea";
 import type SectI from "../../interfaces/SectI";
+import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 
 const SECTS_MAP_IMAGE = "/assets/map/sects-map.webp";
 
@@ -33,7 +33,7 @@ export const Map = () => {
           type="button"
           className="map__pin map__pin--pavilion"
           style={{ left: `${SHADOW_BAZAAR.positionX}%`, top: `${SHADOW_BAZAAR.positionY}%` }}
-          onClick={() => dispatch(changeContent(ContentArea.BLACK_MARKET))}
+          onClick={() => dispatch(changeContent(routeFromArea(ContentArea.BLACK_MARKET)))}
           title={SHADOW_BAZAAR.description}
         >
           <span className="map__pin-label" aria-hidden>⌗</span>

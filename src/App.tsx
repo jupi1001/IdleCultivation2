@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import { ToastContainer } from "./components/Toast/Toast";
 import { Header } from "./container/Header/Header";
 import { Main } from "./container/Main/Main";
-import { ToastContainer } from "./components/Toast/Toast";
 
 const THEME_KEY = "idle-cultivation-theme";
 

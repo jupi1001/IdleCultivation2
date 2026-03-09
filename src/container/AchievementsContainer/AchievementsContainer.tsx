@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../state/store";
 import {
   ALL_ACHIEVEMENTS,
   ACHIEVEMENT_CATEGORIES,
@@ -8,6 +7,7 @@ import {
   type AchievementCategory,
   type AchievementDef,
 } from "../../constants/achievements";
+import { selectUnlockedAchievements } from "../../state/selectors/appSelectors";
 import "./AchievementsContainer.css";
 
 const CATEGORY_ICONS: Record<AchievementCategory, string> = {
@@ -29,7 +29,7 @@ function formatDate(ts: number): string {
 }
 
 export const AchievementsContainer: React.FC = () => {
-  const unlocked = useSelector((state: RootState) => state.achievements?.unlocked ?? {});
+  const unlocked = useSelector(selectUnlockedAchievements);
   const [activeCategory, setActiveCategory] = useState<AchievementCategory | "all">("all");
 
   const unlockedCount = useMemo(() => Object.keys(unlocked).length, [unlocked]);

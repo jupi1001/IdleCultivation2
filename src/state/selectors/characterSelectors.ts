@@ -1,7 +1,7 @@
 import { createSelector } from "@reduxjs/toolkit";
-import type { RootState } from "../store";
-import type { EquipmentSlot } from "../../types/EquipmentSlot";
-import { WEAKENED_STAT_MULTIPLIER } from "../reducers/characterSlice";
+import { ITEMS_BY_ID } from "../../constants/data";
+import { KARMA_BONUSES_BY_ID, type KarmaBonusId } from "../../constants/reincarnation";
+import { getSectNpcById, getDualCultivationBonusPercent, type SectNpcI } from "../../constants/sectRelationships";
 import {
   SET_IDS,
   FULL_SET_SPEED_BONUS_PERCENT,
@@ -11,12 +11,34 @@ import {
   type SkillSetName,
   type SkillSetTier,
 } from "../../constants/skillSets";
-import { KARMA_BONUSES_BY_ID, type KarmaBonusId } from "../../constants/reincarnation";
 import { getTalentBonuses } from "../../constants/talents";
-import { getSectNpcById, getDualCultivationBonusPercent, type SectNpcI } from "../../constants/sectRelationships";
+import type Item from "../../interfaces/ItemI";
+import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import { getEquipmentSlot } from "../../interfaces/ItemI";
+import { canEnterCombatArea as canEnterCombatAreaRule } from "../../utils/contentRules";
+import { WEAKENED_STAT_MULTIPLIER } from "../reducers/combatSlice";
+import type { RootState } from "../store";
+
+/** Raw normalized inventory (itemId → quantity). Prefer selectItems for UI. */
+export const selectItemsById = (state: RootState) => state.inventory.itemsById;
+
+/** Resolved inventory as Item[] from itemsById + ITEMS_BY_ID. Use for components that expect item list. */
+export const selectItems = createSelector(
+  [selectItemsById],
+  (itemsById) => {
+    const result: Item[] = [];
+    for (const idStr of Object.keys(itemsById)) {
+      const id = Number(idStr);
+      const def = ITEMS_BY_ID[id];
+      const qty = itemsById[id] ?? 1;
+      if (def) result.push({ ...def, quantity: qty });
+    }
+    return result;
+  }
+);
 
 /** Sum equipment bonuses for combat stats. Sword & ring → attack; helmet, body & amulet → defense and vitality; combatTechnique & ring → attack speed; amulet → qiGainBonus. */
-function getEquipmentCombatBonuses(equipment: RootState["character"]["equipment"]) {
+function getEquipmentCombatBonuses(equipment: RootState["equipment"]["equipment"]) {
   let attack = 0;
   let defense = 0;
   let vitality = 0;
@@ -26,26 +48,28 @@ function getEquipmentCombatBonuses(equipment: RootState["character"]["equipment"
   for (const slot of slots) {
     const item = equipment[slot];
     if (item) {
-      if (item.attackBonus != null) attack += item.attackBonus;
-      if (item.defenseBonus != null) defense += item.defenseBonus;
-      if (item.vitalityBonus != null) vitality += item.vitalityBonus;
-      if (item.qiGainBonus != null) qiGainBonus += item.qiGainBonus;
+      if ("attackBonus" in item && item.attackBonus != null) attack += item.attackBonus;
+      if ("defenseBonus" in item && item.defenseBonus != null) defense += item.defenseBonus;
+      if ("vitalityBonus" in item && item.vitalityBonus != null) vitality += item.vitalityBonus;
+      if ("qiGainBonus" in item && item.qiGainBonus != null) qiGainBonus += item.qiGainBonus;
     }
   }
   const combatTech = equipment.combatTechnique;
-  const attackMultiplier = combatTech?.attackMultiplier ?? 1;
-  if (combatTech?.attackSpeedReduction != null) attackSpeedReduction += combatTech.attackSpeedReduction;
-  if (equipment.ring?.attackSpeedReduction != null) attackSpeedReduction += equipment.ring.attackSpeedReduction;
+  const attackMultiplier = combatTech && "attackMultiplier" in combatTech ? combatTech.attackMultiplier ?? 1 : 1;
+  if (combatTech && "attackSpeedReduction" in combatTech && combatTech.attackSpeedReduction != null) attackSpeedReduction += combatTech.attackSpeedReduction;
+  const ring = equipment.ring;
+  if (ring && "attackSpeedReduction" in ring && ring.attackSpeedReduction != null) attackSpeedReduction += ring.attackSpeedReduction;
   return { attack, defense, vitality, attackMultiplier, attackSpeedReduction, qiGainBonus };
 }
 
 /** Item ids the character owns that are techniques (qi or combat). Used to show "Already bought/owned" and to avoid duplicate technique drops. */
 export const getOwnedTechniqueIds = createSelector(
-  [(state: RootState) => state.character.items, (state: RootState) => state.character.equipment],
+  [selectItems, (state: RootState) => state.equipment.equipment],
   (items, equipment) => {
     const ids = new Set<number>();
     for (const item of items) {
-      if (item.equipmentSlot === "qiTechnique" || item.equipmentSlot === "combatTechnique") ids.add(item.id);
+      const slot = getEquipmentSlot(item);
+      if (slot === "qiTechnique" || slot === "combatTechnique") ids.add(item.id);
     }
     if (equipment.qiTechnique?.id != null) ids.add(equipment.qiTechnique.id);
     if (equipment.combatTechnique?.id != null) ids.add(equipment.combatTechnique.id);
@@ -55,11 +79,12 @@ export const getOwnedTechniqueIds = createSelector(
 
 /** Item ids the character owns that are rings or amulets. Used for "Possible loot" checkmark in fishing/gathering. */
 export const getOwnedRingAmuletIds = createSelector(
-  [(state: RootState) => state.character.items, (state: RootState) => state.character.equipment],
+  [selectItems, (state: RootState) => state.equipment.equipment],
   (items, equipment) => {
     const ids = new Set<number>();
     for (const item of items) {
-      if (item.equipmentSlot === "ring" || item.equipmentSlot === "amulet") ids.add(item.id);
+      const slot = getEquipmentSlot(item);
+      if (slot === "ring" || slot === "amulet") ids.add(item.id);
     }
     if (equipment.ring?.id != null) ids.add(equipment.ring.id);
     if (equipment.amulet?.id != null) ids.add(equipment.amulet.id);
@@ -69,16 +94,16 @@ export const getOwnedRingAmuletIds = createSelector(
 
 /** Item ids the character owns that are any skill set pieces (all 6 skills; for "Possible loot" and drop roll). */
 export const getOwnedSetPieceIds = createSelector(
-  [(state: RootState) => state.character.items, (state: RootState) => state.character.equipment],
+  [selectItems, (state: RootState) => state.equipment.equipment],
   (items, equipment) => {
     const ids = new Set<number>();
     const slots: EquipmentSlot[] = ["helmet", "body", "legs", "shoes"];
     for (const item of items) {
-      if (item.skillSet != null && item.skillSetTier != null) ids.add(item.id);
+      if ("skillSet" in item && item.skillSet != null && "skillSetTier" in item && item.skillSetTier != null) ids.add(item.id);
     }
     for (const slot of slots) {
       const eq = equipment[slot];
-      if (eq?.skillSet != null && eq.skillSetTier != null) ids.add(eq.id);
+      if (eq && "skillSet" in eq && eq.skillSet != null && "skillSetTier" in eq && eq.skillSetTier != null) ids.add(eq.id);
     }
     return ids;
   }
@@ -87,16 +112,19 @@ export const getOwnedSetPieceIds = createSelector(
 /** @deprecated Use getOwnedSetPieceIds. Same set for gathering (fishing/mining/gathering). */
 export const getOwnedSkillingSetPieceIds = getOwnedSetPieceIds;
 
-/** Compute skill speed bonus (0–100) for a given gathering skill from equipped set pieces + full-set bonuses. */
+/** Compute skill speed bonus (0–100) for a given gathering skill from equipped set pieces + full-set bonuses.
+ *  Only speed-type talent effects belong here (e.g. fishingSpeedPercent, gatheringSpeedPercent).
+ *  Yield-type effects (e.g. miningYieldPercent = "more ore per swing") must NOT be added to speed;
+ *  use getMiningYieldBonusPercent and apply where ore quantity is calculated. */
 function computeSkillSpeedBonus(
-  equipment: RootState["character"]["equipment"],
+  equipment: RootState["equipment"]["equipment"],
   skill: "fishing" | "mining" | "gathering"
 ): number {
   let total = 0;
   const slots: ("helmet" | "body" | "legs" | "shoes")[] = ["helmet", "body", "legs", "shoes"];
   for (const slot of slots) {
     const item = equipment[slot];
-    if (item?.skillSet === skill && item.skillSpeedBonus != null) {
+    if (item && "skillSet" in item && item.skillSet === skill && "skillSpeedBonus" in item && item.skillSpeedBonus != null) {
       total += item.skillSpeedBonus;
     }
   }
@@ -118,16 +146,24 @@ export const getTalentBonusesSelector = createSelector(
 
 /** Pre-built memoized selectors — one per skill so they never re-allocate. */
 export const getSkillSpeedBonusFishing = createSelector(
-  [(state: RootState) => state.character.equipment, getTalentBonusesSelector],
+  [(state: RootState) => state.equipment.equipment, getTalentBonusesSelector],
   (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "fishing") + talentBonuses.fishingSpeedPercent
 );
 export const getSkillSpeedBonusMining = createSelector(
-  [(state: RootState) => state.character.equipment, getTalentBonusesSelector],
-  (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "mining") + talentBonuses.miningYieldPercent
+  [(state: RootState) => state.equipment.equipment, getTalentBonusesSelector],
+  (equipment, talentBonuses) =>
+    // Intentionally exclude talentBonuses.miningYieldPercent: Miner's Strength affects yield (ore per swing), not cast speed.
+    computeSkillSpeedBonus(equipment, "mining")
 );
 export const getSkillSpeedBonusGathering = createSelector(
-  [(state: RootState) => state.character.equipment, getTalentBonusesSelector],
+  [(state: RootState) => state.equipment.equipment, getTalentBonusesSelector],
   (equipment, talentBonuses) => computeSkillSpeedBonus(equipment, "gathering") + talentBonuses.gatheringSpeedPercent
+);
+
+/** Mining yield bonus from talents (Miner's Strength: "more ore per swing"). Use when computing ore quantity per cast; do not add to getSkillSpeedBonusMining. */
+export const getMiningYieldBonusPercent = createSelector(
+  [getTalentBonusesSelector],
+  (talentBonuses) => talentBonuses.miningYieldPercent
 );
 
 /** Effective combat stats = realm + equipment + consumable bonus + karma + talents. Attack is multiplied by combat technique. When weakened (normal death penalty), stats are reduced. Memoized so same inputs return same reference. */
@@ -139,10 +175,10 @@ export const getEffectiveCombatStats = createSelector(
     (state: RootState) => state.character.bonusAttack,
     (state: RootState) => state.character.bonusDefense,
     (state: RootState) => state.character.bonusHealth,
-    (state: RootState) => state.character.equipment,
-    (state: RootState) => state.character.karmaBonusLevels,
-    (state: RootState) => state.character.deathPenaltyMode,
-    (state: RootState) => state.character.isWeakened,
+    (state: RootState) => state.equipment.equipment,
+    (state: RootState) => state.reincarnation.karmaBonusLevels,
+    (state: RootState) => state.settings.deathPenaltyMode,
+    (state: RootState) => state.combat.isWeakened,
     getTalentBonusesSelector,
   ],
   (attack, defense, health, bonusAttack, bonusDefense, bonusHealth, equipment, karmaBonusLevels, deathPenaltyMode, isWeakened, talentBonuses) => {
@@ -181,37 +217,37 @@ function karmaBonusValue(levels: Partial<Record<KarmaBonusId, number>>, id: Karm
 
 /** Karma multiplier for Qi gain from meditation (1 + bonus%). */
 export const getKarmaQiMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "qiGainPercent") / 100
 );
 
 /** Karma multiplier for skill XP (1 + bonus%). */
 export const getKarmaSkillXpMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "skillXpPercent") / 100
 );
 
 /** Karma multiplier for base attack (1 + bonus%). */
 export const getKarmaAttackMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "attackPercent") / 100
 );
 
 /** Karma multiplier for base defense (1 + bonus%). */
 export const getKarmaDefenseMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "defensePercent") / 100
 );
 
 /** Karma multiplier for base health (1 + bonus%). */
 export const getKarmaHealthMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "healthPercent") / 100
 );
 
 /** Karma multiplier for spirit stone labour income (1 + bonus%). */
 export const getKarmaSpiritStoneMultiplier = createSelector(
-  [(state: RootState) => state.character.karmaBonusLevels],
+  [(state: RootState) => state.reincarnation.karmaBonusLevels],
   (levels) => 1 + karmaBonusValue(levels ?? {}, "spiritStonePercent") / 100
 );
 
@@ -237,7 +273,7 @@ export const getTalentShopDiscountPercent = createSelector(
 export const getOwnedCraftingSetPieceIds = getOwnedSetPieceIds;
 
 /** Compute crafting set bonuses from equipped pieces: XP per skill + full-set bonuses. */
-function computeCraftingSetBonuses(equipment: RootState["character"]["equipment"]) {
+function computeCraftingSetBonuses(equipment: RootState["equipment"]["equipment"]) {
   const slots: ("helmet" | "body" | "legs" | "shoes")[] = ["helmet", "body", "legs", "shoes"];
   let alchemyXpPercent = 0;
   let forgingXpPercent = 0;
@@ -249,7 +285,7 @@ function computeCraftingSetBonuses(equipment: RootState["character"]["equipment"
   for (const skill of ["alchemy", "forging", "cooking"] as SkillSetName[]) {
     for (const slot of slots) {
       const item = equipment[slot];
-      if (item?.skillSet === skill && item.skillXpBonus != null) {
+      if (item && "skillSet" in item && item.skillSet === skill && "skillXpBonus" in item && item.skillXpBonus != null) {
         if (skill === "alchemy") alchemyXpPercent += item.skillXpBonus;
         else if (skill === "forging") forgingXpPercent += item.skillXpBonus;
         else cookingXpPercent += item.skillXpBonus;
@@ -280,7 +316,7 @@ function computeCraftingSetBonuses(equipment: RootState["character"]["equipment"
 
 /** Crafting set bonuses (for alchemy/forging/cooking). */
 export const getCraftingSetBonuses = createSelector(
-  [(state: RootState) => state.character.equipment],
+  [(state: RootState) => state.equipment.equipment],
   (equipment) => computeCraftingSetBonuses(equipment)
 );
 
@@ -329,8 +365,8 @@ export const getTalentAlchemySuccessPercent = createSelector(
 /** Cultivation partner info for meditation (dual cultivation qi bonus). */
 export const getCultivationPartnerInfo = createSelector(
   [
-    (state: RootState) => state.character.cultivationPartner,
-    (state: RootState) => state.character.npcFavor,
+    (state: RootState) => state.sect.cultivationPartner,
+    (state: RootState) => state.sect.npcFavor,
   ],
   (partner, npcFavor) => {
     if (!partner) return { npc: undefined as SectNpcI | undefined, favor: 0, bonusPercent: 0 };
@@ -341,3 +377,79 @@ export const getCultivationPartnerInfo = createSelector(
     return { npc, favor, bonusPercent };
   }
 );
+
+// ─── Focused selectors (avoid subscribing to full character) ───
+/** Base attack from realm (before equipment/bonuses). */
+export const selectAttack = (state: RootState) => state.character.attack;
+/** Base defense from realm. */
+export const selectDefense = (state: RootState) => state.character.defense;
+/** Max vitality from realm. */
+export const selectHealth = (state: RootState) => state.character.health;
+export const selectBonusAttack = (state: RootState) => state.character.bonusAttack;
+export const selectBonusDefense = (state: RootState) => state.character.bonusDefense;
+export const selectBonusHealth = (state: RootState) => state.character.bonusHealth;
+
+export const selectRealm = (state: RootState) => state.character.realm;
+export const selectRealmLevel = (state: RootState) => state.character.realmLevel;
+export const selectPath = (state: RootState) => state.character.path;
+export const selectQi = (state: RootState) => state.character.qi;
+export const selectCurrentHealth = (state: RootState) => state.combat.currentHealth;
+export const selectMoney = (state: RootState) => state.character.money;
+export const selectCurrentActivity = (state: RootState) => state.character.currentActivity;
+export const selectIsWeakened = (state: RootState) => state.combat.isWeakened;
+export const selectDeathPenaltyMode = (state: RootState) => state.settings.deathPenaltyMode;
+export const selectWeakenedMeditationSecondsDone = (state: RootState) => state.combat.weakenedMeditationSecondsDone;
+export const selectEquipment = (state: RootState) => state.equipment.equipment;
+export const selectCurrentFishingArea = (state: RootState) => state.skills.currentFishingArea;
+export const selectFishingXP = (state: RootState) => state.skills.fishingXP;
+export const selectCurrentMiningArea = (state: RootState) => state.skills.currentMiningArea;
+export const selectMiningXP = (state: RootState) => state.skills.miningXP;
+export const selectCurrentGatheringArea = (state: RootState) => state.skills.currentGatheringArea;
+export const selectGatheringXP = (state: RootState) => state.skills.gatheringXP;
+export const selectAutoLoot = (state: RootState) => state.settings.autoLoot;
+export const selectAutoEatUnlocked = (state: RootState) => state.settings.autoEatUnlocked;
+export const selectAutoEat = (state: RootState) => state.settings.autoEat;
+export const selectAutoEatHpPercent = (state: RootState) => state.settings.autoEatHpPercent;
+export const selectGender = (state: RootState) => state.character.gender;
+export const selectReincarnationCount = (state: RootState) => state.reincarnation.reincarnationCount;
+export const selectStats = (state: RootState) => state.stats;
+export const selectCurrentSectId = (state: RootState) => state.sect.currentSectId;
+export const selectSectRankIndex = (state: RootState) => state.sect.sectRankIndex;
+export const selectPromotionEndTime = (state: RootState) => state.sect.promotionEndTime;
+export const selectPromotionToRankIndex = (state: RootState) => state.sect.promotionToRankIndex;
+export const selectSectQuestProgress = (state: RootState) => state.sect.sectQuestProgress;
+export const selectSectQuestKillCount = (state: RootState) => state.sect.sectQuestKillCount;
+export const selectObtainedSectTreasureIds = (state: RootState) => state.sect.obtainedSectTreasureIds;
+export const selectNpcFavor = (state: RootState) => state.sect.npcFavor;
+export const selectRealmDialogueUsed = (state: RootState) => state.sect.realmDialogueUsed;
+export const selectCultivationPartner = (state: RootState) => state.sect.cultivationPartner;
+export const selectLastOfflineSummary = (state: RootState) => state.character.lastOfflineSummary;
+export const selectAutoLootUnlocked = (state: RootState) => state.settings.autoLootUnlocked;
+export const selectFishingCastStartTime = (state: RootState) => state.skills.fishingCastStartTime;
+export const selectMiningCastStartTime = (state: RootState) => state.skills.miningCastStartTime;
+export const selectGatheringCastStartTime = (state: RootState) => state.skills.gatheringCastStartTime;
+export const selectFishingCastDuration = (state: RootState) => state.skills.fishingCastDuration;
+export const selectMiningCastDuration = (state: RootState) => state.skills.miningCastDuration;
+export const selectGatheringCastDuration = (state: RootState) => state.skills.gatheringCastDuration;
+export const selectMiner = (state: RootState) => state.character.miner;
+export const selectAlchemyXP = (state: RootState) => state.skills.alchemyXP;
+export const selectForgingXP = (state: RootState) => state.skills.forgingXP;
+export const selectCookingXP = (state: RootState) => state.skills.cookingXP;
+export const selectLastActiveTimestamp = (state: RootState) => state.character.lastActiveTimestamp;
+export const selectNotificationPrefs = (state: RootState) => state.settings.notificationPrefs;
+export const selectKarmaPoints = (state: RootState) => state.reincarnation.karmaPoints;
+export const selectTotalKarmaEarned = (state: RootState) => state.reincarnation.totalKarmaEarned;
+export const selectKarmaBonusLevels = (state: RootState) => state.reincarnation.karmaBonusLevels;
+export const selectTalentLevels = (state: RootState) => state.character.talentLevels;
+export const selectExpeditionEndTime = (state: RootState) => state.avatars.expeditionEndTime;
+export const selectExpeditionMissionId = (state: RootState) => state.avatars.expeditionMissionId;
+export const selectAvatars = (state: RootState) => state.avatars.avatars;
+
+/** Whether the character can enter the given combat area (realm/level check). Uses centralized content rules. */
+export function selectCanEnterCombatArea(state: RootState, areaKey: string): boolean {
+  return canEnterCombatAreaRule(
+    selectRealm(state),
+    selectRealmLevel(state),
+    areaKey
+  );
+}

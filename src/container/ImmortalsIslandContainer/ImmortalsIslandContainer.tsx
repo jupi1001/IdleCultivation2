@@ -1,15 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
-import {
-  addMoney,
-  addItem,
-  startExpedition,
-  clearExpedition,
-  createAvatar,
-  trainAvatar,
-} from "../../state/reducers/characterSlice";
-import { addToast } from "../../state/reducers/toastSlice";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../state/store";
 import { canEnterArea, formatRealmRequirement } from "../../constants/areaRealmRequirements";
 import {
   AVATAR_CREATE_ORE_AMOUNT,
@@ -23,11 +14,36 @@ import {
 } from "../../constants/avatars";
 import {
   EXPEDITION_MISSIONS,
+  EXPEDITION_MISSIONS_BY_ID,
   getExpeditionItem,
 } from "../../constants/expeditions";
+import type { MissionI } from "../../interfaces/MissionI";
+import {
+  addMoney,
+  reduceMoney,
+} from "../../state/reducers/characterCoreSlice";
+import {
+  startExpedition,
+  clearExpedition,
+} from "../../state/reducers/avatarsThunks";
+import { createAvatar, trainAvatar } from "../../state/reducers/avatarsSlice";
+import { addItemById, consumeItems } from "../../state/reducers/inventorySlice";
+import { addToast } from "../../state/reducers/toastSlice";
+import {
+  selectRealm,
+  selectRealmLevel,
+  selectExpeditionEndTime,
+  selectExpeditionMissionId,
+  selectCurrentActivity,
+  selectMoney,
+  selectItemsById,
+  selectEquipment,
+  selectAvatars,
+} from "../../state/selectors/characterSelectors";
+import { ITEMS_BY_ID } from "../../constants/data";
+import { getConsumableEffect } from "../../interfaces/ItemI";
 import { rollOneTimeDropFromTable } from "../../utils/oneTimeDrops";
 import { getOwnedItemIds } from "../../utils/ownership";
-import type { MissionI } from "../../interfaces/MissionI";
 import "./ImmortalsIslandContainer.css";
 
 /** Group missions by required realm, preserving mission order (realm order follows first occurrence). */
@@ -53,28 +69,39 @@ function formatDuration(seconds: number): string {
 }
 
 export const ImmortalsIslandContainer = () => {
-  const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
-  const {
-    realm,
-    realmLevel,
-    expeditionEndTime,
-    expeditionMissionId,
-    currentActivity,
-    money,
-    items,
-  } = character;
-  const avatars = character.avatars ?? [];
+  const dispatch = useAppDispatch();
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
+  const expeditionEndTime = useSelector(selectExpeditionEndTime);
+  const expeditionMissionId = useSelector(selectExpeditionMissionId);
+  const currentActivity = useSelector(selectCurrentActivity);
+  const money = useSelector(selectMoney);
+  const itemsById = useSelector(selectItemsById);
+  const equipment = useSelector(selectEquipment);
+  const avatarsResolved = useSelector(selectAvatars);
+  const avatars = avatarsResolved ?? [];
   const [tick, setTick] = useState(0);
   const [avatarsOpen, setAvatarsOpen] = useState(true);
   const [createName, setCreateName] = useState("");
   const completionCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const characterRef = useRef(character);
-  characterRef.current = character;
+  const expeditionContextRef = useRef({
+    expeditionEndTime,
+    expeditionMissionId,
+    itemsById,
+    equipment,
+    avatars,
+  });
+  expeditionContextRef.current = {
+    expeditionEndTime,
+    expeditionMissionId,
+    itemsById,
+    equipment,
+    avatars,
+  };
 
   const isMainOnExpedition = currentActivity === "expedition" && expeditionEndTime != null;
   const currentMission = expeditionMissionId != null
-    ? EXPEDITION_MISSIONS.find((m) => m.id === expeditionMissionId)
+    ? EXPEDITION_MISSIONS_BY_ID[expeditionMissionId]
     : null;
   const mainSecondsLeft =
     isMainOnExpedition && expeditionEndTime != null
@@ -83,8 +110,8 @@ export const ImmortalsIslandContainer = () => {
 
   const anyAvatarBusy = avatars.some((a) => a.isBusy);
 
-  const oreQty = items.find((i) => i.id === AVATAR_CREATE_ORE_ID)?.quantity ?? 0;
-  const woodQty = items.find((i) => i.id === AVATAR_CREATE_WOOD_ID)?.quantity ?? 0;
+  const oreQty = itemsById[AVATAR_CREATE_ORE_ID] ?? 0;
+  const woodQty = itemsById[AVATAR_CREATE_WOOD_ID] ?? 0;
   const canAffordAvatar =
     money >= AVATAR_CREATE_SPIRIT_STONES &&
     oreQty >= AVATAR_CREATE_ORE_AMOUNT &&
@@ -100,21 +127,21 @@ export const ImmortalsIslandContainer = () => {
 
   useEffect(() => {
     const checkCompletions = () => {
-      const current = characterRef.current;
+      const current = expeditionContextRef.current;
       const now = Date.now();
 
       if (current.expeditionEndTime != null && now >= current.expeditionEndTime) {
-        const mission = EXPEDITION_MISSIONS.find((m) => m.id === current.expeditionMissionId);
+        const mission = current.expeditionMissionId != null ? EXPEDITION_MISSIONS_BY_ID[current.expeditionMissionId] : undefined;
         if (mission) {
           const spiritStones =
             mission.spiritStonesMin +
             Math.floor(Math.random() * (mission.spiritStonesMax - mission.spiritStonesMin + 1));
           dispatch(addMoney(spiritStones));
-          const ownedIds = getOwnedItemIds({ items: current.items, equipment: current.equipment });
+          const ownedIds = getOwnedItemIds({ itemsById: current.itemsById, equipment: current.equipment });
           const rareItem = rollOneTimeDropFromTable(ownedIds, mission.rareDrops, getExpeditionItem);
           let rareItemName: string | null = null;
           if (rareItem) {
-            dispatch(addItem({ ...rareItem, quantity: 1 }));
+            dispatch(addItemById({ itemId: rareItem.id, amount: 1 }));
             rareItemName = rareItem.name;
           }
           dispatch(clearExpedition({ entityType: "main" }));
@@ -126,18 +153,18 @@ export const ImmortalsIslandContainer = () => {
 
       for (const avatar of current.avatars ?? []) {
         if (avatar.expeditionEndTime == null || now < avatar.expeditionEndTime) continue;
-        const mission = EXPEDITION_MISSIONS.find((m) => m.id === avatar.expeditionMissionId);
+        const mission = avatar.expeditionMissionId != null ? EXPEDITION_MISSIONS_BY_ID[avatar.expeditionMissionId] : undefined;
         if (mission) {
           const spiritStones =
             mission.spiritStonesMin +
             Math.floor(Math.random() * (mission.spiritStonesMax - mission.spiritStonesMin + 1));
           dispatch(addMoney(spiritStones));
-          const stateForRare = characterRef.current;
-          const ownedIds = getOwnedItemIds({ items: stateForRare.items, equipment: stateForRare.equipment });
+          const stateForRare = expeditionContextRef.current;
+          const ownedIds = getOwnedItemIds({ itemsById: stateForRare.itemsById, equipment: stateForRare.equipment });
           const rareItem = rollOneTimeDropFromTable(ownedIds, mission.rareDrops, getExpeditionItem);
           let rareItemName: string | null = null;
           if (rareItem) {
-            dispatch(addItem({ ...rareItem, quantity: 1 }));
+            dispatch(addItemById({ itemId: rareItem.id, amount: 1 }));
             rareItemName = rareItem.name;
           }
           dispatch(clearExpedition({ entityType: "avatar", avatarId: avatar.id }));
@@ -172,6 +199,12 @@ export const ImmortalsIslandContainer = () => {
 
   const handleCreateAvatar = () => {
     const name = createName.trim() || `Avatar ${avatars.length + 1}`;
+    if (!canAffordAvatar) return;
+    dispatch(reduceMoney(AVATAR_CREATE_SPIRIT_STONES));
+    dispatch(consumeItems([
+      { itemId: AVATAR_CREATE_ORE_ID, amount: AVATAR_CREATE_ORE_AMOUNT },
+      { itemId: AVATAR_CREATE_WOOD_ID, amount: AVATAR_CREATE_WOOD_AMOUNT },
+    ]));
     dispatch(createAvatar({ name }));
     setCreateName("");
   };
@@ -199,7 +232,7 @@ export const ImmortalsIslandContainer = () => {
         <>
           {avatars.filter((a) => a.isBusy).map((avatar) => {
             const mission = avatar.expeditionMissionId != null
-              ? EXPEDITION_MISSIONS.find((m) => m.id === avatar.expeditionMissionId)
+              ? EXPEDITION_MISSIONS_BY_ID[avatar.expeditionMissionId]
               : null;
             const secLeft = avatar.expeditionEndTime != null
               ? Math.max(0, Math.ceil((avatar.expeditionEndTime - Date.now()) / 1000))
@@ -241,19 +274,35 @@ export const ImmortalsIslandContainer = () => {
                           type="button"
                           className="immortalsIsland__avatar-train-btn"
                           disabled={money < AVATAR_TRAIN_SPIRIT_STONES}
-                          onClick={() => dispatch(trainAvatar({ avatarId: a.id, costType: "spiritStones" }))}
+                          onClick={() => {
+                            dispatch(reduceMoney(AVATAR_TRAIN_SPIRIT_STONES));
+                            dispatch(trainAvatar({ avatarId: a.id, costType: "spiritStones" }));
+                          }}
                           title={`Spend ${AVATAR_TRAIN_SPIRIT_STONES} Spirit Stones to increase ${a.name}'s power by 1`}
                         >
                           Train ({AVATAR_TRAIN_SPIRIT_STONES} Spirit Stones)
                         </button>
                         {(() => {
-                          const qiPill = items.find((i) => i.effect === "qi" && (i.quantity ?? 0) >= AVATAR_TRAIN_QI_PILL_AMOUNT);
+                          const qiPillId = Object.keys(ITEMS_BY_ID)
+                            .map(Number)
+                            .find(
+                              (id) => {
+                                const item = ITEMS_BY_ID[id];
+                                const eff = item ? getConsumableEffect(item) : null;
+                                return eff != null && eff.type === "grantQi" && (itemsById[id] ?? 0) >= AVATAR_TRAIN_QI_PILL_AMOUNT;
+                              }
+                            );
+                          const qiPill = qiPillId != null ? ITEMS_BY_ID[qiPillId] : null;
                           return (
                             <button
                               type="button"
                               className="immortalsIsland__avatar-train-btn"
                               disabled={!qiPill}
-                              onClick={() => qiPill && dispatch(trainAvatar({ avatarId: a.id, costType: "qiPill", itemId: qiPill.id }))}
+                              onClick={() => {
+                                if (!qiPill) return;
+                                dispatch(consumeItems([{ itemId: qiPill.id, amount: AVATAR_TRAIN_QI_PILL_AMOUNT }]));
+                                dispatch(trainAvatar({ avatarId: a.id, costType: "qiPill", itemId: qiPill.id }));
+                              }}
                               title={qiPill ? `Spend 1 ${qiPill.name} to increase ${a.name}'s power by 1` : "Requires at least one Qi Pill in inventory"}
                             >
                               Train (1 Qi Pill)

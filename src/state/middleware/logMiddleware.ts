@@ -1,8 +1,8 @@
 import type { Middleware } from "@reduxjs/toolkit";
-import { breakthrough } from "../reducers/characterSlice";
-import { addToast } from "../reducers/toastSlice";
-import { addLogEntry } from "../reducers/logSlice";
 import { formatRealm } from "../../constants/realmProgression";
+import { breakthrough } from "../reducers/characterCoreSlice";
+import { addLogEntry } from "../reducers/logSlice";
+import { addToast } from "../reducers/toastSlice";
 
 /**
  * Listens for actions that should create activity log entries and dispatches addLogEntry.

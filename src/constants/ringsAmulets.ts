@@ -1,7 +1,7 @@
 import type Item from "../interfaces/ItemI";
 import type { EquipmentSlot } from "../types/EquipmentSlot";
-import { GEM_IDS } from "./gems";
 import type { ForgingIngredient } from "./forging";
+import { GEM_IDS } from "./gems";
 
 const FORGING_ASSETS = "/assets/forging";
 
@@ -74,33 +74,37 @@ export interface RingAmuletRecipeI {
 /** All ring and amulet items (for lookup and loot tables). */
 export const RING_AMULET_ITEMS: (Item & { equipmentSlot: EquipmentSlot })[] = [
   // Forged rings (tier 1–8)
-  { id: RING_IDS.spiritGathering, name: "Spirit Gathering Ring", description: "Copper and Spirit Crystal. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/spirit-gathering-ring.webp`, equipmentSlot: "ring", ...ringStats(1) },
-  { id: RING_IDS.meridianFlow, name: "Meridian Flow Ring", description: "Iron and Ruby. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/meridian-flow-ring.webp`, equipmentSlot: "ring", ...ringStats(2) },
-  { id: RING_IDS.earthRoot, name: "Earth Root Ring", description: "Spirit Bar and Sapphire. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/earth-root-ring.webp`, equipmentSlot: "ring", ...ringStats(3) },
-  { id: RING_IDS.jadePulse, name: "Jade Pulse Ring", description: "Jade Bar and Jade Shard. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/jade-pulse-ring.webp`, equipmentSlot: "ring", ...ringStats(4) },
-  { id: RING_IDS.thunderSpark, name: "Thunder Spark Ring", description: "Thunder Crystal Bar and Topaz. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/thunder-spark-ring.webp`, equipmentSlot: "ring", ...ringStats(5) },
-  { id: RING_IDS.voidWhisper, name: "Void Whisper Ring", description: "Voidstone Bar and Amethyst. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/void-whisper-ring.webp`, equipmentSlot: "ring", ...ringStats(6) },
-  { id: RING_IDS.dragonVein, name: "Dragon Vein Ring", description: "Dragonbone Bar and Onyx. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/dragon-vein-ring.webp`, equipmentSlot: "ring", ...ringStats(7) },
-  { id: RING_IDS.celestialGlow, name: "Celestial Glow Ring", description: "Celestial Bar and Sunstone. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/celestial-glow-ring.webp`, equipmentSlot: "ring", ...ringStats(8) },
+  { kind: "equipment", id: RING_IDS.spiritGathering, name: "Spirit Gathering Ring", description: "Copper and Spirit Crystal. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/spirit-gathering-ring.webp`, equipmentSlot: "ring", ...ringStats(1) },
+  { kind: "equipment", id: RING_IDS.meridianFlow, name: "Meridian Flow Ring", description: "Iron and Ruby. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/meridian-flow-ring.webp`, equipmentSlot: "ring", ...ringStats(2) },
+  { kind: "equipment", id: RING_IDS.earthRoot, name: "Earth Root Ring", description: "Spirit Bar and Sapphire. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/earth-root-ring.webp`, equipmentSlot: "ring", ...ringStats(3) },
+  { kind: "equipment", id: RING_IDS.jadePulse, name: "Jade Pulse Ring", description: "Jade Bar and Jade Shard. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/jade-pulse-ring.webp`, equipmentSlot: "ring", ...ringStats(4) },
+  { kind: "equipment", id: RING_IDS.thunderSpark, name: "Thunder Spark Ring", description: "Thunder Crystal Bar and Topaz. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/thunder-spark-ring.webp`, equipmentSlot: "ring", ...ringStats(5) },
+  { kind: "equipment", id: RING_IDS.voidWhisper, name: "Void Whisper Ring", description: "Voidstone Bar and Amethyst. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/void-whisper-ring.webp`, equipmentSlot: "ring", ...ringStats(6) },
+  { kind: "equipment", id: RING_IDS.dragonVein, name: "Dragon Vein Ring", description: "Dragonbone Bar and Onyx. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/dragon-vein-ring.webp`, equipmentSlot: "ring", ...ringStats(7) },
+  { kind: "equipment", id: RING_IDS.celestialGlow, name: "Celestial Glow Ring", description: "Celestial Bar and Sunstone. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/celestial-glow-ring.webp`, equipmentSlot: "ring", ...ringStats(8) },
   // Rare rings (fixed stats)
-  { id: RING_IDS.moonlitReflection, name: "Moonlit Reflection Ring", description: "Rare drop from Moonlit Reflection Pool. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/moonlit-reflection-ring.webp`, equipmentSlot: "ring", attackBonus: 4, attackSpeedReduction: 72 },
-  { id: RING_IDS.primordialSeal, name: "Primordial Seal Ring", description: "Rare drop from Transcendent Spirit Peak. All-round small bonuses.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/primordial-seal-ring.webp`, equipmentSlot: "ring", attackBonus: 2, defenseBonus: 2, vitalityBonus: 2, attackSpeedReduction: 36 },
+  { kind: "equipment", id: RING_IDS.moonlitReflection, name: "Moonlit Reflection Ring", description: "Rare drop from Moonlit Reflection Pool. Attack speed + attack.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/moonlit-reflection-ring.webp`, equipmentSlot: "ring", attackBonus: 4, attackSpeedReduction: 72 },
+  { kind: "equipment", id: RING_IDS.primordialSeal, name: "Primordial Seal Ring", description: "Rare drop from Transcendent Spirit Peak. All-round small bonuses.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/ring/primordial-seal-ring.webp`, equipmentSlot: "ring", attackBonus: 2, defenseBonus: 2, vitalityBonus: 2, attackSpeedReduction: 36 },
   // Forged amulets (tier 1–7 + Void Refuge)
-  { id: AMULET_IDS.clearMind, name: "Clear Mind Amulet", description: "Tin Bar and Spirit Crystal. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/clear-mind-amulet.webp`, equipmentSlot: "amulet", ...amuletStats(1) },
-  { id: AMULET_IDS.guardianTalisman, name: "Guardian Talisman", description: "Silver Bar and Emerald. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/guardian-talisman.webp`, equipmentSlot: "amulet", ...amuletStats(2) },
-  { id: AMULET_IDS.bloodQiPendant, name: "Blood Qi Pendant", description: "Gold Bar and Ruby. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/blood-qi-pendant.webp`, equipmentSlot: "amulet", ...amuletStats(3) },
-  { id: AMULET_IDS.starAnchor, name: "Star Anchor Amulet", description: "Star Iron Bar and Moonstone. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/star-anchor-amulet.webp`, equipmentSlot: "amulet", ...amuletStats(4) },
-  { id: AMULET_IDS.demonWard, name: "Demon Ward Amulet", description: "Obsidian Bar and Onyx. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/demon-ward-amulet.webp`, equipmentSlot: "amulet", ...amuletStats(5) },
-  { id: AMULET_IDS.heavensBreath, name: "Heaven's Breath Amulet", description: "Celestial Bar, Sapphire and Spirit Crystal. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/heavens-breath-amulet.webp`, equipmentSlot: "amulet", ...amuletStats(7) },
+  { kind: "equipment", id: AMULET_IDS.clearMind, name: "Clear Mind Amulet", description: "Tin Bar and Spirit Crystal. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/clear-mind-amulet.webp`, equipmentSlot: "amulet", ...amuletStats(1) },
+  { kind: "equipment", id: AMULET_IDS.guardianTalisman, name: "Guardian Talisman", description: "Silver Bar and Emerald. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/guardian-talisman.webp`, equipmentSlot: "amulet", ...amuletStats(2) },
+  { kind: "equipment", id: AMULET_IDS.bloodQiPendant, name: "Blood Qi Pendant", description: "Gold Bar and Ruby. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/blood-qi-pendant.webp`, equipmentSlot: "amulet", ...amuletStats(3) },
+  { kind: "equipment", id: AMULET_IDS.starAnchor, name: "Star Anchor Amulet", description: "Star Iron Bar and Moonstone. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/star-anchor-amulet.webp`, equipmentSlot: "amulet", ...amuletStats(4) },
+  { kind: "equipment", id: AMULET_IDS.demonWard, name: "Demon Ward Amulet", description: "Obsidian Bar and Onyx. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/demon-ward-amulet.webp`, equipmentSlot: "amulet", ...amuletStats(5) },
+  { kind: "equipment", id: AMULET_IDS.heavensBreath, name: "Heaven's Breath Amulet", description: "Celestial Bar, Sapphire and Spirit Crystal. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/heavens-breath-amulet.webp`, equipmentSlot: "amulet", ...amuletStats(7) },
   // Rare amulets
-  { id: AMULET_IDS.eightMeridian, name: "Eight Meridian Amulet", description: "Rare drop from Heavenly River. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/eight-meridian-amulet.webp`, equipmentSlot: "amulet", defenseBonus: 4, vitalityBonus: 4, qiGainBonus: 12 },
-  { id: AMULET_IDS.spiritHerbCharm, name: "Spirit Herb Charm", description: "Rare drop from Primordial Herb Garden. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/spirit-herb-charm.webp`, equipmentSlot: "amulet", defenseBonus: 3, vitalityBonus: 3, qiGainBonus: 9 },
-  { id: AMULET_IDS.voidRefuge, name: "Void Refuge Amulet", description: "Voidstone Bar and Amethyst. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/void-refuge-amulet.webp`, equipmentSlot: "amulet", ...amuletStats(6) },
-  { id: AMULET_IDS.transcendentDao, name: "Transcendent Dao Amulet", description: "Rare drop from Primordial Spirit Sea. All-round moderate bonuses.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/transcendent-dao-amulet.webp`, equipmentSlot: "amulet", defenseBonus: 5, vitalityBonus: 5, qiGainBonus: 15 },
+  { kind: "equipment", id: AMULET_IDS.eightMeridian, name: "Eight Meridian Amulet", description: "Rare drop from Heavenly River. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/eight-meridian-amulet.webp`, equipmentSlot: "amulet", defenseBonus: 4, vitalityBonus: 4, qiGainBonus: 12 },
+  { kind: "equipment", id: AMULET_IDS.spiritHerbCharm, name: "Spirit Herb Charm", description: "Rare drop from Primordial Herb Garden. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/spirit-herb-charm.webp`, equipmentSlot: "amulet", defenseBonus: 3, vitalityBonus: 3, qiGainBonus: 9 },
+  { kind: "equipment", id: AMULET_IDS.voidRefuge, name: "Void Refuge Amulet", description: "Voidstone Bar and Amethyst. Qi/s, defense, vitality.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/void-refuge-amulet.webp`, equipmentSlot: "amulet", ...amuletStats(6) },
+  { kind: "equipment", id: AMULET_IDS.transcendentDao, name: "Transcendent Dao Amulet", description: "Rare drop from Primordial Spirit Sea. All-round moderate bonuses.", price: 0, quantity: 1, picture: `${FORGING_ASSETS}/amulet/transcendent-dao-amulet.webp`, equipmentSlot: "amulet", defenseBonus: 5, vitalityBonus: 5, qiGainBonus: 15 },
 ];
 
+export const RING_AMULET_ITEMS_BY_ID: Record<number, Item & { equipmentSlot: EquipmentSlot }> = Object.fromEntries(
+  RING_AMULET_ITEMS.map((i) => [i.id, i])
+) as Record<number, Item & { equipmentSlot: EquipmentSlot }>;
+
 export function getRingAmuletItemById(id: number): (Item & { equipmentSlot: EquipmentSlot }) | undefined {
-  return RING_AMULET_ITEMS.find((i) => i.id === id);
+  return RING_AMULET_ITEMS_BY_ID[id];
 }
 
 /** Forged ring/amulet recipes (bars + gems). Rare items are drop-only. */

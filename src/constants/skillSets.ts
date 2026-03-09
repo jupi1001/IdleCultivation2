@@ -131,6 +131,7 @@ function buildPiece(
   if (isGatheringSkill(skill)) {
     const fullSet = FULL_SET_SPEED_BONUS_PERCENT[tier];
     return {
+      kind: "setPiece",
       id,
       name: `${tierLabel[tier]} ${skillLabel} ${slotLabel}`,
       description: `Part of the ${tierLabel[tier]} ${skillLabel} set. +${bonus}% ${skill} speed per piece. Full set grants an extra +${fullSet}%.`,
@@ -151,6 +152,7 @@ function buildPiece(
         ? FULL_SET_FORGING_SAVINGS_PERCENT[tier]
         : FULL_SET_COOKING_DOUBLE_PERCENT[tier];
   return {
+    kind: "setPiece",
     id,
     name: `${tierLabel[tier]} ${skillLabel} ${slotLabel}`,
     description: `Part of the ${tierLabel[tier]} ${skillLabel} set. +${bonus}% ${skill} XP per piece. Full set grants +${fullSetVal}% ${fullSetBonusLabel(skill)}.`,
@@ -187,8 +189,12 @@ function buildAllPieces(): SkillSetItem[] {
 
 export const SET_ITEMS: SkillSetItem[] = buildAllPieces();
 
+export const SET_ITEMS_BY_ID: Record<number, SkillSetItem> = Object.fromEntries(
+  SET_ITEMS.map((i) => [i.id, i])
+) as Record<number, SkillSetItem>;
+
 export function getSetItemById(id: number): SkillSetItem | undefined {
-  return SET_ITEMS.find((i) => i.id === id);
+  return SET_ITEMS_BY_ID[id];
 }
 
 export const ALL_SET_ITEM_IDS = SET_ITEMS.map((i) => i.id);

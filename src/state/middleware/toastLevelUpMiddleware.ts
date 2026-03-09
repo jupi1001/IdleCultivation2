@@ -1,19 +1,19 @@
 import type { Middleware } from "@reduxjs/toolkit";
-import { addToast } from "../reducers/toastSlice";
+import { getAlchemyLevelInfo } from "../../constants/alchemy";
+import { getCookingLevelInfo } from "../../constants/cooking";
+import { getFishingLevelInfo } from "../../constants/fishingLevel";
+import { getForgingLevelInfo } from "../../constants/forging";
+import { getGatheringLevelInfo } from "../../constants/gatheringLevel";
+import { getMiningLevelInfo } from "../../constants/miningLevel";
 import {
-  completeFishingCast,
-  completeMiningCast,
-  completeGatheringCast,
+  completeFishingCastCommit,
+  completeMiningCastCommit,
+  completeGatheringCastCommit,
   addCookingXP,
   addAlchemyXP,
   addForgingXP,
-} from "../reducers/characterSlice";
-import { getFishingLevelInfo } from "../../constants/fishingLevel";
-import { getMiningLevelInfo } from "../../constants/miningLevel";
-import { getGatheringLevelInfo } from "../../constants/gatheringLevel";
-import { getCookingLevelInfo } from "../../constants/cooking";
-import { getAlchemyLevelInfo } from "../../constants/alchemy";
-import { getForgingLevelInfo } from "../../constants/forging";
+} from "../reducers/skillsSlice";
+import { addToast } from "../reducers/toastSlice";
 
 const SKILL_LABELS: Record<string, string> = {
   fishing: "Fishing",
@@ -28,13 +28,13 @@ export const toastLevelUpMiddleware: Middleware = (store) => (next) => (action) 
   const stateBefore = store.getState();
   next(action);
   const stateAfter = store.getState();
-  const charBefore = stateBefore.character;
-  const charAfter = stateAfter.character;
+  const skillsBefore = stateBefore.skills;
+  const skillsAfter = stateAfter.skills;
 
-  if (completeFishingCast.match(action)) {
-    if (charAfter.fishingXP > charBefore.fishingXP) {
-      const levelAfter = getFishingLevelInfo(charAfter.fishingXP).level;
-      const levelBefore = getFishingLevelInfo(charBefore.fishingXP).level;
+  if (completeFishingCastCommit.match(action)) {
+    if (skillsAfter.fishingXP > skillsBefore.fishingXP) {
+      const levelAfter = getFishingLevelInfo(skillsAfter.fishingXP).level;
+      const levelBefore = getFishingLevelInfo(skillsBefore.fishingXP).level;
       if (levelAfter > levelBefore) {
         store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.fishing, level: levelAfter }));
       }
@@ -42,10 +42,10 @@ export const toastLevelUpMiddleware: Middleware = (store) => (next) => (action) 
     return;
   }
 
-  if (completeMiningCast.match(action)) {
-    if (charAfter.miningXP > charBefore.miningXP) {
-      const levelAfter = getMiningLevelInfo(charAfter.miningXP).level;
-      const levelBefore = getMiningLevelInfo(charBefore.miningXP).level;
+  if (completeMiningCastCommit.match(action)) {
+    if (skillsAfter.miningXP > skillsBefore.miningXP) {
+      const levelAfter = getMiningLevelInfo(skillsAfter.miningXP).level;
+      const levelBefore = getMiningLevelInfo(skillsBefore.miningXP).level;
       if (levelAfter > levelBefore) {
         store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.mining, level: levelAfter }));
       }
@@ -53,10 +53,10 @@ export const toastLevelUpMiddleware: Middleware = (store) => (next) => (action) 
     return;
   }
 
-  if (completeGatheringCast.match(action)) {
-    if (charAfter.gatheringXP > charBefore.gatheringXP) {
-      const levelAfter = getGatheringLevelInfo(charAfter.gatheringXP).level;
-      const levelBefore = getGatheringLevelInfo(charBefore.gatheringXP).level;
+  if (completeGatheringCastCommit.match(action)) {
+    if (skillsAfter.gatheringXP > skillsBefore.gatheringXP) {
+      const levelAfter = getGatheringLevelInfo(skillsAfter.gatheringXP).level;
+      const levelBefore = getGatheringLevelInfo(skillsBefore.gatheringXP).level;
       if (levelAfter > levelBefore) {
         store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.gathering, level: levelAfter }));
       }
@@ -65,9 +65,9 @@ export const toastLevelUpMiddleware: Middleware = (store) => (next) => (action) 
   }
 
   if (addCookingXP.match(action)) {
-    if (charAfter.cookingXP > charBefore.cookingXP) {
-      const levelAfter = getCookingLevelInfo(charAfter.cookingXP).level;
-      const levelBefore = getCookingLevelInfo(charBefore.cookingXP).level;
+    if (skillsAfter.cookingXP > skillsBefore.cookingXP) {
+      const levelAfter = getCookingLevelInfo(skillsAfter.cookingXP).level;
+      const levelBefore = getCookingLevelInfo(skillsBefore.cookingXP).level;
       if (levelAfter > levelBefore) {
         store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.cooking, level: levelAfter }));
       }
@@ -76,9 +76,9 @@ export const toastLevelUpMiddleware: Middleware = (store) => (next) => (action) 
   }
 
   if (addAlchemyXP.match(action)) {
-    if (charAfter.alchemyXP > charBefore.alchemyXP) {
-      const levelAfter = getAlchemyLevelInfo(charAfter.alchemyXP).level;
-      const levelBefore = getAlchemyLevelInfo(charBefore.alchemyXP).level;
+    if (skillsAfter.alchemyXP > skillsBefore.alchemyXP) {
+      const levelAfter = getAlchemyLevelInfo(skillsAfter.alchemyXP).level;
+      const levelBefore = getAlchemyLevelInfo(skillsBefore.alchemyXP).level;
       if (levelAfter > levelBefore) {
         store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.alchemy, level: levelAfter }));
       }
@@ -87,9 +87,9 @@ export const toastLevelUpMiddleware: Middleware = (store) => (next) => (action) 
   }
 
   if (addForgingXP.match(action)) {
-    if (charAfter.forgingXP > charBefore.forgingXP) {
-      const levelAfter = getForgingLevelInfo(charAfter.forgingXP).level;
-      const levelBefore = getForgingLevelInfo(charBefore.forgingXP).level;
+    if (skillsAfter.forgingXP > skillsBefore.forgingXP) {
+      const levelAfter = getForgingLevelInfo(skillsAfter.forgingXP).level;
+      const levelBefore = getForgingLevelInfo(skillsBefore.forgingXP).level;
       if (levelAfter > levelBefore) {
         store.dispatch(addToast({ type: "levelUp", skill: SKILL_LABELS.forging, level: levelAfter }));
       }

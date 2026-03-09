@@ -1,31 +1,51 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../state/store";
-import { breakthrough, setCurrentActivity, setCultivationPartner } from "../../state/reducers/characterSlice";
-import { formatRealm, getBreakthroughQiRequired, getNextRealm, getBreakthroughStatGainText } from "../../constants/realmProgression";
+import { Tooltip } from "../../components/Tooltip/Tooltip";
 import { ACTIVITY_LABELS } from "../../constants/activities";
 import { BASE_QI_PER_SECOND } from "../../constants/meditation";
-import { getCharacterImage } from "../../constants/ui";
-import { getKarmaQiMultiplier, getTalentQiGainBonus, getCultivationPartnerInfo } from "../../state/selectors/characterSelectors";
+import { formatRealm, getBreakthroughQiRequired, getNextRealm, getBreakthroughStatGainText } from "../../constants/realmProgression";
 import { SECT_NPCS_BY_SECT, DUAL_CULTIVATION_MIN_FAVOR } from "../../constants/sectRelationships";
-import { Tooltip } from "../../components/Tooltip/Tooltip";
-import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/characterSlice";
+import { getCharacterImage } from "../../constants/ui";
+import { breakthrough, setCurrentActivity } from "../../state/reducers/characterCoreSlice";
+import { setCultivationPartner } from "../../state/reducers/sectSlice";
+import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/combatSlice";
+import { getKarmaQiMultiplier, getTalentQiGainBonus, getCultivationPartnerInfo } from "../../state/selectors/characterSelectors";
+import {
+  selectRealm,
+  selectRealmLevel,
+  selectQi,
+  selectCurrentActivity,
+  selectEquipment,
+  selectIsWeakened,
+  selectDeathPenaltyMode,
+  selectWeakenedMeditationSecondsDone,
+  selectCurrentSectId,
+  selectNpcFavor,
+  selectGender,
+} from "../../state/selectors/characterSelectors";
 import "./MeditationContainer.css";
 
 export const MeditationContainer = () => {
   const dispatch = useDispatch();
-  const character = useSelector((state: RootState) => state.character);
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
+  const qi = useSelector(selectQi);
+  const currentActivity = useSelector(selectCurrentActivity);
+  const equipment = useSelector(selectEquipment);
+  const isWeakenedRaw = useSelector(selectIsWeakened);
+  const deathPenaltyMode = useSelector(selectDeathPenaltyMode);
+  const weakenedMeditationSecondsDone = useSelector(selectWeakenedMeditationSecondsDone);
+  const currentSectId = useSelector(selectCurrentSectId);
+  const npcFavor = useSelector(selectNpcFavor);
+  const gender = useSelector(selectGender);
   const karmaQiMult = useSelector(getKarmaQiMultiplier);
   const talentQiGain = useSelector(getTalentQiGainBonus);
   const partnerInfo = useSelector(getCultivationPartnerInfo);
-  const currentSectId = useSelector((state: RootState) => state.character.currentSectId);
-  const npcFavor = useSelector((state: RootState) => state.character.npcFavor);
-  const { realm, realmLevel, qi, currentActivity, equipment } = character;
-  const isWeakened = character.isWeakened && character.deathPenaltyMode === "normal";
-  const weakenedRemaining = Math.max(0, WEAKENED_MEDITATION_SECONDS - (character.weakenedMeditationSecondsDone ?? 0));
+  const isWeakened = isWeakenedRaw && deathPenaltyMode === "normal";
+  const weakenedRemaining = Math.max(0, WEAKENED_MEDITATION_SECONDS - (weakenedMeditationSecondsDone ?? 0));
   const qiTechnique = equipment.qiTechnique;
   const partnerBonusMult = 1 + (partnerInfo.bonusPercent ?? 0) / 100;
-  const baseQiPerSecond = (BASE_QI_PER_SECOND + (qiTechnique?.qiGainBonus ?? 0) + (equipment.amulet?.qiGainBonus ?? 0) + talentQiGain) * partnerBonusMult;
+  const baseQiPerSecond = (BASE_QI_PER_SECOND + (qiTechnique && "qiGainBonus" in qiTechnique ? qiTechnique.qiGainBonus ?? 0 : 0) + (equipment.amulet && "qiGainBonus" in equipment.amulet ? equipment.amulet.qiGainBonus ?? 0 : 0) + talentQiGain) * partnerBonusMult;
   const qiPerSecond = Math.round(baseQiPerSecond * karmaQiMult * 100) / 100;
   const requiredQi = getBreakthroughQiRequired(realm, realmLevel);
   const nextRealm = getNextRealm(realm, realmLevel);
@@ -49,9 +69,9 @@ export const MeditationContainer = () => {
   };
 
   const handleBreakthrough = () => {
-    if (!canBreakthrough) return;
+    if (!canBreakthrough || !nextRealm) return;
     setCelebrating(true);
-    dispatch(breakthrough());
+    dispatch(breakthrough({ nextRealmId: nextRealm.realmId, nextRealmLevel: nextRealm.realmLevel }));
     setTimeout(() => setCelebrating(false), 2600);
   };
 
@@ -84,7 +104,7 @@ export const MeditationContainer = () => {
           />
         ) : (
           <img
-            src={getCharacterImage(character.gender ?? "Male", "lotus")}
+            src={getCharacterImage(gender ?? "Male", "lotus")}
             alt="Meditating"
             className="meditation-container__character-img"
           />
