@@ -102,8 +102,8 @@ function buildPayload(kind: SkillKind, area: BaseArea): unknown {
       const a = area as FishingAreaI;
       return {
         areaId: a.id,
-        fishingXP: a.fishingXP,
-        fishingDelay: a.fishingDelay,
+        xp: a.xp,
+        delay: a.delay,
         fishingLootIds: a.fishingLootIds,
         rareDropChancePercent: a.rareDropChancePercent,
         rareDropItemIds: a.rareDropItemIds,
@@ -111,14 +111,14 @@ function buildPayload(kind: SkillKind, area: BaseArea): unknown {
     }
     case "mining": {
       const a = area as MiningAreaI;
-      return { areaId: a.id, miningXP: a.miningXP, miningDelay: a.miningDelay, miningLootId: a.miningLootId };
+      return { areaId: a.id, xp: a.xp, delay: a.delay, miningLootId: a.miningLootId };
     }
     case "gathering": {
       const a = area as GatheringAreaI;
       return {
         areaId: a.id,
-        gatheringXP: a.gatheringXP,
-        gatheringDelay: a.gatheringDelay,
+        xp: a.xp,
+        delay: a.delay,
         gatheringLootIds: a.gatheringLootIds,
         rareDropChancePercent: a.rareDropChancePercent,
         rareDropItemIds: a.rareDropItemIds,

@@ -50,9 +50,9 @@ const FishingContainer = () => {
     [reincarnationCount]
   );
 
-  const startFishing = (areaId: number, fishingXP: number, fishingDelay: number, fishingLootIds: number[], rareDropChancePercent?: number, rareDropItemIds?: number[]) => {
+  const startFishing = (areaId: number, xp: number, delay: number, fishingLootIds: number[], rareDropChancePercent?: number, rareDropItemIds?: number[]) => {
     dispatch(
-      setCurrentFishingArea({ areaId, fishingXP, fishingDelay, fishingLootIds, rareDropChancePercent, rareDropItemIds })
+      setCurrentFishingArea({ areaId, xp, delay, fishingLootIds, rareDropChancePercent, rareDropItemIds })
     );
     dispatch(setCurrentActivity("fish"));
   };
@@ -91,7 +91,7 @@ const FishingContainer = () => {
       />
       <div className="fishingContainer__areas">
       {areasVisible.map((area, areaIndex) => {
-        const unlocked = isSkillAreaUnlocked(area, fishingXP, reincarnationCount, "fishingXPUnlock");
+        const unlocked = isSkillAreaUnlocked(area, fishingXP, reincarnationCount);
         const tier = getTierForFishingAreaIndex(fishingAreaData.indexOf(area));
         const lootEntries = getFishingAreaLootEntries(area, tier);
         return (
@@ -100,9 +100,9 @@ const FishingContainer = () => {
             title={area.name}
             imageSrc={area.picture}
             altText={area.altText}
-            fishingXP={area.fishingXP}
-            fishingDelay={area.fishingDelay}
-            requiredLevel={getFishingLevelInfo(area.fishingXPUnlock).level}
+            xp={area.xp}
+            delay={area.delay}
+            requiredLevel={getFishingLevelInfo(area.xpUnlock).level}
             possibleLoot={area.fishingLootIds
               .map((id) => ITEMS_BY_ID[id])
               .filter((f): f is NonNullable<typeof f> => f != null)}
@@ -113,7 +113,7 @@ const FishingContainer = () => {
               if (busyWithOther || !unlocked) return;
               if (currentFishingArea?.areaId === area.id) return;
               stopFishing();
-              startFishing(area.id, area.fishingXP, area.fishingDelay, area.fishingLootIds, area.rareDropChancePercent, area.rareDropItemIds);
+              startFishing(area.id, area.xp, area.delay, area.fishingLootIds, area.rareDropChancePercent, area.rareDropItemIds);
             }}
           />
         );

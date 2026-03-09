@@ -8,8 +8,8 @@ interface MiningAreaProps {
   title: string;
   imageSrc: string;
   altText: string;
-  miningXP: number;
-  miningDelay: number;
+  xp: number;
+  delay: number;
   requiredLevel: number;
   /** Possible ore from this area (single item; from data; dynamic). */
   possibleLoot: Item[];
@@ -47,8 +47,8 @@ const MiningArea: React.FC<MiningAreaProps> = React.memo(({
   title,
   imageSrc,
   altText,
-  miningXP,
-  miningDelay,
+  xp,
+  delay,
   requiredLevel,
   possibleLoot,
   lootEntries,
@@ -72,8 +72,8 @@ const MiningArea: React.FC<MiningAreaProps> = React.memo(({
         <Tooltip
           content={getSkillAreaTooltipContent(
             "Mining XP",
-            miningXP,
-            formatMiningDuration(miningDelay),
+            xp,
+            formatMiningDuration(delay),
             requiredLevel,
             unlocked,
             "Possible find"
@@ -84,7 +84,7 @@ const MiningArea: React.FC<MiningAreaProps> = React.memo(({
           <span className="miningAreaContainer__tooltip-trigger">
             <h2 className="miningAreaContainer__title">{title}</h2>
             <p className="miningAreaContainer__meta">
-              Mining XP: {miningXP} · Duration: {formatMiningDuration(miningDelay)}
+              Mining XP: {xp} · Duration: {formatMiningDuration(delay)}
             </p>
             {!unlocked && (
               <p className="miningAreaContainer__lock">

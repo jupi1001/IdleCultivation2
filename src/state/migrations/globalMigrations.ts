@@ -221,6 +221,55 @@ const ensureAvatarsSlice: GlobalMigrator = (rootState) => {
   }
 };
 
+/** v10: Normalize current skill area payloads from prefixed keys to generic xp/delay (Task 12). */
+const normalizeCurrentSkillAreas: GlobalMigrator = (rootState) => {
+  const skills = rootState.skills as Record<string, unknown> | undefined;
+  if (!skills || typeof skills !== "object") return;
+
+  const normFishing = skills.currentFishingArea;
+  if (normFishing && typeof normFishing === "object" && !Array.isArray(normFishing)) {
+    const a = normFishing as Record<string, unknown>;
+    if ("fishingXP" in a && !("xp" in a)) {
+      skills.currentFishingArea = {
+        areaId: a.areaId,
+        xp: a.fishingXP,
+        delay: a.fishingDelay,
+        fishingLootIds: a.fishingLootIds,
+        rareDropChancePercent: a.rareDropChancePercent,
+        rareDropItemIds: a.rareDropItemIds,
+      };
+    }
+  }
+
+  const normMining = skills.currentMiningArea;
+  if (normMining && typeof normMining === "object" && !Array.isArray(normMining)) {
+    const a = normMining as Record<string, unknown>;
+    if ("miningXP" in a && !("xp" in a)) {
+      skills.currentMiningArea = {
+        areaId: a.areaId,
+        xp: a.miningXP,
+        delay: a.miningDelay,
+        miningLootId: a.miningLootId,
+      };
+    }
+  }
+
+  const normGathering = skills.currentGatheringArea;
+  if (normGathering && typeof normGathering === "object" && !Array.isArray(normGathering)) {
+    const a = normGathering as Record<string, unknown>;
+    if ("gatheringXP" in a && !("xp" in a)) {
+      skills.currentGatheringArea = {
+        areaId: a.areaId,
+        xp: a.gatheringXP,
+        delay: a.gatheringDelay,
+        gatheringLootIds: a.gatheringLootIds,
+        rareDropChancePercent: a.rareDropChancePercent,
+        rareDropItemIds: a.rareDropItemIds,
+      };
+    }
+  }
+};
+
 export const globalMigrations: readonly GlobalMigrator[] = [
   extractSettingsFromCharacter,
   extractReincarnationFromCharacter,
@@ -230,5 +279,6 @@ export const globalMigrations: readonly GlobalMigrator[] = [
   ensureInventorySlice,
   ensureEquipmentSlice,
   ensureSkillsSlice,
+  normalizeCurrentSkillAreas,
   ensureAvatarsSlice,
 ];

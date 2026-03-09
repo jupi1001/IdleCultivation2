@@ -1,9 +1,6 @@
-import type { BaseArea } from "./BaseArea";
+import type { TimedActivityArea } from "./TimedActivityArea";
 
-export interface FishingAreaI extends BaseArea {
-  fishingXP: number;
-  fishingXPUnlock: number;
-  fishingDelay: number;
+export interface FishingAreaI extends TimedActivityArea {
   fishingLootIds: number[];
   /** Optional rare drop chance (0–100) and item ids (e.g. ring/amulet). */
   rareDropChancePercent?: number;

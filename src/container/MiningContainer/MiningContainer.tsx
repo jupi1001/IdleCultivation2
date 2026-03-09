@@ -65,7 +65,7 @@ const MiningContainer = () => {
       />
       <div className="miningContainer__areas">
       {areasVisible.map((area) => {
-        const unlocked = isSkillAreaUnlocked(area, miningXP, reincarnationCount, "miningXPUnlock");
+        const unlocked = isSkillAreaUnlocked(area, miningXP, reincarnationCount);
         const tier = getTierForMiningAreaIndex(miningAreaData.indexOf(area));
         const lootEntries = getMiningAreaLootEntries(area, tier);
         const ore = ITEMS_BY_ID[area.miningLootId];
@@ -75,9 +75,9 @@ const MiningContainer = () => {
             title={area.name}
             imageSrc={area.picture}
             altText={area.altText}
-            miningXP={area.miningXP}
-            miningDelay={area.miningDelay}
-            requiredLevel={getMiningLevelInfo(area.miningXPUnlock).level}
+            xp={area.xp}
+            delay={area.delay}
+            requiredLevel={getMiningLevelInfo(area.xpUnlock).level}
             possibleLoot={ore ? [ore] : []}
             lootEntries={lootEntries.length > 0 ? lootEntries : undefined}
             ownedItemIds={ownedSkillingSetPieceIds}

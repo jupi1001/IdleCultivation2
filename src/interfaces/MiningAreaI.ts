@@ -1,9 +1,6 @@
-import type { BaseArea } from "./BaseArea";
+import type { TimedActivityArea } from "./TimedActivityArea";
 
-export interface MiningAreaI extends BaseArea {
-  miningXP: number;
-  miningXPUnlock: number;
-  miningDelay: number;
+export interface MiningAreaI extends TimedActivityArea {
   /** Single loot item id (area gives one resource type, e.g. copper ore). */
   miningLootId: number;
 }

@@ -133,14 +133,14 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
   if (activity === "fish" && skills.currentFishingArea) {
     const area = skills.currentFishingArea as CurrentFishingArea;
     const skillBonus = getSkillSpeedBonusFishing(state);
-    const effectiveDuration = Math.max(100, area.fishingDelay * (1 - skillBonus / 100));
+    const effectiveDuration = Math.max(100, area.delay * (1 - skillBonus / 100));
     const casts = Math.floor(offlineMs / effectiveDuration);
     if (casts > 0) {
       const items: Item[] = [];
       let xp = 0;
       const ownedSetIds = new Set(getOwnedSkillingSetPieceIds(state));
       for (let i = 0; i < casts; i++) {
-        xp += Math.round(area.fishingXP * karmaXpMult);
+        xp += Math.round(area.xp * karmaXpMult);
         const randomId = area.fishingLootIds[Math.floor(Math.random() * area.fishingLootIds.length)];
         const fish = ITEMS_BY_ID[randomId];
         if (fish) items.push(fish);
@@ -167,14 +167,14 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
     const area = skills.currentMiningArea as CurrentMiningArea;
     const skillBonus = getSkillSpeedBonusMining(state);
     const miningYieldPercent = getMiningYieldBonusPercent(state);
-    const effectiveDuration = Math.max(100, area.miningDelay * (1 - skillBonus / 100));
+    const effectiveDuration = Math.max(100, area.delay * (1 - skillBonus / 100));
     const casts = Math.floor(offlineMs / effectiveDuration);
     if (casts > 0) {
       const items: Item[] = [];
       let xp = 0;
       const ownedSetIds = new Set(getOwnedSkillingSetPieceIds(state));
       for (let i = 0; i < casts; i++) {
-        xp += Math.round(area.miningXP * karmaXpMult);
+        xp += Math.round(area.xp * karmaXpMult);
         const ore = ITEMS_BY_ID[area.miningLootId];
         if (ore) {
           items.push(ore);
@@ -201,14 +201,14 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
   if (activity === "gather" && skills.currentGatheringArea) {
     const area = skills.currentGatheringArea as CurrentGatheringArea;
     const skillBonus = getSkillSpeedBonusGathering(state);
-    const effectiveDuration = Math.max(100, area.gatheringDelay * (1 - skillBonus / 100));
+    const effectiveDuration = Math.max(100, area.delay * (1 - skillBonus / 100));
     const casts = Math.floor(offlineMs / effectiveDuration);
     if (casts > 0) {
       const items: Item[] = [];
       let xp = 0;
       const ownedSetIds = new Set(getOwnedSkillingSetPieceIds(state));
       for (let i = 0; i < casts; i++) {
-        xp += Math.round(area.gatheringXP * karmaXpMult);
+        xp += Math.round(area.xp * karmaXpMult);
         const randomId = area.gatheringLootIds[Math.floor(Math.random() * area.gatheringLootIds.length)];
         const loot = ITEMS_BY_ID[randomId];
         if (loot) items.push(loot);

@@ -16,22 +16,22 @@ export interface RareDropFields {
 
 export interface CurrentFishingArea extends RareDropFields {
   areaId: number;
-  fishingXP: number;
-  fishingDelay: number;
+  xp: number;
+  delay: number;
   fishingLootIds: number[];
 }
 
 export interface CurrentMiningArea {
   areaId: number;
-  miningXP: number;
-  miningDelay: number;
+  xp: number;
+  delay: number;
   miningLootId: number;
 }
 
 export interface CurrentGatheringArea extends RareDropFields {
   areaId: number;
-  gatheringXP: number;
-  gatheringDelay: number;
+  xp: number;
+  delay: number;
   gatheringLootIds: number[];
 }
 
@@ -125,7 +125,7 @@ export const skillsSlice = createSlice({
       state,
       action: PayloadAction<{
         castId: number;
-        fishingXP: number;
+        xp: number;
         fishingLootIds: number[];
         rareDropItem?: Item | null;
         skillingSetDropItem?: Item | null;
@@ -135,7 +135,7 @@ export const skillsSlice = createSlice({
       state.fishingCastStartTime = null;
       state.fishingCastDuration = 0;
       if (state.currentFishingArea) {
-        state.fishingXP += action.payload.fishingXP;
+        state.fishingXP += action.payload.xp;
       }
     },
     setCurrentMiningArea: (state, action: PayloadAction<CurrentMiningArea | null>) => {
@@ -157,7 +157,7 @@ export const skillsSlice = createSlice({
       state,
       action: PayloadAction<{
         castId: number;
-        miningXP: number;
+        xp: number;
         miningLootId: number;
         lootQuantity?: number;
         geodeDropped?: boolean;
@@ -168,7 +168,7 @@ export const skillsSlice = createSlice({
       state.miningCastStartTime = null;
       state.miningCastDuration = 0;
       if (state.currentMiningArea) {
-        state.miningXP += action.payload.miningXP;
+        state.miningXP += action.payload.xp;
       }
     },
     setCurrentGatheringArea: (state, action: PayloadAction<CurrentGatheringArea | null>) => {
@@ -190,7 +190,7 @@ export const skillsSlice = createSlice({
       state,
       action: PayloadAction<{
         castId: number;
-        gatheringXP: number;
+        xp: number;
         gatheringLootIds: number[];
         rareDropItem?: Item | null;
         skillingSetDropItem?: Item | null;
@@ -200,7 +200,7 @@ export const skillsSlice = createSlice({
       state.gatheringCastStartTime = null;
       state.gatheringCastDuration = 0;
       if (state.currentGatheringArea) {
-        state.gatheringXP += action.payload.gatheringXP;
+        state.gatheringXP += action.payload.xp;
       }
     },
     applyOfflineProgress: (state, action: PayloadAction<SkillsOfflineProgressPayload>) => {

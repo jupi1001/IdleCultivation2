@@ -26,7 +26,7 @@ function hasSkillingSetPiece(
 
 export interface CompleteFishingCastPayload {
   castId: number;
-  fishingXP: number;
+  xp: number;
   fishingLootIds: number[];
   rareDropItem?: Item | null;
   skillingSetDropItem?: Item | null;
@@ -53,7 +53,7 @@ export function completeFishingCast(payload: CompleteFishingCastPayload) {
 
 export interface CompleteMiningCastPayload {
   castId: number;
-  miningXP: number;
+  xp: number;
   miningLootId: number;
   lootQuantity?: number;
   geodeDropped?: boolean;
@@ -81,7 +81,7 @@ export function completeMiningCast(payload: CompleteMiningCastPayload) {
 
 export interface CompleteGatheringCastPayload {
   castId: number;
-  gatheringXP: number;
+  xp: number;
   gatheringLootIds: number[];
   rareDropItem?: Item | null;
   skillingSetDropItem?: Item | null;

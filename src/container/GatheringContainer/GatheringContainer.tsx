@@ -52,14 +52,14 @@ const GatheringContainer = () => {
 
   const startGathering = (
     areaId: number,
-    gatheringXP: number,
-    gatheringDelay: number,
+    xp: number,
+    delay: number,
     gatheringLootIds: number[],
     rareDropChancePercent?: number,
     rareDropItemIds?: number[]
   ) => {
     dispatch(
-      setCurrentGatheringArea({ areaId, gatheringXP, gatheringDelay, gatheringLootIds, rareDropChancePercent, rareDropItemIds })
+      setCurrentGatheringArea({ areaId, xp, delay, gatheringLootIds, rareDropChancePercent, rareDropItemIds })
     );
     dispatch(setCurrentActivity("gather"));
   };
@@ -98,7 +98,7 @@ const GatheringContainer = () => {
       />
       <div className="gatheringContainer__areas">
       {areasVisible.map((area, areaIndex) => {
-        const unlocked = isSkillAreaUnlocked(area, gatheringXP, reincarnationCount, "gatheringXPUnlock");
+        const unlocked = isSkillAreaUnlocked(area, gatheringXP, reincarnationCount);
         const tier = getTierForGatheringAreaIndex(gatheringAreaData.indexOf(area));
         const lootEntries = getGatheringAreaLootEntries(area, tier);
         return (
@@ -107,9 +107,9 @@ const GatheringContainer = () => {
             title={area.name}
             imageSrc={area.picture}
             altText={area.altText}
-            gatheringXP={area.gatheringXP}
-            gatheringDelay={area.gatheringDelay}
-            requiredLevel={getGatheringLevelInfo(area.gatheringXPUnlock).level}
+            xp={area.xp}
+            delay={area.delay}
+            requiredLevel={getGatheringLevelInfo(area.xpUnlock).level}
             possibleLoot={area.gatheringLootIds
               .map((id) => ITEMS_BY_ID[id])
               .filter((l): l is NonNullable<typeof l> => l != null)}
@@ -122,8 +122,8 @@ const GatheringContainer = () => {
               stopGathering();
               startGathering(
                 area.id,
-                area.gatheringXP,
-                area.gatheringDelay,
+                area.xp,
+                area.delay,
                 area.gatheringLootIds,
                 area.rareDropChancePercent,
                 area.rareDropItemIds

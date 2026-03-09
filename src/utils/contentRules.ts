@@ -8,7 +8,7 @@ import {
   type RealmRequirement,
 } from "../constants/areaRealmRequirements";
 import type { RealmId } from "../constants/realmProgression";
-import type { BaseArea } from "../interfaces/BaseArea";
+import type { TimedActivityArea } from "../interfaces/TimedActivityArea";
 
 /** Whether the character can enter a combat area by realm/level. */
 export function canEnterCombatArea(
@@ -26,22 +26,12 @@ export function getCombatAreaRealmRequirement(areaKey: string): RealmRequirement
   return AREA_REALM_REQUIREMENTS[areaKey];
 }
 
-/** Area has xpUnlock field for a skill. */
-export type SkillAreaWithUnlock = BaseArea & {
-  fishingXPUnlock?: number;
-  miningXPUnlock?: number;
-  gatheringXPUnlock?: number;
-};
-
 /** Whether a skill area is unlocked: reincarnation gating + XP >= area's xpUnlock. */
 export function isSkillAreaUnlocked(
-  area: SkillAreaWithUnlock,
+  area: TimedActivityArea,
   xp: number,
-  reincarnationCount: number,
-  xpUnlockKey: "fishingXPUnlock" | "miningXPUnlock" | "gatheringXPUnlock"
+  reincarnationCount: number
 ): boolean {
   const reincarnationOk = !area.requiresReincarnation || reincarnationCount >= 1;
-  const xpUnlock = area[xpUnlockKey];
-  if (xpUnlock == null) return reincarnationOk;
-  return reincarnationOk && xp >= xpUnlock;
+  return reincarnationOk && xp >= area.xpUnlock;
 }

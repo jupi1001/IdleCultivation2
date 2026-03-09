@@ -187,7 +187,7 @@ export function useActivityTicks() {
     }
 
     const area = currentFishingArea;
-    const effectiveDuration = Math.max(100, area.fishingDelay * (1 - skillSpeedBonusFishing / 100));
+    const effectiveDuration = Math.max(100, area.delay * (1 - skillSpeedBonusFishing / 100));
     const castId = ++nextFishingCastIdRef.current;
     dispatch(setFishingCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
 
@@ -199,7 +199,7 @@ export function useActivityTicks() {
       );
       dispatch(completeFishingCast({
         castId,
-        fishingXP: Math.round(area.fishingXP * karmaXpMultRef.current),
+        xp: Math.round(area.xp * karmaXpMultRef.current),
         fishingLootIds: area.fishingLootIds,
         rareDropItem: rareDropItem ?? undefined,
         skillingSetDropItem: skillingSetDropItem ?? undefined,
@@ -219,7 +219,7 @@ export function useActivityTicks() {
     }
 
     const area = currentMiningArea;
-    const effectiveDuration = Math.max(100, area.miningDelay * (1 - skillSpeedBonusMining / 100));
+    const effectiveDuration = Math.max(100, area.delay * (1 - skillSpeedBonusMining / 100));
     const castId = ++nextMiningCastIdRef.current;
     dispatch(setMiningCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
 
@@ -232,7 +232,7 @@ export function useActivityTicks() {
       const lootQuantity = miningYieldPercent > 0 && Math.random() * 100 < miningYieldPercent ? 2 : 1;
       dispatch(completeMiningCast({
         castId,
-        miningXP: Math.round(area.miningXP * karmaXpMultRef.current),
+        xp: Math.round(area.xp * karmaXpMultRef.current),
         miningLootId: area.miningLootId,
         lootQuantity,
         geodeDropped,
@@ -253,7 +253,7 @@ export function useActivityTicks() {
     }
 
     const area = currentGatheringArea;
-    const effectiveDuration = Math.max(100, area.gatheringDelay * (1 - skillSpeedBonusGathering / 100));
+    const effectiveDuration = Math.max(100, area.delay * (1 - skillSpeedBonusGathering / 100));
     const castId = ++nextGatheringCastIdRef.current;
     dispatch(setGatheringCast({ startTime: Date.now(), duration: effectiveDuration, castId }));
 
@@ -265,7 +265,7 @@ export function useActivityTicks() {
       );
       dispatch(completeGatheringCast({
         castId,
-        gatheringXP: Math.round(area.gatheringXP * karmaXpMultRef.current),
+        xp: Math.round(area.xp * karmaXpMultRef.current),
         gatheringLootIds: area.gatheringLootIds,
         rareDropItem: rareDropItem ?? undefined,
         skillingSetDropItem: skillingSetDropItem ?? undefined,
