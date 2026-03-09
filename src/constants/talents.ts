@@ -1,5 +1,6 @@
 import type { TalentNode, TalentTreeTier } from "../interfaces/TalentI";
 import type { CultivationPath } from "./cultivationPath";
+import { parseTalentTiers } from "../schemas/talents";
 
 /**
  * Talent effect types — where they are applied (audit for Task 10 / mining yield vs speed):
@@ -143,6 +144,11 @@ export const TALENT_TREE_TIERS: TalentTreeTier[] = [
     ],
   },
 ];
+
+// Dev/test-only: validate talent tree tiers against Zod schema.
+if (process.env.NODE_ENV !== "production") {
+  parseTalentTiers(TALENT_TREE_TIERS);
+}
 
 // Populate lookup
 TALENT_TREE_TIERS.forEach((tier) => {

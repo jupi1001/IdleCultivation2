@@ -90,3 +90,19 @@ Each category has at least one example in the repo; follow the same patterns whe
 
 - Run coverage with Vitest’s coverage (e.g. `vitest run --coverage`); config is in `vite.config.ts`.
 - Exclude `**/*.test.ts(x)`, `node_modules`, and type-only modules from coverage so the report reflects production code.
+
+## Zod schemas and runtime validation
+
+- **Schemas location**: Runtime validation schemas live under `src/schemas/`:
+  - `items.ts`: discriminated `Item` union (consumable, equipment, technique, material, quest, setPiece).
+  - `enemies.ts`: enemy definitions and loot (including items/weight length check).
+  - `areas.ts`: fishing/mining/gathering areas (base/timed activity fields + loot ids).
+  - `talents.ts`: talent effects, nodes, and tree tiers.
+  - `saveState.ts`: shallow schema for the persisted root state after migrations.
+- **Usage at boundaries**:
+  - **Content**: domain modules call their parse helpers in dev/test only (e.g. enemies, areas, talents) to catch bad content early without touching hot render loops.
+  - **Save/migrations**: `runMigrations` validates the migrated redux-persist payload with `parsePersistedRootState` in non-production builds.
+- **When to add/update schemas**:
+  - When adding a new **domain registry** (items, enemies, areas, talents, loot tables), add or extend a schema in `src/schemas/` and, for dev, call its parse helper where the registry is built.
+  - When changing the persisted **root state shape** (adding/removing a slice or top-level key), update `saveState.ts` so migrations remain schema-checked.
+  - Do **not** put Zod validation in tight per-frame or per-tick paths; prefer one-time validation at module load or startup.
