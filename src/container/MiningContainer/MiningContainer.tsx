@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import MiningArea from "../../components/MiningArea/MiningArea";
-import { SkillXPBar } from "../../components/SkillXPBar/SkillXPBar";
+import { SkillActivityLayout } from "../../components/SkillActivityLayout/SkillActivityLayout";
 import { miningAreaData, ITEMS_BY_ID } from "../../constants/data";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
-import { getSkillingSetItemById, getSetPieceIds, getTierForMiningAreaIndex } from "../../constants/skillingSets";
+import { getTierForMiningAreaIndex } from "../../constants/skillingSets";
 import { useSkillActivity } from "../../hooks/useSkillActivity";
 import type MiningAreaI from "../../interfaces/MiningAreaI";
 import { getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
@@ -37,33 +37,18 @@ const MiningContainer = () => {
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
 
   return (
-    <div className="miningContainer__main">
-      <SkillXPBar
-        skillName="Mining"
-        level={levelInfo.level}
-        maxLevel={maxLevel}
-        xpInLevel={levelInfo.xpInLevel}
-        xpRequiredForNext={levelInfo.xpRequiredForNext}
-      />
-      {busyWithOther && (
-        <p className="miningContainer__busy">
-          You're busy ({activityLabel}). One activity at a time.
-        </p>
-      )}
-      {isActive && (
-        <button
-          type="button"
-          className="miningContainer__stop"
-          onClick={stop}
-        >
-          Stop mining
-        </button>
-      )}
-      <div
-        className="miningContainer__cast-bar progress-bar"
-        style={{ width: `${progress}%` }}
-      />
-      <div className="miningContainer__areas">
+    <SkillActivityLayout
+      skillName="Mining"
+      levelInfo={levelInfo}
+      maxLevel={maxLevel}
+      busyWithOther={busyWithOther}
+      activityLabel={activityLabel}
+      isActive={isActive}
+      stopLabel="Stop mining"
+      progress={progress}
+      onStop={stop}
+      blockClass="miningContainer"
+    >
       {areasVisible.map((area) => {
         const unlocked = isSkillAreaUnlocked(area, miningXP, reincarnationCount);
         const tier = getTierForMiningAreaIndex(miningAreaData.indexOf(area));
@@ -91,8 +76,7 @@ const MiningContainer = () => {
           />
         );
       })}
-      </div>
-    </div>
+    </SkillActivityLayout>
   );
 };
 
