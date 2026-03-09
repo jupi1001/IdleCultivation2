@@ -46,7 +46,7 @@ export {
   SECTS_BY_ID,
 } from "../domain/sects";
 export type { SectPositionId, SectStoreEntryI } from "../domain/sects";
-export { enemies, ENEMIES_BY_ID } from "../domain/enemies";
+export { enemies, ENEMIES_BY_ID, ENEMIES_BY_AREA } from "../domain/enemies";
 export {
   fishingAreaData,
   miningAreaData,
