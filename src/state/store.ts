@@ -52,6 +52,9 @@ const rootReducer = combineReducers({
   log: logReducer,
 });
 
+/** Exported for test store creation (e.g. renderWithProviders with preloadedState). */
+export { rootReducer };
+
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
