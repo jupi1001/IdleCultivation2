@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getAlchemyLevel } from "../../constants/alchemy";
 import { getCookingLevel } from "../../constants/cooking";
 import { getFishingLevelInfo } from "../../constants/fishingLevel";
@@ -17,9 +17,8 @@ import {
 } from "../../constants/reincarnation";
 import { ContentArea } from "../../enum/ContentArea";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
-import { reincarnateAndReset } from "../../state/reducers/reincarnationThunks";
 import { purchaseKarmaBonus } from "../../state/reducers/reincarnationSlice";
-import { useAppDispatch } from "../../state/store";
+import { reincarnateAndReset } from "../../state/reducers/reincarnationThunks";
 import {
   selectRealm,
   selectRealmLevel,
@@ -34,6 +33,7 @@ import {
   selectForgingXP,
   selectCookingXP,
 } from "../../state/selectors/characterSelectors";
+import { useAppDispatch } from "../../state/store";
 import "./ReincarnationContainer.css";
 
 function getTotalSkillLevels(xp: {

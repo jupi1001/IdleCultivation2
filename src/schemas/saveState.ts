@@ -8,20 +8,20 @@ import { z } from "zod";
 
 export const persistedRootSchema = z
   .object({
-    character: z.unknown(),
-    avatars: z.unknown(),
-    combat: z.unknown(),
-    settings: z.unknown(),
-    stats: z.unknown(),
-    reincarnation: z.unknown(),
-    sect: z.unknown(),
-    inventory: z.unknown(),
-    equipment: z.unknown(),
-    skills: z.unknown(),
-    content: z.unknown(),
-    toast: z.unknown(),
-    achievements: z.unknown(),
-    log: z.unknown(),
+    character: z.any(),
+    avatars: z.any(),
+    combat: z.any(),
+    settings: z.any(),
+    stats: z.any(),
+    reincarnation: z.any(),
+    sect: z.any(),
+    inventory: z.any(),
+    equipment: z.any(),
+    skills: z.any(),
+    content: z.any(),
+    toast: z.any(),
+    achievements: z.any(),
+    log: z.any(),
   })
   .passthrough();
 

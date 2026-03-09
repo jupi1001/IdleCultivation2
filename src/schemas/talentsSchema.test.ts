@@ -32,7 +32,7 @@ describe("talents schema", () => {
               description: "Invalid effect",
               costQi: 5,
               maxLevel: 1,
-              // @ts-expect-error runtime schema should reject this
+              // @ts-ignore runtime schema should reject this
               effect: { type: "unknownEffect", value: 1 },
             },
           ],
@@ -45,7 +45,7 @@ describe("talents schema", () => {
     expect(() =>
       parseTalentTiers([
         {
-          // @ts-expect-error runtime schema should reject this
+          // @ts-ignore runtime schema should reject this
           realmGate: { realmId: "Unknown Realm", realmLevel: 1 },
           nodes: [
             {

@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Item, { getConsumableEffect, getEquipmentSlot } from "../../interfaces/ItemI";
-import { addItemById } from "../../state/reducers/inventorySlice";
 import { reduceMoney } from "../../state/reducers/characterCoreSlice";
+import { addItemById } from "../../state/reducers/inventorySlice";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
 import { selectMoney } from "../../state/selectors/characterSelectors";
 import "./ShopItem.css";

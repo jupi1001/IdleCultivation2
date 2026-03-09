@@ -1,8 +1,8 @@
 /**
  * Mining area definitions and MINING_AREAS_BY_ID registry.
  */
-import type MiningAreaI from "../../interfaces/MiningAreaI";
 import { totalXpForLevel } from "../../constants/miningLevel";
+import type MiningAreaI from "../../interfaces/MiningAreaI";
 import { parseMiningAreas } from "../../schemas/areas";
 
 const MINING_ASSETS = "/assets/mining";
@@ -29,7 +29,7 @@ export const miningAreaData: MiningAreaI[] = [
 ];
 
 // Dev/test-only: validate mining area definitions.
-if (process.env.NODE_ENV !== "production") {
+if (import.meta.env.MODE !== "production") {
   parseMiningAreas(miningAreaData);
 }
 

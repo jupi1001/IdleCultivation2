@@ -4,8 +4,8 @@ import { SECTS_BY_ID } from "../../constants/data";
 import { CombatArea } from "../../enum/CombatArea";
 import { ContentArea } from "../../enum/ContentArea";
 import SectI from "../../interfaces/SectI";
-import { setSect } from "../../state/reducers/sectSlice";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
+import { setSect } from "../../state/reducers/sectSlice";
 import { selectPath, selectCurrentSectId, selectSectRankIndex, selectRealm, selectRealmLevel } from "../../state/selectors/characterSelectors";
 import "./SectWindow.css";
 

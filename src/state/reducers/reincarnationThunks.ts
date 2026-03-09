@@ -4,10 +4,10 @@
  * dispatching reincarnate directly so inventory/equipment are reset correctly.
  */
 import type { AppDispatch, RootState } from "../store";
-import { reincarnate } from "./reincarnationSlice";
-import { setItemsAfterReincarnation } from "./inventorySlice";
-import { resetEquipment } from "./equipmentSlice";
 import { getPreservedItemsById } from "../utils/reincarnationPreservation";
+import { resetEquipment } from "./equipmentSlice";
+import { setItemsAfterReincarnation } from "./inventorySlice";
+import { reincarnate } from "./reincarnationSlice";
 
 export function reincarnateAndReset(payload: { karmaEarned: number; startingMoneyBonus?: number }) {
   return (dispatch: AppDispatch, getState: () => RootState) => {

@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import MiningArea from "../../components/MiningArea/MiningArea";
 import { SkillActivityLayout } from "../../components/SkillActivityLayout/SkillActivityLayout";
-import { miningAreaData, ITEMS_BY_ID } from "../../constants/data";
+import { miningAreaData, ITEMS_BY_ID, MINING_AREA_INDEX_BY_ID } from "../../constants/data";
 import { MINING_MAX_LEVEL, getMiningLevelInfo } from "../../constants/miningLevel";
 import { getTierForMiningAreaIndex } from "../../constants/skillingSets";
 import { useSkillActivity } from "../../hooks/useSkillActivity";
@@ -14,7 +14,7 @@ import "./MiningContainer.css";
 
 const MiningContainer = () => {
   const {
-    currentAreaState,
+    currentAreaState: currentMiningArea,
     xp: miningXP,
     reincarnationCount,
     levelInfo,
@@ -26,14 +26,12 @@ const MiningContainer = () => {
     activityLabel,
     start,
     stop,
-  } = useSkillActivity<MiningAreaI>({
+  } = useSkillActivity<"mining", MiningAreaI>({
     kind: "mining",
     areaData: miningAreaData,
     getLevelInfo: getMiningLevelInfo,
     maxLevel: MINING_MAX_LEVEL,
   });
-
-  const currentMiningArea = currentAreaState as { areaId?: number } | null;
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
 
   return (
@@ -51,7 +49,8 @@ const MiningContainer = () => {
     >
       {areasVisible.map((area) => {
         const unlocked = isSkillAreaUnlocked(area, miningXP, reincarnationCount);
-        const tier = getTierForMiningAreaIndex(miningAreaData.indexOf(area));
+        const tierIndex = MINING_AREA_INDEX_BY_ID[area.id] ?? 0;
+        const tier = getTierForMiningAreaIndex(tierIndex);
         const lootEntries = getMiningAreaLootEntries(area, tier);
         const ore = ITEMS_BY_ID[area.miningLootId];
         return (

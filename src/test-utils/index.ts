@@ -2,8 +2,8 @@
  * Shared test utilities: mock Redux state and render helpers.
  * Use createMockState for selector/reducer tests; use renderWithProviders for component/hook tests.
  */
-import type { RootState } from "../state/store";
 import { getCombatStatsFromRealm } from "../constants/realmProgression";
+import type { RootState } from "../state/store";
 import { ALL_EQUIPMENT_SLOTS } from "../types/EquipmentSlot";
 
 /**

@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import FishingArea from "../../components/FishingArea/FishingArea";
 import { SkillActivityLayout } from "../../components/SkillActivityLayout/SkillActivityLayout";
-import { fishingAreaData, ITEMS_BY_ID } from "../../constants/data";
+import { fishingAreaData, ITEMS_BY_ID, FISHING_AREA_INDEX_BY_ID } from "../../constants/data";
 import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
 import { getTierForFishingAreaIndex } from "../../constants/skillingSets";
 import { useSkillActivity } from "../../hooks/useSkillActivity";
@@ -14,7 +14,7 @@ import "./FishingContainer.css";
 
 const FishingContainer = () => {
   const {
-    currentAreaState,
+    currentAreaState: currentFishingArea,
     xp: fishingXP,
     reincarnationCount,
     levelInfo,
@@ -26,14 +26,12 @@ const FishingContainer = () => {
     activityLabel,
     start,
     stop,
-  } = useSkillActivity<FishingAreaI>({
+  } = useSkillActivity<"fishing", FishingAreaI>({
     kind: "fishing",
     areaData: fishingAreaData,
     getLevelInfo: getFishingLevelInfo,
     maxLevel: FISHING_MAX_LEVEL,
   });
-
-  const currentFishingArea = currentAreaState as { areaId?: number } | null;
   const ownedRingAmuletIds = useSelector(getOwnedRingAmuletIds);
   const ownedSkillingSetPieceIds = useSelector(getOwnedSkillingSetPieceIds);
   const ownedLootIds = useMemo(
@@ -56,7 +54,8 @@ const FishingContainer = () => {
     >
       {areasVisible.map((area) => {
         const unlocked = isSkillAreaUnlocked(area, fishingXP, reincarnationCount);
-        const tier = getTierForFishingAreaIndex(fishingAreaData.indexOf(area));
+        const tierIndex = FISHING_AREA_INDEX_BY_ID[area.id] ?? 0;
+        const tier = getTierForFishingAreaIndex(tierIndex);
         const lootEntries = getFishingAreaLootEntries(area, tier);
         return (
           <FishingArea

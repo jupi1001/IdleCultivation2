@@ -2,7 +2,7 @@
  * Inventory slice: normalized itemsById (itemId → quantity). Resolve definitions from ITEMS_BY_ID at read time.
  */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GEODE_ITEM_ID, GEODE_ITEM, rollGemFromGeode } from "../../constants/gems";
+import { GEODE_ITEM_ID, rollGemFromGeode } from "../../constants/gems";
 import Item from "../../interfaces/ItemI";
 
 export interface InventoryState {

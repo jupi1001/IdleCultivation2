@@ -2,10 +2,10 @@
  * Equipment slice: equipped items per slot. Caller must update inventory when equipping/unequipping.
  */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { reincarnationSlice } from "./reincarnationSlice";
 import type Item from "../../interfaces/ItemI";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import { ALL_EQUIPMENT_SLOTS } from "../../types/EquipmentSlot";
+import { reincarnationSlice } from "./reincarnationSlice";
 
 export interface EquipmentState {
   equipment: Record<EquipmentSlot, Item | null>;

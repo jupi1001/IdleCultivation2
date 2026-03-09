@@ -7,14 +7,14 @@ import { useActivityTicks } from "../../hooks/useActivityTicks";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import { useVitalityRegen } from "../../hooks/useVitalityRegen";
 import { setLastActiveTimestamp, applyOfflineProgress } from "../../state/reducers/characterCoreSlice";
-import { applyOfflineProgress as applyOfflineProgressSkills } from "../../state/reducers/skillsSlice";
+import { selectRoute } from "../../state/reducers/contentSlice";
 import { addItemsById } from "../../state/reducers/inventorySlice";
-import { RootState } from "../../state/store";
+import { applyOfflineProgress as applyOfflineProgressSkills } from "../../state/reducers/skillsSlice";
+import { selectPath, selectGender } from "../../state/selectors/characterSelectors";
+import type { RootState } from "../../state/store";
+import { computeOfflineProgress } from "../../utils/offlineProgress";
 import { LeftMain } from "../LeftMain/LeftMain";
 import { RightMain } from "../RightMain/RightMain";
-import { computeOfflineProgress } from "../../utils/offlineProgress";
-import { selectRoute } from "../../state/reducers/contentSlice";
-import { selectPath, selectGender } from "../../state/selectors/characterSelectors";
 import "./Main.css";
 
 // Lazy-loaded screen containers (code splitting)
@@ -88,12 +88,12 @@ export const Main = ({ theme = "dark", setTheme }: MainProps) => {
     dispatch(applyOfflineProgress(result));
     dispatch(applyOfflineProgressSkills({ fishing: result.fishing, mining: result.mining, gathering: result.gathering }));
     dispatch(setLastActiveTimestamp({ newTimestamp: Date.now(), previousTimestamp: prevTs }));
-    try { localStorage.removeItem(LAST_ACTIVE_STORAGE_KEY); } catch (_) { /* ignore */ }
+    try { localStorage.removeItem(LAST_ACTIVE_STORAGE_KEY); } catch { /* ignore */ }
   }, [path, gender, reduxStore, dispatch]);
 
   useEffect(() => {
     const saveTimestamp = () => {
-      try { localStorage.setItem(LAST_ACTIVE_STORAGE_KEY, String(Date.now())); } catch (_) { /* ignore */ }
+      try { localStorage.setItem(LAST_ACTIVE_STORAGE_KEY, String(Date.now())); } catch { /* ignore */ }
     };
     const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") saveTimestamp();

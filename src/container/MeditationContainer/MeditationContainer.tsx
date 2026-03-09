@@ -7,8 +7,8 @@ import { formatRealm, getBreakthroughQiRequired, getNextRealm, getBreakthroughSt
 import { SECT_NPCS_BY_SECT, DUAL_CULTIVATION_MIN_FAVOR } from "../../constants/sectRelationships";
 import { getCharacterImage } from "../../constants/ui";
 import { breakthrough, setCurrentActivity } from "../../state/reducers/characterCoreSlice";
-import { setCultivationPartner } from "../../state/reducers/sectSlice";
 import { WEAKENED_MEDITATION_SECONDS } from "../../state/reducers/combatSlice";
+import { setCultivationPartner } from "../../state/reducers/sectSlice";
 import { getKarmaQiMultiplier, getTalentQiGainBonus, getCultivationPartnerInfo } from "../../state/selectors/characterSelectors";
 import {
   selectRealm,
