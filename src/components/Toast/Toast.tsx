@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { dismissToast } from "../../state/reducers/toastSlice";
 import { TOAST_AUTO_DISMISS_MS, TOAST_VISIBLE_MAX } from "../../state/reducers/toastSlice";
 import type { ToastI } from "../../state/reducers/toastSlice";
-import { RootState } from "../../state/store";
+import { selectToasts } from "../../state/selectors/appSelectors";
 import "./Toast.css";
 
 /** Skill icon paths: under each skill folder, e.g. public/assets/fishing/icon.webp. Use alt with first letter until images exist. */
@@ -130,7 +130,7 @@ function ToastItem({ toast }: { toast: ToastI }) {
 }
 
 export function ToastContainer() {
-  const toasts = useSelector((state: RootState) => state.toast.toasts);
+  const toasts = useSelector(selectToasts);
   const visibleToasts = toasts.slice(0, TOAST_VISIBLE_MAX);
   if (visibleToasts.length === 0) return null;
 

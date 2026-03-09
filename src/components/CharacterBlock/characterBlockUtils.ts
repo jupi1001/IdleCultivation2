@@ -3,6 +3,18 @@ import { BASE_QI_PER_SECOND } from "../../constants/meditation";
 import { getTalentBonuses } from "../../constants/talents";
 import type { RootState } from "../../state/store";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
+import {
+  selectAttack,
+  selectBonusAttack,
+  selectBonusDefense,
+  selectBonusHealth,
+  selectDefense,
+  selectEquipment,
+  selectHealth,
+  selectQi,
+  selectTalentLevels,
+  getTalentBonusesSelector,
+} from "../../state/selectors/characterSelectors";
 
 const EQUIPMENT_SLOT_LABELS: Partial<Record<EquipmentSlot, string>> = {
   sword: "Sword",
@@ -49,16 +61,16 @@ function getEquipmentBreakdown(equipment: RootState["equipment"]["equipment"]) {
 }
 
 const getEquipmentBreakdownMemo = createSelector(
-  [(state: RootState) => state.equipment.equipment],
+  [selectEquipment],
   (equipment) => getEquipmentBreakdown(equipment)
 );
 
 export const getAttackBreakdown = createSelector(
   [
-    (state: RootState) => state.character.attack,
-    (state: RootState) => state.character.bonusAttack,
+    selectAttack,
+    selectBonusAttack,
     getEquipmentBreakdownMemo,
-    (state: RootState) => getTalentBonuses(state.character.talentLevels ?? {}),
+    getTalentBonusesSelector,
   ],
   (attack, bonusAttack, { attackSources, attackMultiplier }, talentBonuses): StatBreakdown => {
     const base = attack + (bonusAttack ?? 0);
@@ -79,10 +91,10 @@ export const getAttackBreakdown = createSelector(
 
 export const getDefenseBreakdown = createSelector(
   [
-    (state: RootState) => state.character.defense,
-    (state: RootState) => state.character.bonusDefense,
+    selectDefense,
+    selectBonusDefense,
     getEquipmentBreakdownMemo,
-    (state: RootState) => getTalentBonuses(state.character.talentLevels ?? {}),
+    getTalentBonusesSelector,
   ],
   (defense, bonusDefense, { defenseSources }, talentBonuses): StatBreakdown => {
     const base = defense + (bonusDefense ?? 0);
@@ -101,10 +113,10 @@ export const getDefenseBreakdown = createSelector(
 
 export const getHealthBreakdown = createSelector(
   [
-    (state: RootState) => state.character.health,
-    (state: RootState) => state.character.bonusHealth,
+    selectHealth,
+    selectBonusHealth,
     getEquipmentBreakdownMemo,
-    (state: RootState) => getTalentBonuses(state.character.talentLevels ?? {}),
+    getTalentBonusesSelector,
   ],
   (health, bonusHealth, { vitalitySources }, talentBonuses): StatBreakdown => {
     const base = health + (bonusHealth ?? 0);
@@ -136,10 +148,11 @@ export function formatStatBreakdown(b: StatBreakdown, statName: string): string 
 
 /** Qi tooltip: current Qi and Qi/s when meditating (base + technique + amulet + talents). */
 export function getQiBreakdown(state: RootState): string {
-  const { character } = state;
-  const eq = state.equipment.equipment;
-  const talentBonuses = getTalentBonuses(character.talentLevels ?? {});
-  const currentQi = Math.round(character.qi * 100) / 100;
+  const qi = selectQi(state);
+  const talentLevels = selectTalentLevels(state);
+  const eq = selectEquipment(state);
+  const talentBonuses = getTalentBonuses(talentLevels ?? {});
+  const currentQi = Math.round(qi * 100) / 100;
   const lines: string[] = [];
   lines.push(`Current Qi: ${currentQi}`);
   let qiPerSec = BASE_QI_PER_SECOND;

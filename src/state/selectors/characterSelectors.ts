@@ -375,6 +375,16 @@ export const getCultivationPartnerInfo = createSelector(
 );
 
 // ─── Focused selectors (avoid subscribing to full character) ───
+/** Base attack from realm (before equipment/bonuses). */
+export const selectAttack = (state: RootState) => state.character.attack;
+/** Base defense from realm. */
+export const selectDefense = (state: RootState) => state.character.defense;
+/** Max vitality from realm. */
+export const selectHealth = (state: RootState) => state.character.health;
+export const selectBonusAttack = (state: RootState) => state.character.bonusAttack;
+export const selectBonusDefense = (state: RootState) => state.character.bonusDefense;
+export const selectBonusHealth = (state: RootState) => state.character.bonusHealth;
+
 export const selectRealm = (state: RootState) => state.character.realm;
 export const selectRealmLevel = (state: RootState) => state.character.realmLevel;
 export const selectPath = (state: RootState) => state.character.path;
@@ -434,8 +444,8 @@ export const selectAvatars = (state: RootState) => state.avatars.avatars;
 /** Whether the character can enter the given combat area (realm/level check). Uses centralized content rules. */
 export function selectCanEnterCombatArea(state: RootState, areaKey: string): boolean {
   return canEnterCombatAreaRule(
-    state.character.realm,
-    state.character.realmLevel,
+    selectRealm(state),
+    selectRealmLevel(state),
     areaKey
   );
 }

@@ -9,7 +9,12 @@ import {
   clearLog,
 } from "../../state/reducers/logSlice";
 import type { ToastI } from "../../state/reducers/toastSlice";
-import { RootState } from "../../state/store";
+import {
+  selectLogEntries,
+  selectLogFilter,
+  selectLogPanelCollapsed,
+  selectToastHistory,
+} from "../../state/selectors/appSelectors";
 import "./LogContainer.css";
 
 const FILTER_OPTIONS: { value: LogFilterCategory | "all" | "notifications"; label: string }[] = [
@@ -85,10 +90,10 @@ interface LogContainerProps {
 
 export const LogContainer: React.FC<LogContainerProps> = ({ asPanel = false }) => {
   const dispatch = useDispatch();
-  const entries = useSelector((state: RootState) => state.log?.entries ?? []);
-  const filter = useSelector((state: RootState) => state.log?.filter ?? "all");
-  const panelCollapsed = useSelector((state: RootState) => state.log?.panelCollapsed ?? true);
-  const toastHistory = useSelector((state: RootState) => state.toast?.toastHistory ?? []);
+  const entries = useSelector(selectLogEntries);
+  const filter = useSelector(selectLogFilter);
+  const panelCollapsed = useSelector(selectLogPanelCollapsed);
+  const toastHistory = useSelector(selectToastHistory);
 
   const filteredEntries = useMemo(() => {
     if (filter === "all") return entries;
