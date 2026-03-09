@@ -20,7 +20,7 @@ export interface StatBreakdown {
   total: number;
 }
 
-function getEquipmentBreakdown(equipment: RootState["character"]["equipment"]) {
+function getEquipmentBreakdown(equipment: RootState["equipment"]["equipment"]) {
   const attackSources: { label: string; value: number }[] = [];
   const defenseSources: { label: string; value: number }[] = [];
   const vitalitySources: { label: string; value: number }[] = [];
@@ -49,7 +49,7 @@ function getEquipmentBreakdown(equipment: RootState["character"]["equipment"]) {
 }
 
 const getEquipmentBreakdownMemo = createSelector(
-  [(state: RootState) => state.character.equipment],
+  [(state: RootState) => state.equipment.equipment],
   (equipment) => getEquipmentBreakdown(equipment)
 );
 
@@ -137,7 +137,7 @@ export function formatStatBreakdown(b: StatBreakdown, statName: string): string 
 /** Qi tooltip: current Qi and Qi/s when meditating (base + technique + amulet + talents). */
 export function getQiBreakdown(state: RootState): string {
   const { character } = state;
-  const eq = character.equipment;
+  const eq = state.equipment.equipment;
   const talentBonuses = getTalentBonuses(character.talentLevels ?? {});
   const currentQi = Math.round(character.qi * 100) / 100;
   const lines: string[] = [];

@@ -4,9 +4,9 @@ import { SECTS_BY_ID } from "../../constants/data";
 import { CombatArea } from "../../enum/CombatArea";
 import { ContentArea } from "../../enum/ContentArea";
 import SectI from "../../interfaces/SectI";
-import { setSect } from "../../state/reducers/characterSlice";
+import { setSect } from "../../state/reducers/sectSlice";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
-import { selectPath, selectCurrentSectId, selectSectRankIndex } from "../../state/selectors/characterSelectors";
+import { selectPath, selectCurrentSectId, selectSectRankIndex, selectRealm, selectRealmLevel } from "../../state/selectors/characterSelectors";
 import "./SectWindow.css";
 
 interface SectWindowProps {
@@ -17,6 +17,8 @@ interface SectWindowProps {
 export const SectWindow: React.FC<SectWindowProps> = ({ sect, onClose }) => {
   const dispatch = useDispatch();
   const path = useSelector(selectPath);
+  const realm = useSelector(selectRealm);
+  const realmLevel = useSelector(selectRealmLevel);
   const currentSectId = useSelector(selectCurrentSectId);
   const sectRankIndex = useSelector(selectSectRankIndex);
   const isMember = currentSectId === sect.id;
@@ -49,7 +51,7 @@ export const SectWindow: React.FC<SectWindowProps> = ({ sect, onClose }) => {
   };
 
   const handleJoin = () => {
-    if (canJoin) dispatch(setSect(sect.id));
+    if (canJoin) dispatch(setSect({ sectId: sect.id, realm, realmLevel }));
   };
 
   const handleLeave = () => {

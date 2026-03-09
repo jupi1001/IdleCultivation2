@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { OFFLINE_PROGRESS_CAP_MS } from "../../constants/offlineProgress";
-import { clearOfflineSummary } from "../../state/reducers/characterSlice";
+import { clearOfflineSummary } from "../../state/reducers/characterCoreSlice";
 import { selectLastOfflineSummary } from "../../state/selectors/characterSelectors";
 import "./OfflineProgressModal.css";
 

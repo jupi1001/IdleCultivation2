@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { existingShopItemUpgrades, existingShopItems, existingShopQiTechniques, existingShopCombatTechniques } from "../../constants/data";
-import { reduceMoney } from "../../state/reducers/characterSlice";
+import { reduceMoney } from "../../state/reducers/characterCoreSlice";
 import { purchaseAutoLootUnlock, purchaseAutoEatUnlock } from "../../state/reducers/settingsSlice";
 import { selectMoney, selectAutoLootUnlocked, selectAutoEatUnlocked } from "../../state/selectors/characterSelectors";
 import "./Shop.css";

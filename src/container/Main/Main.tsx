@@ -7,7 +7,9 @@ import { ContentArea } from "../../enum/ContentArea";
 import { useActivityTicks } from "../../hooks/useActivityTicks";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import { useVitalityRegen } from "../../hooks/useVitalityRegen";
-import { setLastActiveTimestamp, applyOfflineProgress } from "../../state/reducers/characterSlice";
+import { setLastActiveTimestamp, applyOfflineProgress } from "../../state/reducers/characterCoreSlice";
+import { applyOfflineProgress as applyOfflineProgressSkills } from "../../state/reducers/skillsSlice";
+import { addItemsById } from "../../state/reducers/inventorySlice";
 import { RootState } from "../../state/store";
 import { BlackMarket } from "../BlackMarket/BlackMarket";
 import { LeftMain } from "../LeftMain/LeftMain";
@@ -69,16 +71,24 @@ export const Main = ({ theme = "dark", setTheme }: MainProps) => {
 
     const state = reduxStore.getState();
     const now = Date.now();
-    if (!state.character.lastActiveTimestamp || state.character.lastActiveTimestamp <= 0) {
+    const prevTs = state.character.lastActiveTimestamp ?? 0;
+    if (prevTs <= 0) {
       dispatch(setLastActiveTimestamp(now));
       return;
     }
     const result = computeOfflineProgress(state, now);
     if (result == null) {
-      dispatch(setLastActiveTimestamp(now));
+      dispatch(setLastActiveTimestamp({ newTimestamp: now, previousTimestamp: prevTs }));
       return;
     }
+    const toAdd: { itemId: number; amount: number }[] = [];
+    if (result.fishing) result.fishing.items.forEach((item) => toAdd.push({ itemId: item.id, amount: item.quantity ?? 1 }));
+    if (result.mining) result.mining.items.forEach((item) => toAdd.push({ itemId: item.id, amount: item.quantity ?? 1 }));
+    if (result.gathering) result.gathering.items.forEach((item) => toAdd.push({ itemId: item.id, amount: item.quantity ?? 1 }));
+    if (toAdd.length > 0) dispatch(addItemsById(toAdd));
     dispatch(applyOfflineProgress(result));
+    dispatch(applyOfflineProgressSkills({ fishing: result.fishing, mining: result.mining, gathering: result.gathering }));
+    dispatch(setLastActiveTimestamp({ newTimestamp: Date.now(), previousTimestamp: prevTs }));
     try { localStorage.removeItem(LAST_ACTIVE_STORAGE_KEY); } catch (_) { /* ignore */ }
   }, [path, gender, reduxStore, dispatch]);
 

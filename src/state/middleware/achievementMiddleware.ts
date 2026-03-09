@@ -2,9 +2,10 @@ import type { Middleware } from "@reduxjs/toolkit";
 import { ALL_ACHIEVEMENTS, ACHIEVEMENTS_BY_ID } from "../../constants/achievements";
 import type { CharSnapshot } from "../../constants/achievements";
 import { unlockAchievements } from "../reducers/achievementSlice";
-import { addMoney } from "../reducers/characterSlice";
+import { addMoney } from "../reducers/characterCoreSlice";
 import { addToast } from "../reducers/toastSlice";
 import { selectItems } from "../selectors/characterSelectors";
+import type { RootState } from "../store";
 
 /**
  * Middleware that checks for newly unlocked achievements after every action
@@ -20,27 +21,32 @@ function shouldCheck(actionType: string): boolean {
   return !IGNORED_PREFIXES.some((p) => actionType.startsWith(p));
 }
 
-function buildSnapshot(char: Record<string, unknown>, resolvedItems: CharSnapshot["items"]): CharSnapshot {
+function buildSnapshot(state: RootState): CharSnapshot {
+  const char = state.character;
+  const skills = state.skills;
+  const sect = state.sect;
+  const reincarnation = state.reincarnation;
+  const avatars = state.avatars;
   return {
-    realm: char.realm as CharSnapshot["realm"],
-    realmLevel: char.realmLevel as number,
-    money: char.money as number,
-    miner: char.miner as number,
-    fishingXP: char.fishingXP as number,
-    miningXP: char.miningXP as number,
-    gatheringXP: char.gatheringXP as number,
-    alchemyXP: char.alchemyXP as number,
-    forgingXP: char.forgingXP as number,
-    cookingXP: char.cookingXP as number,
-    items: resolvedItems,
-    equipment: char.equipment as CharSnapshot["equipment"],
-    currentSectId: char.currentSectId as number | null,
-    sectRankIndex: char.sectRankIndex as number,
-    reincarnationCount: (char.reincarnationCount as number) ?? 0,
-    totalKarmaEarned: (char.totalKarmaEarned as number) ?? 0,
-    talentLevels: char.talentLevels as Record<number, number>,
-    avatars: char.avatars as CharSnapshot["avatars"],
-    path: char.path as string | null,
+    realm: char.realm,
+    realmLevel: char.realmLevel,
+    money: char.money,
+    miner: char.miner,
+    fishingXP: skills.fishingXP,
+    miningXP: skills.miningXP,
+    gatheringXP: skills.gatheringXP,
+    alchemyXP: skills.alchemyXP,
+    forgingXP: skills.forgingXP,
+    cookingXP: skills.cookingXP,
+    items: selectItems(state),
+    equipment: state.equipment.equipment as CharSnapshot["equipment"],
+    currentSectId: sect.currentSectId,
+    sectRankIndex: sect.sectRankIndex,
+    reincarnationCount: reincarnation.reincarnationCount,
+    totalKarmaEarned: reincarnation.totalKarmaEarned,
+    talentLevels: char.talentLevels,
+    avatars: (avatars.avatars ?? []).map((a) => ({ id: a.id })),
+    path: char.path,
   };
 }
 
@@ -55,10 +61,9 @@ export const achievementMiddleware: Middleware = (store) => (next) => (action) =
 
   const state = store.getState();
   const unlocked: Record<string, number> = state.achievements?.unlocked ?? {};
-  const char = state.character;
-  if (!char) return result;
+  if (!state.character) return result;
 
-  const snapshot = buildSnapshot(char, selectItems(state));
+  const snapshot = buildSnapshot(state);
 
   const newlyUnlocked: string[] = [];
   for (const ach of ALL_ACHIEVEMENTS) {

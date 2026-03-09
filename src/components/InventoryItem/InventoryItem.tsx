@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { GEODE_ITEM_ID } from "../../constants/gems";
 import Item from "../../interfaces/ItemI";
 import {
@@ -7,12 +7,11 @@ import {
   addDefense,
   addHealth,
   addQi,
-  removeItem,
-  openGeodes,
-  equipItem,
   addMoney,
-  consumeItems,
-} from "../../state/reducers/characterSlice";
+} from "../../state/reducers/characterCoreSlice";
+import { removeItem, openGeodes, consumeItems, addItemById } from "../../state/reducers/inventorySlice";
+import { equipItem, unequipItem } from "../../state/reducers/equipmentSlice";
+import { selectEquipment } from "../../state/selectors/characterSelectors";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
 import "./InventoryItem.css";
 
@@ -22,6 +21,7 @@ interface InventoryItemProps {
 
 const InventoryItem: React.FC<InventoryItemProps> = React.memo(({ item }) => {
   const dispatch = useDispatch();
+  const equipment = useSelector(selectEquipment);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const canUse =
@@ -33,7 +33,14 @@ const InventoryItem: React.FC<InventoryItemProps> = React.memo(({ item }) => {
 
   function handleEquip() {
     if (!canEquip) return;
-    dispatch(equipItem({ slot: item.equipmentSlot as EquipmentSlot, item }));
+    const slot = item.equipmentSlot as EquipmentSlot;
+    const current = equipment[slot];
+    if (current) {
+      dispatch(addItemById({ itemId: current.id, amount: 1 }));
+      dispatch(unequipItem(slot));
+    }
+    dispatch(consumeItems([{ itemId: item.id, amount: 1 }]));
+    dispatch(equipItem({ slot, item }));
     setMenuOpen(false);
   }
 

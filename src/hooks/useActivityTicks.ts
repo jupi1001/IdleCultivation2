@@ -12,7 +12,7 @@
  * React Strict Mode double-firing does not create duplicate timers.
  */
 import { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   FISHING_AREA_INDEX_BY_ID,
   GATHERING_AREA_INDEX_BY_ID,
@@ -35,11 +35,10 @@ import {
   completeFishingCast,
   completeGatheringCast,
   completeMiningCast,
-  setFishingCast,
-  setGatheringCast,
-  setMiningCast,
   setLastActiveTimestamp,
-} from "../state/reducers/characterSlice";
+} from "../state/reducers/characterCoreSlice";
+import { setFishingCast, setGatheringCast, setMiningCast } from "../state/reducers/skillsSlice";
+import { useAppDispatch } from "../state/store";
 import { tickWeakenedRecovery } from "../state/reducers/combatSlice";
 import { addToast } from "../state/reducers/toastSlice";
 import {
@@ -99,7 +98,7 @@ function rollSkillingSetForArea(
 }
 
 export function useActivityTicks() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const currentActivity = useSelector(selectCurrentActivity);
   const currentFishingArea = useSelector(selectCurrentFishingArea);
   const fishingCastStartTime = useSelector(selectFishingCastStartTime);

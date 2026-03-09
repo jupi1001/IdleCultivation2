@@ -9,12 +9,12 @@ import type { BaseArea } from "../interfaces/BaseArea";
 import type { FishingAreaI } from "../interfaces/FishingAreaI";
 import type { GatheringAreaI } from "../interfaces/GatheringAreaI";
 import type { MiningAreaI } from "../interfaces/MiningAreaI";
+import { setCurrentActivity } from "../state/reducers/characterCoreSlice";
 import {
-  setCurrentActivity,
   setCurrentFishingArea,
   setCurrentMiningArea,
   setCurrentGatheringArea,
-} from "../state/reducers/characterSlice";
+} from "../state/reducers/skillsSlice";
 import {
   selectCurrentActivity,
   selectCurrentFishingArea,

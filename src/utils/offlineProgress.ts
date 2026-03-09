@@ -22,7 +22,7 @@ import {
 } from "../constants/skillingSets";
 import { getTalentBonuses } from "../constants/talents";
 import type Item from "../interfaces/ItemI";
-import type { CurrentFishingArea, CurrentGatheringArea, CurrentMiningArea } from "../state/reducers/characterSlice";
+import type { CurrentFishingArea, CurrentGatheringArea, CurrentMiningArea } from "../state/reducers/characterCoreSlice";
 import {
   getSkillSpeedBonusFishing,
   getSkillSpeedBonusMining,
@@ -88,6 +88,7 @@ function rollSkillingSetForArea(
  */
 export function computeOfflineProgress(state: RootState, now: number): OfflineProgressResult | null {
   const char = state.character;
+  const skills = state.skills;
   let lastActive = char.lastActiveTimestamp;
   if (typeof lastActive !== "number" || !lastActive || lastActive <= 0) return null;
 
@@ -119,17 +120,18 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
   // Meditation: only when activity was meditate (not when on expedition, etc.)
   if (activity === "meditate") {
     const talentQi = getTalentBonuses(char.talentLevels ?? {}).qiGain;
+    const equipment = state.equipment.equipment;
     const qiPerSecond =
       BASE_QI_PER_SECOND +
-      (char.equipment.qiTechnique?.qiGainBonus ?? 0) +
-      (char.equipment.amulet?.qiGainBonus ?? 0) +
+      (equipment.qiTechnique?.qiGainBonus ?? 0) +
+      (equipment.amulet?.qiGainBonus ?? 0) +
       talentQi;
     result.offlineQi = qiPerSecond * (offlineMs / 1000) * karmaQiMult;
   }
 
   // Fishing
-  if (activity === "fish" && char.currentFishingArea) {
-    const area = char.currentFishingArea as CurrentFishingArea;
+  if (activity === "fish" && skills.currentFishingArea) {
+    const area = skills.currentFishingArea as CurrentFishingArea;
     const skillBonus = getSkillSpeedBonusFishing(state);
     const effectiveDuration = Math.max(100, area.fishingDelay * (1 - skillBonus / 100));
     const casts = Math.floor(offlineMs / effectiveDuration);
@@ -161,8 +163,8 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
   }
 
   // Mining
-  if (activity === "mine" && char.currentMiningArea) {
-    const area = char.currentMiningArea as CurrentMiningArea;
+  if (activity === "mine" && skills.currentMiningArea) {
+    const area = skills.currentMiningArea as CurrentMiningArea;
     const skillBonus = getSkillSpeedBonusMining(state);
     const miningYieldPercent = getMiningYieldBonusPercent(state);
     const effectiveDuration = Math.max(100, area.miningDelay * (1 - skillBonus / 100));
@@ -196,8 +198,8 @@ export function computeOfflineProgress(state: RootState, now: number): OfflinePr
   }
 
   // Gathering
-  if (activity === "gather" && char.currentGatheringArea) {
-    const area = char.currentGatheringArea as CurrentGatheringArea;
+  if (activity === "gather" && skills.currentGatheringArea) {
+    const area = skills.currentGatheringArea as CurrentGatheringArea;
     const skillBonus = getSkillSpeedBonusGathering(state);
     const effectiveDuration = Math.max(100, area.gatheringDelay * (1 - skillBonus / 100));
     const casts = Math.floor(offlineMs / effectiveDuration);

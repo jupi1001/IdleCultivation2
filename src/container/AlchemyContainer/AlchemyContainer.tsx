@@ -15,7 +15,9 @@ import {
   CRAFTING_SET_DROP_CHANCE_PERCENT,
 } from "../../constants/craftingSets";
 import { ITEMS_BY_ID } from "../../constants/data";
-import { addItemById, consumeItems, addAlchemyXP, recordItemCrafted } from "../../state/reducers/characterSlice";
+import { addItemById, consumeItems } from "../../state/reducers/inventorySlice";
+import { addAlchemyXP } from "../../state/reducers/skillsSlice";
+import { recordItemCrafted } from "../../state/reducers/statsSlice";
 import { addToast } from "../../state/reducers/toastSlice";
 import {
   getTalentAlchemySuccessPercent,

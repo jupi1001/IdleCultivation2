@@ -9,6 +9,7 @@ import {
   REALM_DIALOGUE_REALMS,
   DUAL_CULTIVATION_MIN_FAVOR,
   GIFT_SPIRIT_STONE_COST,
+  SECT_TREASURE_ITEM_ID_BY_SECT,
 } from "../../constants/sectRelationships";
 import { ContentArea } from "../../enum/ContentArea";
 import {
@@ -20,7 +21,9 @@ import {
   giftNpc,
   useRealmDialogue,
   setCultivationPartner,
-} from "../../state/reducers/characterSlice";
+} from "../../state/reducers/sectSlice";
+import { reduceMoney } from "../../state/reducers/characterCoreSlice";
+import { addItemById } from "../../state/reducers/inventorySlice";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
 import {
   selectCurrentSectId,
@@ -98,9 +101,9 @@ export const SectContainer = () => {
 
   useEffect(() => {
     if (promotionEndTime != null && Date.now() >= promotionEndTime) {
-      dispatch(completePromotion());
+      dispatch(completePromotion({ realm, realmLevel }));
     }
-  }, [now, promotionEndTime, dispatch]);
+  }, [now, promotionEndTime, realm, realmLevel, dispatch]);
 
   const [expandedSectIds, setExpandedSectIds] = useState<number[]>([]);
 
@@ -307,7 +310,11 @@ export const SectContainer = () => {
                   <button
                     type="button"
                     className="sectContainer__btn sectContainer__btn--primary"
-                    onClick={() => dispatch(claimSectQuestReward(currentSectId))}
+                    onClick={() => {
+                      dispatch(claimSectQuestReward(currentSectId));
+                      const itemId = SECT_TREASURE_ITEM_ID_BY_SECT[currentSectId];
+                      if (itemId != null) dispatch(addItemById({ itemId, amount: 1 }));
+                    }}
                   >
                     Claim reward
                   </button>
@@ -345,7 +352,10 @@ export const SectContainer = () => {
                       <button
                         type="button"
                         className="sectContainer__btn sectContainer__btn--small"
-                        onClick={() => dispatch(giftNpc({ sectId: npc.sectId, npcId: npc.id }))}
+                        onClick={() => {
+                          dispatch(reduceMoney(GIFT_SPIRIT_STONE_COST));
+                          dispatch(giftNpc({ sectId: npc.sectId, npcId: npc.id }));
+                        }}
                         disabled={money < GIFT_SPIRIT_STONE_COST || favor >= 100}
                         title={`${GIFT_SPIRIT_STONE_COST} Spirit Stones → +1 Favor`}
                       >

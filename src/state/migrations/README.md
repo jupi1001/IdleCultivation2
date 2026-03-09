@@ -6,11 +6,11 @@ Per-slice migration maps and a single entry point (`runMigrations`) used by redu
 
 | Slice | Owner | Migrations |
 |-------|--------|------------|
-| `character` | `state/reducers/characterSlice` | Defaults, `items` → `itemsById` |
+| `character` | `state/reducers/characterCoreSlice` | Defaults, `items` → `itemsById` |
 | `settings` | `state/reducers/settingsSlice` | Defaults |
 | `reincarnation` | `state/reducers/reincarnationSlice` | Defaults |
 | `content` | `state/reducers/contentSlice` | Legacy `page` string → `route` object |
-| *global* | store | Extract settings/reincarnation from character (one-time) |
+| *global* | store | Extract settings/reincarnation/combat/stats/sect/inventory/equipment/**skills** from character (one-time) |
 
 When adding a new persisted slice (e.g. Task 1 split), add a migration file, register it in `index.ts` under `SLICE_MIGRATIONS`, and document it in this table and in the comment at the top of `index.ts`.
 

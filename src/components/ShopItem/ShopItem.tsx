@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Item from "../../interfaces/ItemI";
-import { addAttack, addDefense, addItemById, reduceMoney } from "../../state/reducers/characterSlice";
+import { addAttack, addDefense, reduceMoney } from "../../state/reducers/characterCoreSlice";
+import { addItemById } from "../../state/reducers/inventorySlice";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent } from "../../state/selectors/characterSelectors";
 import { selectMoney } from "../../state/selectors/characterSelectors";
 import "./ShopItem.css";

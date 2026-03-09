@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addMoney, addMiner, reduceMoney } from "../../state/reducers/characterSlice";
+import { addMoney, addMiner, reduceMoney } from "../../state/reducers/characterCoreSlice";
 import "./MoneyContainer.css";
 import { selectMoney } from "../../state/selectors/characterSelectors";
 

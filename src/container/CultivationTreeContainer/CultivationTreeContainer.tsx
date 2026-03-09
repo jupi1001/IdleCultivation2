@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { TalentNodeCard } from "../../components/TalentNodeCard/TalentNodeCard";
 import { getTalentNodeState } from "../../constants/talentHelpers";
 import { TALENT_TREE_TIERS, formatRealmGateLabel } from "../../constants/talents";
-import { purchaseTalentLevel } from "../../state/reducers/characterSlice";
+import { purchaseTalentLevel } from "../../state/reducers/characterCoreSlice";
 import { selectQi, selectRealm, selectRealmLevel, selectTalentLevels, selectPath } from "../../state/selectors/characterSelectors";
 import "./CultivationTreeContainer.css";
 

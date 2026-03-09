@@ -7,7 +7,8 @@ import { fishingAreaData, ITEMS_BY_ID } from "../../constants/data";
 import { FISHING_MAX_LEVEL, getFishingLevelInfo } from "../../constants/fishingLevel";
 import { getTierForFishingAreaIndex } from "../../constants/skillingSets";
 import { useCastProgress } from "../../hooks/useCastProgress";
-import { setCurrentActivity, setCurrentFishingArea } from "../../state/reducers/characterSlice";
+import { setCurrentActivity } from "../../state/reducers/characterCoreSlice";
+import { setCurrentFishingArea } from "../../state/reducers/skillsSlice";
 import "./FishingContainer.css";
 import { getOwnedRingAmuletIds, getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
 import {

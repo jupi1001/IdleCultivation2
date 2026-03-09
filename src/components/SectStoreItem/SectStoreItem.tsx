@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { SectStoreEntryI } from "../../constants/data";
-import { addItemById, reduceMoney } from "../../state/reducers/characterSlice";
+import { reduceMoney } from "../../state/reducers/characterCoreSlice";
+import { addItemById } from "../../state/reducers/inventorySlice";
 import { getOwnedTechniqueIds, getTalentShopDiscountPercent, selectMoney } from "../../state/selectors/characterSelectors";
 import { formatItemStats } from "../../utils/itemTooltipUtils";
 import { Tooltip } from "../Tooltip/Tooltip";

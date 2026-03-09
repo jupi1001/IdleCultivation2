@@ -2,7 +2,7 @@
  * Per-slice persistence migrations.
  *
  * MIGRATION OWNERSHIP:
- * - character: state/reducers/characterSlice — defaults, inventory shape (items → itemsById).
+ * - character: state/reducers/characterCoreSlice — defaults, inventory shape (items → itemsById).
  * - settings: state/reducers/settingsSlice — defaults.
  * - reincarnation: state/reducers/reincarnationSlice — defaults.
  * - content: state/reducers/contentSlice — legacy page string → route object.

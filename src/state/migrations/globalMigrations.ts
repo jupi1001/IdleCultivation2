@@ -4,6 +4,7 @@
  */
 
 import { getCombatStatsFromRealm } from "../../constants/realmProgression";
+import { INITIAL_CHARACTER_STATS } from "../types/characterStats";
 import { DEFAULT_NOTIFICATION_PREFS, DEFAULT_SOUND_VOLUME } from "./characterMigrations";
 
 export type GlobalMigrator = (rootState: Record<string, unknown>) => void;
@@ -70,8 +71,164 @@ const ensureCombatSlice: GlobalMigrator = (rootState) => {
   }
 };
 
+/** v4: Ensure stats slice exists (extracted from character in Task 1). */
+const ensureStatsSlice: GlobalMigrator = (rootState) => {
+  if (rootState.stats != null && typeof rootState.stats === "object") return;
+  const char = rootState.character;
+  const c = char && typeof char === "object" && !Array.isArray(char) ? (char as Record<string, unknown>) : null;
+  const fromChar = c?.stats && typeof c.stats === "object" ? (c.stats as Record<string, unknown>) : null;
+  rootState.stats = fromChar
+    ? {
+        enemiesKilledByArea: fromChar.enemiesKilledByArea ?? {},
+        itemsGatheredFishing: fromChar.itemsGatheredFishing ?? 0,
+        itemsGatheredMining: fromChar.itemsGatheredMining ?? 0,
+        itemsGatheredGathering: fromChar.itemsGatheredGathering ?? 0,
+        totalSpiritStonesEarned: fromChar.totalSpiritStonesEarned ?? 0,
+        totalQiGenerated: fromChar.totalQiGenerated ?? 0,
+        totalBreakthroughs: fromChar.totalBreakthroughs ?? 0,
+        timePlayedMs: fromChar.timePlayedMs ?? 0,
+        highestRealmStep: fromChar.highestRealmStep ?? 0,
+        itemsCraftedAlchemy: fromChar.itemsCraftedAlchemy ?? 0,
+        itemsCraftedForging: fromChar.itemsCraftedForging ?? 0,
+        itemsCraftedCooking: fromChar.itemsCraftedCooking ?? 0,
+        deaths: fromChar.deaths ?? 0,
+      }
+    : { ...INITIAL_CHARACTER_STATS };
+  if (c) delete c.stats;
+};
+
+/** v5: Ensure sect slice exists (extracted from character). */
+const ensureSectSlice: GlobalMigrator = (rootState) => {
+  if (rootState.sect != null && typeof rootState.sect === "object") return;
+  const char = rootState.character;
+  const c = char && typeof char === "object" && !Array.isArray(char) ? (char as Record<string, unknown>) : null;
+  rootState.sect = {
+    currentSectId: c?.currentSectId ?? null,
+    sectRankIndex: (c?.sectRankIndex as number) ?? 0,
+    promotionEndTime: c?.promotionEndTime ?? null,
+    promotionToRankIndex: c?.promotionToRankIndex ?? null,
+    sectQuestProgress: (c?.sectQuestProgress as Record<number, number>) ?? {},
+    sectQuestKillCount: (c?.sectQuestKillCount as Record<number, number>) ?? {},
+    obtainedSectTreasureIds: (c?.obtainedSectTreasureIds as number[]) ?? [],
+    npcFavor: (c?.npcFavor as Record<string, number>) ?? {},
+    realmDialogueUsed: (c?.realmDialogueUsed as Record<string, Record<string, boolean>>) ?? {},
+    cultivationPartner: c?.cultivationPartner ?? null,
+  };
+  if (c) {
+    delete c.currentSectId;
+    delete c.sectRankIndex;
+    delete c.promotionEndTime;
+    delete c.promotionToRankIndex;
+    delete c.sectQuestProgress;
+    delete c.sectQuestKillCount;
+    delete c.obtainedSectTreasureIds;
+    delete c.npcFavor;
+    delete c.realmDialogueUsed;
+    delete c.cultivationPartner;
+  }
+};
+
+/** v6: Ensure inventory slice exists (extracted from character). */
+const ensureInventorySlice: GlobalMigrator = (rootState) => {
+  if (rootState.inventory != null && typeof rootState.inventory === "object") return;
+  const char = rootState.character;
+  const c = char && typeof char === "object" && !Array.isArray(char) ? (char as Record<string, unknown>) : null;
+  rootState.inventory = {
+    itemsById: (c?.itemsById as Record<number, number>) ?? {},
+  };
+  if (c) delete c.itemsById;
+};
+
+/** v7: Ensure equipment slice exists (extracted from character). */
+const ensureEquipmentSlice: GlobalMigrator = (rootState) => {
+  if (rootState.equipment != null && typeof rootState.equipment === "object") return;
+  const char = rootState.character;
+  const c = char && typeof char === "object" && !Array.isArray(char) ? (char as Record<string, unknown>) : null;
+  const ALL_EQUIPMENT_SLOTS = ["sword", "helmet", "body", "shoes", "legs", "ring", "amulet", "qiTechnique", "combatTechnique"] as const;
+  const emptyEquipment = ALL_EQUIPMENT_SLOTS.reduce(
+    (acc, slot) => ({ ...acc, [slot]: null }),
+    {} as Record<string, unknown>
+  );
+  rootState.equipment = {
+    equipment: (c?.equipment as Record<string, unknown>) ?? emptyEquipment,
+  };
+  if (c) delete c.equipment;
+};
+
+/** v8: Ensure skills slice exists (extracted from character). XP and cast state for fishing/mining/gathering/alchemy/forging/cooking. */
+const ensureSkillsSlice: GlobalMigrator = (rootState) => {
+  if (rootState.skills != null && typeof rootState.skills === "object") return;
+  const char = rootState.character;
+  const c = char && typeof char === "object" && !Array.isArray(char) ? (char as Record<string, unknown>) : null;
+  rootState.skills = {
+    fishingXP: (c?.fishingXP as number) ?? 0,
+    miningXP: (c?.miningXP as number) ?? 0,
+    gatheringXP: (c?.gatheringXP as number) ?? 0,
+    alchemyXP: (c?.alchemyXP as number) ?? 0,
+    forgingXP: (c?.forgingXP as number) ?? 0,
+    cookingXP: (c?.cookingXP as number) ?? 0,
+    currentFishingArea: c?.currentFishingArea ?? null,
+    fishingCastStartTime: c?.fishingCastStartTime ?? null,
+    fishingCastDuration: (c?.fishingCastDuration as number) ?? 0,
+    fishingCastId: (c?.fishingCastId as number) ?? 0,
+    currentMiningArea: c?.currentMiningArea ?? null,
+    miningCastStartTime: c?.miningCastStartTime ?? null,
+    miningCastDuration: (c?.miningCastDuration as number) ?? 0,
+    miningCastId: (c?.miningCastId as number) ?? 0,
+    currentGatheringArea: c?.currentGatheringArea ?? null,
+    gatheringCastStartTime: c?.gatheringCastStartTime ?? null,
+    gatheringCastDuration: (c?.gatheringCastDuration as number) ?? 0,
+    gatheringCastId: (c?.gatheringCastId as number) ?? 0,
+  };
+  if (c) {
+    delete c.fishingXP;
+    delete c.miningXP;
+    delete c.gatheringXP;
+    delete c.alchemyXP;
+    delete c.forgingXP;
+    delete c.cookingXP;
+    delete c.currentFishingArea;
+    delete c.fishingCastStartTime;
+    delete c.fishingCastDuration;
+    delete c.fishingCastId;
+    delete c.currentMiningArea;
+    delete c.miningCastStartTime;
+    delete c.miningCastDuration;
+    delete c.miningCastId;
+    delete c.currentGatheringArea;
+    delete c.gatheringCastStartTime;
+    delete c.gatheringCastDuration;
+    delete c.gatheringCastId;
+  }
+};
+
+/** v9: Ensure avatars slice exists (extracted from character). */
+const ensureAvatarsSlice: GlobalMigrator = (rootState) => {
+  if (rootState.avatars != null && typeof rootState.avatars === "object") return;
+  const char = rootState.character;
+  const c = char && typeof char === "object" && !Array.isArray(char) ? (char as Record<string, unknown>) : null;
+  rootState.avatars = {
+    avatars: (c?.avatars as unknown[]) ?? [],
+    nextAvatarId: (c?.nextAvatarId as number) ?? 1,
+    expeditionEndTime: c?.expeditionEndTime ?? null,
+    expeditionMissionId: c?.expeditionMissionId ?? null,
+  };
+  if (c) {
+    delete c.avatars;
+    delete c.nextAvatarId;
+    delete c.expeditionEndTime;
+    delete c.expeditionMissionId;
+  }
+};
+
 export const globalMigrations: readonly GlobalMigrator[] = [
   extractSettingsFromCharacter,
   extractReincarnationFromCharacter,
   ensureCombatSlice,
+  ensureStatsSlice,
+  ensureSectSlice,
+  ensureInventorySlice,
+  ensureEquipmentSlice,
+  ensureSkillsSlice,
+  ensureAvatarsSlice,
 ];

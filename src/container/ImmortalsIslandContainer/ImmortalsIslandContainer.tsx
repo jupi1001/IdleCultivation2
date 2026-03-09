@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../state/store";
 import { canEnterArea, formatRealmRequirement } from "../../constants/areaRealmRequirements";
 import {
   AVATAR_CREATE_ORE_AMOUNT,
@@ -19,12 +20,14 @@ import {
 import type { MissionI } from "../../interfaces/MissionI";
 import {
   addMoney,
-  addItemById,
+  reduceMoney,
+} from "../../state/reducers/characterCoreSlice";
+import {
   startExpedition,
   clearExpedition,
-  createAvatar,
-  trainAvatar,
-} from "../../state/reducers/characterSlice";
+} from "../../state/reducers/avatarsThunks";
+import { createAvatar, trainAvatar } from "../../state/reducers/avatarsSlice";
+import { addItemById, consumeItems } from "../../state/reducers/inventorySlice";
 import { addToast } from "../../state/reducers/toastSlice";
 import {
   selectRealm,
@@ -64,7 +67,7 @@ function formatDuration(seconds: number): string {
 }
 
 export const ImmortalsIslandContainer = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const realm = useSelector(selectRealm);
   const realmLevel = useSelector(selectRealmLevel);
   const expeditionEndTime = useSelector(selectExpeditionEndTime);
@@ -194,6 +197,12 @@ export const ImmortalsIslandContainer = () => {
 
   const handleCreateAvatar = () => {
     const name = createName.trim() || `Avatar ${avatars.length + 1}`;
+    if (!canAffordAvatar) return;
+    dispatch(reduceMoney(AVATAR_CREATE_SPIRIT_STONES));
+    dispatch(consumeItems([
+      { itemId: AVATAR_CREATE_ORE_ID, amount: AVATAR_CREATE_ORE_AMOUNT },
+      { itemId: AVATAR_CREATE_WOOD_ID, amount: AVATAR_CREATE_WOOD_AMOUNT },
+    ]));
     dispatch(createAvatar({ name }));
     setCreateName("");
   };
@@ -263,7 +272,10 @@ export const ImmortalsIslandContainer = () => {
                           type="button"
                           className="immortalsIsland__avatar-train-btn"
                           disabled={money < AVATAR_TRAIN_SPIRIT_STONES}
-                          onClick={() => dispatch(trainAvatar({ avatarId: a.id, costType: "spiritStones" }))}
+                          onClick={() => {
+                            dispatch(reduceMoney(AVATAR_TRAIN_SPIRIT_STONES));
+                            dispatch(trainAvatar({ avatarId: a.id, costType: "spiritStones" }));
+                          }}
                           title={`Spend ${AVATAR_TRAIN_SPIRIT_STONES} Spirit Stones to increase ${a.name}'s power by 1`}
                         >
                           Train ({AVATAR_TRAIN_SPIRIT_STONES} Spirit Stones)
@@ -275,7 +287,11 @@ export const ImmortalsIslandContainer = () => {
                               type="button"
                               className="immortalsIsland__avatar-train-btn"
                               disabled={!qiPill}
-                              onClick={() => qiPill && dispatch(trainAvatar({ avatarId: a.id, costType: "qiPill", itemId: qiPill.id }))}
+                              onClick={() => {
+                                if (!qiPill) return;
+                                dispatch(consumeItems([{ itemId: qiPill.id, amount: AVATAR_TRAIN_QI_PILL_AMOUNT }]));
+                                dispatch(trainAvatar({ avatarId: a.id, costType: "qiPill", itemId: qiPill.id }));
+                              }}
                               title={qiPill ? `Spend 1 ${qiPill.name} to increase ${a.name}'s power by 1` : "Requires at least one Qi Pill in inventory"}
                             >
                               Train (1 Qi Pill)

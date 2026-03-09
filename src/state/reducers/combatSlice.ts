@@ -4,7 +4,7 @@
  */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getCombatStatsFromRealm } from "../../constants/realmProgression";
-import { characterSlice } from "./characterSlice";
+import { characterCoreSlice } from "./characterCoreSlice";
 import { reincarnationSlice } from "./reincarnationSlice";
 import { settingsSlice } from "./settingsSlice";
 
@@ -57,11 +57,11 @@ export const combatSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(characterSlice.actions.setRealm, (state, action) => {
+      .addCase(characterCoreSlice.actions.setRealm, (state, action) => {
         const stats = getCombatStatsFromRealm(action.payload.realm, action.payload.realmLevel);
         state.currentHealth = stats.health;
       })
-      .addCase(characterSlice.actions.breakthrough, (state, action) => {
+      .addCase(characterCoreSlice.actions.breakthrough, (state, action) => {
         if (action.payload) {
           const stats = getCombatStatsFromRealm(action.payload.nextRealmId, action.payload.nextRealmLevel);
           state.currentHealth = stats.health;

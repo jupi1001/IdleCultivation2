@@ -1,6 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { equipItem, unequipItem } from "../../state/reducers/characterSlice";
+import { equipItem, unequipItem } from "../../state/reducers/equipmentSlice";
+import { addItemById, consumeItems } from "../../state/reducers/inventorySlice";
 import { selectEquipment, selectItems } from "../../state/selectors/characterSelectors";
 import { ALL_EQUIPMENT_SLOTS, EQUIPMENT_SLOT_LABELS } from "../../types/EquipmentSlot";
 import type { EquipmentSlot } from "../../types/EquipmentSlot";
@@ -33,7 +34,10 @@ export const EquipmentPanel = () => {
                   <button
                     type="button"
                     className="equipment-panel__unequip"
-                    onClick={() => dispatch(unequipItem(slot))}
+                    onClick={() => {
+                      if (equipped) dispatch(addItemById({ itemId: equipped.id, amount: 1 }));
+                      dispatch(unequipItem(slot));
+                    }}
                   >
                     Unequip
                   </button>
@@ -45,7 +49,15 @@ export const EquipmentPanel = () => {
                   onChange={(e) => {
                     const id = Number(e.target.value);
                     const item = available.find((i) => i.id === id);
-                    if (item) dispatch(equipItem({ slot, item }));
+                    if (item) {
+                      const currentInSlot = equipment[slot];
+                      if (currentInSlot) {
+                        dispatch(addItemById({ itemId: currentInSlot.id, amount: 1 }));
+                        dispatch(unequipItem(slot));
+                      }
+                      dispatch(consumeItems([{ itemId: item.id, amount: 1 }]));
+                      dispatch(equipItem({ slot, item }));
+                    }
                     e.target.value = "";
                   }}
                 >

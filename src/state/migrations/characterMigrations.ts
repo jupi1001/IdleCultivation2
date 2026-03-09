@@ -1,6 +1,6 @@
 /**
  * Character slice migrations.
- * Owned by: state/reducers/characterSlice (logical owner when slice is split in Task 1).
+ * Owned by: state/reducers/characterCoreSlice (logical owner when slice is split in Task 1).
  */
 
 import type { SliceMigrator } from "./types";

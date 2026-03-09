@@ -1,6 +1,6 @@
 import type { Middleware } from "@reduxjs/toolkit";
 import { formatRealm } from "../../constants/realmProgression";
-import { breakthrough } from "../reducers/characterSlice";
+import { breakthrough } from "../reducers/characterCoreSlice";
 import { addLogEntry } from "../reducers/logSlice";
 import { addToast } from "../reducers/toastSlice";
 

@@ -7,7 +7,8 @@ import { gatheringAreaData, ITEMS_BY_ID } from "../../constants/data";
 import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
 import { getTierForGatheringAreaIndex } from "../../constants/skillingSets";
 import { useCastProgress } from "../../hooks/useCastProgress";
-import { setCurrentActivity, setCurrentGatheringArea } from "../../state/reducers/characterSlice";
+import { setCurrentActivity } from "../../state/reducers/characterCoreSlice";
+import { setCurrentGatheringArea } from "../../state/reducers/skillsSlice";
 import "./GatheringContainer.css";
 import { getOwnedRingAmuletIds, getOwnedSkillingSetPieceIds } from "../../state/selectors/characterSelectors";
 import {

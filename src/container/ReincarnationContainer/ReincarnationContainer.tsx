@@ -17,7 +17,9 @@ import {
 } from "../../constants/reincarnation";
 import { ContentArea } from "../../enum/ContentArea";
 import { changeContent, routeFromArea } from "../../state/reducers/contentSlice";
-import { reincarnate, purchaseKarmaBonus } from "../../state/reducers/reincarnationSlice";
+import { reincarnateAndReset } from "../../state/reducers/reincarnationThunks";
+import { purchaseKarmaBonus } from "../../state/reducers/reincarnationSlice";
+import { useAppDispatch } from "../../state/store";
 import {
   selectRealm,
   selectRealmLevel,
@@ -53,7 +55,7 @@ function getTotalSkillLevels(xp: {
 }
 
 export const ReincarnationContainer = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const realm = useSelector(selectRealm);
   const realmLevel = useSelector(selectRealmLevel);
   const karmaPoints = useSelector(selectKarmaPoints);
@@ -88,7 +90,7 @@ export const ReincarnationContainer = () => {
     const earned = calculateKarmaEarned(realm, realmLevel, totalSkillLevels);
     const startingMoneyLevel = karmaBonusLevels?.startingMoney ?? 0;
     const startingMoneyBonus = startingMoneyLevel * (KARMA_BONUSES_BY_ID.startingMoney?.valuePerLevel ?? 0);
-    dispatch(reincarnate({ karmaEarned: earned, startingMoneyBonus }));
+    dispatch(reincarnateAndReset({ karmaEarned: earned, startingMoneyBonus }));
     setConfirming(false);
     dispatch(changeContent(routeFromArea(ContentArea.MEDITATION)));
   };
