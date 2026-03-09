@@ -96,3 +96,14 @@ if (import.meta.env.MODE !== "production") {
 }
 
 export const ENEMIES_BY_ID: Record<number, EnemyI> = Object.fromEntries(enemies.map((e) => [e.id, e])) as Record<number, EnemyI>;
+
+export const ENEMIES_BY_AREA: Record<string, EnemyI[]> = enemies.reduce<Record<string, EnemyI[]>>(
+  (acc, enemy) => {
+    const key = enemy.location.toString();
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(enemy);
+    return acc;
+  },
+  {}
+);
+
