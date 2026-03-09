@@ -36,10 +36,15 @@ export interface CurrentGatheringArea extends RareDropFields {
 }
 
 /** Payload for skills portion of offline progress (XP + clear casts). Matches ApplyOfflineProgressPayload skill keys. */
+export interface RewardResult {
+  xp: number;
+  items: Item[];
+}
+
 export interface SkillsOfflineProgressPayload {
-  fishing?: { xp: number; casts: number; items: Item[] };
-  mining?: { xp: number; casts: number; items: Item[] };
-  gathering?: { xp: number; casts: number; items: Item[] };
+  fishing?: RewardResult & { casts: number };
+  mining?: RewardResult & { casts: number };
+  gathering?: RewardResult & { casts: number };
 }
 
 interface SkillsState {
