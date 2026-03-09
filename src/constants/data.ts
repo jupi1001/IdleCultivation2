@@ -20,6 +20,7 @@ import {
   existingShopItemUpgrades,
 } from "../domain/items";
 import { getSectStoreItemsFlat } from "../domain/sects";
+import { parseItems } from "../schemas/items";
 
 // Re-export all domain data and registries
 export {
@@ -76,6 +77,11 @@ export const ITEMS_BY_ID = buildItemsById([
   COOKING_OUTPUT_ITEMS,
   getSectStoreItemsFlat(),
 ]);
+
+// Dev/test-only: validate that all items in the registry conform to the Item schema.
+if (import.meta.env?.MODE !== "production") {
+  parseItems(Object.values(ITEMS_BY_ID));
+}
 
 /** Skill list for the activity/skill selector (order and labels). */
 export const existingSkills: SkillI[] = [

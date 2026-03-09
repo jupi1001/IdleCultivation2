@@ -111,6 +111,7 @@ Each category has at least one example in the repo; follow the same patterns whe
 - **Usage at boundaries**:
   - **Content**: domain modules call their parse helpers in dev/test only (e.g. enemies, areas, talents) to catch bad content early without touching hot render loops.
   - **Save/migrations**: `runMigrations` validates the migrated redux-persist payload with `parsePersistedRootState` in non-production builds.
+  - **Registry build**: `constants/data.ts` validates the combined `ITEMS_BY_ID` registry in dev/test by running `parseItems(Object.values(ITEMS_BY_ID))` once at module load.
 - **When to add/update schemas**:
   - When adding a new **domain registry** (items, enemies, areas, talents, loot tables), add or extend a schema in `src/schemas/` and, for dev, call its parse helper where the registry is built.
   - When changing the persisted **root state shape** (adding/removing a slice or top-level key), update `saveState.ts` so migrations remain schema-checked.
