@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ENEMIES_BY_ID, ITEMS_BY_ID } from "../constants/data";
+import { ENEMIES_BY_ID } from "../constants/data";
 import { ContentArea } from "../enum/ContentArea";
 import EnemyI from "../interfaces/EnemyI";
 import Item, { getConsumableEffect } from "../interfaces/ItemI";
@@ -23,7 +23,6 @@ import {
   getOwnedTechniqueIds,
   getTalentSpiritStoneMultiplier,
   selectCurrentHealth,
-  selectItemsById,
   selectDeathPenaltyMode,
   selectCurrentSectId,
   selectPath,
@@ -34,6 +33,7 @@ import {
   selectAutoEatHpPercent,
   selectGender,
 } from "../state/selectors/characterSelectors";
+import { selectItemsById, selectVitalityFood } from "../state/selectors/inventorySelectors";
 import { isConsumableItem } from "../types/itemGuards";
 import { getResolvedLootTable, getEnemyLootEntries, rollOneDrop } from "../utils/combatLoot";
 import { doesHit, computeBaseDamage } from "../utils/combatMath";
@@ -407,20 +407,7 @@ export function useCombatEngine(area: string | undefined): UseCombatEngineResult
     return () => cancelAnimationFrame(rafId);
   }, [fightingInterval]);
 
-  const vitalityFood = useMemo(() => {
-    const list: (Item & { quantity: number })[] = [];
-    for (const [idStr, qtyRaw] of Object.entries(itemsById)) {
-      const qty = qtyRaw ?? 0;
-      if (qty <= 0) continue;
-      const id = Number(idStr);
-      const def = ITEMS_BY_ID[id];
-      const effect = def ? getConsumableEffect(def) : null;
-      if (def && isConsumableItem(def) && effect?.type === "healVitality") {
-        list.push({ ...def, quantity: qty });
-      }
-    }
-    return list;
-  }, [itemsById]);
+  const vitalityFood = useSelector(selectVitalityFood);
 
   const context = useMemo(
     () => ({ area, currentSectId, path, sectRankIndex }),

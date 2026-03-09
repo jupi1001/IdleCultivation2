@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import GatheringArea from "../../components/GatheringArea/GatheringArea";
 import { SkillActivityLayout } from "../../components/SkillActivityLayout/SkillActivityLayout";
-import { gatheringAreaData, ITEMS_BY_ID } from "../../constants/data";
+import { gatheringAreaData, ITEMS_BY_ID, GATHERING_AREA_INDEX_BY_ID } from "../../constants/data";
 import { GATHERING_MAX_LEVEL, getGatheringLevelInfo } from "../../constants/gatheringLevel";
 import { getTierForGatheringAreaIndex } from "../../constants/skillingSets";
 import { useSkillActivity } from "../../hooks/useSkillActivity";
@@ -54,7 +54,8 @@ const GatheringContainer = () => {
     >
       {areasVisible.map((area) => {
         const unlocked = isSkillAreaUnlocked(area, gatheringXP, reincarnationCount);
-        const tier = getTierForGatheringAreaIndex(gatheringAreaData.indexOf(area));
+        const tierIndex = GATHERING_AREA_INDEX_BY_ID[area.id] ?? 0;
+        const tier = getTierForGatheringAreaIndex(tierIndex);
         const lootEntries = getGatheringAreaLootEntries(area, tier);
         return (
           <GatheringArea
