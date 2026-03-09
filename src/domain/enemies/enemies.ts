@@ -7,6 +7,7 @@ import { TRAINING_ENEMIES } from "../../constants/training";
 import { COMBAT_LOOT_QI_PILLS } from "../../constants/alchemy";
 import { COMBAT_DROP_ITEMS } from "../../constants/combatDrops";
 import { QI_TECHNIQUES, COMBAT_TECHNIQUES } from "../items/techniques";
+import { parseEnemies } from "../../schemas/enemies";
 
 /** Slug for enemy image filename: "Starving Wolf" -> "starving-wolf" (use .webp in public/assets/training/enemies/) */
 function enemyImageSlug(name: string): string {
@@ -88,5 +89,10 @@ export const enemies: EnemyI[] = [
   { id: 117, name: "Bone Abyss Inner Disciple", attack: 28, defense: 18, health: 125, location: CombatArea.BONE_ABYSS_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bone Abyss Inner Disciple")}.webp`, loot: { items: [], weight: [] } },
   { id: 118, name: "Bone Abyss Core Disciple", attack: 34, defense: 22, health: 155, location: CombatArea.BONE_ABYSS_RAID, picture: `${TRAINING_ENEMIES}/${enemyImageSlug("Bone Abyss Core Disciple")}.webp`, loot: { items: [], weight: [] } },
 ];
+
+// Dev/test-only: validate enemy definitions against Zod schema.
+if (process.env.NODE_ENV !== "production") {
+  parseEnemies(enemies);
+}
 
 export const ENEMIES_BY_ID: Record<number, EnemyI> = Object.fromEntries(enemies.map((e) => [e.id, e])) as Record<number, EnemyI>;

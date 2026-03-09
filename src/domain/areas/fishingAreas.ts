@@ -4,6 +4,7 @@
 import type FishingAreaI from "../../interfaces/FishingAreaI";
 import { totalXpForLevel } from "../../constants/fishingLevel";
 import { RING_IDS, AMULET_IDS } from "../../constants/ringsAmulets";
+import { parseFishingAreas } from "../../schemas/areas";
 
 const FISHING_ASSETS = "/assets/fishing";
 
@@ -28,6 +29,11 @@ export const fishingAreaData: FishingAreaI[] = [
   { id: 18, name: "Immortal's Basin", xp: 118, xpUnlock: totalXpForLevel(115), delay: 9600, fishingLootIds: [325, 324], picture: `${FISHING_ASSETS}/immortal-basin.webp`, altText: "A basin said to hold immortal essence", requiresReincarnation: true },
   { id: 19, name: "Dao Origin Sea", xp: 126, xpUnlock: totalXpForLevel(120), delay: 9800, fishingLootIds: [326, 325, 322], picture: `${FISHING_ASSETS}/dao-origin-sea.webp`, altText: "Where the Dao touches the mortal world", requiresReincarnation: true },
 ];
+
+// Dev/test-only: validate fishing area definitions.
+if (process.env.NODE_ENV !== "production") {
+  parseFishingAreas(fishingAreaData);
+}
 
 export const FISHING_AREAS_BY_ID: Record<number, FishingAreaI> = Object.fromEntries(fishingAreaData.map((a) => [a.id, a])) as Record<number, FishingAreaI>;
 export const FISHING_AREA_INDEX_BY_ID: Record<number, number> = Object.fromEntries(fishingAreaData.map((a, i) => [a.id, i])) as Record<number, number>;

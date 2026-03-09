@@ -4,6 +4,7 @@
 import type GatheringAreaI from "../../interfaces/GatheringAreaI";
 import { totalXpForLevel } from "../../constants/gatheringLevel";
 import { RING_IDS, AMULET_IDS } from "../../constants/ringsAmulets";
+import { parseGatheringAreas } from "../../schemas/areas";
 
 const GATHERING_ASSETS = "/assets/gathering";
 
@@ -28,6 +29,11 @@ export const gatheringAreaData: GatheringAreaI[] = [
   { id: 18, name: "Immortal Root Grove", xp: 62, xpUnlock: totalXpForLevel(115), delay: 12500, gatheringLootIds: [625], picture: `${GATHERING_ASSETS}/immortal-root-grove.webp`, altText: "Grove of never-withering roots. Requires reincarnation.", requiresReincarnation: true },
   { id: 19, name: "Dao Essence Meadow", xp: 70, xpUnlock: totalXpForLevel(120), delay: 13000, gatheringLootIds: [626], picture: `${GATHERING_ASSETS}/dao-essence-meadow.webp`, altText: "Meadow where the Dao takes form. Requires reincarnation.", requiresReincarnation: true },
 ];
+
+// Dev/test-only: validate gathering area definitions.
+if (process.env.NODE_ENV !== "production") {
+  parseGatheringAreas(gatheringAreaData);
+}
 
 export const GATHERING_AREAS_BY_ID: Record<number, GatheringAreaI> = Object.fromEntries(gatheringAreaData.map((a) => [a.id, a])) as Record<number, GatheringAreaI>;
 export const GATHERING_AREA_INDEX_BY_ID: Record<number, number> = Object.fromEntries(gatheringAreaData.map((a, i) => [a.id, i])) as Record<number, number>;

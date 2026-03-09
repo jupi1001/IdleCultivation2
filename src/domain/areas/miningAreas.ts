@@ -3,6 +3,7 @@
  */
 import type MiningAreaI from "../../interfaces/MiningAreaI";
 import { totalXpForLevel } from "../../constants/miningLevel";
+import { parseMiningAreas } from "../../schemas/areas";
 
 const MINING_ASSETS = "/assets/mining";
 
@@ -26,6 +27,11 @@ export const miningAreaData: MiningAreaI[] = [
   { id: 17, name: "Immortal Stone Quarry", xp: 102, xpUnlock: totalXpForLevel(115), delay: 14000, miningLootId: 516, picture: `${MINING_ASSETS}/immortal-stone-quarry.webp`, altText: "Stone that never erodes. Requires reincarnation.", requiresReincarnation: true },
   { id: 18, name: "Dao Fragment Mine", xp: 112, xpUnlock: totalXpForLevel(120), delay: 14500, miningLootId: 517, picture: `${MINING_ASSETS}/dao-fragment-mine.webp`, altText: "Fragments of the Dao made solid. Requires reincarnation.", requiresReincarnation: true },
 ];
+
+// Dev/test-only: validate mining area definitions.
+if (process.env.NODE_ENV !== "production") {
+  parseMiningAreas(miningAreaData);
+}
 
 export const MINING_AREAS_BY_ID: Record<number, MiningAreaI> = Object.fromEntries(miningAreaData.map((a) => [a.id, a])) as Record<number, MiningAreaI>;
 export const MINING_AREA_INDEX_BY_ID: Record<number, number> = Object.fromEntries(miningAreaData.map((a, i) => [a.id, i])) as Record<number, number>;

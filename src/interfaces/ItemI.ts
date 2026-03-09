@@ -1,5 +1,5 @@
 /**
- * Item type (Task 2). Discriminated union; re-exports from types/items.
+ * Item type. Discriminated union; re-exports from types/items.
  */
 export type {
   Item,

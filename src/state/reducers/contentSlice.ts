@@ -1,5 +1,5 @@
 /**
- * Content / navigation slice. Stores typed route (Task 4); no string page.
+ * Content / navigation slice. Stores typed route; no string page.
  * Route is persisted as-is; serialization is stable (plain objects).
  */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";

@@ -9,7 +9,7 @@
  * - achievements: no migrations yet (slice is already normalized).
  * - global: store — one-time cross-slice moves (extract settings/reincarnation from character).
  *
- * When adding a new slice (Task 1), add an entry to SLICE_MIGRATIONS and document above.
+ * When adding a new slice, add an entry to SLICE_MIGRATIONS and document above.
  */
 
 import { characterMigrations } from "./characterMigrations";
@@ -18,6 +18,7 @@ import { globalMigrations } from "./globalMigrations";
 import { reincarnationMigrations } from "./reincarnationMigrations";
 import { settingsMigrations } from "./settingsMigrations";
 import type { SliceKey, SliceMigrationMap } from "./types";
+import { parsePersistedRootState } from "../../schemas/saveState";
 
 /** Per-slice migration maps. Each slice runs its migrators in order; migrators must be idempotent. */
 export const SLICE_MIGRATIONS: Partial<Record<SliceKey, SliceMigrationMap>> = {
@@ -49,6 +50,11 @@ export function runMigrations(state: unknown): unknown {
 
   for (const migrate of globalMigrations) {
     migrate(s);
+  }
+
+  // Dev/test-only: assert that migrated state still matches persisted root schema.
+  if (process.env.NODE_ENV !== "production") {
+    parsePersistedRootState(s);
   }
 
   return state;
