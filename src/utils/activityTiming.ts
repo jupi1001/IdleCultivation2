@@ -1,5 +1,5 @@
 /**
- * Shared activity timing helpers (Ticket 5).
+ * Shared activity timing helpers.
  * Pure functions so hooks can use them and tests can assert behavior.
  */
 

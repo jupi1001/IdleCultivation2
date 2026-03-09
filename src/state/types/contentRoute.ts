@@ -1,5 +1,5 @@
 /**
- * Typed route state for content navigation (Task 4).
+ * Typed route state for content navigation.
  * Replaces string-based page (e.g. "Combat:AreaName") with a discriminated union.
  * Route is the source of truth; persisted as-is so serialization is stable.
  */

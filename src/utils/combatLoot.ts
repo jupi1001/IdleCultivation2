@@ -1,6 +1,6 @@
 /**
  * Combat loot: resolve loot table (normal vs sect raid) and roll drops.
- * Pure functions for testability and correct memoization (Task 11).
+ * Pure functions for testability and correct memoization.
  */
 import { isSectRaidArea, SECT_RAID_AREA_TO_SECT_ID } from "../constants/combatAreaRules";
 import { getSectRaidLootForRank, SECTS_BY_ID } from "../constants/data";

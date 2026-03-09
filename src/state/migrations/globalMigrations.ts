@@ -53,7 +53,7 @@ const extractReincarnationFromCharacter: GlobalMigrator = (rootState) => {
   }
 };
 
-/** v3: Ensure combat slice exists (extracted from character in Task 1). Migrate currentHealth/isWeakened from character if present. */
+/** v3: Ensure combat slice exists (extracted from character). Migrate currentHealth/isWeakened from character if present. */
 const ensureCombatSlice: GlobalMigrator = (rootState) => {
   if (rootState.combat != null && typeof rootState.combat === "object") return;
   const char = rootState.character;
@@ -71,7 +71,7 @@ const ensureCombatSlice: GlobalMigrator = (rootState) => {
   }
 };
 
-/** v4: Ensure stats slice exists (extracted from character in Task 1). */
+/** v4: Ensure stats slice exists (extracted from character). */
 const ensureStatsSlice: GlobalMigrator = (rootState) => {
   if (rootState.stats != null && typeof rootState.stats === "object") return;
   const char = rootState.character;
@@ -221,7 +221,7 @@ const ensureAvatarsSlice: GlobalMigrator = (rootState) => {
   }
 };
 
-/** v10: Normalize current skill area payloads from prefixed keys to generic xp/delay (Task 12). */
+/** v10: Normalize current skill area payloads from prefixed keys to generic xp/delay. */
 const normalizeCurrentSkillAreas: GlobalMigrator = (rootState) => {
   const skills = rootState.skills as Record<string, unknown> | undefined;
   if (!skills || typeof skills !== "object") return;

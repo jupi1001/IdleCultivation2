@@ -1,5 +1,5 @@
 /**
- * Discriminated domain item types (Task 2). Item is the full union; no legacy shape.
+ * Discriminated domain item types. Item is the full union; no legacy shape.
  */
 import type { EquipmentSlot } from "./EquipmentSlot";
 

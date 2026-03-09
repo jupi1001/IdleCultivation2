@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * Zod schemas for domain items (Task 13).
+ * Zod schemas for domain items.
  * Mirrors the discriminated union in src/types/items.ts for runtime validation.
  */
 

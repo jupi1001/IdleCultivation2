@@ -1,5 +1,5 @@
 /**
- * Type guards for discriminated Item union (Task 2).
+ * Type guards for discriminated Item union.
  */
 import type { Item } from "../types/items";
 import type { ConsumableItem, EquipmentItem, TechniqueItem, SetPieceItem } from "../types/items";

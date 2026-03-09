@@ -3,7 +3,7 @@ import type { CultivationPath } from "./cultivationPath";
 import { parseTalentTiers } from "../schemas/talents";
 
 /**
- * Talent effect types — where they are applied (audit for Task 10 / mining yield vs speed):
+* Talent effect types — where they are applied:
  * - Speed (cast/completion time): fishingSpeedPercent → getSkillSpeedBonusFishing; gatheringSpeedPercent → getSkillSpeedBonusGathering;
  *   forgingSpeedPercent, cookingSpeedPercent → not yet wired to forging/cooking UI (future).
  * - Yield (quantity per action): miningYieldPercent → getMiningYieldBonusPercent only (never in getSkillSpeedBonusMining).

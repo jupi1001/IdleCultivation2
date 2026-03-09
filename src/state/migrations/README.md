@@ -12,7 +12,7 @@ Per-slice migration maps and a single entry point (`runMigrations`) used by redu
 | `content` | `state/reducers/contentSlice` | Legacy `page` string → `route` object |
 | *global* | store | Extract settings/reincarnation/combat/stats/sect/inventory/equipment/**skills** from character (one-time) |
 
-When adding a new persisted slice (e.g. Task 1 split), add a migration file, register it in `index.ts` under `SLICE_MIGRATIONS`, and document it in this table and in the comment at the top of `index.ts`.
+When adding a new persisted slice (e.g. splitting character into sub-slices), add a migration file, register it in `index.ts` under `SLICE_MIGRATIONS`, and document it in this table and in the comment at the top of `index.ts`.
 
 ## Adding a migration
 

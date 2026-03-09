@@ -1,6 +1,6 @@
 /**
  * Pure combat math helpers for testing and reuse.
- * Used by CombatContainer and can be extended for Task 9 (combat engine extraction).
+ * Used by CombatContainer and can be extended for future combat engine extraction.
  */
 
 /** Block chance when attacker has attack and defender has defense.

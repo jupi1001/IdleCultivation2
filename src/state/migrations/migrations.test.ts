@@ -3,7 +3,7 @@ import { runMigrations } from "./index";
 import { parsePersistedRootState } from "../../schemas/saveState";
 
 /**
- * Migration tests (Ticket 9).
+ * Migration tests.
  *
  * These use hand-crafted fixtures that simulate older save shapes and assert:
  * - Fields moved from character → dedicated slices.

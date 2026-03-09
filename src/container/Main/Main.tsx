@@ -17,7 +17,7 @@ import { selectRoute } from "../../state/reducers/contentSlice";
 import { selectPath, selectGender } from "../../state/selectors/characterSelectors";
 import "./Main.css";
 
-// Lazy-loaded screen containers (code splitting — Task 6)
+// Lazy-loaded screen containers (code splitting)
 const Map = lazy(() => import("../Map/Map").then((m) => ({ default: m.Map })));
 const BlackMarket = lazy(() => import("../BlackMarket/BlackMarket").then((m) => ({ default: m.BlackMarket })));
 const Shop = lazy(() => import("../Shop/Shop").then((m) => ({ default: m.Shop })));
