@@ -16,15 +16,15 @@ export interface SectNpcI {
   gender: "Male" | "Female";
   /** Flavor line for dialogue */
   description: string;
-  /** Casual/dialogue portrait. Path under public: SECT_NPC_ASSETS/{sectId}/{id}-portrait.webp */
+  /** Casual/dialogue portrait. Path under public: SECT_NPC_ASSETS/{id}-portrait.webp */
   portraitImage: string;
-  /** Lotus pose when chosen as cultivation partner. SECT_NPC_ASSETS/{sectId}/{id}-lotus.webp */
+  /** Lotus pose when chosen as cultivation partner. SECT_NPC_ASSETS/{id}-lotus.webp */
   lotusImage: string;
 }
 
-/** Global NPC id base per sect: sect 1 = 101-104, sect 2 = 105-108, ... */
+/** Global NPC id base per sect: sect 1 = 101-104, sect 2 = 201-204, ... */
 function npcId(sectId: number, index: number): number {
-  return (sectId - 1) * 4 + 101 + index;
+  return sectId * 100 + index + 1;
 }
 
 /** Build NPCs for all 6 sects: 2 Male, 2 Female per sect. */
@@ -67,8 +67,8 @@ export function getSectNpcs(): SectNpcI[] {
         name,
         gender: isMale ? "Male" : "Female",
         description: `A disciple of ${sect.name}.`,
-        portraitImage: `${SECT_NPC_ASSETS}/${sect.id}/${id}-portrait.webp`,
-        lotusImage: `${SECT_NPC_ASSETS}/${sect.id}/${id}-lotus.webp`,
+        portraitImage: `${SECT_NPC_ASSETS}/${id}-portrait.webp`,
+        lotusImage: `${SECT_NPC_ASSETS}/${id}-lotus.webp`,
       });
     }
   }
